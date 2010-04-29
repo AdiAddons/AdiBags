@@ -12,6 +12,8 @@ local buttonProto = setmetatable({
 local buttonMeta = { __index = buttonProto }
 local buttonCount = 1
 local heap = {}
+--LibStub('AceEvent-3.0'):Embed(buttonProto)
+--LibStub('AceBucket-3.0'):Embed(buttonProto)
 
 function addon:AcquireItemButton()
 	local button = next(heap)
@@ -29,28 +31,27 @@ function addon:AcquireItemButton()
 end
 
 function buttonProto:Release()
-	self.bag, self.slot = nil, nil
 	self:UnregisterAllEvents()
+	self:UnregisterAllBuckets()
+	self:SetBagSlot(nil, nil)
 	self:Hide()
 	self:SetParent(nil)
 	self:ClearAllPoints()
 	heap[self] = true
 end
 
-local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count" } --, "NormalTexture" }
+local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture" }
 
 function buttonProto:OnCreate()
 	local name = self:GetName()
 	for i, childName in pairs(childrenNames ) do
 		self[childName] = _G[name..childName]
 	end
-	_G[name.."Stock"]:Hide()
-	self:SetScript('OnShow', self.FullUpdate)
+	self:SetScript('OnShow', function() self:FullUpdate('OnShow') end)
 	self:SetScript('OnEvent', self.OnEvent)
 end
 
 function buttonProto:OnAcquire()
-	self:RegisterEvent('BAG_UPDATE')
 	self:RegisterEvent('BAG_UPDATE_COOLDOWN')
 	self:RegisterEvent('ITEM_LOCK_CHANGED')
 	self:RegisterEvent('QUEST_ACCEPTED')
@@ -62,7 +63,15 @@ function buttonProto:SetBagSlot(bag, slot)
 		self.bag, self.slot = bag, slot
 		self:SetParent(bag and addon.itemParentFrames[bag] or nil)
 		self:SetID(slot)
-		self:FullUpdate('OnSetBagSlot')
+		if bag and slot then
+			self:FullUpdate('OnSetBagSlot')
+		end
+		--[[if bag and slot then
+			self.Stock:SetFormattedText("%d,%d", bag, slot)
+			self.Stock:Show()
+		else
+			self.Stock:Hide()
+		end--]]
 	end
 end
 
@@ -71,30 +80,33 @@ function buttonProto:OnEvent(event, ...)
 	return self[event](self, event, ...)
 end
 
-function buttonProto:BAG_UPDATE(event, bag) if bag == self.bag then return self:FullUpdate(event) end end
+function buttonProto:BAG_UPDATE(event, bag)
+	if bag == self.bag then return self:FullUpdate(event) end 
+end
+
 function buttonProto:BAG_UPDATE_COOLDOWN(event) return self:UpdateCooldown(event) end
 function buttonProto:ITEM_LOCK_CHANGED(event) return self:UpdateLock(event) end
 function buttonProto:QUEST_ACCEPTED(event) return self:UpdateBorder(event) end
 function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)	if unit == "player" then return self:UpdateBorder(event) end end
 
 function buttonProto:FullUpdate(event)
-	if not self:IsVisible() or not self.bag or not self.slot then return end	
+	if not self:IsVisible() or not self.bag or not self.slot then return end
+	self:Debug('FullUpdate', event, self.bag, self.slot)
 	local texture, count = GetContainerItemInfo(self.bag, self.slot)
+	local icon = self.IconTexture
 	if texture then
-		self.IconTexture:SetTexture(texture)
-		self.IconTexture:Show()
-		
+		icon:SetTexture(texture)
+		icon:SetTexCoord(0,1,0,1)
 		if count and count > 1 then
 			self.Count:SetText(count)
 			self.Count:Show()
 		else
 			self.Count:Hide()
 		end
-		
 	else
-		self.IconTexture:Hide()
+		icon:SetTexture([[Interface\BUTTONS\UI-EmptySlot]])
+		icon:SetTexCoord(12/64, 51/64, 12/64, 51/64)
 		self.Count:Hide()
-		self.IconQuestTexture:Hide()
 	end
 	
 	self:UpdateLock(event)
@@ -110,7 +122,7 @@ function buttonProto:UpdateBorder(event)
 	local icon, _, _, quality = GetContainerItemInfo(self.bag, self.slot)
 	local border = self.IconQuestTexture
 	if icon then
-		local texture, r, g, b, a, x1, x2, y1, y2 = nil, 1, 1, 1, 1, 0, 0, 1, 1
+		local texture, r, g, b, a, x1, x2, y1, y2, blendMode = nil, 1, 1, 1, 1, 0, 1, 0, 1, "BLEND"
 		local isQuestItem, questId, isActive = GetContainerItemQuestInfo(self.bag, self.slot)
 		if questId and not isActive then
 			texture = TEXTURE_ITEM_QUEST_BANG
@@ -119,14 +131,15 @@ function buttonProto:UpdateBorder(event)
 		elseif quality >= ITEM_QUALITY_UNCOMMON then
 			local color = ITEM_QUALITY_COLORS[quality]
 			if color then
-				texture, x1, x2, y1, y2 = [[Interface\Buttons\UI-ActionButton-Border]], 14/64, 15/64, 48/64, 49/64
-				r, g, b, a = color.r, color.g, color.b, 0.5
+				texture, x1, x2, y1, y2 = [[Interface\Buttons\UI-ActionButton-Border]], 14/64, 49/64, 15/64, 50/64
+				r, g, b, a, blendMode = color.r, color.g, color.b, 1, "ADD"
 			end
 		end
 		if texture then
 			border:SetTexture(texture)
 			border:SetTexCoord(x1, x2, y1, y2)
 			border:SetVertexColor(r, g, b, a)
+			border:SetBlendMode(blendMode)
 			return border:Show()
 		end
 	end
