@@ -85,7 +85,7 @@ function buttonProto:SetBagSlot(bag, slot)
 		self.bag, self.slot = bag, slot
 		self:SetParent(bag and addon.itemParentFrames[bag] or nil)
 		self:SetID(slot)
-		
+
 		local _, family = GetContainerNumFreeSlots(bag)
 		local tag = family and GetBagFamilyTag(family)
 		if tag then
@@ -144,20 +144,20 @@ function buttonProto:UpdateLock(event)
 end
 
 function buttonProto:UpdateBorder(event)
-	local icon, _, _, quality = GetContainerItemInfo(self.bag, self.slot)
+	local itemId = GetContainerItemID(self.bag, self.slot)
 	local border = self.IconQuestTexture
-	if icon then
+	if itemId then
 		local texture, r, g, b, a, x1, x2, y1, y2, blendMode = nil, 1, 1, 1, 1, 0, 1, 0, 1, "BLEND"
 		local isQuestItem, questId, isActive = GetContainerItemQuestInfo(self.bag, self.slot)
 		if questId and not isActive then
 			texture = TEXTURE_ITEM_QUEST_BANG
 		elseif questId or isQuestItem then
 			texture = TEXTURE_ITEM_QUEST_BORDER
-		elseif quality >= ITEM_QUALITY_UNCOMMON then
-			local color = ITEM_QUALITY_COLORS[quality]
-			if color then
-				texture, x1, x2, y1, y2 = [[Interface\Buttons\UI-ActionButton-Border]], 14/64, 49/64, 15/64, 50/64
-				r, g, b, a, blendMode = color.r, color.g, color.b, 1, "ADD"
+		else
+			local _, _, quality = GetItemInfo(itemId)
+			if quality >= ITEM_QUALITY_UNCOMMON then
+				r, g, b = GetItemQualityColor(quality)
+				texture, x1, x2, y1, y2, a, blendMode = [[Interface\Buttons\UI-ActionButton-Border]], 14/64, 49/64, 15/64, 50/64, 1, "ADD"
 			end
 		end
 		if texture then
