@@ -1,0 +1,28 @@
+## Interface: 30300
+
+## Title: AdiBags
+## Notes: Adirelle's bag addon.
+## Author: Adirelle
+## Version: @project-version@
+## SavedVariables: AdiBagsDB
+## X-Date: @project-date-iso@
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, tekDebug, LibMovable-1.0
+
+#@no-lib-strip@
+libs\LibStub\LibStub.lua
+libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\AceAddon-3.0\AceAddon-3.0.xml
+libs\AceDB-3.0\AceDB-3.0.xml
+libs\AceEvent-3.0\AceEvent-3.0.xml
+libs\AceTimer-3.0\AceTimer-3.0.xml
+libs\AceHook-3.0\AceHook-3.0.xml
+libs\AceBucket-3.0\AceBucket-3.0.xml
+libs\AceGUI-3.0\AceGUI-3.0.xml
+libs\AceConfig-3.0\AceConfig-3.0.xml
+#@end-no-lib-strip@
+
+#libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+
+AdiBags.lua
+ContainerFrame.lua
+ItemButton.lua
