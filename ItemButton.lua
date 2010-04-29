@@ -58,28 +58,6 @@ function buttonProto:OnAcquire()
 	self:RegisterEvent('UNIT_QUEST_LOG_CHANGED')
 end
 
-local FAMILY_TAGS = {
-	[0x0001] = "Q", -- Quiver
-  [0x0002] = "A", -- Ammo Pouch
-  [0x0004] = "S", -- Soul Bag
-  [0x0008] = "L", -- Leatherworking Bag
-  [0x0010] = "I", -- Inscription Bag
-  [0x0020] = "H", -- Herb Bag
-  [0x0040] = "E", -- Enchanting Bag
-  [0x0080] = "N", -- Engineering Bag
-  [0x0100] = "K", -- Keyring
-  [0x0200] = "G", -- Gem Bag
-  [0x0400] = "M", -- Mining Bag
-}
-
-local function GetBagFamilyTag(family)
-	for mask, tag in pairs(FAMILY_TAGS) do
-		if bit.band(family, mask) ~= 0 then
-			return tag
-		end
-	end
-end
-
 function buttonProto:SetBagSlot(bag, slot)
 	if bag ~= self.bag or slot ~= self.slot then
 		self.bag, self.slot = bag, slot
@@ -87,7 +65,7 @@ function buttonProto:SetBagSlot(bag, slot)
 		self:SetID(slot)
 
 		local _, family = GetContainerNumFreeSlots(bag)
-		local tag = family and GetBagFamilyTag(family)
+		local tag = addon:GetFamilyTag(family)
 		if tag then
 			self.Stock:SetFormattedText(tag)
 			self.Stock:Show()

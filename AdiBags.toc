@@ -6,7 +6,7 @@
 ## Version: @project-version@
 ## SavedVariables: AdiBagsDB
 ## X-Date: @project-date-iso@
-## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, tekDebug, LibMovable-1.0
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, tekDebug, DockingStation
 
 #@no-lib-strip@
 libs\LibStub\LibStub.lua
@@ -26,3 +26,5 @@ libs\AceConfig-3.0\AceConfig-3.0.xml
 AdiBags.lua
 ContainerFrame.lua
 ItemButton.lua
+DataSource.lua
+

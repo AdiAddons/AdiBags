@@ -32,22 +32,57 @@ else
 end
 
 --------------------------------------------------------------------------------
+-- Helful constants
+--------------------------------------------------------------------------------
+
+do
+	-- Backpack and bags
+	local BAGS = { [BACKPACK_CONTAINER] = BACKPACK_CONTAINER }
+	for i = 1, NUM_BAG_SLOTS do BAGS[i] = i end
+
+	-- Bank bags
+	local BANK = { [BANK_CONTAINER] = BANK_CONTAINER }
+	for i = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do BANK[i] = i end
+
+	addon.BAG_IDS = { BAGS = BAGS, BANK = BANK }
+end
+
+local FAMILY_TAGS = {
+	[0x0001] = "Q", -- Quiver
+  [0x0002] = "A", -- Ammo Pouch
+  [0x0004] = "S", -- Soul Bag
+  [0x0008] = "L", -- Leatherworking Bag
+  [0x0010] = "I", -- Inscription Bag
+  [0x0020] = "H", -- Herb Bag
+  [0x0040] = "E", -- Enchanting Bag
+  [0x0080] = "N", -- Engineering Bag
+  [0x0100] = "K", -- Keyring
+  [0x0200] = "G", -- Gem Bag
+  [0x0400] = "M", -- Mining Bag
+}
+
+function addon:GetFamilyTag(family)
+	if family and family ~= 0 then
+		for mask, tag in pairs(FAMILY_TAGS) do
+			if bit.band(family, mask) ~= 0 then
+				return tag
+			end
+		end
+	end
+end
+
+
+--------------------------------------------------------------------------------
 -- Addon initialization and enabling
 --------------------------------------------------------------------------------
 
 function addon:OnInitialize()
-	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", {
-		profile = {},
-	}, true)
+	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", {profile = {},}, true)
 	addon.itemParentFrames = {}
-	addon.bags = {
-		Bank = true,
-		Backpack = true,
-	}
+	addon.bags = { Bank = true, Backpack = true }
 end
 
 function addon:OnEnable()
-	--self:RegisterBucketEvent('BAG_UPDATE', 0.5, 'BagUpdated')
 	self:RegisterEvent('BANKFRAME_OPENED')
 	self:RegisterEvent('BANKFRAME_CLOSED')
 	
@@ -61,13 +96,7 @@ function addon:OnEnable()
 	self:SecureHook('CloseSpecialWindows', 'CloseAllBags')
 end
 
-function addon:CreateBag(name, mainBag, bagOffset, numBags, isBank)
-	local bags = { [mainBag] = true }
-	if bagOffset and numBags then
-		for i = bagOffset + 1, bagOffset + numBags do
-			bags[i] = true
-		end
-	end
+function addon:CreateBag(name, bags, isBank)
 	local container = self:CreateContainerFrame(name, bags, isBank)
 	local cname = container:GetName()
 	for id in pairs(bags) do
@@ -87,10 +116,10 @@ function addon:GetBag(name, noCreate)
 		return
 	end
 	if name == "Backpack" then
-		bag = self:CreateBag("Backpack", BACKPACK_CONTAINER, 0, NUM_BAG_SLOTS)
+		bag = self:CreateBag("Backpack", self.BAG_IDS.BAGS)
 		bag:SetPoint("BOTTOMRIGHT", -20, 300)
 	elseif name == "Bank" then
-		bag = self:CreateBag("Bank", BANK_CONTAINER, ITEM_INVENTORY_BANK_BAG_OFFSET, NUM_BANKBAGSLOTS, true)
+		bag = self:CreateBag("Bank", self.BAG_IDS.BANK, true)
 		bag:SetPoint("BOTTOMRIGHT", self:GetBag("Backpack"), "BOTTOMLEFT", -10, 0)
 		bag:SetBackdropColor(0, 0, 0.5, 1)
 	end
