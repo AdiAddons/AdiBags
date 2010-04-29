@@ -55,7 +55,7 @@ function containerProto:OnShow()
 	if self.isBank then
 		self:RegisterEvent('BANKFRAME_CLOSED', "Hide")
 	end
-	self:RegisterBucketEvent('BAG_UPDATE', 0.5)
+	self:RegisterBucketEvent('BAG_UPDATE', 0.5, "BagsUpdated")
 	for bag in pairs(self.bags) do
 		self:UpdateContent("OnShow", bag)
 	end
@@ -66,6 +66,7 @@ end
 
 function containerProto:OnHide()
 	self:UnregisterAllEvents()
+	self:UnregisterAllBuckets()
 end
 
 function containerProto:UpdateContent(event, bag)
@@ -145,14 +146,19 @@ function containerProto:FullUpdate(event)
 	self:SetHeight(BAG_INSET * 2 + rows * ITEM_SIZE + math.max(0, rows-1) * ITEM_SPACING)
 end
 
-function containerProto:BAG_UPDATE(event, bags)
-	self:Debug('BAG_UPDATE', event, bags)
-	for bag in pairs(bags) do
+function containerProto:BagsUpdated(bags)
+	self:Debug('BagsUpdated', bags)
+	for bag, x in pairs(bags) do
+		self:Debug('-', bag ,x)
 		if self.bags[bag] then
 			self:UpdateContent(event, bag)
 		end
 	end
 	if self.dirty then
 		return self:FullUpdate(event)
+	else
+		for i, button in pairs(self.buttons) do
+			button:BAG_UPDATE(event, bags)
+		end
 	end
 end
