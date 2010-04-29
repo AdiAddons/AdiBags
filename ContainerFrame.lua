@@ -98,8 +98,8 @@ function containerProto:SetupItemButton(index, bag, slot)
 	end
 	local col, row = (index-1) % BAG_WIDTH, math.floor((index-1) / BAG_WIDTH)
 	button:SetPoint('TOPLEFT', self, 'TOPLEFT',
-		BAG_INSET + ITEM_SIZE * col + ITEM_SPACING * math.max(0, col-1),
-		- (BAG_INSET + ITEM_SIZE * row + ITEM_SPACING * math.max(0, row-1))
+		BAG_INSET + col * (ITEM_SIZE + ITEM_SPACING),
+		- (BAG_INSET + row * (ITEM_SIZE + ITEM_SPACING))
 	)
 	button:SetBagSlot(bag, slot)
 	button:Show()
