@@ -18,38 +18,57 @@ local ITEM_SIZE = 37
 local ITEM_SPACING = 4
 local BAG_WIDTH = 10
 local BAG_INSET = 8
+local TOP_PADDING = 32
 
 local BACKDROP = {
-		bgFile = "Interface/Tooltips/UI-Tooltip-Background", 
-		edgeFile = "Interface/Tooltips/UI-Tooltip-Border", 
-		tile = true, tileSize = 16, edgeSize = 16, 
+		bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+		edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+		tile = true, tileSize = 16, edgeSize = 16,
 		insets = { left = 5, right = 5, top = 5, bottom = 5 }
 }
 
 function addon:CreateContainerFrame(name, bags, isBank)
 	local container = setmetatable(CreateFrame("Frame", addonName..name, UIParent), containerMeta)
+	container:Debug('Created')
 	container:ClearAllPoints()
-	container:SetScale(0.8)
 	container:EnableMouse(true)
 	container:Hide()
-	
-	container:SetBackdrop(BACKDROP)
-	container:SetBackdropColor(0, 0, 0, 1)
-	container:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
-	
-	container:SetScript('OnShow', container.OnShow)
-	container:SetScript('OnHide', container.OnHide)
-	container.bags = bags
-	container.isBank = isBank
-	
-	container.content = {}
-	for bag in pairs(bags) do
-		container.content[bag] = {}
-	end
-	
-	container.buttons = {}
-	container:Debug('Created')
+	container:OnCreate(name, bags, isBank)
 	return container
+end
+
+local function CloseButton_OnClick(button)
+	button:GetParent():Hide()
+end
+
+function containerProto:OnCreate(name, bags, isBank)
+	self:SetScale(0.8)
+	self:SetFrameStrata("HIGH")
+
+	self:SetBackdrop(BACKDROP)
+	self:SetBackdropColor(0, 0, 0, 1)
+	self:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
+
+	self.bags = bags
+	self.isBank = isBank
+	self.buttons = {}
+	self.content = {}
+	for bag in pairs(self.bags) do
+		self.content[bag] = {}
+	end
+
+	self:SetScript('OnShow', self.OnShow)
+	self:SetScript('OnHide', self.OnHide)
+
+	local closeButton = CreateFrame("Button", self:GetName().."CloseButton", self, "UIPanelCloseButton")
+	self.closeButton = closeButton
+	closeButton:SetPoint("TOPRIGHT")
+	closeButton:SetScript('OnClick', CloseButton_OnClick)
+
+	local title = self:CreateFontString(self:GetName().."Title","OVERLAY","GameFontNormalLarge")
+	title:SetText(name)
+	title:SetPoint("TOPLEFT", 0, -BAG_INSET)
+	title:SetPoint("RIGHT", closeButton, "LEFT", -8, 0)
 end
 
 function containerProto:OnShow()
@@ -94,7 +113,7 @@ function containerProto:SetPosition(button, position)
 	local col, row = (position-1) % BAG_WIDTH, math.floor((position-1) / BAG_WIDTH)
 	button:SetPoint('TOPLEFT', self, 'TOPLEFT',
 		BAG_INSET + col * (ITEM_SIZE + ITEM_SPACING),
-		- (BAG_INSET + row * (ITEM_SIZE + ITEM_SPACING))
+		- (TOP_PADDING + row * (ITEM_SIZE + ITEM_SPACING))
 	)
 	button:Show()
 end
@@ -118,24 +137,87 @@ function containerProto:ReleaseItemButton(index)
 	return button:Release()
 end
 
+local EQUIP_LOCS = {
+	INVTYPE_AMMO = 0,
+	INVTYPE_HEAD = 1,
+	INVTYPE_NECK = 2,
+	INVTYPE_SHOULDER = 3,
+	INVTYPE_BODY = 4,
+	INVTYPE_CHEST = 5,
+	INVTYPE_ROBE = 5,
+	INVTYPE_WAIST = 6,
+	INVTYPE_LEGS = 7,
+	INVTYPE_FEET = 8,
+	INVTYPE_WRIST = 9,
+	INVTYPE_HAND = 10,
+	INVTYPE_FINGER = 11,
+	INVTYPE_TRINKET = 13,
+	INVTYPE_CLOAK = 15,
+	INVTYPE_WEAPON = 16,
+	INVTYPE_SHIELD = 17,
+	INVTYPE_2HWEAPON = 16,
+	INVTYPE_WEAPONMAINHAND = 16,
+	INVTYPE_WEAPONOFFHAND = 17,
+	INVTYPE_HOLDABLE = 17,
+	INVTYPE_RANGED = 18,
+	INVTYPE_THROWN = 18,
+	INVTYPE_RANGEDRIGHT = 18,
+	INVTYPE_RELIC = 18,
+	INVTYPE_TABARD = 19,
+	INVTYPE_BAG = 20,
+}
+
+local function CompareItems(idA, idB)
+	local nameA, _, qualityA, levelA, _, classA, subclassA, _, equipSlotA = GetItemInfo(idA)
+	local nameB, _, qualityB, levelB, _, classB, subclassB, _, equipSlotB = GetItemInfo(idB)
+	local equipLocA = EQUIP_LOCS[equipSlotA or ""]
+	local equipLocB = EQUIP_LOCS[equipSlotB or ""]
+	if classA ~= classB then
+		return classA < classB
+	elseif subclassA ~= subclassB then
+		return subclassA < subclassB
+	elseif equipLocA and equipLocA and equipLocA ~= equipLocB then
+		return equipLocA < equipLocB
+	elseif qualityA ~= qualityB then
+		return qualityA > qualityB
+	elseif levelA ~= levelB then
+		return levelA > levelB
+	else
+		return nameA < nameB
+	end
+end
+
+local itemCompareCache = setmetatable({}, { 
+	__index = function(t, key)
+		local idA, idB = strsplit(':', key)
+		idA, idB = tonumber(idA), idB
+		local result = CompareItems(idA, idB)
+		t[key] = result
+		return result
+	end
+})
+
+local GetContainerItemID = GetContainerItemID
+local GetContainerItemInfo = GetContainerItemInfo
+local GetContainerNumFreeSlots = GetContainerNumFreeSlots
+local strformat = string.format
+
 local function CompareButtons(a, b)
-	local idA = a and a.bag and a.slot and GetContainerItemID(a.bag, a.slot)
-	local idB = b and b.bag and b.slot and GetContainerItemID(b.bag, b.slot)
+	local idA = GetContainerItemID(a.bag, a.slot)
+	local idB = GetContainerItemID(b.bag, b.slot)
 	if idA and idB then
-		local nameA, _, qualityA, levelA, _, classA, subclassA, _, equipSlotA = GetItemInfo(idA)
-		local nameB, _, qualityB, levelB, _, classB, subclassB, _, equipSlotB = GetItemInfo(idB)
-		if classA ~= classB then
-			return classA < classB
-		elseif subclassA ~= subclassB then
-			return subclassA < subclassB
-		elseif equipSlotA and equipSlotB and equipSlotA ~= equipSlotB then
-			return equipSlotA < equipSlotB
-		elseif qualityA ~= qualityB then
-			return qualityA > qualityB
-		elseif levelA ~= levelB then
-			return levelA > levelB
+		if idA ~= idB then
+			return itemCompareCache[strformat("%d:%d", idA, idB)]
 		else
-			return nameA < nameB
+			local _, countA = GetContainerItemInfo(a.bag, a.slot)
+			local _, countB = GetContainerItemInfo(b.bag, b.slot)
+			return countA > countB
+		end
+	elseif not idA and not idB then
+		local _, famA = GetContainerNumFreeSlots(a.bag)
+		local _, famB = GetContainerNumFreeSlots(b.bag)
+		if famA and famB and famA ~= famB then
+			return famA < famB
 		end
 	end
 	return (idA and 1 or 0) > (idB and 1 or 0)
@@ -168,7 +250,7 @@ function containerProto:FullUpdate(event)
 	local cols = math.min(BAG_WIDTH, count)
 	local rows = math.ceil(count / BAG_WIDTH)
 	self:SetWidth(BAG_INSET * 2 + cols * ITEM_SIZE + math.max(0, cols-1) * ITEM_SPACING)
-	self:SetHeight(BAG_INSET * 2 + rows * ITEM_SIZE + math.max(0, rows-1) * ITEM_SPACING)
+	self:SetHeight(BAG_INSET + rows * ITEM_SIZE + math.max(0, rows-1) * ITEM_SPACING + TOP_PADDING)
 end
 
 function containerProto:BagsUpdated(bags)
