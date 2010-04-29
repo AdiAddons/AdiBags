@@ -126,12 +126,12 @@ function containerProto:FullUpdate(event)
 				count = count + 1
 				self:SetupItemButton(count, bag, slot)
 			else
-				tinsert(empties, bag..'-'..slot)
+				tinsert(empties, bag..':'..slot)
 			end
 		end
 	end
 	for i, data in ipairs(empties) do	
-		local bag, slot = strsplit('-', data)
+		local bag, slot = strsplit(':', data)
 		bag, slot = tonumber(bag), tonumber(slot)
 		count = count + 1
 		self:SetupItemButton(count, bag, slot)
