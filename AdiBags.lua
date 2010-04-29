@@ -79,7 +79,7 @@ function addon:GetBankContainer()
 	if self.bankContainer then return self.bankContainer end
 	local container = CreateContainer("Bank", BANK_CONTAINER, ITEM_INVENTORY_BANK_BAG_OFFSET, NUM_BANKBAGSLOTS, true)
 	container:SetPoint("BOTTOMRIGHT", self:GetBagContainer(), "BOTTOMLEFT", -10, 0)
-	container:SetBackdropColor(0.5, 1, 0.5, 1)
+	container:SetBackdropColor(0, 0, 0.5, 1)
 	self.bankContainer = container
 	return container
 end
