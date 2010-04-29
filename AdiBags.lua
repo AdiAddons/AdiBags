@@ -60,7 +60,9 @@ local function CreateContainer(name, mainBag, bagOffset, numBags, isBank)
 	local container = addon:CreateContainerFrame(name, bags, isBank)
 	local cname = container:GetName()
 	for id in pairs(bags) do
-		addon.itemParentFrames[id] = CreateFrame("Frame", cname..'Bag'..id, container)
+		local f = CreateFrame("Frame", cname..'Bag'..id, container)
+		f:SetID(id)
+		addon.itemParentFrames[id] = f
 	end
 	return container
 end
