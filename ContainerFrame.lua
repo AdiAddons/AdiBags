@@ -29,6 +29,8 @@ local BACKDROP = {
 function addon:CreateContainerFrame(name, bags, isBank)
 	local container = setmetatable(CreateFrame("Frame", addonName..name, UIParent), containerMeta)
 	container:ClearAllPoints()
+	container:SetScale(0.8)
+	container:EnableMouse(true)
 	container:Hide()
 	
 	container:SetBackdrop(BACKDROP)
