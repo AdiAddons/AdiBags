@@ -63,15 +63,15 @@ function buttonProto:SetBagSlot(bag, slot)
 		self.bag, self.slot = bag, slot
 		self:SetParent(bag and addon.itemParentFrames[bag] or nil)
 		self:SetID(slot)
-		if bag and slot then
-			self:FullUpdate('OnSetBagSlot')
-		end
 		--[[if bag and slot then
 			self.Stock:SetFormattedText("%d,%d", bag, slot)
 			self.Stock:Show()
 		else
 			self.Stock:Hide()
 		end--]]
+	end
+	if bag and slot then
+		self:FullUpdate('OnSetBagSlot')
 	end
 end
 
