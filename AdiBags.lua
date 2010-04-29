@@ -39,6 +39,7 @@ function addon:OnInitialize()
 	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", {
 		profile = {},
 	}, true)
+	addon.itemParentFrames = {}
 end
 
 function addon:OnEnable()
@@ -56,7 +57,12 @@ local function CreateContainer(name, mainBag, bagOffset, numBags, isBank)
 			bags[i] = true
 		end
 	end
-	return addon:CreateContainerFrame(name, bags, isBank)
+	local container = addon:CreateContainerFrame(name, bags, isBank)
+	local cname = container:GetName()
+	for id in pairs(bags) do
+		addon.itemParentFrames[id] = CreateFrame("Frame", cname..'Bag'..id, container)
+	end
+	return container
 end
 
 function addon:GetBagContainer()
@@ -70,7 +76,8 @@ end
 function addon:GetBankContainer()
 	if self.bankContainer then return self.bankContainer end
 	local container = CreateContainer("Bank", BANK_CONTAINER, ITEM_INVENTORY_BANK_BAG_OFFSET, NUM_BANKBAGSLOTS, true)
-	container:SetPoint("BOTTOMLEFT", 20, 300)
+	container:SetPoint("BOTTOMLEFT", self:GetBagContainer(), "BOTTOMRIGHT", -10, 0)
+	container:SetBackdropColor(0.5, 1, 0.5, 1)
 	self.bankContainer = container
 	return container
 end

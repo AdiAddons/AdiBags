@@ -6,15 +6,6 @@ All rights reserved.
 
 local addonName, addon = ...
 
-local parents = setmetatable({}, {
-	__index = function(self, id)
-		local frame = CreateFrame("Frame", addonName.."Bag"..id, UIParent)
-		frame:SetID(id)
-		self[id] = frame
-		return frame
-	end
-})
-
 local buttonProto = setmetatable({
 	Debug = addon.Debug
 }, { __index = CreateFrame("Button", nil, nil, "ContainerFrameItemButtonTemplate") })
@@ -69,9 +60,9 @@ end
 function buttonProto:SetBagSlot(bag, slot)
 	if bag ~= self.bag or slot ~= self.slot then
 		self.bag, self.slot = bag, slot
-		self:SetParent(bag and parents[bag] or nil)
+		self:SetParent(bag and addon.itemParentFrames[bag] or nil)
 		self:SetID(slot)
-		self:FullUpdate('OnSetSlot')
+		self:FullUpdate('OnSetBagSlot')
 	end
 end
 

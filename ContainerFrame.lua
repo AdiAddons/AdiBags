@@ -39,7 +39,12 @@ function addon:CreateContainerFrame(name, bags, isBank)
 	container:SetScript('OnHide', container.OnHide)
 	container.bags = bags
 	container.isBank = isBank
+	
 	container.content = {}
+	for bag in pairs(bags) do
+		container.content[bag] = {}
+	end
+	
 	container.buttons = {}
 	container:Debug('Created')
 	return container
@@ -50,7 +55,7 @@ function containerProto:OnShow()
 	if self.isBank then
 		self:RegisterEvent('BANKFRAME_CLOSED', "Hide")
 	end
-	self:RegisterBucketEvent('BAG_UPDATE', 0.2)
+	self:RegisterBucketEvent('BAG_UPDATE', 0.5)
 	for bag in pairs(self.bags) do
 		self:UpdateContent("OnShow", bag)
 	end
@@ -66,16 +71,11 @@ end
 function containerProto:UpdateContent(event, bag)
 	self:Debug('UpdateContent', event, bag)
 	local bagContent = self.content[bag]
-	if not self.content[bag] then
-		bagContent = {}
-		self.content[bag] = bagContent
-	end
 	bagContent.size = GetContainerNumSlots(bag)
 	for slot = 1, bagContent.size do
-		local _, count, _, _,  _, _, link = GetContainerItemInfo(bag, slot)
-		local data = link and link..'x'..(count or '1')
-		if data ~= bagContent[slot] then
-			bagContent[slot] = data
+		local link = GetContainerItemLink(bag, slot)
+		if link ~= bagContent[slot] then
+			bagContent[slot] = link
 			self.dirty = true
 		end
 	end
@@ -88,7 +88,6 @@ function containerProto:UpdateContent(event, bag)
 end
 
 function containerProto:SetupItemButton(index, bag, slot)
-	self:Debug('SetupItemButton', index, bag, slot)
 	local button = self.buttons[index]
 	if not button then
 		button = addon:AcquireItemButton()
@@ -96,7 +95,7 @@ function containerProto:SetupItemButton(index, bag, slot)
 		button:SetHeight(ITEM_SIZE)
 		self.buttons[index] = button
 	end
-	local col, row = index % BAG_WIDTH, math.floor(index / BAG_WIDTH)
+	local col, row = (index-1) % BAG_WIDTH, math.floor((index-1) / BAG_WIDTH)
 	button:SetPoint('TOPLEFT', self, 'TOPLEFT',
 		BAG_INSET + ITEM_SIZE * col + ITEM_SPACING * math.max(0, col-1),
 		- (BAG_INSET + ITEM_SIZE * row + ITEM_SPACING * math.max(0, row-1))
@@ -106,7 +105,6 @@ function containerProto:SetupItemButton(index, bag, slot)
 end
 
 function containerProto:ReleaseItemButton(index)
-	self:Debug('ReleaseItemButton', index)
 	local button = self.buttons[index]
 	if not button then return end
 	self.buttons[index] = nil
@@ -140,6 +138,7 @@ function containerProto:FullUpdate(event)
 	for unused = count+1, #self.buttons do
 		self:ReleaseItemButton(unused)
 	end
+	self:Debug(count, 'items')
 	local cols = math.min(BAG_WIDTH, count)
 	local rows = math.ceil(count / BAG_WIDTH)
 	self:SetWidth(BAG_INSET * 2 + cols * ITEM_SIZE + math.max(0, cols-1) * ITEM_SPACING)
@@ -147,6 +146,7 @@ function containerProto:FullUpdate(event)
 end
 
 function containerProto:BAG_UPDATE(event, bags)
+	self:Debug('BAG_UPDATE', event, bags)
 	for bag in pairs(bags) do
 		if self.bags[bag] then
 			self:UpdateContent(event, bag)
