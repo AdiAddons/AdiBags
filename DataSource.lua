@@ -77,7 +77,7 @@ local function BuildSpaceString(bags)
 	for i, family in ipairs(FAMILY_ORDER) do
 		if size[family] then			
 			local tag, icon = addon:GetFamilyTag(family)
-			local text = string.format("%d/%d", size[family]-free[family], size[family])
+			local text = string.format("%d/%d", free[family], size[family])
 			if icon then
 				numIcons = numIcons + 1 -- fix a bug with fontstring embedding several textures
 				text = string.format("%s|T%s:0:0:0:%d:64:64:4:60:4:60|t", text, icon, -numIcons)
