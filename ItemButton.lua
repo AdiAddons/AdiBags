@@ -138,7 +138,6 @@ function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)	if unit == "player" the
 
 function buttonProto:FullUpdate(event)
 	if not self:IsVisible() or not self.bag or not self.slot then return end
-	self:Debug('FullUpdate', event, self.bag, self.slot)
 	local texture = GetContainerItemInfo(self.bag, self.slot)
 	local icon = self.IconTexture
 	if texture then

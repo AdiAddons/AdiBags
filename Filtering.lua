@@ -24,7 +24,7 @@ end
 
 function addon:SetupFilters()
 	self:SetupDefaultFilters()
-	table.sort(filters, sortFilters)
+	table.sort(self.filters, sortFilters)
 end
 
 function addon:PreFilter(event, container)

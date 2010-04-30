@@ -13,7 +13,7 @@ function addon:SetupDefaultFilters()
 		local itemSets = {}
 		
 		local function PreFilter()
-			wipe(setItems)
+			wipe(itemSets)
 			for i = 1, GetNumEquipmentSets() do
 				local name = GetEquipmentSetInfo(i)
 				local section = 'Set: '..name

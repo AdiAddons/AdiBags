@@ -54,6 +54,7 @@ function containerProto:OnCreate(name, bags, isBank)
 	self.buttons = {}
 	self.content = {}
 	self.stacks = {}
+	self.sections = {}
 	for bag in pairs(self.bags) do
 		self.content[bag] = {}
 	end
@@ -224,27 +225,33 @@ function containerProto:ReleaseItemButton(index)
 	return true
 end
 
-local order = {}
+--local order = {}
 function containerProto:FullUpdate(event, forceUpdate)
 	if not self.dirty and not forceUpdate then return end
 	self:Debug('Updating on', event)
 	self.dirty = nil
 	wipe(self.stacks)
-	local index = 0
+
 	local reorder = forceUpdate
+	for name, buttons in pairs(self.sections) do
+		wipe(buttons)
+	end
+	
+	local index = 0
 	addon:PreFilter(event, self)
 	for bag, content in pairs(self.content) do
 		local _, bagFamily = GetContainerNumFreeSlots(bag)
 		for slot = 1, content.size do
 			local link = content[slot]
-			local section, stackType, stackData
+			local sectionName, stackType, stackData
 			if link then
 				local itemId = tonumber(link:match('item:(%d+)'))			
-				section, stackType, stackData = addon:Filter(bag, slot, itemId, link)
+				sectionName, stackType, stackData = addon:Filter(bag, slot, itemId, link)
+				self:Debug('Filtering:', link, '=>', section, stackType, stackData)
 			else
-				section, stackType, stackData = "Free", true, 'free', bagFamily
+				sectionName, stackType, stackData = "Free", 'free', bagFamily
 			end
-			local stackKey = stackType and strjoin(':', stackType, stackData)
+			local stackKey = stackType and strjoin(':', tostringall(stackType, stackData))
 			if not stackKey or not self.stacks[stackKey] then
 				index = index + 1
 				local button = self:SetupItemButton(index)
@@ -257,27 +264,41 @@ function containerProto:FullUpdate(event, forceUpdate)
 				if stackKey then
 					self.stacks[stackKey] = button
 				end
-				tinsert(order, button)
+				if not self.sections[sectionName] then
+					self.sections[sectionName] = {}
+					reorder = true
+				end
+				tinsert(self.sections[sectionName], button)
+				--tinsert(order, button)
 			end
 		end
 	end
+	
+	addon:PostFilter(event, self)
+	
 	for unused = index+1, #self.buttons do
 		if self:ReleaseItemButton(unused) then
 			reorder = true
 		end
 	end
-	addon:PostFilter(event, self)
-	if reorder then
-		self:Debug('Need reordering')
-		table.sort(order, CompareButtons)
-		for position, button in ipairs(order) do
-			self:SetPosition(button, position)
+	
+	if not reorder then return end
+	
+	local position = 0
+	
+	for name, buttons in pairs(self.sections) do
+		if next(buttons) then
+			position = position + 1
+			table.sort(buttons, CompareButtons)
+			for i, button in ipairs(buttons) do
+				position = position + 1
+				self:SetPosition(button, position)
+			end
 		end
 	end
-	self:Debug(#order, 'items')
-	wipe(order)
-	local cols = math.min(BAG_WIDTH, index)
-	local rows = math.ceil(index / BAG_WIDTH)
+
+	local cols = math.min(BAG_WIDTH, position)
+	local rows = math.ceil(position / BAG_WIDTH)
 	self:SetWidth(BAG_INSET * 2 + cols * ITEM_SIZE + math.max(0, cols-1) * ITEM_SPACING)
 	self:SetHeight(BAG_INSET + rows * ITEM_SIZE + math.max(0, rows-1) * ITEM_SPACING + TOP_PADDING)
 end
