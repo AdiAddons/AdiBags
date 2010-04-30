@@ -68,7 +68,9 @@ function containerProto:OnCreate(name, bags, isBank)
 
 	local title = self:CreateFontString(self:GetName().."Title","OVERLAY","GameFontNormalLarge")
 	title:SetText(name)
-	title:SetPoint("TOPLEFT", 0, -BAG_INSET)
+	title:SetTextColor(1, 1, 1)
+	title:SetJustifyH("LEFT")
+	title:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
 	title:SetPoint("RIGHT", closeButton, "LEFT", -8, 0)
 end
 

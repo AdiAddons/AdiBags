@@ -110,6 +110,60 @@ function addon:OnEnable()
 	self:SecureHook('CloseSpecialWindows', 'CloseAllBags')
 end
 
+--------------------------------------------------------------------------------
+-- Event handlers
+--------------------------------------------------------------------------------
+
+function addon:BANKFRAME_OPENED()
+	self.atBank = true
+	self:OpenAllBags(true)
+end
+
+function addon:BANKFRAME_CLOSED()
+	self.atBank = false
+	self:CloseAllBags()
+end
+
+--------------------------------------------------------------------------------
+-- Search feature
+--------------------------------------------------------------------------------
+
+function addon:GetSearchText()
+	local text = self.searchEditBox and self.searchEditBox:GetText()
+	if text and text:trim() ~= "" then
+		return text
+	end
+end
+
+function addon:OnSearchTextChanged()
+	for name, bag in pairs(self.bags) do
+		if bag ~= true and bag:IsVisible() then
+			for i, button in ipairs(bag.buttons) do
+				button:UpdateSearchStatus("OnSearchTextChanged")
+			end
+		end
+	end
+end
+
+local function SearchEditBox_OnTextChanged(editBox)
+	return addon:OnSearchTextChanged()
+end
+
+local function SearchEditBox_OnEnterPressed(editBox)
+	editBox:ClearFocus()
+	return SearchEditBox_OnTextChanged(editBox)
+end
+
+local function SearchEditBox_OnEscapePressed(editBox)
+	editBox:ClearFocus()
+	editBox:SetText('')
+	return SearchEditBox_OnTextChanged(editBox)
+end
+
+--------------------------------------------------------------------------------
+-- Bag handling
+--------------------------------------------------------------------------------
+
 function addon:CreateBag(name, bags, isBank)
 	local container = self:CreateContainerFrame(name, bags, isBank)
 	local cname = container:GetName()
@@ -132,7 +186,18 @@ function addon:GetBag(name, noCreate)
 	end
 	if name == "Backpack" then
 		bag = self:CreateBag("Backpack", self.BAG_IDS.BAGS)
-		bag:SetPoint("BOTTOMRIGHT", -20, 300)
+		bag:SetPoint("BOTTOMRIGHT", -20, 300)	
+		
+		local searchEditBox = CreateFrame("EditBox", addonName.."SearchEditBox", bag, "InputBoxTemplate")
+		searchEditBox:SetAutoFocus(false)
+		searchEditBox:SetPoint("TOPRIGHT", bag.closeButton, "TOPLEFT", -5, 0)
+		searchEditBox:SetPoint("BOTTOMRIGHT", bag.closeButton, "BOTTOMRIGHT", -5, 0)
+		searchEditBox:SetWidth(100)
+		searchEditBox:SetScript("OnEnterPressed", SearchEditBox_OnEnterPressed)
+		searchEditBox:SetScript("OnEscapePressed", SearchEditBox_OnEscapePressed)
+		searchEditBox:SetScript("OnTextChanged", SearchEditBox_OnTextChanged)
+		self.searchEditBox = searchEditBox
+		
 	elseif name == "Bank" then
 		bag = self:CreateBag("Bank", self.BAG_IDS.BANK, true)
 		bag:SetPoint("BOTTOMRIGHT", self:GetBag("Backpack"), "BOTTOMLEFT", -10, 0)
@@ -177,6 +242,10 @@ function addon:AreAllBagsOpen()
 	return true
 end
 
+--------------------------------------------------------------------------------
+-- Hooks of standard bag function
+--------------------------------------------------------------------------------
+
 function addon:OpenBackpack() 
 	return self:OpenBag("Backpack") 
 end
@@ -208,14 +277,3 @@ function addon:CloseAllBags()
 		self:CloseBag(name)
 	end
 end
-
-function addon:BANKFRAME_OPENED()
-	self.atBank = true
-	self:OpenAllBags(true)
-end
-
-function addon:BANKFRAME_CLOSED()
-	self.atBank = false
-	self:CloseAllBags()
-end
-

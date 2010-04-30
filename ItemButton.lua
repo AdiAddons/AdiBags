@@ -12,7 +12,7 @@ local buttonProto = setmetatable({
 local buttonMeta = { __index = buttonProto }
 local buttonCount = 1
 local heap = {}
---LibStub('AceEvent-3.0'):Embed(buttonProto)
+LibStub('AceEvent-3.0'):Embed(buttonProto)
 --LibStub('AceBucket-3.0'):Embed(buttonProto)
 
 function addon:AcquireItemButton()
@@ -144,9 +144,11 @@ function buttonProto:FullUpdate(event)
 	local texture = GetContainerItemInfo(self.bag, self.slot)
 	local icon = self.IconTexture
 	if texture then
+		self.hasItem, self.itemId = true, GetContainerItemID(self.bag, self.slot)
 		icon:SetTexture(texture)
 		icon:SetTexCoord(0,1,0,1)
 	else
+		self.hasItem, self.itemId = false, nil
 		icon:SetTexture([[Interface\BUTTONS\UI-EmptySlot]])
 		icon:SetTexCoord(12/64, 51/64, 12/64, 51/64)
 		self.Count:Hide()
@@ -161,6 +163,7 @@ function buttonProto:FullUpdate(event)
 	self:UpdateLock(event)
 	self:UpdateBorder(event)
 	self:UpdateCooldown(event)
+	self:UpdateSearchStatus(event)
 end
 
 function buttonProto:UpdateLock(event)
@@ -204,3 +207,22 @@ function buttonProto:UpdateCooldown(event)
 		self.Cooldown:Hide()
 	end
 end
+
+function buttonProto:UpdateSearchStatus(event)
+	local text = addon:GetSearchText()
+	local selected = true
+	if text and self.hasItem then
+		local name = GetItemInfo(self.itemId)
+		if name and not name:lower():match(text:lower()) then
+			selected = false
+		end
+	end
+	if selected then
+		self:SetAlpha(1)
+		--self.IconTexture:SetVertexColor(1, 1, 1)
+	else
+		self:SetAlpha(0.3)
+		--self.IconTexture:SetVertexColor(0.3, 0.3, 0.3)
+	end
+end
+
