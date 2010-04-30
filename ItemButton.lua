@@ -32,7 +32,7 @@ end
 
 function buttonProto:Release()
 	self:UnregisterAllEvents()
-	self:UnregisterAllBuckets()
+	--self:UnregisterAllBuckets()
 	self:SetBagSlot(nil, nil)
 	self:Hide()
 	self:SetParent(nil)
@@ -59,24 +59,70 @@ function buttonProto:OnAcquire()
 end
 
 function buttonProto:SetBagSlot(bag, slot)
-	if bag ~= self.bag or slot ~= self.slot then
+	local changed = bag ~= self.bag or slot ~= self.slot
+	if changed then
 		self.bag, self.slot = bag, slot
 		self:SetParent(bag and addon.itemParentFrames[bag] or nil)
-		self:SetID(slot)
-
-		local _, family = GetContainerNumFreeSlots(bag)
-		local tag = addon:GetFamilyTag(family)
-		if tag then
-			self.Stock:SetFormattedText(tag)
-			self.Stock:Show()
-		else
-			self.Stock:Hide()
+		if bag and slot then
+			self:SetID(slot)	
+			local _, family = GetContainerNumFreeSlots(bag)
+			local tag = addon:GetFamilyTag(family)
+			if tag then
+				self.Stock:SetFormattedText(tag)
+				self.Stock:Show()
+			else
+				self.Stock:Hide()
+			end
 		end
 	end
 	if bag and slot then
 		self:FullUpdate('OnSetBagSlot')
 	end
+	return changed
 end
+
+function buttonProto:SetStackable(stackable, stackType, stackData)
+	local changed = self.stackable ~= stackable or self.stackType ~= stackType or self.stackData ~= stackData
+	if changed then
+		self.stackable, self.stackType, self.stackData = stackable, stackType, stackData
+		self:FullUpdate('OnSetStackable')
+	end
+	return changed
+end
+
+function buttonProto:GetCount()
+	local count, _ = 0
+	if self.stackable then
+		if self.stackType == "free" then
+			local bags = self:IsBankItem() and addon.BAG_IDS.BANK or  addon.BAG_IDS.BAGS
+			for bag in pairs(bags) do
+				local free, family = GetContainerNumFreeSlots(bag)
+				if family == self.stackData then
+					count = count + free
+				end
+			end
+		else
+			if self:IsBankItem() then
+				count = GetItemCount(self.stackData, true) - GetItemCount(self.stackData)
+			else
+				count = GetItemCount(self.stackData)
+			end
+		end
+	else
+		_, count = GetContainerItemInfo(self.bag, self.slot)
+	end
+	return count
+end
+
+function buttonProto:IsBankItem()
+	return not not addon.BAG_IDS.BANK[self.bag or ""]
+end
+
+--[[
+function buttonProto:HasItem()
+	return self.bag and self.slot and not not GetContainerItemID(self.bag, self.slot) or false
+end
+--]]
 
 function buttonProto:OnEvent(event, ...)
 	if not self:IsVisible() or not self.bag or not self.slot then return end
@@ -95,23 +141,23 @@ function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)	if unit == "player" the
 function buttonProto:FullUpdate(event)
 	if not self:IsVisible() or not self.bag or not self.slot then return end
 	self:Debug('FullUpdate', event, self.bag, self.slot)
-	local texture, count = GetContainerItemInfo(self.bag, self.slot)
+	local texture = GetContainerItemInfo(self.bag, self.slot)
 	local icon = self.IconTexture
 	if texture then
 		icon:SetTexture(texture)
 		icon:SetTexCoord(0,1,0,1)
-		if count and count > 1 then
-			self.Count:SetText(count)
-			self.Count:Show()
-		else
-			self.Count:Hide()
-		end
 	else
 		icon:SetTexture([[Interface\BUTTONS\UI-EmptySlot]])
 		icon:SetTexCoord(12/64, 51/64, 12/64, 51/64)
 		self.Count:Hide()
 	end
-
+	local count = self:GetCount()
+	if count and count > 1 then
+		self.Count:SetText(count)
+		self.Count:Show()
+	else
+		self.Count:Hide()
+	end	
 	self:UpdateLock(event)
 	self:UpdateBorder(event)
 	self:UpdateCooldown(event)

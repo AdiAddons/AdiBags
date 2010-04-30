@@ -101,6 +101,7 @@ function addon:CreateBag(name, bags, isBank)
 	local cname = container:GetName()
 	for id in pairs(bags) do
 		local f = CreateFrame("Frame", cname..'Bag'..id, container)
+		f.isBank = isBank
 		f:SetID(id)
 		addon.itemParentFrames[id] = f
 	end

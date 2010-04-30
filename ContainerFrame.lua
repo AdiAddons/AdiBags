@@ -53,6 +53,7 @@ function containerProto:OnCreate(name, bags, isBank)
 	self.isBank = isBank
 	self.buttons = {}
 	self.content = {}
+	self.stacks = {}
 	for bag in pairs(self.bags) do
 		self.content[bag] = {}
 	end
@@ -76,13 +77,11 @@ function containerProto:OnShow()
 	if self.isBank then
 		self:RegisterEvent('BANKFRAME_CLOSED', "Hide")
 	end
-	self:RegisterBucketEvent('BAG_UPDATE', 0.5, "BagsUpdated")
+	self:RegisterBucketEvent('BAG_UPDATE', 0.1, "BagsUpdated")
 	for bag in pairs(self.bags) do
 		self:UpdateContent("OnShow", bag)
 	end
-	if self.dirty then
-		return self:FullUpdate('OnShow')
-	end
+	return self:FullUpdate('OnShow', true)
 end
 
 function containerProto:OnHide()
@@ -107,34 +106,6 @@ function containerProto:UpdateContent(event, bag)
 			bagContent[slot] = nil
 		end
 	end
-end
-
-function containerProto:SetPosition(button, position)
-	local col, row = (position-1) % BAG_WIDTH, math.floor((position-1) / BAG_WIDTH)
-	button:SetPoint('TOPLEFT', self, 'TOPLEFT',
-		BAG_INSET + col * (ITEM_SIZE + ITEM_SPACING),
-		- (TOP_PADDING + row * (ITEM_SIZE + ITEM_SPACING))
-	)
-	button:Show()
-end
-
-function containerProto:SetupItemButton(index, bag, slot)
-	local button = self.buttons[index]
-	if not button then
-		button = addon:AcquireItemButton()
-		button:SetWidth(ITEM_SIZE)
-		button:SetHeight(ITEM_SIZE)
-		self.buttons[index] = button
-	end
-	button:SetBagSlot(bag, slot)
-	return button
-end
-
-function containerProto:ReleaseItemButton(index)
-	local button = self.buttons[index]
-	if not button then return end
-	self.buttons[index] = nil
-	return button:Release()
 end
 
 local EQUIP_LOCS = {
@@ -223,32 +194,88 @@ local function CompareButtons(a, b)
 	return (idA and 1 or 0) > (idB and 1 or 0)
 end
 
+function containerProto:SetPosition(button, position)
+	local col, row = (position-1) % BAG_WIDTH, math.floor((position-1) / BAG_WIDTH)
+	button:SetPoint('TOPLEFT', self, 'TOPLEFT',
+		BAG_INSET + col * (ITEM_SIZE + ITEM_SPACING),
+		- (TOP_PADDING + row * (ITEM_SIZE + ITEM_SPACING))
+	)
+	button:Show()
+end
+
+function containerProto:SetupItemButton(index)
+	local button = self.buttons[index]
+	if not button then
+		button = addon:AcquireItemButton()
+		button:SetWidth(ITEM_SIZE)
+		button:SetHeight(ITEM_SIZE)
+		self.buttons[index] = button
+	end
+	return button
+end
+
+function containerProto:ReleaseItemButton(index)
+	local button = self.buttons[index]
+	if not button then return end
+	self.buttons[index] = nil
+	button:Release()
+	return true
+end
+
+local function IsStackable(bag, slot)
+	local id = GetContainerItemID(bag, slot)
+	if not id then
+		local _, family = GetContainerNumFreeSlots(bag)
+		return true, 'free', family
+	elseif id == 6265 then
+		return true, 'item', id
+	end
+end
+
 local order = {}
-function containerProto:FullUpdate(event)
-	if not self.dirty then return end
+function containerProto:FullUpdate(event, forceUpdate)
+	if not self.dirty and not forceUpdate then return end
 	self:Debug('Updating on', event)
 	self.dirty = nil
-	local count = 0
+	wipe(self.stacks)
+	local index = 0
+	local reorder = forceUpdate
 	for bag, content in pairs(self.content) do
 		for slot = 1, content.size do
-			count = count + 1
-			local button = self:SetupItemButton(count, bag, slot)
-			if button then
+			local stackable, stackType, stackData = IsStackable(bag, slot)
+			local stackKey = stackable and strjoin(':', stackType, stackData)
+			if not stackable or not self.stacks[stackKey] then
+				index = index + 1
+				local button = self:SetupItemButton(index)
+				if button:SetBagSlot(bag, slot) then
+					reorder = true
+				end
+				if button:SetStackable(stackable, stackType, stackData) then
+					reorder = true
+				end
+				if stackable then
+					self.stacks[stackKey] = button
+				end
 				tinsert(order, button)
 			end
 		end
 	end
-	for unused = count+1, #self.buttons do
-		self:ReleaseItemButton(unused)
+	for unused = index+1, #self.buttons do
+		if self:ReleaseItemButton(unused) then
+			reorder = true
+		end
 	end
-	table.sort(order, CompareButtons)
-	for position, button in ipairs(order) do
-		self:SetPosition(button, position)
+	if reorder then
+		self:Debug('Need reordering')
+		table.sort(order, CompareButtons)
+		for position, button in ipairs(order) do
+			self:SetPosition(button, position)
+		end
 	end
+	self:Debug(#order, 'items')
 	wipe(order)
-	self:Debug(count, 'items')
-	local cols = math.min(BAG_WIDTH, count)
-	local rows = math.ceil(count / BAG_WIDTH)
+	local cols = math.min(BAG_WIDTH, index)
+	local rows = math.ceil(index / BAG_WIDTH)
 	self:SetWidth(BAG_INSET * 2 + cols * ITEM_SIZE + math.max(0, cols-1) * ITEM_SPACING)
 	self:SetHeight(BAG_INSET + rows * ITEM_SIZE + math.max(0, rows-1) * ITEM_SPACING + TOP_PADDING)
 end
@@ -265,7 +292,9 @@ function containerProto:BagsUpdated(bags)
 		return self:FullUpdate("BagsUpdated")
 	else
 		for i, button in pairs(self.buttons) do
-			button:BAG_UPDATE(event, bags)
+			if bags[button.bag] then
+				button:FullUpdate("BagsUpdated")
+			end
 		end
 	end
 end
