@@ -68,7 +68,7 @@ function buttonProto:SetBagSlot(bag, slot)
 			local _, family = GetContainerNumFreeSlots(bag)
 			local tag = addon:GetFamilyTag(family)
 			if tag then
-				self.Stock:SetFormattedText(tag)
+				self.Stock:SetText(tag)
 				self.Stock:Show()
 			else
 				self.Stock:Hide()

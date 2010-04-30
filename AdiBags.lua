@@ -48,24 +48,38 @@ do
 end
 
 local FAMILY_TAGS = {
-	[0x0001] = "Q", -- Quiver
-  [0x0002] = "A", -- Ammo Pouch
-  [0x0004] = "S", -- Soul Bag
-  [0x0008] = "L", -- Leatherworking Bag
-  [0x0010] = "I", -- Inscription Bag
+	[0x0001] = "Fl", -- Quiver
+  [0x0002] = "Ba", -- Ammo Pouch
+  [0x0004] = "Âl", -- Soul Bag
+  [0x0008] = "Cu", -- Leatherworking Bag
+  [0x0010] = "Ca", -- Inscription Bag
   [0x0020] = "H", -- Herb Bag
-  [0x0040] = "E", -- Enchanting Bag
-  [0x0080] = "N", -- Engineering Bag
-  [0x0100] = "K", -- Keyring
-  [0x0200] = "G", -- Gem Bag
-  [0x0400] = "M", -- Mining Bag
+  [0x0040] = "En", -- Enchanting Bag
+  [0x0080] = "In", -- Engineering Bag
+  [0x0100] = "Cl", -- Keyring
+  [0x0200] = "Jo", -- Gem Bag
+  [0x0400] = "Mi", -- Mining Bag
+}
+
+local FAMILY_ICONS = {
+	[0x0001] = [[Interface\Icons\INV_Misc_Ammo_Arrow_01]], -- Quiver
+  [0x0002] = [[Interface\Icons\INV_Misc_Ammo_Bullet_05]], -- Ammo Pouch
+  [0x0004] = [[Interface\Icons\INV_Misc_Gem_Amethyst_02]], -- Soul Bag
+  [0x0008] = [[Interface\Icons\Trade_LeatherWorking]], -- Leatherworking Bag
+  [0x0010] = [[Interface\Icons\INV_Inscription_Tradeskill01]], -- Inscription Bag
+  [0x0020] = [[Interface\Icons\Trade_Herbalism]], -- Herb Bag
+  [0x0040] = [[Interface\Icons\Trade_Engraving]], -- Enchanting Bag
+  [0x0080] = [[Interface\Icons\Trade_Engineering]], -- Engineering Bag
+  [0x0100] = [[Interface\Icons\INV_Misc_Key_14]], -- Keyring
+  [0x0200] = [[Interface\Icons\INV_Misc_Gem_BloodGem_01]], -- Gem Bag
+  [0x0400] = [[Interface\Icons\Trade_Mining]], -- Mining Bag
 }
 
 function addon:GetFamilyTag(family)
 	if family and family ~= 0 then
 		for mask, tag in pairs(FAMILY_TAGS) do
 			if bit.band(family, mask) ~= 0 then
-				return tag
+				return tag, FAMILY_ICONS[mask]
 			end
 		end
 	end

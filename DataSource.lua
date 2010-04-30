@@ -12,6 +12,7 @@ local dataobj = {
 	type = 'data source',
 	label = addonName,
 	text = addonName,
+	icon = [[Interface\Icons\INV_Misc_Bag_08]],
 	OnClick = function() addon:OpenAllBags() end,
 }
 
@@ -72,11 +73,15 @@ local function BuildSpaceString(bags)
 		end
 	end
 	wipe(data)
+	local numIcons = 0
 	for i, family in ipairs(FAMILY_ORDER) do
 		if size[family] then			
-			local tag = addon:GetFamilyTag(family)
+			local tag, icon = addon:GetFamilyTag(family)
 			local text = string.format("%d/%d", size[family]-free[family], size[family])
-			if tag then
+			if icon then
+				numIcons = numIcons + 1 -- fix a bug with fontstring embedding several textures
+				text = string.format("%s|T%s:0:0:0:%d:64:64:4:60:4:60|t", text, icon, -numIcons)
+			elseif tag then
 				text = strjoin(':', tag, text)
 			end
 			tinsert(data, text)
