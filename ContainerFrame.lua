@@ -149,7 +149,7 @@ local function CompareItems(idA, idB)
 		return classA < classB
 	elseif subclassA ~= subclassB then
 		return subclassA < subclassB
-	elseif equipLocA and equipLocA and equipLocA ~= equipLocB then
+	elseif equipLocA and equipLocB and equipLocA ~= equipLocB then
 		return equipLocA < equipLocB
 	elseif qualityA ~= qualityB then
 		return qualityA > qualityB
