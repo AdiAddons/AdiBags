@@ -219,10 +219,8 @@ function buttonProto:UpdateSearchStatus(event)
 	end
 	if selected then
 		self:SetAlpha(1)
-		--self.IconTexture:SetVertexColor(1, 1, 1)
 	else
 		self:SetAlpha(0.3)
-		--self.IconTexture:SetVertexColor(0.3, 0.3, 0.3)
 	end
 end
 

@@ -50,7 +50,7 @@ end
 local FAMILY_TAGS = {
 	[0x0001] = "Fl", -- Quiver
   [0x0002] = "Ba", -- Ammo Pouch
-  [0x0004] = "Âl", -- Soul Bag
+  [0x0004] = "Âm", -- Soul Bag
   [0x0008] = "Cu", -- Leatherworking Bag
   [0x0010] = "Ca", -- Inscription Bag
   [0x0020] = "H", -- Herb Bag
@@ -189,10 +189,11 @@ function addon:GetBag(name, noCreate)
 		bag:SetPoint("BOTTOMRIGHT", -20, 300)	
 		
 		local searchEditBox = CreateFrame("EditBox", addonName.."SearchEditBox", bag, "InputBoxTemplate")
+		
 		searchEditBox:SetAutoFocus(false)
-		searchEditBox:SetPoint("TOPRIGHT", bag.closeButton, "TOPLEFT", -5, 0)
-		searchEditBox:SetPoint("BOTTOMRIGHT", bag.closeButton, "BOTTOMRIGHT", -5, 0)
+		searchEditBox:SetPoint("TOPRIGHT", -32, -8)
 		searchEditBox:SetWidth(100)
+		searchEditBox:SetHeight(14)
 		searchEditBox:SetScript("OnEnterPressed", SearchEditBox_OnEnterPressed)
 		searchEditBox:SetScript("OnEscapePressed", SearchEditBox_OnEscapePressed)
 		searchEditBox:SetScript("OnTextChanged", SearchEditBox_OnTextChanged)
