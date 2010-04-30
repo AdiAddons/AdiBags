@@ -224,16 +224,6 @@ function containerProto:ReleaseItemButton(index)
 	return true
 end
 
-local function IsStackable(bag, slot)
-	local id = GetContainerItemID(bag, slot)
-	if not id then
-		local _, family = GetContainerNumFreeSlots(bag)
-		return true, 'free', family
-	elseif id == 6265 then
-		return true, 'item', id
-	end
-end
-
 local order = {}
 function containerProto:FullUpdate(event, forceUpdate)
 	if not self.dirty and not forceUpdate then return end
@@ -242,20 +232,29 @@ function containerProto:FullUpdate(event, forceUpdate)
 	wipe(self.stacks)
 	local index = 0
 	local reorder = forceUpdate
+	addon:PreFilter(event, self)
 	for bag, content in pairs(self.content) do
+		local _, bagFamily = GetContainerNumFreeSlots(bag)
 		for slot = 1, content.size do
-			local stackable, stackType, stackData = IsStackable(bag, slot)
-			local stackKey = stackable and strjoin(':', stackType, stackData)
-			if not stackable or not self.stacks[stackKey] then
+			local link = content[slot]
+			local section, stackType, stackData
+			if link then
+				local itemId = tonumber(link:match('item:(%d+)'))			
+				section, stackType, stackData = addon:Filter(bag, slot, itemId, link)
+			else
+				section, stackType, stackData = "Free", true, 'free', bagFamily
+			end
+			local stackKey = stackType and strjoin(':', stackType, stackData)
+			if not stackKey or not self.stacks[stackKey] then
 				index = index + 1
 				local button = self:SetupItemButton(index)
 				if button:SetBagSlot(bag, slot) then
 					reorder = true
 				end
-				if button:SetStackable(stackable, stackType, stackData) then
+				if button:SetStackable(stackType, stackData) then
 					reorder = true
 				end
-				if stackable then
+				if stackKey then
 					self.stacks[stackKey] = button
 				end
 				tinsert(order, button)
@@ -267,6 +266,7 @@ function containerProto:FullUpdate(event, forceUpdate)
 			reorder = true
 		end
 	end
+	addon:PostFilter(event, self)
 	if reorder then
 		self:Debug('Need reordering')
 		table.sort(order, CompareButtons)

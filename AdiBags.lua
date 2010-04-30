@@ -94,6 +94,8 @@ function addon:OnInitialize()
 	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", {profile = {},}, true)
 	addon.itemParentFrames = {}
 	addon.bags = { Bank = true, Backpack = true }
+	
+	self:SetupFilters()
 end
 
 function addon:OnEnable()

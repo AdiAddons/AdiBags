@@ -27,4 +27,6 @@ AdiBags.lua
 ContainerFrame.lua
 ItemButton.lua
 DataSource.lua
+Filtering.lua
+DefaultFilters.lua
 

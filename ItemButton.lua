@@ -81,10 +81,10 @@ function buttonProto:SetBagSlot(bag, slot)
 	return changed
 end
 
-function buttonProto:SetStackable(stackable, stackType, stackData)
-	local changed = self.stackable ~= stackable or self.stackType ~= stackType or self.stackData ~= stackData
+function buttonProto:SetStackable(stackType, stackData)
+	local changed = self.stackType ~= stackType or self.stackData ~= stackData
 	if changed then
-		self.stackable, self.stackType, self.stackData = stackable, stackType, stackData
+		self.stackType, self.stackData = stackType, stackData
 		self:FullUpdate('OnSetStackable')
 	end
 	return changed
@@ -92,21 +92,19 @@ end
 
 function buttonProto:GetCount()
 	local count, _ = 0
-	if self.stackable then
-		if self.stackType == "free" then
-			local bags = self:IsBankItem() and addon.BAG_IDS.BANK or  addon.BAG_IDS.BAGS
-			for bag in pairs(bags) do
-				local free, family = GetContainerNumFreeSlots(bag)
-				if family == self.stackData then
-					count = count + free
-				end
+	if self.stackType == "free" then
+		local bags = self:IsBankItem() and addon.BAG_IDS.BANK or addon.BAG_IDS.BAGS
+		for bag in pairs(bags) do
+			local free, family = GetContainerNumFreeSlots(bag)
+			if family == self.stackData then
+				count = count + free
 			end
+		end
+	elseif self.stackType == "item" then
+		if self:IsBankItem() then
+			count = GetItemCount(self.stackData, true) - GetItemCount(self.stackData)
 		else
-			if self:IsBankItem() then
-				count = GetItemCount(self.stackData, true) - GetItemCount(self.stackData)
-			else
-				count = GetItemCount(self.stackData)
-			end
+			count = GetItemCount(self.stackData)
 		end
 	else
 		_, count = GetContainerItemInfo(self.bag, self.slot)
