@@ -197,15 +197,6 @@ local function CompareButtons(a, b)
 	return (idA and 1 or 0) > (idB and 1 or 0)
 end
 
-function containerProto:SetPosition(button, position)
-	local col, row = (position-1) % BAG_WIDTH, math.floor((position-1) / BAG_WIDTH)
-	button:SetPoint('TOPLEFT', self, 'TOPLEFT',
-		BAG_INSET + col * (ITEM_SIZE + ITEM_SPACING),
-		- (TOP_PADDING + row * (ITEM_SIZE + ITEM_SPACING))
-	)
-	button:Show()
-end
-
 function containerProto:SetupItemButton(index)
 	local button = self.buttons[index]
 	if not button then
@@ -225,16 +216,17 @@ function containerProto:ReleaseItemButton(index)
 	return true
 end
 
---local order = {}
 function containerProto:FullUpdate(event, forceUpdate)
 	if not self.dirty and not forceUpdate then return end
 	self:Debug('Updating on', event)
 	self.dirty = nil
 	wipe(self.stacks)
 
-	local reorder = forceUpdate
-	for name, buttons in pairs(self.sections) do
-		wipe(buttons)
+	local dirtyLayout = forceUpdate
+	for name, section in pairs(self.sections) do
+		for i in ipairs(section) do
+			section[i] = nil
+		end
 	end
 	
 	local index = 0
@@ -256,20 +248,19 @@ function containerProto:FullUpdate(event, forceUpdate)
 				index = index + 1
 				local button = self:SetupItemButton(index)
 				if button:SetBagSlot(bag, slot) then
-					reorder = true
+					dirtyLayout = true
 				end
 				if button:SetStackable(stackType, stackData) then
-					reorder = true
+					dirtyLayout = true
 				end
 				if stackKey then
 					self.stacks[stackKey] = button
 				end
 				if not self.sections[sectionName] then
 					self.sections[sectionName] = {}
-					reorder = true
+					dirtyLayout = true
 				end
 				tinsert(self.sections[sectionName], button)
-				--tinsert(order, button)
 			end
 		end
 	end
@@ -278,29 +269,75 @@ function containerProto:FullUpdate(event, forceUpdate)
 	
 	for unused = index+1, #self.buttons do
 		if self:ReleaseItemButton(unused) then
-			reorder = true
+			dirtyLayout = true
 		end
 	end
 	
-	if not reorder then return end
-	
-	local position = 0
-	
-	for name, buttons in pairs(self.sections) do
-		if next(buttons) then
-			position = position + 1
-			table.sort(buttons, CompareButtons)
-			for i, button in ipairs(buttons) do
-				position = position + 1
-				self:SetPosition(button, position)
-			end
-		end
+	if dirtyLayout then 
+		self:Layout()
 	end
+end
 
-	local cols = math.min(BAG_WIDTH, position)
-	local rows = math.ceil(position / BAG_WIDTH)
-	self:SetWidth(BAG_INSET * 2 + cols * ITEM_SIZE + math.max(0, cols-1) * ITEM_SPACING)
-	self:SetHeight(BAG_INSET + rows * ITEM_SIZE + math.max(0, rows-1) * ITEM_SPACING + TOP_PADDING)
+local sectionOrder = {}
+function containerProto:Layout()
+
+	for name, section in pairs(self.sections) do
+		if #section > 0 then
+			tinsert(sectionOrder, name)
+		elseif section.header then
+			section.header:Hide()
+		end
+	end
+	table.sort(sectionOrder)
+	
+	local lastWasMultiline = false
+	local maxWidth = ITEM_SIZE * BAG_WIDTH + ITEM_SPACING * (BAG_WIDTH - 1)
+	local maxX = 0
+	local x, y = 0, 0
+	for i, name in ipairs(sectionOrder) do
+		local section = self.sections[name]
+		
+		local header = section.header
+		if not header then
+			header = self:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+			section.header = header
+			header:SetText(name)
+		end
+		header:SetPoint("BOTTOMLEFT")
+		header:Show()
+		local headerWidth = header:GetStringWidth() + 8
+		local numButtons = #section
+		local sectionWidth = math.max(headerWidth, numButtons * ITEM_SIZE + math.max(numButtons-1, 0) * ITEM_SPACING)
+		if x > 0 then
+			x = x + ITEM_SPACING + ITEM_SIZE / 3
+			if lastWasMultiline or x + sectionWidth > maxWidth then
+				y = y + ITEM_SIZE + 2 * ITEM_SPACING + header:GetStringHeight()
+				x = 0
+			end
+		elseif y == 0 then
+			y = header:GetStringHeight() + ITEM_SPACING
+		end
+		header:SetPoint('BOTTOMLEFT', self, 'TOPLEFT', BAG_INSET + x, - TOP_PADDING - y + ITEM_SPACING)
+		lastWasMultiline = false
+		
+		table.sort(section, CompareButtons)
+		for i, button in ipairs(section) do
+			if x + ITEM_SIZE > maxWidth then
+				x = 0
+				y = y + ITEM_SIZE + ITEM_SPACING
+				lastWasMultiline = true
+			end
+			button:SetPoint("TOPLEFT", self, "TOPLEFT", BAG_INSET + x, - TOP_PADDING - y)
+			button:Show()
+			maxX = math.max(x + ITEM_SIZE, maxX)
+			x = x + ITEM_SIZE + ITEM_SPACING
+		end
+		--x = x + ITEM_SPACING + ITEM_SIZE / 3
+	end
+	wipe(sectionOrder)
+
+	self:SetWidth(BAG_INSET * 2 + maxX)
+	self:SetHeight(BAG_INSET + TOP_PADDING + y + ITEM_SIZE)
 end
 
 function containerProto:BagsUpdated(bags)
