@@ -42,6 +42,7 @@ local function CloseButton_OnClick(button)
 	button:GetParent():Hide()
 end
 
+local bagSlots = {}
 function containerProto:OnCreate(name, bags, isBank)
 	self:SetScale(0.8)
 	self:SetFrameStrata("HIGH")
@@ -49,6 +50,9 @@ function containerProto:OnCreate(name, bags, isBank)
 	self:SetBackdrop(BACKDROP)
 	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
+
+	self:SetScript('OnShow', self.OnShow)
+	self:SetScript('OnHide', self.OnHide)
 
 	self.bags = bags
 	self.isBank = isBank
@@ -58,10 +62,11 @@ function containerProto:OnCreate(name, bags, isBank)
 	self.sections = {}
 	for bag in pairs(self.bags) do
 		self.content[bag] = {}
+		tinsert(bagSlots, bag)
 	end
-
-	self:SetScript('OnShow', self.OnShow)
-	self:SetScript('OnHide', self.OnHide)
+	
+	self.slotPanel = addon:CreateBagSlotPanel(self, name, bagSlots, isBank)
+	wipe(bagSlots)
 
 	local closeButton = CreateFrame("Button", self:GetName().."CloseButton", self, "UIPanelCloseButton")
 	self.closeButton = closeButton

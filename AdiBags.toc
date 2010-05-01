@@ -25,6 +25,7 @@ libs\AceConfig-3.0\AceConfig-3.0.xml
 
 AdiBags.lua
 ContainerFrame.lua
+BagSlots.lua
 ItemButton.lua
 DataSource.lua
 Filtering.lua
