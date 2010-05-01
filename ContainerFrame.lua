@@ -16,7 +16,8 @@ containerProto.Debug = addon.Debug
 
 local ITEM_SIZE = 37
 local ITEM_SPACING = 4
-local BAG_WIDTH = 10
+local SECTION_SPACING = ITEM_SIZE / 3 + ITEM_SPACING
+local BAG_WIDTH = 12
 local BAG_INSET = 8
 local TOP_PADDING = 32
 
@@ -257,7 +258,7 @@ function containerProto:FullUpdate(event, forceUpdate)
 					self.stacks[stackKey] = button
 				end
 				if not self.sections[sectionName] then
-					self.sections[sectionName] = {}
+					self.sections[sectionName] = { name = sectionName }
 					dirtyLayout = true
 				end
 				tinsert(self.sections[sectionName], button)
@@ -278,46 +279,77 @@ function containerProto:FullUpdate(event, forceUpdate)
 	end
 end
 
+local function CompareSections(a, b)
+	local numA, numB = math.min(#a, BAG_WIDTH), math.min(#b, BAG_WIDTH)
+	if numA == numB then
+		return a.name < b.name
+	else
+		return numA > numB
+	end
+end
+
+local function GetNextSection(sections, remainingwidth, atLineStart)
+	local bestIndex, leastWasted
+	for index, section in ipairs(sections) do
+		if atLineStart and section.count >= BAG_WIDTH then
+			return tremove(sections, index)
+		else
+			local wasted = remainingwidth - section.width
+			if wasted >= 0 and (not leastWasted or wasted < leastWasted) then
+				bestIndex, leastWasted = index, wasted
+			end
+		end
+	end
+	if bestIndex then
+		return tremove(sections, bestIndex)
+	end
+end
+
 local sectionOrder = {}
 function containerProto:Layout()
 
 	for name, section in pairs(self.sections) do
 		if #section > 0 then
-			tinsert(sectionOrder, name)
+			if not section.header then
+				header = self:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+				section.header = header
+				header:SetText(section.name)
+				header:SetPoint("BOTTOMLEFT")
+				header:Show()
+				section.headerWidth = header:GetStringWidth() + 8
+			end
+			section.count = #section
+			section.width = math.max(section.headerWidth, section.count * ITEM_SIZE + math.max(section.count-1, 0) * ITEM_SPACING)
+			tinsert(sectionOrder, section)
 		elseif section.header then
 			section.header:Hide()
 		end
 	end
-	table.sort(sectionOrder)
+	table.sort(sectionOrder, CompareSections)
 	
 	local lastWasMultiline = false
 	local maxWidth = ITEM_SIZE * BAG_WIDTH + ITEM_SPACING * (BAG_WIDTH - 1)
 	local maxX = 0
 	local x, y = 0, 0
-	for i, name in ipairs(sectionOrder) do
-		local section = self.sections[name]
-		
-		local header = section.header
-		if not header then
-			header = self:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-			section.header = header
-			header:SetText(name)
+	
+	while next(sectionOrder) do
+		local atLineStart = (lastWasMultiline or x == 0)
+		local remainingWidth = atLineStart and maxWidth or (maxWidth - x - SECTION_SPACING)
+		local section = GetNextSection(sectionOrder, remainingWidth, atLineStart)
+		if not section then
+			section = GetNextSection(sectionOrder, maxWidth, true)
 		end
-		header:SetPoint("BOTTOMLEFT")
-		header:Show()
-		local headerWidth = header:GetStringWidth() + 8
-		local numButtons = #section
-		local sectionWidth = math.max(headerWidth, numButtons * ITEM_SIZE + math.max(numButtons-1, 0) * ITEM_SPACING)
+	
 		if x > 0 then
-			x = x + ITEM_SPACING + ITEM_SIZE / 3
-			if lastWasMultiline or x + sectionWidth > maxWidth then
-				y = y + ITEM_SIZE + 2 * ITEM_SPACING + header:GetStringHeight()
+			x = x + SECTION_SPACING
+			if lastWasMultiline or x + section.width > maxWidth then
+				y = y + ITEM_SIZE + 2 * ITEM_SPACING + section.header:GetStringHeight()
 				x = 0
 			end
 		elseif y == 0 then
-			y = header:GetStringHeight() + ITEM_SPACING
+			y = section.header:GetStringHeight() + ITEM_SPACING
 		end
-		header:SetPoint('BOTTOMLEFT', self, 'TOPLEFT', BAG_INSET + x, - TOP_PADDING - y + ITEM_SPACING)
+		section.header:SetPoint('BOTTOMLEFT', self, 'TOPLEFT', BAG_INSET + x, - TOP_PADDING - y + ITEM_SPACING)
 		lastWasMultiline = false
 		
 		table.sort(section, CompareButtons)
@@ -332,7 +364,6 @@ function containerProto:Layout()
 			maxX = math.max(x + ITEM_SIZE, maxX)
 			x = x + ITEM_SIZE + ITEM_SPACING
 		end
-		--x = x + ITEM_SPACING + ITEM_SIZE / 3
 	end
 	wipe(sectionOrder)
 
