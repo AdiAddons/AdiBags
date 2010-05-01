@@ -147,12 +147,12 @@ local function CompareItems(idA, idB)
 	local nameB, _, qualityB, levelB, _, classB, subclassB, _, equipSlotB = GetItemInfo(idB)
 	local equipLocA = EQUIP_LOCS[equipSlotA or ""]
 	local equipLocB = EQUIP_LOCS[equipSlotB or ""]
-	if classA ~= classB then
+	if equipLocA and equipLocB and equipLocA ~= equipLocB then
+		return equipLocA < equipLocB
+	elseif classA ~= classB then
 		return classA < classB
 	elseif subclassA ~= subclassB then
 		return subclassA < subclassB
-	elseif equipLocA and equipLocB and equipLocA ~= equipLocB then
-		return equipLocA < equipLocB
 	elseif qualityA ~= qualityB then
 		return qualityA > qualityB
 	elseif levelA ~= levelB then
@@ -164,9 +164,7 @@ end
 
 local itemCompareCache = setmetatable({}, { 
 	__index = function(t, key)
-		local idA, idB = strsplit(':', key)
-		idA, idB = tonumber(idA), idB
-		local result = CompareItems(idA, idB)
+		local result = CompareItems(strsplit(':', key, 2))
 		t[key] = result
 		return result
 	end
