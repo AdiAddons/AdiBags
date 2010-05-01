@@ -157,9 +157,9 @@ function buttonProto:FullUpdate(event)
 	else
 		self.Count:Hide()
 	end	
-	self:UpdateLock(event)
 	self:UpdateBorder(event)
 	self:UpdateCooldown(event)
+	self:UpdateLock(event)
 	self:UpdateSearchStatus(event)
 end
 
@@ -196,13 +196,7 @@ function buttonProto:UpdateBorder(event)
 end
 
 function buttonProto:UpdateCooldown(event)
-	local start, duration, enable =  GetContainerItemCooldown(self.bag, self.slot)
-	if enable == 1 and start and start > 0 then
-		self.Cooldown:SetCooldown(start, duration)
-		self.Cooldown:Show()
-	else
-		self.Cooldown:Hide()
-	end
+	return ContainerFrame_UpdateCooldown(self.bag, self)
 end
 
 function buttonProto:UpdateSearchStatus(event)
