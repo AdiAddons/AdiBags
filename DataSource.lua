@@ -12,7 +12,7 @@ local dataobj = {
 	type = 'data source',
 	label = addonName,
 	text = addonName,
-	icon = [[Interface\Icons\INV_Misc_Bag_08]],
+	icon = [[Interface\Buttons\Button-Backpack-Up]],
 	OnClick = function() addon:OpenAllBags() end,
 }
 
