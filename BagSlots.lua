@@ -80,7 +80,7 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	end
 	
 	local title = self:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-	title:SetText(name.." Bags")
+	title:SetText("Equipped bags")
 	title:SetTextColor(1, 1, 1)
 	title:SetJustifyH("LEFT")
 	title:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)

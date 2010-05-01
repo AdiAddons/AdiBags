@@ -50,6 +50,20 @@ local function BagSlotButton_OnClick(button)
 	end
 end
 
+local function BagSlotButton_OnEnter(button)
+	GameTooltip:SetOwner(button, "ANCHOR_BOTTOMLEFT", -8, 0)
+	GameTooltip:ClearLines()
+	GameTooltip:AddLine("Equipped bags", 1, 1, 1)
+	GameTooltip:AddLine("Click to show/hide the equipped bags so you can change them.")
+	GameTooltip:Show()
+end
+
+local function BagSlotButton_OnLeave(button)
+	if GameTooltip:GetOwner() == button then
+		GameTooltip:Hide()
+	end
+end
+
 local bagSlots = {}
 function containerProto:OnCreate(name, bags, isBank)
 	self:SetScale(0.8)
@@ -87,6 +101,8 @@ function containerProto:OnCreate(name, bags, isBank)
 	bagSlotButton:SetCheckedTexture([[Interface\Buttons\CheckButtonHilight]])
 	bagSlotButton:GetCheckedTexture():SetBlendMode("ADD")
 	bagSlotButton:SetScript('OnClick', BagSlotButton_OnClick)
+	bagSlotButton:SetScript('OnEnter', BagSlotButton_OnEnter)
+	bagSlotButton:SetScript('OnLeave', BagSlotButton_OnLeave)
 	bagSlotButton.panel = bagSlotPanel
 	bagSlotButton:SetWidth(18)
 	bagSlotButton:SetHeight(18)
