@@ -91,27 +91,27 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	local height = 0
 	for i, bag in ipairs(bags) do
 		if bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER then
+			local button
 			local id, name, template
 			if isBank then
-				template = "BankItemButtonBagTemplate" 
-				id = bag
-				name = string.format("AdiBank__Bag%d", id - NUM_BAG_SLOTS)
+				button = CreateFrame("Button", string.format("AdiBank__Bag%d", bag - NUM_BAG_SLOTS), self, "BankItemButtonBagTemplate")
+				button:SetID(bag)
 			else
-				template = "BagSlotButtonTemplate"
-				id = bag - 1
-				name = string.format("AdiBag___Bag%dSlot", id)
+				button = CreateFrame("CheckButton", string.format("AdiBag___Bag%dSlot", bag - 1), self, "BagSlotButtonTemplate")
+				local normalTexture = button:GetNormalTexture()
+				normalTexture:SetWidth(64 * 37 / ITEM_SIZE)
+				normalTexture:SetHeight(64 * 37 / ITEM_SIZE)
 			end
-			local button = CreateFrame("CheckButton", name, self, template)
-			button:SetID(id)
+			button:SetWidth(ITEM_SIZE)
+			button:SetHeight(ITEM_SIZE)
 			button:SetPoint("TOPLEFT", x, -TOP_PADDING)
-			x = x + button:GetWidth() + ITEM_SPACING
-			height = button:GetHeight()
+			x = x + ITEM_SIZE + ITEM_SPACING
 			tinsert(self.buttons, button)
 		end
 	end
 	
 	self:SetWidth(x + BAG_INSET)
-	self:SetHeight(BAG_INSET + TOP_PADDING + height)
+	self:SetHeight(BAG_INSET + TOP_PADDING + ITEM_SIZE)
 
 	return self
 end
