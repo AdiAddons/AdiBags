@@ -195,12 +195,17 @@ function addon:GetBag(name, noCreate)
 		searchEditBox:SetAutoFocus(false)
 		searchEditBox:SetPoint("TOPRIGHT", -32, -8)
 		searchEditBox:SetWidth(100)
-		searchEditBox:SetHeight(14)
+		searchEditBox:SetHeight(18)
 		searchEditBox:SetScript("OnEnterPressed", SearchEditBox_OnEnterPressed)
 		searchEditBox:SetScript("OnEscapePressed", SearchEditBox_OnEscapePressed)
 		searchEditBox:SetScript("OnTextChanged", SearchEditBox_OnTextChanged)
 		self.searchEditBox = searchEditBox
-		
+
+		local searchLabel = searchEditBox:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+		searchLabel:SetPoint("TOPRIGHT", searchEditBox, "TOPLEFT", -4, 0)
+		searchLabel:SetText("Search: ")
+		searchLabel:SetHeight(18)
+
 	elseif name == "Bank" then
 		bag = self:CreateBag("Bank", self.BAG_IDS.BANK, true)
 		bag:SetPoint("BOTTOMRIGHT", self:GetBag("Backpack"), "BOTTOMLEFT", -10, 0)

@@ -112,5 +112,7 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	
 	self:SetWidth(x + BAG_INSET)
 	self:SetHeight(BAG_INSET + TOP_PADDING + height)
+
+	return self
 end
 

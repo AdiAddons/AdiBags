@@ -42,6 +42,14 @@ local function CloseButton_OnClick(button)
 	button:GetParent():Hide()
 end
 
+local function BagSlotButton_OnClick(button)
+	if button:GetChecked() then
+		button.panel:Show()
+	else
+		button.panel:Hide()
+	end
+end
+
 local bagSlots = {}
 function containerProto:OnCreate(name, bags, isBank)
 	self:SetScale(0.8)
@@ -65,20 +73,32 @@ function containerProto:OnCreate(name, bags, isBank)
 		tinsert(bagSlots, bag)
 	end
 	
-	self.slotPanel = addon:CreateBagSlotPanel(self, name, bagSlots, isBank)
+	local bagSlotPanel = addon:CreateBagSlotPanel(self, name, bagSlots, isBank)
+	bagSlotPanel:Hide()
 	wipe(bagSlots)
 
-	local closeButton = CreateFrame("Button", self:GetName().."CloseButton", self, "UIPanelCloseButton")
+	local closeButton = CreateFrame("Button", nil, self, "UIPanelCloseButton")
 	self.closeButton = closeButton
 	closeButton:SetPoint("TOPRIGHT")
 	closeButton:SetScript('OnClick', CloseButton_OnClick)
 
-	local title = self:CreateFontString(self:GetName().."Title","OVERLAY","GameFontNormalLarge")
+	local bagSlotButton = CreateFrame("CheckButton", nil, self)
+	bagSlotButton:SetNormalTexture([[Interface\Buttons\Button-Backpack-Up]])
+	bagSlotButton:SetCheckedTexture([[Interface\Buttons\CheckButtonHilight]])
+	--bagSlotButton:GetCheckedTexture():SetBlendMode("ADD")
+	bagSlotButton:SetScript('OnClick', BagSlotButton_OnClick)
+	bagSlotButton.panel = bagSlotPanel
+	bagSlotButton:SetWidth(18)
+	bagSlotButton:SetHeight(18)
+	bagSlotButton:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
+
+	local title = self:CreateFontString(nil,"OVERLAY","GameFontNormalLarge")
 	title:SetText(name)
 	title:SetTextColor(1, 1, 1)
+	title:SetHeight(18)
 	title:SetJustifyH("LEFT")
-	title:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
-	title:SetPoint("RIGHT", closeButton, "LEFT", -8, 0)
+	title:SetPoint("TOPLEFT", bagSlotButton, "TOPRIGHT", 4, 0)
+	title:SetPoint("RIGHT", closeButton, "LEFT", -4, 0)
 end
 
 function containerProto:OnShow()
