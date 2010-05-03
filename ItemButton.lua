@@ -9,11 +9,10 @@ local addonName, addon = ...
 local buttonProto = setmetatable({
 	Debug = addon.Debug
 }, { __index = CreateFrame("Button", nil, nil, "ContainerFrameItemButtonTemplate") })
-local buttonMeta = { __index = buttonProto }
+local buttonMeta = { __index = buttonProto, __tostring = function(self) return self:ToString() end }
 local buttonCount = 1
 local heap = {}
 LibStub('AceEvent-3.0'):Embed(buttonProto)
---LibStub('AceBucket-3.0'):Embed(buttonProto)
 
 function addon:AcquireItemButton()
 	local button = next(heap)
@@ -26,18 +25,20 @@ function addon:AcquireItemButton()
 		button:Hide()
 		button:OnCreate()
 	end
-	button:OnAcquire()
 	return button
 end
 
 function buttonProto:Release()
-	self:UnregisterAllEvents()
-	--self:UnregisterAllBuckets()
-	self:SetBagSlot(nil, nil)
 	self:Hide()
-	self:SetParent(nil)
+	self:SetSection(nil)
+	self:SetBagSlot(nil, nil)
 	self:ClearAllPoints()
+	self:SetParent(nil)
 	heap[self] = true
+end
+
+function buttonProto:ToString()
+	return string.format("Button-%s-%s", tostring(self.bag), tostring(self.slot))
 end
 
 local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture" }
@@ -47,21 +48,28 @@ function buttonProto:OnCreate()
 	for i, childName in pairs(childrenNames ) do
 		self[childName] = _G[name..childName]
 	end
-	self:SetScript('OnShow', function() self:FullUpdate('OnShow') end)
+	self:SetScript('OnShow', self.OnShow)
+	self:SetScript('OnHide', self.OnHide)
 	self:SetScript('OnEvent', self.OnEvent)
 end
 
-function buttonProto:OnAcquire()
+function buttonProto:OnShow()
 	self:RegisterEvent('BAG_UPDATE_COOLDOWN')
 	self:RegisterEvent('ITEM_LOCK_CHANGED')
 	self:RegisterEvent('QUEST_ACCEPTED')
 	self:RegisterEvent('UNIT_QUEST_LOG_CHANGED')
+	self:FullUpdate('OnShow')
+end
+
+function buttonProto:OnHide()
+	self:UnregisterAllEvents()
 end
 
 function buttonProto:SetBagSlot(bag, slot)
 	local changed = bag ~= self.bag or slot ~= self.slot
 	if changed then
 		self.bag, self.slot = bag, slot
+		self.slotId = addon.GetSlotId(bag, slot)
 		self:SetParent(bag and addon.itemParentFrames[bag] or nil)
 		if bag and slot then
 			self:SetID(slot)	
@@ -79,6 +87,29 @@ function buttonProto:SetBagSlot(bag, slot)
 		self:FullUpdate('OnSetBagSlot')
 	end
 	return changed
+end
+
+function buttonProto:GetBagSlot()
+	return self.bag, self.slot
+end
+
+function buttonProto:GetSlotId()
+	return self.slotId
+end
+
+function buttonProto:SetSection(section)
+	local oldSection = self.section
+	if oldSection ~= section then
+		if oldSection then
+			oldSection:RemoveItemButton(self)
+		end
+		self.section = section
+		return true
+	end
+end
+
+function buttonProto:GetSection()
+	return self.section
 end
 
 function buttonProto:SetStackable(stackType, stackData)
@@ -115,12 +146,6 @@ end
 function buttonProto:IsBankItem()
 	return not not addon.BAG_IDS.BANK[self.bag or ""]
 end
-
---[[
-function buttonProto:HasItem()
-	return self.bag and self.slot and not not GetContainerItemID(self.bag, self.slot) or false
-end
---]]
 
 function buttonProto:OnEvent(event, ...)
 	if not self:IsVisible() or not self.bag or not self.slot then return end
@@ -214,4 +239,3 @@ function buttonProto:UpdateSearchStatus(event)
 		self:SetAlpha(0.3)
 	end
 end
-

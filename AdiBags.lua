@@ -18,7 +18,9 @@ _G[addonName] = addon
 if tekDebug then
 	local frame = tekDebug:GetFrame(addonName)
 	function addon:Debug(...)
-		if self.GetName then
+		if self.ToString then
+			self = self:ToString()
+		elseif self.GetName then
 			self = self:GetName()
 		elseif self == addon then
 			self = 'Core'
@@ -85,13 +87,28 @@ function addon:GetFamilyTag(family)
 	end
 end
 
+addon.ITEM_SIZE = 37
+addon.ITEM_SPACING = 4
+addon.SECTION_SPACING = addon.ITEM_SIZE / 3 + addon.ITEM_SPACING
+addon.BAG_WIDTH = 12
+addon.BAG_INSET = 8
+addon.TOP_PADDING = 32
+
+addon.BACKDROP = {
+		bgFile = "Interface/Tooltips/UI-Tooltip-Background",
+		edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+		tile = true, tileSize = 16, edgeSize = 16,
+		insets = { left = 5, right = 5, top = 5, bottom = 5 }
+}
 
 --------------------------------------------------------------------------------
 -- Addon initialization and enabling
 --------------------------------------------------------------------------------
 
 function addon:OnInitialize()
-	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", {profile = {},}, true)
+	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", {profile = {
+		anchor = {},
+	},}, true)
 	addon.itemParentFrames = {}
 	addon.bags = { Bank = true, Backpack = true }
 	
@@ -124,6 +141,22 @@ end
 function addon:BANKFRAME_CLOSED()
 	self.atBank = false
 	self:CloseAllBags()
+end
+
+--------------------------------------------------------------------------------
+-- Helpers
+--------------------------------------------------------------------------------
+
+function addon.GetSlotId(bag, slot)
+	if bag and slot then
+		return bag * 256 + slot
+	end
+end
+
+function addon.GetBagSlotFromId(slotId)
+	if slotId then
+		return math.floor(slotId / 256), slotId % 256
+	end
 end
 
 --------------------------------------------------------------------------------

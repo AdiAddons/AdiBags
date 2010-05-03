@@ -6,27 +6,18 @@ All rights reserved.
 
 local addonName, addon = ...
 
+local GetSlotId = addon.GetSlotId 
+local GetBagSlotFromId = addon.GetBagSlotFromId
+
+local ITEM_SIZE = addon.ITEM_SIZE
+local ITEM_SPACING = addon.ITEM_SPACING
+local SECTION_SPACING = addon. SECTION_SPACING
+local BAG_WIDTH = addon.BAG_WIDTH
+local BAG_INSET = addon.BAG_INSET
+local TOP_PADDING = addon.TOP_PADDING
+
 local containerProto = setmetatable({}, { __index = CreateFrame("Frame") })
-local containerMeta = { __index = containerProto }
-local containerCount = 1
-LibStub('AceEvent-3.0'):Embed(containerProto)
-LibStub('AceBucket-3.0'):Embed(containerProto)
-
-containerProto.Debug = addon.Debug
-
-local ITEM_SIZE = 37
-local ITEM_SPACING = 4
-local SECTION_SPACING = ITEM_SIZE / 3 + ITEM_SPACING
-local BAG_WIDTH = 12
-local BAG_INSET = 8
-local TOP_PADDING = 32
-
-local BACKDROP = {
-		bgFile = "Interface/Tooltips/UI-Tooltip-Background",
-		edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-		tile = true, tileSize = 16, edgeSize = 16,
-		insets = { left = 5, right = 5, top = 5, bottom = 5 }
-}
+local containerMeta = { __index = containerProto, __tostring = function(self) return self:ToString() end }
 
 function addon:CreateContainerFrame(name, bags, isBank)
 	local container = setmetatable(CreateFrame("Frame", addonName..name, UIParent), containerMeta)
@@ -37,6 +28,12 @@ function addon:CreateContainerFrame(name, bags, isBank)
 	container:OnCreate(name, bags, isBank)
 	return container
 end
+
+LibStub('AceEvent-3.0'):Embed(containerProto)
+LibStub('AceBucket-3.0'):Embed(containerProto)
+containerProto.Debug = addon.Debug
+
+function containerProto:ToString() return self.name or self:GetName() end
 
 local function CloseButton_OnClick(button)
 	button:GetParent():Hide()
@@ -69,21 +66,26 @@ function containerProto:OnCreate(name, bags, isBank)
 	self:SetScale(0.8)
 	self:SetFrameStrata("HIGH")
 
-	self:SetBackdrop(BACKDROP)
+	self:SetBackdrop(addon.BACKDROP)
 	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
 
 	self:SetScript('OnShow', self.OnShow)
 	self:SetScript('OnHide', self.OnHide)
 
+	self.name = name
 	self.bags = bags
 	self.isBank = isBank
 	self.buttons = {}
 	self.content = {}
 	self.stacks = {}
 	self.sections = {}
+	
+	self.added = {}
+	self.removed = {}
+
 	for bag in pairs(self.bags) do
-		self.content[bag] = {}
+		self.content[bag] = { size = 0 }
 		tinsert(bagSlots, bag)
 	end
 	
@@ -126,7 +128,7 @@ function containerProto:OnShow()
 	for bag in pairs(self.bags) do
 		self:UpdateContent("OnShow", bag)
 	end
-	return self:FullUpdate('OnShow', true)
+	return self:Update('OnShow', true)
 end
 
 function containerProto:OnHide()
@@ -136,190 +138,135 @@ end
 
 function containerProto:UpdateContent(event, bag)
 	self:Debug('UpdateContent', event, bag)
-	local bagContent = self.content[bag]
-	bagContent.size = GetContainerNumSlots(bag)
-	for slot = 1, bagContent.size do
-		local link = GetContainerItemLink(bag, slot)
-		if link ~= bagContent[slot] then
-			bagContent[slot] = link
-			self.dirty = true
+	local added, removed = self.added, self.removed
+	local content = self.content[bag]
+	local newSize = GetContainerNumSlots(bag)
+	content.family = select(2, GetContainerNumFreeSlots(bag))
+	for slot = 1, newSize do
+		local oldItem, newItem = content[slot], (GetContainerItemLink(bag, slot) or false)
+		if oldItem ~= newItem then
+			content[slot] = newItem
+			local slotId = GetSlotId(bag, slot)
+			added[slotId] = newItem
+			removed[slotId] = oldItem
 		end
 	end
-	if #bagContent > bagContent.size then
-		self.dirty = true
-		for slot = bagContent.size+1, #bagContent do
-			bagContent[slot] = nil
-		end
+	for slot = content.size, newSize + 1, -1 do
+		removed[GetSlotId(bag, slot)] = content[slot]
+		content[slot] = nil
 	end
+	content.size = newSize
 end
 
-local EQUIP_LOCS = {
-	INVTYPE_AMMO = 0,
-	INVTYPE_HEAD = 1,
-	INVTYPE_NECK = 2,
-	INVTYPE_SHOULDER = 3,
-	INVTYPE_BODY = 4,
-	INVTYPE_CHEST = 5,
-	INVTYPE_ROBE = 5,
-	INVTYPE_WAIST = 6,
-	INVTYPE_LEGS = 7,
-	INVTYPE_FEET = 8,
-	INVTYPE_WRIST = 9,
-	INVTYPE_HAND = 10,
-	INVTYPE_FINGER = 11,
-	INVTYPE_TRINKET = 13,
-	INVTYPE_CLOAK = 15,
-	INVTYPE_WEAPON = 16,
-	INVTYPE_SHIELD = 17,
-	INVTYPE_2HWEAPON = 16,
-	INVTYPE_WEAPONMAINHAND = 16,
-	INVTYPE_WEAPONOFFHAND = 17,
-	INVTYPE_HOLDABLE = 17,
-	INVTYPE_RANGED = 18,
-	INVTYPE_THROWN = 18,
-	INVTYPE_RANGEDRIGHT = 18,
-	INVTYPE_RELIC = 18,
-	INVTYPE_TABARD = 19,
-	INVTYPE_BAG = 20,
-}
+function containerProto:HasContentChanged()
+	return not not (next(self.added) or next(self.removed))
+end
 
-local function CompareItems(idA, idB)
-	local nameA, _, qualityA, levelA, _, classA, subclassA, _, equipSlotA = GetItemInfo(idA)
-	local nameB, _, qualityB, levelB, _, classB, subclassB, _, equipSlotB = GetItemInfo(idB)
-	local equipLocA = EQUIP_LOCS[equipSlotA or ""]
-	local equipLocB = EQUIP_LOCS[equipSlotB or ""]
-	if equipLocA and equipLocB and equipLocA ~= equipLocB then
-		return equipLocA < equipLocB
-	elseif classA ~= classB then
-		return classA < classB
-	elseif subclassA ~= subclassB then
-		return subclassA < subclassB
-	elseif qualityA ~= qualityB then
-		return qualityA > qualityB
-	elseif levelA ~= levelB then
-		return levelA > levelB
+function containerProto:BagsUpdated(bags)
+	self:Debug('BagsUpdated', bags)
+	for bag in pairs(bags) do
+		if self.bags[bag] then
+			self:UpdateContent("BagsUpdated", bag)
+		end
+	end
+	if self:HasContentChanged() then
+		self:Debug('BagsUpdated: content changed')
+		return self:Update("BagsUpdated")
 	else
-		return nameA < nameB
+		self:Debug('BagsUpdated: only update buttons')
+		for i, button in pairs(self.buttons) do
+			if bags[button.bag] then
+				button:FullUpdate("BagsUpdated")
+			end
+		end
 	end
 end
 
-local itemCompareCache = setmetatable({}, { 
-	__index = function(t, key)
-		local result = CompareItems(strsplit(':', key, 2))
-		t[key] = result
-		return result
-	end
-})
-
-local GetContainerItemID = GetContainerItemID
-local GetContainerItemInfo = GetContainerItemInfo
-local GetContainerNumFreeSlots = GetContainerNumFreeSlots
-local strformat = string.format
-
-local function CompareButtons(a, b)
-	local idA = GetContainerItemID(a.bag, a.slot)
-	local idB = GetContainerItemID(b.bag, b.slot)
-	if idA and idB then
-		if idA ~= idB then
-			return itemCompareCache[strformat("%d:%d", idA, idB)]
-		else
-			local _, countA = GetContainerItemInfo(a.bag, a.slot)
-			local _, countB = GetContainerItemInfo(b.bag, b.slot)
-			return countA > countB
-		end
-	elseif not idA and not idB then
-		local _, famA = GetContainerNumFreeSlots(a.bag)
-		local _, famB = GetContainerNumFreeSlots(b.bag)
-		if famA and famB and famA ~= famB then
-			return famA < famB
-		end
-	end
-	return (idA and 1 or 0) > (idB and 1 or 0)
-end
-
-function containerProto:SetupItemButton(index)
-	local button = self.buttons[index]
+function containerProto:AcquireItemButton(slotId)
+	local button = self.buttons[slotId]
 	if not button then
 		button = addon:AcquireItemButton()
 		button:SetWidth(ITEM_SIZE)
 		button:SetHeight(ITEM_SIZE)
-		self.buttons[index] = button
+		button:SetBagSlot(GetBagSlotFromId(slotId))
+		self.buttons[slotId] = button
 	end
 	return button
 end
 
-function containerProto:ReleaseItemButton(index)
-	local button = self.buttons[index]
-	if not button then return end
-	self.buttons[index] = nil
+function containerProto:ReleaseItemButton(button)
+	self.buttons[button:GetSlotId()] = nil
 	button:Release()
-	return true
 end
 
-function containerProto:FullUpdate(event, forceUpdate)
-	if not self.dirty and not forceUpdate then return end
-	self:Debug('Updating on', event)
-	self.dirty = nil
-	wipe(self.stacks)
+function containerProto:DispatchItem(slotId, link)
+	local sectionName, stackType, stackData
+	local bag, slot = GetBagSlotFromId(slotId)
+	if link then
+		local itemId = tonumber(link:match('item:(%d+)'))
+		sectionName, stackType, stackData = addon:Filter(bag, slot, itemId, link)
+	else
+		sectionName, stackType, stackData = "Free", 'free', self.content[bag].family
+	end
+	if true or not stackType then
+		local section = self.sections[sectionName]
+		if not section then
+			section = addon:AcquireSection(self, sectionName)
+			self.sections[sectionName] = section
+		end
+		local button = self:AcquireItemButton(slotId)
+		section:AddItemButton(slotId, button)
+		return button
+	end
+end
 
-	local dirtyLayout = forceUpdate
-	for name, section in pairs(self.sections) do
-		for i in ipairs(section) do
-			section[i] = nil
+function containerProto:Update(event, forceLayout)
+	local dirtyLayout = forceLayout	
+
+	if self:HasContentChanged() then
+		self:Debug('Updating on', event)
+		
+		local added, removed = self.added, self.removed
+
+		local n
+		if next(removed) then
+			n = 0
+			for slotId in pairs(removed) do
+				local button = self.buttons[slotId]
+				self:ReleaseItemButton(button)
+				n = n + 1
+			end	
+			self:Debug('Removed', n, 'items')
+			wipe(removed)
 		end
-	end
-	
-	local index = 0
-	addon:PreFilter(event, self)
-	for bag, content in pairs(self.content) do
-		local _, bagFamily = GetContainerNumFreeSlots(bag)
-		for slot = 1, content.size do
-			local link = content[slot]
-			local sectionName, stackType, stackData
-			if link then
-				local itemId = tonumber(link:match('item:(%d+)'))			
-				sectionName, stackType, stackData = addon:Filter(bag, slot, itemId, link)
-				self:Debug('Filtering:', link, '=>', section, stackType, stackData)
-			else
-				sectionName, stackType, stackData = "Free", 'free', bagFamily
+
+		if next(added) then
+			addon:PreFilter(event, self)
+			n = 0
+			for slotId, link in pairs(added) do
+				self:DispatchItem(slotId, link)
+				n = n + 1
 			end
-			local stackKey = stackType and strjoin(':', tostringall(stackType, stackData))
-			if not stackKey or not self.stacks[stackKey] then
-				index = index + 1
-				local button = self:SetupItemButton(index)
-				if button:SetBagSlot(bag, slot) then
-					dirtyLayout = true
-				end
-				if button:SetStackable(stackType, stackData) then
-					dirtyLayout = true
-				end
-				if stackKey then
-					self.stacks[stackKey] = button
-				end
-				if not self.sections[sectionName] then
-					self.sections[sectionName] = { name = sectionName }
-					dirtyLayout = true
-				end
-				tinsert(self.sections[sectionName], button)
+			self:Debug('Added', n, 'items')
+			wipe(added)
+			addon:PostFilter(event, self)		
+		end
+
+		for name, section in pairs(self.sections) do
+			if section:LayoutDone(event) then
+				dirtyLayout = true
 			end
 		end
 	end
-	
-	addon:PostFilter(event, self)
-	
-	for unused = index+1, #self.buttons do
-		if self:ReleaseItemButton(unused) then
-			dirtyLayout = true
-		end
-	end
-	
-	if dirtyLayout then 
-		self:Layout()
+
+	if dirtyLayout then
+		self:Debug('Update: dirty layout')
+		self:Layout(event, forceLayout)
 	end
 end
 
 local function CompareSections(a, b)
-	local numA, numB = math.min(#a, BAG_WIDTH), math.min(#b, BAG_WIDTH)
+	local numA, numB = math.min(a.count, BAG_WIDTH), math.min(b.count, BAG_WIDTH)
 	if numA == numB then
 		return a.name < b.name
 	else
@@ -327,16 +274,12 @@ local function CompareSections(a, b)
 	end
 end
 
-local function GetNextSection(sections, remainingwidth, atLineStart)
+local function GetBestSection(sections, remainingWidth)
 	local bestIndex, leastWasted
 	for index, section in ipairs(sections) do
-		if atLineStart and section.count >= BAG_WIDTH then
-			return tremove(sections, index)
-		else
-			local wasted = remainingwidth - section.width
-			if wasted >= 0 and (not leastWasted or wasted < leastWasted) then
-				bestIndex, leastWasted = index, wasted
-			end
+		local wasted = remainingWidth - section:GetWidth()
+		if wasted >= 0 and (not leastWasted or wasted < leastWasted) then
+			bestIndex, leastWasted = index, wasted
 		end
 	end
 	if bestIndex then
@@ -344,87 +287,37 @@ local function GetNextSection(sections, remainingwidth, atLineStart)
 	end
 end
 
-local sectionOrder = {}
-function containerProto:Layout()
-
+local orderedSections = {}
+function containerProto:Layout(event, forceLayout)
+	self:Debug('Layout required')
+	
 	for name, section in pairs(self.sections) do
-		if #section > 0 then
-			if not section.header then
-				header = self:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-				section.header = header
-				header:SetText(section.name)
-				header:SetPoint("BOTTOMLEFT")
-				header:Show()
-				section.headerWidth = header:GetStringWidth() + 8
-			end
-			section.count = #section
-			section.width = math.max(section.headerWidth, section.count * ITEM_SIZE + math.max(section.count-1, 0) * ITEM_SPACING)
-			tinsert(sectionOrder, section)
-		elseif section.header then
-			section.header:Hide()
-		end
+		section:LayoutButtons(event, forceLayout)
+		tinsert(orderedSections, section)
 	end
-	table.sort(sectionOrder, CompareSections)
-	
-	local lastWasMultiline = false
-	local maxWidth = ITEM_SIZE * BAG_WIDTH + ITEM_SPACING * (BAG_WIDTH - 1)
-	local maxX = 0
-	local x, y = 0, 0
-	
-	while next(sectionOrder) do
-		local atLineStart = (lastWasMultiline or x == 0)
-		local remainingWidth = atLineStart and maxWidth or (maxWidth - x - SECTION_SPACING)
-		local section = GetNextSection(sectionOrder, remainingWidth, atLineStart)
-		if not section then
-			section = GetNextSection(sectionOrder, maxWidth, true)
-		end
-	
-		if x > 0 then
-			x = x + SECTION_SPACING
-			if lastWasMultiline or x + section.width > maxWidth then
-				y = y + ITEM_SIZE + 2 * ITEM_SPACING + section.header:GetStringHeight()
-				x = 0
-			end
-		elseif y == 0 then
-			y = section.header:GetStringHeight() + ITEM_SPACING
-		end
-		section.header:SetPoint('BOTTOMLEFT', self, 'TOPLEFT', BAG_INSET + x, - TOP_PADDING - y + ITEM_SPACING)
-		lastWasMultiline = false
-		
-		table.sort(section, CompareButtons)
-		for i, button in ipairs(section) do
-			if x + ITEM_SIZE > maxWidth then
-				x = 0
-				y = y + ITEM_SIZE + ITEM_SPACING
-				lastWasMultiline = true
-			end
-			button:SetPoint("TOPLEFT", self, "TOPLEFT", BAG_INSET + x, - TOP_PADDING - y)
-			button:Show()
-			maxX = math.max(x + ITEM_SIZE, maxX)
-			x = x + ITEM_SIZE + ITEM_SPACING
-		end
-	end
-	wipe(sectionOrder)
 
-	self:SetWidth(BAG_INSET * 2 + maxX)
-	self:SetHeight(BAG_INSET + TOP_PADDING + y + ITEM_SIZE)
-end
+	table.sort(orderedSections, CompareSections)
 
-function containerProto:BagsUpdated(bags)
-	self:Debug('BagsUpdated', bags)
-	for bag, x in pairs(bags) do
-		self:Debug('-', bag ,x)
-		if self.bags[bag] then
-			self:UpdateContent(event, bag)
+	local bagWidth = ITEM_SIZE * BAG_WIDTH + ITEM_SPACING * (BAG_WIDTH - 1)
+	local y, realWidth = 0, 0
+
+	while next(orderedSections) do
+		local rowHeight, x = 0, 0
+		local section = tremove(orderedSections, 1)
+		while section do
+			section:SetPoint('TOPLEFT', BAG_INSET + x, - TOP_PADDING - y)
+			
+			local sectionWidth = section:GetWidth()
+			realWidth = math.max(realWidth, x + sectionWidth)
+			rowHeight = math.max(rowHeight, section:GetHeight())
+			
+			x = x + sectionWidth + SECTION_SPACING
+			
+			section = GetBestSection(orderedSections, bagWidth - x)
 		end
+		y = y + rowHeight + ITEM_SPACING
 	end
-	if self.dirty then
-		return self:FullUpdate("BagsUpdated")
-	else
-		for i, button in pairs(self.buttons) do
-			if bags[button.bag] then
-				button:FullUpdate("BagsUpdated")
-			end
-		end
-	end
+
+	self:SetWidth(BAG_INSET * 2 + realWidth)
+	self:SetHeight(BAG_INSET + TOP_PADDING + y - ITEM_SPACING)
 end

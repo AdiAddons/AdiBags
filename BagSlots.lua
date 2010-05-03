@@ -6,27 +6,20 @@ All rights reserved.
 
 local addonName, addon = ...
 
-local ITEM_SIZE = 37
-local ITEM_SPACING = 4
-local BAG_INSET = 8
-local TOP_PADDING = 32
-
-local BACKDROP = {
-		bgFile = "Interface/Tooltips/UI-Tooltip-Background",
-		edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-		tile = true, tileSize = 16, edgeSize = 16,
-		insets = { left = 5, right = 5, top = 5, bottom = 5 }
-}
+local ITEM_SIZE = addon.ITEM_SIZE
+local ITEM_SPACING = addon.ITEM_SPACING
+local BAG_INSET = addon.BAG_INSET
+local TOP_PADDING = addon.TOP_PADDING
 
 local function BankBagPanel_UpdateStatus(self)
 	local numSlots = GetNumBankSlots()
 	for i, button in pairs(self.buttons) do
 		if i <= numSlots then
-			SetItemButtonTextureVertexColor(button, 1.0,1.0,1.0);
-			button.tooltipText = BANK_BAG;
+			SetItemButtonTextureVertexColor(button, 1, 1, 1)
+			button.tooltipText = BANK_BAG
 		else
-			SetItemButtonTextureVertexColor(button, 1.0,0.1,0.1);
-			button.tooltipText = BANK_BAG_PURCHASE;
+			SetItemButtonTextureVertexColor(button, 1, 0.1, 0.1)
+			button.tooltipText = BANK_BAG_PURCHASE
 		end
 	end
 end
@@ -68,7 +61,7 @@ end
 
 function addon:CreateBagSlotPanel(container, name, bags, isBank)	
 	local self = CreateFrame("Frame", container:GetName().."Bags", container)
-	self:SetBackdrop(BACKDROP)
+	self:SetBackdrop(addon.BACKDROP)
 	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
 	self:SetPoint("BOTTOMLEFT", container, "TOPLEFT", 0, 4)
