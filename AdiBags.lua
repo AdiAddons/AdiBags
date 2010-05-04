@@ -149,13 +149,13 @@ end
 
 function addon.GetSlotId(bag, slot)
 	if bag and slot then
-		return bag * 256 + slot
+		return bag * 100 + slot
 	end
 end
 
 function addon.GetBagSlotFromId(slotId)
 	if slotId then
-		return math.floor(slotId / 256), slotId % 256
+		return math.floor(slotId / 100), slotId % 100
 	end
 end
 
