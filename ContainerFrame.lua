@@ -113,16 +113,29 @@ function containerProto:OnShow()
 	if self.isBank then
 		self:RegisterEvent('BANKFRAME_CLOSED', "Hide")
 	end
-	self:RegisterBucketEvent('BAG_UPDATE', 0.1, "BagsUpdated")
-	for bag in pairs(self.bags) do
-		self:UpdateContent("OnShow", bag)
-	end
-	return self:Update('OnShow', true)
+	self.bucketHandle = self:RegisterBucketEvent('BAG_UPDATE', 0.1, "BagsUpdated")
+	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED')
+	self:RegisterEvent('EQUIPMENT_SWAP_PENDING')
+	self:UpdateAllContent(event)
 end
 
 function containerProto:OnHide()
 	self:UnregisterAllEvents()
 	self:UnregisterAllBuckets()
+end
+
+function containerProto:EQUIPMENT_SWAP_PENDING(event)
+	if self.bucketHandle then
+		self:UnregisterBucketEvent(self.bucketHandle)
+		self.bucketHandle = nil
+	end
+end
+
+function containerProto:EQUIPMENT_SWAP_FINISHED(event)
+	if not self.bucketHandle then
+		self.bucketHandle = self:RegisterBucketEvent('BAG_UPDATE', 0.1, "BagsUpdated")
+		self:UpdateAllContent(event)
+	end
 end
 
 function containerProto:UpdateContent(event, bag)
@@ -145,6 +158,13 @@ function containerProto:UpdateContent(event, bag)
 		content[slot] = nil
 	end
 	content.size = newSize
+end
+
+function containerProto:UpdateAllContent(event)
+	for bag in pairs(self.bags) do
+		self:UpdateContent("OnShow", bag)
+	end
+	return self:Update('OnShow', true)
 end
 
 function containerProto:HasContentChanged()
@@ -255,12 +275,12 @@ function containerProto:Update(event, forceLayout)
 end
 
 local function CompareSections(a, b)
-	local numA, numB = math.min(a.count, BAG_WIDTH), math.min(b.count, BAG_WIDTH)
-	if numA == numB then
+	--local numA, numB = a.count, b.count
+	--if numA == numB then
 		return a.name < b.name
-	else
-		return numA > numB
-	end
+	--else
+	--	return numA > numB
+	--end
 end
 
 local function GetBestSection(sections, remainingWidth)
@@ -281,8 +301,12 @@ function containerProto:Layout(event, forceLayout)
 	self:Debug('Layout required')
 	
 	for name, section in pairs(self.sections) do
-		section:LayoutButtons(event, forceLayout)
-		tinsert(orderedSections, section)
+		if section:LayoutButtons(event, forceLayout) then
+			tinsert(orderedSections, section)
+		else
+			section:Release()
+			self.sections[name] = nil
+		end
 	end
 
 	table.sort(orderedSections, CompareSections)
@@ -295,6 +319,7 @@ function containerProto:Layout(event, forceLayout)
 		local section = tremove(orderedSections, 1)
 		while section do
 			section:SetPoint('TOPLEFT', BAG_INSET + x, - TOP_PADDING - y)
+			section:Show()
 			
 			local sectionWidth = section:GetWidth()
 			realWidth = math.max(realWidth, x + sectionWidth)
