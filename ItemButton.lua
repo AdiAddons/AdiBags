@@ -6,6 +6,11 @@ All rights reserved.
 
 local addonName, addon = ...
 
+local GetSlotId = addon.GetSlotId
+local GetBagSlotFromId = addon.GetBagSlotFromId
+
+local ITEM_SIZE = addon.ITEM_SIZE
+
 --------------------------------------------------------------------------------
 -- Button initialization
 --------------------------------------------------------------------------------
@@ -23,6 +28,8 @@ function buttonProto:OnCreate()
 	self:SetScript('OnShow', self.OnShow)
 	self:SetScript('OnHide', self.OnHide)
 	self:SetScript('OnEvent', self.OnEvent)
+	self:SetWidth(ITEM_SIZE)
+	self:SetHeight(ITEM_SIZE)
 end
 
 function buttonProto:OnRelease()
@@ -85,39 +92,16 @@ function buttonProto:GetSection()
 	return self.section
 end
 
-function buttonProto:SetStackable(stackType, stackData)
-	local changed = self.stackType ~= stackType or self.stackData ~= stackData
-	if changed then
-		self.stackType, self.stackData = stackType, stackData
-		self:FullUpdate('OnSetStackable')
-	end
-	return changed
-end
-
 function buttonProto:GetCount()
-	local count, _ = 0
-	if self.stackType == "free" then
-		local bags = self:IsBankItem() and addon.BAG_IDS.BANK or addon.BAG_IDS.BAGS
-		for bag in pairs(bags) do
-			local free, family = GetContainerNumFreeSlots(bag)
-			if family == self.stackData then
-				count = count + free
-			end
-		end
-	elseif self.stackType == "item" then
-		if self:IsBankItem() then
-			count = GetItemCount(self.stackData, true) - GetItemCount(self.stackData)
-		else
-			count = GetItemCount(self.stackData)
-		end
-	else
-		_, count = GetContainerItemInfo(self.bag, self.slot)
-	end
-	return count
+	return select(2, GetContainerItemInfo(self.bag, self.slot))
 end
 
 function buttonProto:IsBankItem()
 	return not not addon.BAG_IDS.BANK[self.bag or ""]
+end
+
+function buttonProto:IsStack()
+	return false
 end
 
 --------------------------------------------------------------------------------
@@ -232,4 +216,85 @@ function buttonProto:UpdateSearchStatus(event)
 		self:SetAlpha(0.3)
 	end
 end
+
+--------------------------------------------------------------------------------
+-- Item stack button
+--------------------------------------------------------------------------------
+
+local stackClass, stackProto = addon:NewClass("StackButton", "ItemButton")
+addon:CreatePool(stackClass, "AcquireStackButton")
+
+function stackProto:OnCreate()
+	buttonProto.OnCreate(self)
+	self.slots = {}
+end
+
+function stackProto:OnAcquire(key)
+	self.key = key
+	self.count = 0
+end
+
+function stackProto:OnRelease()
+	self.key = nil
+	wipe(self.slots)
+	return buttonProto.OnRelease(self)
+end
+
+function stackProto:GetCount()
+	return self.count
+end
+
+function stackProto:IsStack()
+	return true
+end
+
+function stackProto:GetKey()
+	return self.key
+end
+
+function stackProto:FullUpdate(...)
+	if self:IsVisible() then
+		local count, num = 0, 0
+		for slotId in pairs(self.slots) do
+			local _, slotCount = GetContainerItemInfo(GetBagSlotFromId(slotId))
+			count = count + (slotCount or 1)
+			num = num + 1
+		end
+		self.count = count
+		self:Debug(count, 'items in', num, 'slots')
+	end
+	return buttonProto.FullUpdate(self, ...)
+end
+
+function stackProto:AddSlot(slotId)
+	local slots = self.slots
+	if not slots[slotId] then
+		slots[slotId] = true
+		if not self.slotId then
+			self:SetBagSlot(GetBagSlotFromId(slotId))
+		elseif self:IsVisible() then
+			self:FullUpdate('OnSlotAdded')
+		end
+		return true
+	end
+end
+
+function stackProto:RemoveSlot(slotId)
+	local slots = self.slots
+	if slots[slotId] then
+		slots[slotId] = nil
+		if slotId == self.slotId then
+			local newSlotId = next(slots)
+			self:SetBagSlot(GetBagSlotFromId(newSlotId))
+		elseif self:IsVisible() then
+			self:FullUpdate('OnSlotRemoved')
+		end
+		return true
+	end
+end
+
+function stackProto:IsEmpty()
+	return not next(self.slots)
+end
+
 

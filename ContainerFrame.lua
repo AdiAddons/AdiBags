@@ -208,24 +208,25 @@ function containerProto:BagsUpdated(bags)
 end
 
 --------------------------------------------------------------------------------
--- Button dispatching
+-- Item dispatching
 --------------------------------------------------------------------------------
 
-function containerProto:AcquireItemButton(slotId)
-	local button = self.buttons[slotId]
-	if not button then
-		button = addon:AcquireItemButton()
-		button:SetWidth(ITEM_SIZE)
-		button:SetHeight(ITEM_SIZE)
-		button:SetBagSlot(GetBagSlotFromId(slotId))
-		self.buttons[slotId] = button
+function containerProto:GetStackButton(key)
+	local stack = self.stacks[key]
+	if not stack then
+		stack = addon:AcquireStackButton(key)
+		self.stacks[key] = stack
 	end
-	return button
+	return stack
 end
 
-function containerProto:ReleaseItemButton(button)
-	self.buttons[button:GetSlotId()] = nil
-	button:Release()
+function containerProto:GetSection(name)
+	local section = self.sections[name]
+	if not section then
+		section = addon:AcquireSection(self, name)
+		self.sections[name] = section
+	end
+	return section
 end
 
 function containerProto:DispatchItem(slotId, link)
@@ -235,17 +236,37 @@ function containerProto:DispatchItem(slotId, link)
 		local itemId = tonumber(link:match('item:(%d+)'))
 		sectionName, stackType, stackData = addon:Filter(bag, slot, itemId, link)
 	else
-		sectionName, stackType, stackData = "Free", 'free', self.content[bag].family
+		sectionName, stackType, stackData = "Free", 'free', '-'
 	end
-	if true or not stackType then
-		local section = self.sections[sectionName]
-		if not section then
-			section = addon:AcquireSection(self, sectionName)
-			self.sections[sectionName] = section
+	local button = self.buttons[slotId]
+	if stackType then
+		local key = strjoin(':', tostringall(stackType, stackData, self.content[bag].family))
+		button = self:GetStackButton(key)
+		button:AddSlot(slotId)
+	elseif not button then
+		button = addon:AcquireItemButton()
+		button:SetBagSlot(bag, slot)
+	end
+	local section = self:GetSection(sectionName)
+	section:AddItemButton(slotId, button)
+	self.buttons[slotId] = button
+end
+
+function containerProto:RemoveSlot(slotId)
+	local button = self.buttons[slotId]
+	if button then
+		self.buttons[slotId] = nil
+		if button:IsStack() then
+			button:RemoveSlot(slotId)
+			if button:IsEmpty() then
+				self:Debug('Removing empty stack', button)
+				self.stacks[button:GetKey()] = nil
+				button:Release()
+			end
+		else
+			self:Debug('Removing item', button)
+			button:Release()
 		end
-		local button = self:AcquireItemButton(slotId)
-		section:AddItemButton(slotId, button)
-		return button
 	end
 end
 
@@ -261,8 +282,7 @@ function containerProto:Update(event, forceLayout)
 		if next(removed) then
 			n = 0
 			for slotId in pairs(removed) do
-				local button = self.buttons[slotId]
-				self:ReleaseItemButton(button)
+				self:RemoveSlot(slotId)
 				n = n + 1
 			end	
 			self:Debug('Removed', n, 'items')
@@ -282,7 +302,7 @@ function containerProto:Update(event, forceLayout)
 		end
 
 		for name, section in pairs(self.sections) do
-			if section:LayoutDone(event) then
+			if section:DispatchDone(event) then
 				dirtyLayout = true
 			end
 		end
@@ -299,12 +319,12 @@ end
 --------------------------------------------------------------------------------
 
 local function CompareSections(a, b)
-	--local numA, numB = a.count, b.count
-	--if numA == numB then
+	local numA, numB = a.count, b.count
+	if numA == numB then
 		return a.name < b.name
-	--else
-	--	return numA > numB
-	--end
+	else
+		return numA > numB
+	end
 end
 
 local function GetBestSection(sections, remainingWidth)

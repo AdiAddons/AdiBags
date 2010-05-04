@@ -62,11 +62,20 @@ end
 --------------------------------------------------------------------------------
 
 function sectionProto:AddItemButton(slotId, button)
-	if button:SetSection(self) then
+	if not self.buttons[button] then
+		button:SetSection(self)
 		self.buttons[button] = slotId
-		if not self.slots[button] then
-			self:PutButtonAt(button, next(self.freeSlots))
+		if self.slots[button] then
+			return
 		end
+		local freeSlots = self.freeSlots
+		for index = 1, self.width * self.height do
+			if freeSlots[index] then
+				self:PutButtonAt(button, index)
+				return
+			end
+		end
+		self.dirtyLayout = true
 	end
 end
 
@@ -81,7 +90,7 @@ function sectionProto:RemoveItemButton(button)
 	end
 end
 
-function sectionProto:LayoutDone(event)
+function sectionProto:DispatchDone(event)
 	local slots, freeSlots, buttons = self.slots, self.freeSlots, self.buttons
 	local count = 0
 	for button in pairs(buttons) do
