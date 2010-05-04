@@ -318,3 +318,4 @@ function addon:CloseAllBags()
 		self:CloseBag(name)
 	end
 end
+

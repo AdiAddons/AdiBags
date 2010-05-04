@@ -6,40 +6,8 @@ All rights reserved.
 
 local addonName, addon = ...
 
-local buttonProto = setmetatable({
-	Debug = addon.Debug
-}, { __index = CreateFrame("Button", nil, nil, "ContainerFrameItemButtonTemplate") })
-local buttonMeta = { __index = buttonProto, __tostring = function(self) return self:ToString() end }
-local buttonCount = 1
-local heap = {}
-LibStub('AceEvent-3.0'):Embed(buttonProto)
-
-function addon:AcquireItemButton()
-	local button = next(heap)
-	if button then
-		heap[button] = nil
-	else
-		button = setmetatable(CreateFrame("Button", addonName.."ItemButton"..buttonCount, nil, "ContainerFrameItemButtonTemplate"), buttonMeta)
-		buttonCount = buttonCount + 1
-		button:ClearAllPoints()
-		button:Hide()
-		button:OnCreate()
-	end
-	return button
-end
-
-function buttonProto:Release()
-	self:Hide()
-	self:SetSection(nil)
-	self:SetBagSlot(nil, nil)
-	self:ClearAllPoints()
-	self:SetParent(nil)
-	heap[self] = true
-end
-
-function buttonProto:ToString()
-	return string.format("Button-%s-%s", tostring(self.bag), tostring(self.slot))
-end
+local buttonClass, buttonProto = addon:NewClass("ItemButton", "Button", "ContainerFrameItemButtonTemplate", "AceEvent-3.0")
+addon:CreatePool(buttonClass, "AcquireItemButton")
 
 local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture" }
 
@@ -51,6 +19,15 @@ function buttonProto:OnCreate()
 	self:SetScript('OnShow', self.OnShow)
 	self:SetScript('OnHide', self.OnHide)
 	self:SetScript('OnEvent', self.OnEvent)
+end
+
+function buttonProto:OnRelease()
+	self:SetSection(nil)
+	self:SetBagSlot(nil, nil)
+end
+
+function buttonProto:ToString()
+	return string.format("Button-%s-%s", tostring(self.bag), tostring(self.slot))
 end
 
 function buttonProto:OnShow()

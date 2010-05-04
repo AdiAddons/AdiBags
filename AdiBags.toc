@@ -24,6 +24,7 @@ libs\AceConfig-3.0\AceConfig-3.0.xml
 #libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 
 AdiBags.lua
+OO.lua
 
 ContainerFrame.lua
 BagSlots.lua

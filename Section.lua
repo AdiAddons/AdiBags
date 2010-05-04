@@ -11,29 +11,8 @@ local ITEM_SPACING = addon.ITEM_SPACING
 local SLOT_OFFSET = ITEM_SIZE + ITEM_SPACING
 local HEADER_SIZE = 14 + ITEM_SPACING
 
-local sectionProto = setmetatable({}, { __index = CreateFrame("Frame") })
-local sectionMeta = { __index = sectionProto, __tostring = function(self) return self:ToString() end }
-local sectionCount = 0
-local heap = {}
-
-function addon:AcquireSection(container, name)
-	local section = next(heap)
-	if section then
-		heap[section] = nil
-	else
-		sectionCount = sectionCount + 1
-		section = setmetatable(CreateFrame("Frame", addonName.."Section"..sectionCount), sectionMeta)
-		section:OnCreate()
-	end
-	section:OnAcquire(container, name)
-	return section
-end
-
-sectionProto.Debug = addon.Debug
-
-function sectionProto:ToString()
-	return string.format("Section-%s", tostring(self.name))
-end
+local sectionClass, sectionProto = addon:NewClass("Section", "Frame")
+addon:CreatePool(sectionClass, "AcquireSection")
 
 function sectionProto:OnCreate()
 	self.buttons = {}
@@ -56,11 +35,16 @@ end
 function sectionProto:OnAcquire(container, name)
 	self:SetParent(container)
 	self.header:SetText(name)
+	self:Show()
 	self.name = name
 	self.container = container
 end
 
-function sectionProto:Release()
+function sectionProto:ToString()
+	return string.format("Section-%s", tostring(self.name))
+end
+
+function sectionProto:OnRelease()
 	wipe(self.freeSlots)
 	wipe(self.slots)
 	wipe(self.buttons)
@@ -68,12 +52,6 @@ function sectionProto:Release()
 	self.height = 0
 	self.count = 0
 	self.container = nil
-	
-	self:Hide()
-	self:ClearAllPoints()
-	self:SetParent(nil)
-
-	heap[self] = true
 end
 
 function sectionProto:AddItemButton(slotId, button)

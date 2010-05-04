@@ -16,22 +16,9 @@ local BAG_WIDTH = addon.BAG_WIDTH
 local BAG_INSET = addon.BAG_INSET
 local TOP_PADDING = addon.TOP_PADDING
 
-local containerProto = setmetatable({}, { __index = CreateFrame("Frame") })
-local containerMeta = { __index = containerProto, __tostring = function(self) return self:ToString() end }
+local containerClass, containerProto = addon:NewClass("Containter", "Frame", "AceEvent-3.0", "AceBucket-3.0")
 
-function addon:CreateContainerFrame(name, bags, isBank)
-	local container = setmetatable(CreateFrame("Frame", addonName..name, UIParent), containerMeta)
-	container:Debug('Created')
-	container:ClearAllPoints()
-	container:EnableMouse(true)
-	container:Hide()
-	container:OnCreate(name, bags, isBank)
-	return container
-end
-
-LibStub('AceEvent-3.0'):Embed(containerProto)
-LibStub('AceBucket-3.0'):Embed(containerProto)
-containerProto.Debug = addon.Debug
+function addon:CreateContainerFrame(...) return containerClass:Create(...) end
 
 function containerProto:ToString() return self.name or self:GetName() end
 
@@ -63,6 +50,8 @@ end
 
 local bagSlots = {}
 function containerProto:OnCreate(name, bags, isBank)
+	self:SetParent(UIParent)
+	self:EnableMouse(true)
 	self:SetScale(0.8)
 	self:SetFrameStrata("HIGH")
 
