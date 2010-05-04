@@ -35,7 +35,6 @@ end
 function sectionProto:OnAcquire(container, name)
 	self:SetParent(container)
 	self.header:SetText(name)
-	self:Show()
 	self.name = name
 	self.container = container
 end
@@ -78,9 +77,11 @@ function sectionProto:PutButtonAt(button, index)
 	self.slots[button] = index
 	if index and self.width > 0 then
 		self.freeSlots[index] = nil
-		local row, col = math.floor((index-1) / self.width), (index-1) % self.width
-		button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
-		button:Show()	
+		if not self.dirtyLayout then
+			local row, col = math.floor((index-1) / self.width), (index-1) % self.width
+			button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
+			button:Show()
+		end
 	else
 		self.dirtyLayout = true
 	end
@@ -112,7 +113,11 @@ end
 
 local buttonOrder = {}
 function sectionProto:LayoutButtons(event, forceLayout)
-	if not forceLayout and not self.dirtyLayout then return end
+	if self.count == 0 then
+		return false
+	elseif not forceLayout and not self.dirtyLayout then
+		return true
+	end
 
 	local width = math.min(self.count, addon.BAG_WIDTH)
 	local height = math.ceil(self.count / math.max(width, 1))
@@ -135,5 +140,6 @@ function sectionProto:LayoutButtons(event, forceLayout)
 	end
 	
 	wipe(buttonOrder)
+	return true
 end
 
