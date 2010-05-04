@@ -11,6 +11,10 @@ local ITEM_SPACING = addon.ITEM_SPACING
 local BAG_INSET = addon.BAG_INSET
 local TOP_PADDING = addon.TOP_PADDING
 
+--------------------------------------------------------------------------------
+-- Widget scripts
+--------------------------------------------------------------------------------
+
 local function BankBagPanel_UpdateStatus(self)
 	local numSlots = GetNumBankSlots()
 	for i, button in pairs(self.buttons) do
@@ -58,6 +62,10 @@ end
 local function BankBagPanel_OnHide(self)
 	self:UnregisterAllEvents()
 end
+
+--------------------------------------------------------------------------------
+-- Panel creation
+--------------------------------------------------------------------------------
 
 function addon:CreateBagSlotPanel(container, name, bags, isBank)	
 	local self = CreateFrame("Frame", container:GetName().."Bags", container)

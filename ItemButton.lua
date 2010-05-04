@@ -6,7 +6,11 @@ All rights reserved.
 
 local addonName, addon = ...
 
-local buttonClass, buttonProto = addon:NewClass("ItemButton", "Button", "ContainerFrameItemButtonTemplate", "AceEvent-3.0")
+--------------------------------------------------------------------------------
+-- Button initialization
+--------------------------------------------------------------------------------
+
+local buttonClass, buttonProto = addon:NewClass("ItemButton", "Button", "ContainerFrameItemButtonTemplate")
 addon:CreatePool(buttonClass, "AcquireItemButton")
 
 local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture" }
@@ -30,17 +34,9 @@ function buttonProto:ToString()
 	return string.format("Button-%s-%s", tostring(self.bag), tostring(self.slot))
 end
 
-function buttonProto:OnShow()
-	self:RegisterEvent('BAG_UPDATE_COOLDOWN')
-	self:RegisterEvent('ITEM_LOCK_CHANGED')
-	self:RegisterEvent('QUEST_ACCEPTED')
-	self:RegisterEvent('UNIT_QUEST_LOG_CHANGED')
-	self:FullUpdate('OnShow')
-end
-
-function buttonProto:OnHide()
-	self:UnregisterAllEvents()
-end
+--------------------------------------------------------------------------------
+-- Model data
+--------------------------------------------------------------------------------
 
 function buttonProto:SetBagSlot(bag, slot)
 	local changed = bag ~= self.bag or slot ~= self.slot
@@ -124,6 +120,22 @@ function buttonProto:IsBankItem()
 	return not not addon.BAG_IDS.BANK[self.bag or ""]
 end
 
+--------------------------------------------------------------------------------
+-- Scripts & event handlers
+--------------------------------------------------------------------------------
+
+function buttonProto:OnShow()
+	self:RegisterEvent('BAG_UPDATE_COOLDOWN')
+	self:RegisterEvent('ITEM_LOCK_CHANGED')
+	self:RegisterEvent('QUEST_ACCEPTED')
+	self:RegisterEvent('UNIT_QUEST_LOG_CHANGED')
+	self:FullUpdate('OnShow')
+end
+
+function buttonProto:OnHide()
+	self:UnregisterAllEvents()
+end
+
 function buttonProto:OnEvent(event, ...)
 	if not self:IsVisible() or not self.bag or not self.slot then return end
 	return self[event](self, event, ...)
@@ -137,6 +149,10 @@ function buttonProto:BAG_UPDATE_COOLDOWN(event) return self:UpdateCooldown(event
 function buttonProto:ITEM_LOCK_CHANGED(event) return self:UpdateLock(event) end
 function buttonProto:QUEST_ACCEPTED(event) return self:UpdateBorder(event) end
 function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)	if unit == "player" then return self:UpdateBorder(event) end end
+
+--------------------------------------------------------------------------------
+-- Display updating
+--------------------------------------------------------------------------------
 
 function buttonProto:FullUpdate(event)
 	if not self:IsVisible() or not self.bag or not self.slot then return end
@@ -216,3 +232,4 @@ function buttonProto:UpdateSearchStatus(event)
 		self:SetAlpha(0.3)
 	end
 end
+

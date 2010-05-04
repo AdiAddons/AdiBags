@@ -16,11 +16,9 @@ local BAG_WIDTH = addon.BAG_WIDTH
 local BAG_INSET = addon.BAG_INSET
 local TOP_PADDING = addon.TOP_PADDING
 
-local containerClass, containerProto = addon:NewClass("Containter", "Frame", "AceEvent-3.0", "AceBucket-3.0")
-
-function addon:CreateContainerFrame(...) return containerClass:Create(...) end
-
-function containerProto:ToString() return self.name or self:GetName() end
+--------------------------------------------------------------------------------
+-- Widget scripts
+--------------------------------------------------------------------------------
 
 local function CloseButton_OnClick(button)
 	button:GetParent():Hide()
@@ -47,6 +45,14 @@ local function BagSlotButton_OnLeave(button)
 		GameTooltip:Hide()
 	end
 end
+
+--------------------------------------------------------------------------------
+-- Bag creation
+--------------------------------------------------------------------------------
+
+local containerClass, containerProto = addon:NewClass("Containter", "Frame", "AceEvent-3.0", "AceBucket-3.0")
+
+function addon:CreateContainerFrame(...) return containerClass:Create(...) end
 
 local bagSlots = {}
 function containerProto:OnCreate(name, bags, isBank)
@@ -108,6 +114,12 @@ function containerProto:OnCreate(name, bags, isBank)
 	title:SetPoint("RIGHT", closeButton, "LEFT", -4, 0)
 end
 
+function containerProto:ToString() return self.name or self:GetName() end
+
+--------------------------------------------------------------------------------
+-- Scripts & event handlers
+--------------------------------------------------------------------------------
+
 function containerProto:OnShow()
 	self:Debug('OnShow')
 	if self.isBank then
@@ -137,6 +149,10 @@ function containerProto:EQUIPMENT_SWAP_FINISHED(event)
 		self:UpdateAllContent(event)
 	end
 end
+
+--------------------------------------------------------------------------------
+-- Bag content scanning
+--------------------------------------------------------------------------------
 
 function containerProto:UpdateContent(event, bag)
 	self:Debug('UpdateContent', event, bag)
@@ -190,6 +206,10 @@ function containerProto:BagsUpdated(bags)
 		end
 	end
 end
+
+--------------------------------------------------------------------------------
+-- Button dispatching
+--------------------------------------------------------------------------------
 
 function containerProto:AcquireItemButton(slotId)
 	local button = self.buttons[slotId]
@@ -273,6 +293,10 @@ function containerProto:Update(event, forceLayout)
 		self:Layout(event, forceLayout)
 	end
 end
+
+--------------------------------------------------------------------------------
+-- Section layout
+--------------------------------------------------------------------------------
 
 local function CompareSections(a, b)
 	--local numA, numB = a.count, b.count

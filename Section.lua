@@ -11,6 +11,10 @@ local ITEM_SPACING = addon.ITEM_SPACING
 local SLOT_OFFSET = ITEM_SIZE + ITEM_SPACING
 local HEADER_SIZE = 14 + ITEM_SPACING
 
+--------------------------------------------------------------------------------
+-- Initialization and release
+--------------------------------------------------------------------------------
+
 local sectionClass, sectionProto = addon:NewClass("Section", "Frame")
 addon:CreatePool(sectionClass, "AcquireSection")
 
@@ -53,6 +57,10 @@ function sectionProto:OnRelease()
 	self.container = nil
 end
 
+--------------------------------------------------------------------------------
+-- Button handling
+--------------------------------------------------------------------------------
+
 function sectionProto:AddItemButton(slotId, button)
 	if button:SetSection(self) then
 		self.buttons[button] = slotId
@@ -73,20 +81,6 @@ function sectionProto:RemoveItemButton(button)
 	end
 end
 
-function sectionProto:PutButtonAt(button, index)
-	self.slots[button] = index
-	if index and self.width > 0 then
-		self.freeSlots[index] = nil
-		if not self.dirtyLayout then
-			local row, col = math.floor((index-1) / self.width), (index-1) % self.width
-			button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
-			button:Show()
-		end
-	else
-		self.dirtyLayout = true
-	end
-end
-
 function sectionProto:LayoutDone(event)
 	local slots, freeSlots, buttons = self.slots, self.freeSlots, self.buttons
 	local count = 0
@@ -99,6 +93,24 @@ function sectionProto:LayoutDone(event)
 		self.dirtyLayout = true
 	end
 	return self.dirtyLayout
+end
+
+--------------------------------------------------------------------------------
+-- Layout
+--------------------------------------------------------------------------------
+
+function sectionProto:PutButtonAt(button, index)
+	self.slots[button] = index
+	if index and self.width > 0 then
+		self.freeSlots[index] = nil
+		if not self.dirtyLayout then
+			local row, col = math.floor((index-1) / self.width), (index-1) % self.width
+			button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
+			button:Show()
+		end
+	else
+		self.dirtyLayout = true
+	end
 end
 
 function sectionProto:SetSize(width, height)

@@ -6,7 +6,9 @@ All rights reserved.
 
 local addonName, addon = ...
 
+--------------------------------------------------------------------------------
 -- Classes
+--------------------------------------------------------------------------------
 
 local function Meta_ToString(self)
 	return self:ToString()
@@ -91,7 +93,9 @@ function addon:NewClass(name, frameType, ...)
 	return class, prototype, parent
 end
 
+--------------------------------------------------------------------------------
 -- Object pools
+--------------------------------------------------------------------------------
 
 local pools = {}
 
