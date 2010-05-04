@@ -138,7 +138,7 @@ end
 
 function containerProto:EQUIPMENT_SWAP_PENDING(event)
 	if self.bucketHandle then
-		self:UnregisterBucketEvent(self.bucketHandle)
+		self:UnregisterBucket(self.bucketHandle)
 		self.bucketHandle = nil
 	end
 end
