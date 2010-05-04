@@ -115,13 +115,13 @@ local function Pool_Acquire(pool, ...)
 end
 
 local function Pool_Release(pool, self)
-	local class = pool.class
-	if self.OnRelease then
-		self:OnRelease()
-	end
 	self:Hide()
 	self:ClearAllPoints()
 	self:SetParent(nil)
+	if self.OnRelease then
+		self:OnRelease()
+	end
+	local class = pool.class
 	for name, mixin in pairs(class.mixins) do
 		if mixin.OnEmbedDisable then
 			mixin:OnEmbedDisable(self)
