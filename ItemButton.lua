@@ -47,9 +47,20 @@ end
 -- Button sub-types
 --------------------------------------------------------------------------------
 
-local bankButtonRef = CreateFrame("Button", addonName.."BankButtonRef", nil, "BankItemButtonGenericTemplate")
-local containerButtonRef = CreateFrame("Button", addonName.."ContainerButtonRef", nil, "ContainerFrameItemButtonTemplate")
-local buttonScripts = { "OnClick", "OnEnter", "OnLeave", "OnReceiveDrag", "OnDragStart" }
+local scripts = {}
+do
+	local templates = {
+		bank = CreateFrame("Button", addonName.."BankButtonRef", nil, "BankItemButtonGenericTemplate"),
+		container = CreateFrame("Button", addonName.."ContainerButtonRef", nil, "ContainerFrameItemButtonTemplate"),
+	}
+	local scriptNames = { "OnClick", "OnEnter", "OnLeave", "OnReceiveDrag", "OnDragStart" }
+	for name, button in pairs(templates) do
+		scripts[name] = {}
+		for _, scriptName in pairs(scriptNames) do
+			scripts[name][scriptName] = button:GetScript(scriptName)
+		end
+	end
+end
 
 local function ContainerButton_SplitStack(button, split)
 	SplitContainerItem(button:GetParent():GetID(), button:GetID(), split)
@@ -57,6 +68,31 @@ end
 
 local function BankButton_SplitStack(button, split)
 	SplitContainerItem(BANK_CONTAINER, button:GetID(), split)
+end
+
+function buttonProto:SetGenericBank(isGenericBank)
+	if isGenericBank == self.isGenericBank then return end
+	self.isGenericBank = isGenericBank
+
+	local shown = self:IsShown()
+	if shown then self:Hide() end
+
+	local buttonScripts
+	if isGenericBank then
+		buttonScripts = scripts.bank
+		self.SplitStack = BankButton_SplitStack
+		self.GetInventorySlot = ButtonInventorySlot
+	else
+		buttonScripts = scripts.container
+		self.SplitStack = ContainerButton_SplitStack
+		self.GetInventorySlot = nil
+	end
+	for name, func in pairs(buttonScripts) do
+		self:SetScript(name, func)
+	end
+	self.UpdateTooltip = buttonScripts.OnEnter
+
+	if shown then self:Show() end
 end
 
 --------------------------------------------------------------------------------
@@ -70,38 +106,7 @@ function buttonProto:SetBagSlot(bag, slot)
 		self.bag, self.slot = bag, slot
 		self.slotId = addon.GetSlotId(bag, slot)
 		self:SetParent(bag and addon.itemParentFrames[bag] or nil)
-
-		local isBankGeneric = (bag == BANK_CONTAINER)
-		if oldBag == BANK_CONTAINER or isBankGeneric then
-			local shown = false
-
-			if self:IsShown() then
-				shown = true
-				self:Hide()
-			end
-
-			local scriptRef = isBankGeneric and bankButtonRef or containerButtonRef
-			self:Debug('Changing button scripts for', scriptRef:GetName())
-
-			for _, script in pairs(buttonScripts) do
-				self:SetScript(script, scriptRef:GetScript(script))
-			end
-
-			self.UpdateTooltip = self:GetScript('OnEnter')
-
-			if isBankGeneric then
-				self.SplitStack = BankButton_SplitStack
-				self.GetInventorySlot = ButtonInventorySlot
-			else
-				self.SplitStack = ContainerButton_SplitStack
-				self.GetInventorySlot = nil
-			end
-
-			if shown then
-				self:Show()
-			end
-		end
-
+		self:SetGenericBank(bag == BANK_CONTAINER)
 		if bag and slot then
 			self:SetID(slot)	
 			local _, family = GetContainerNumFreeSlots(bag)
@@ -190,9 +195,6 @@ function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)	if unit == "player" the
 
 function buttonProto:FullUpdate(event)
 	if not self:IsVisible() or not self.bag or not self.slot then return end
-	if self.bag < 0 then
-		self:Debug('FullUpdate', event, "slotId=", self.slotId, "bag=", self.bag, "slot=", self. slot, "parent.id=", self:GetParent():GetID())
-	end
 	local texture = GetContainerItemInfo(self.bag, self.slot)
 	local icon = self.IconTexture
 	if texture then
@@ -205,17 +207,22 @@ function buttonProto:FullUpdate(event)
 		icon:SetTexCoord(12/64, 51/64, 12/64, 51/64)
 		self.Count:Hide()
 	end
+	self:UpdateCount(event)
+	self:UpdateBorder(event)
+	self:UpdateCooldown(event)
+	self:UpdateLock(event)
+	self:UpdateSearchStatus(event)
+end
+
+function buttonProto:UpdateCount(event)
 	local count = self:GetCount()
-	if count and count > 1 then
+	self.count = count or 0
+	if count > 1 then
 		self.Count:SetText(count)
 		self.Count:Show()
 	else
 		self.Count:Hide()
 	end	
-	self:UpdateBorder(event)
-	self:UpdateCooldown(event)
-	self:UpdateLock(event)
-	self:UpdateSearchStatus(event)
 end
 
 function buttonProto:UpdateLock(event)
@@ -309,27 +316,21 @@ function stackProto:GetKey()
 	return self.key
 end
 
-function stackProto:FullUpdate(...)
-	if self:IsVisible() then
-		local count, num = 0, 0
-		for slotId in pairs(self.slots) do
-			local _, slotCount = GetContainerItemInfo(GetBagSlotFromId(slotId))
-			count = count + (slotCount or 1)
-			num = num + 1
-		end
-		self.count = count
-	end
-	return buttonProto.FullUpdate(self, ...)
+local function GetSlotCount(slotId)
+	local _, count = GetContainerItemInfo(GetBagSlotFromId(slotId))
+	return count or 1
 end
 
 function stackProto:AddSlot(slotId)
 	local slots = self.slots
 	if not slots[slotId] then
-		slots[slotId] = true
+		local count = GetSlotCount(slotId)
+		self.count = self.count + count
+		slots[slotId] = count
 		if not self.slotId then
 			self:SetBagSlot(GetBagSlotFromId(slotId))
 		elseif self:IsVisible() then
-			self:FullUpdate('OnSlotAdded')
+			self:UpdateCount('OnSlotAdded')
 		end
 		return true
 	end
@@ -338,12 +339,13 @@ end
 function stackProto:RemoveSlot(slotId)
 	local slots = self.slots
 	if slots[slotId] then
+		self.count = self.count - slots[slotId]
 		slots[slotId] = nil
 		if slotId == self.slotId then
 			local newSlotId = next(slots)
 			self:SetBagSlot(GetBagSlotFromId(newSlotId))
 		elseif self:IsVisible() then
-			self:FullUpdate('OnSlotRemoved')
+			self:UpdateCount('OnSlotRemoved')
 		end
 		return true
 	end
