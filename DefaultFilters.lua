@@ -63,7 +63,7 @@ function addon:SetupDefaultFilters()
 	addon:RegisterFilter('ItemCategory', 70, function(bag, slot, itemId, link) --L["ItemCategory"]
 		local cat = select(6, GetItemInfo(itemId))
 		if cat == L["Gem"] then
-			return L["Trade goods"]
+			return L["Trade Goods"]
 		else
 			return cat
 		end
