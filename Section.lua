@@ -97,11 +97,11 @@ function sectionProto:DispatchDone(event)
 	for button in pairs(buttons) do
 		count = count + 1 
 	end
-	self.count = count
-	self:Debug(count, 'buttons')
-	if count > self.width * self.height then
+	if (count == 0 and self.count > 0) or count > self.width * self.height then
 		self.dirtyLayout = true
 	end
+	self.count = count
+	self:Debug(count, 'buttons')
 	return self.dirtyLayout
 end
 
