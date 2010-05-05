@@ -25,6 +25,8 @@ function buttonProto:OnCreate()
 	for i, childName in pairs(childrenNames ) do
 		self[childName] = _G[name..childName]
 	end
+	self:RegisterForDrag("LeftButton")
+	self:RegisterForClicks("LeftButtonUp","RightButtonUp")
 	self:SetScript('OnShow', self.OnShow)
 	self:SetScript('OnHide', self.OnHide)
 	self:SetScript('OnEvent', self.OnEvent)
@@ -42,15 +44,64 @@ function buttonProto:ToString()
 end
 
 --------------------------------------------------------------------------------
+-- Button sub-types
+--------------------------------------------------------------------------------
+
+local bankButtonRef = CreateFrame("Button", addonName.."BankButtonRef", nil, "BankItemButtonGenericTemplate")
+local containerButtonRef = CreateFrame("Button", addonName.."ContainerButtonRef", nil, "ContainerFrameItemButtonTemplate")
+local buttonScripts = { "OnClick", "OnEnter", "OnLeave", "OnReceiveDrag", "OnDragStart" }
+
+local function ContainerButton_SplitStack(button, split)
+	SplitContainerItem(button:GetParent():GetID(), button:GetID(), split)
+end
+
+local function BankButton_SplitStack(button, split)
+	SplitContainerItem(BANK_CONTAINER, button:GetID(), split)
+end
+
+--------------------------------------------------------------------------------
 -- Model data
 --------------------------------------------------------------------------------
 
 function buttonProto:SetBagSlot(bag, slot)
-	local changed = bag ~= self.bag or slot ~= self.slot
+	local oldBag = self.bag
+	local changed = bag ~= oldBag or slot ~= self.slot
 	if changed then
 		self.bag, self.slot = bag, slot
 		self.slotId = addon.GetSlotId(bag, slot)
 		self:SetParent(bag and addon.itemParentFrames[bag] or nil)
+
+		local isBankGeneric = (bag == BANK_CONTAINER)
+		if oldBag == BANK_CONTAINER or isBankGeneric then
+			local shown = false
+
+			if self:IsShown() then
+				shown = true
+				self:Hide()
+			end
+
+			local scriptRef = isBankGeneric and bankButtonRef or containerButtonRef
+			self:Debug('Changing button scripts for', scriptRef:GetName())
+
+			for _, script in pairs(buttonScripts) do
+				self:SetScript(script, scriptRef:GetScript(script))
+			end
+
+			self.UpdateTooltip = self:GetScript('OnEnter')
+
+			if isBankGeneric then
+				self.SplitStack = BankButton_SplitStack
+				self.GetInventorySlot = ButtonInventorySlot
+			else
+				self.SplitStack = ContainerButton_SplitStack
+				self.GetInventorySlot = nil
+			end
+
+			if shown then
+				self:Show()
+			end
+		end
+
 		if bag and slot then
 			self:SetID(slot)	
 			local _, family = GetContainerNumFreeSlots(bag)
@@ -118,15 +169,14 @@ end
 
 function buttonProto:OnHide()
 	self:UnregisterAllEvents()
+	if self.hasStackSplit and self.hasStackSplit == 1 then
+		StackSplitFrame:Hide()
+	end
 end
 
 function buttonProto:OnEvent(event, ...)
 	if not self:IsVisible() or not self.bag or not self.slot then return end
 	return self[event](self, event, ...)
-end
-
-function buttonProto:BAG_UPDATE(event, bag)
-	if bag == self.bag then return self:FullUpdate(event) end
 end
 
 function buttonProto:BAG_UPDATE_COOLDOWN(event) return self:UpdateCooldown(event) end
@@ -140,6 +190,9 @@ function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)	if unit == "player" the
 
 function buttonProto:FullUpdate(event)
 	if not self:IsVisible() or not self.bag or not self.slot then return end
+	if self.bag < 0 then
+		self:Debug('FullUpdate', event, "slotId=", self.slotId, "bag=", self.bag, "slot=", self. slot, "parent.id=", self:GetParent():GetID())
+	end
 	local texture = GetContainerItemInfo(self.bag, self.slot)
 	local icon = self.IconTexture
 	if texture then
@@ -166,7 +219,15 @@ function buttonProto:FullUpdate(event)
 end
 
 function buttonProto:UpdateLock(event)
-	SetItemButtonDesaturated(self, select(3, GetContainerItemInfo(self.bag, self.slot)) and true or false)
+	if self.bag == BANK_CONTAINER then
+		BankFrameItemButton_UpdateLocked(self)
+	else
+		SetItemButtonDesaturated(self, select(3, GetContainerItemInfo(self.bag, self.slot)) and true or false)		
+	end
+end
+
+function buttonProto:UpdateCooldown(event)
+	return ContainerFrame_UpdateCooldown(self.bag, self)
 end
 
 function buttonProto:UpdateBorder(event)
@@ -195,10 +256,6 @@ function buttonProto:UpdateBorder(event)
 		end
 	end
 	border:Hide()
-end
-
-function buttonProto:UpdateCooldown(event)
-	return ContainerFrame_UpdateCooldown(self.bag, self)
 end
 
 function buttonProto:UpdateSearchStatus(event)
@@ -261,7 +318,6 @@ function stackProto:FullUpdate(...)
 			num = num + 1
 		end
 		self.count = count
-		self:Debug(count, 'items in', num, 'slots')
 	end
 	return buttonProto.FullUpdate(self, ...)
 end
@@ -296,5 +352,3 @@ end
 function stackProto:IsEmpty()
 	return not next(self.slots)
 end
-
-

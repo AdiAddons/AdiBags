@@ -51,7 +51,7 @@ end
 -- Bag creation
 --------------------------------------------------------------------------------
 
-local containerClass, containerProto = addon:NewClass("Containter", "Frame", "AceEvent-3.0", "AceBucket-3.0")
+local containerClass, containerProto = addon:NewClass("Container", "Frame", "AceEvent-3.0", "AceBucket-3.0")
 
 function addon:CreateContainerFrame(...) return containerClass:Create(...) end
 
@@ -121,34 +121,46 @@ function containerProto:ToString() return self.name or self:GetName() end
 -- Scripts & event handlers
 --------------------------------------------------------------------------------
 
+function containerProto:RegisterUpdateEvents(event)
+	self.bagUpdateBucket = self:RegisterBucketEvent('BAG_UPDATE', 0.2, "BagsUpdated")
+	if self.bags[BANK_CONTAINER] then
+		self.bankUpdateBucket = self:RegisterBucketEvent('PLAYERBANKSLOTS_CHANGED', 0.2, "BankUpdated")
+		self:Debug('Registering bank update events')
+	end
+	self:UpdateAllContent(event)
+end
+
+function containerProto:UnregisterUpdateEvents(event)
+	if self.bagUpdateBucket then
+		self:UnregisterBucket(self.bagUpdateBucket)
+		self.bagUpdateBucket = nil
+	end
+	if self.bankUpdateBucket then
+		self:UnregisterBucket(self.bankUpdateBucket)
+		self.bankUpdateBucket = nil
+	end
+end
+
 function containerProto:OnShow()
 	self:Debug('OnShow')
 	if self.isBank then
 		self:RegisterEvent('BANKFRAME_CLOSED', "Hide")
 	end
-	self.bucketHandle = self:RegisterBucketEvent('BAG_UPDATE', 0.1, "BagsUpdated")
-	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED')
-	self:RegisterEvent('EQUIPMENT_SWAP_PENDING')
-	self:UpdateAllContent(event)
+	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "UnregisterUpdateEvents")
+	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "RegisterUpdateEvents")
+	self:RegisterUpdateEvents(event)
 end
 
 function containerProto:OnHide()
+	self.bagUpdateBucket, self.bankUpdateBucket = nil, nil
 	self:UnregisterAllEvents()
 	self:UnregisterAllBuckets()
 end
 
-function containerProto:EQUIPMENT_SWAP_PENDING(event)
-	if self.bucketHandle then
-		self:UnregisterBucket(self.bucketHandle)
-		self.bucketHandle = nil
-	end
-end
-
-function containerProto:EQUIPMENT_SWAP_FINISHED(event)
-	if not self.bucketHandle then
-		self.bucketHandle = self:RegisterBucketEvent('BAG_UPDATE', 0.1, "BagsUpdated")
-		self:UpdateAllContent(event)
-	end
+local bankBags = { [BANK_CONTAINER] = 1 }
+function containerProto:BankUpdated(slots)
+	self:Debug('BankUpdated', slots)
+	return self:BagsUpdated(bankBags)
 end
 
 --------------------------------------------------------------------------------
@@ -189,21 +201,17 @@ function containerProto:HasContentChanged()
 end
 
 function containerProto:BagsUpdated(bags)
-	self:Debug('BagsUpdated', bags)
 	for bag in pairs(bags) do
 		if self.bags[bag] then
 			self:UpdateContent("BagsUpdated", bag)
 		end
 	end
-	if self:HasContentChanged() then
-		self:Debug('BagsUpdated: content changed')
-		return self:Update("BagsUpdated")
-	else
-		self:Debug('BagsUpdated: only update buttons')
-		for i, button in pairs(self.buttons) do
-			if bags[button.bag] then
-				button:FullUpdate("BagsUpdated")
-			end
+	if self:HasContentChanged() and self:Update("BagsUpdated") then
+		return
+	end
+	for i, button in pairs(self.buttons) do
+		if bags[button.bag] then
+			button:FullUpdate("BagsUpdated")
 		end
 	end
 end
@@ -313,6 +321,7 @@ function containerProto:Update(event, forceLayout)
 	if dirtyLayout then
 		self:Debug('Update: dirty layout')
 		self:Layout(event, forceLayout)
+		return true
 	end
 end
 
