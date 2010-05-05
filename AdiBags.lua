@@ -51,7 +51,7 @@ do
 end
 
 local FAMILY_TAGS = {
-	[0x0001] = L["QUIVER_TAG"] -- Quiver
+	[0x0001] = L["QUIVER_TAG"], -- Quiver
   [0x0002] = L["AMMO_TAG"], -- Ammo Pouch
   [0x0004] = L["SOUL_BAG_TAG"], -- Soul Bag
   [0x0008] = L["LEATHERWORKING_BAG_TAG"], -- Leatherworking Bag
