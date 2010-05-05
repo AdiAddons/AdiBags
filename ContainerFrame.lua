@@ -230,17 +230,18 @@ function containerProto:GetSection(name)
 end
 
 function containerProto:DispatchItem(slotId, link)
-	local sectionName, stackType, stackData
+	local filter, sectionName, stack
 	local bag, slot = GetBagSlotFromId(slotId)
+	local itemId = 0
 	if link then
-		local itemId = tonumber(link:match('item:(%d+)'))
-		sectionName, stackType, stackData = addon:Filter(bag, slot, itemId, link)
+		itemId = tonumber(link:match('item:(%d+)'))
+		filter, sectionName, stack = addon:Filter(bag, slot, itemId, link)
 	else
-		sectionName, stackType, stackData = "Free", 'free', '-'
+		filter, sectionName, stack = "Free", L["Free space"], true
 	end
 	local button = self.buttons[slotId]
-	if stackType then
-		local key = strjoin(':', tostringall(stackType, stackData, self.content[bag].family))
+	if stack then
+		local key = strjoin(':', tostringall(itemId, self.content[bag].family))
 		button = self:GetStackButton(key)
 		button:AddSlot(slotId)
 	elseif not button then

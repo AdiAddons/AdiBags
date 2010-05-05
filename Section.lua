@@ -5,6 +5,7 @@ All rights reserved.
 --]]
 
 local addonName, addon = ...
+local L = addon.L
 
 local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING
@@ -38,7 +39,7 @@ end
 
 function sectionProto:OnAcquire(container, name)
 	self:SetParent(container)
-	self.header:SetText(name)
+	self.header:SetText(L[name])
 	self.name = name
 	self.container = container
 end

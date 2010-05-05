@@ -5,6 +5,7 @@ All rights reserved.
 --]]
 
 local addonName, addon = ...
+local L = addon.L
 
 local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING
@@ -81,7 +82,7 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	end
 	
 	local title = self:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-	title:SetText("Equipped bags")
+	title:SetText(L["Equipped bags"])
 	title:SetTextColor(1, 1, 1)
 	title:SetJustifyH("LEFT")
 	title:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)

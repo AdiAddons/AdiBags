@@ -5,12 +5,14 @@ All rights reserved.
 --]]
 
 local addonName, addon = ...
+local L = addon.L
 
 addon.filters = {}
 
-function addon:RegisterFilter(name, priority, Filter, PreFilter, PostFilter)
+function addon:RegisterFilter(name, priority, Filter, PreFilter, PostFilter, label)
 	tinsert(self.filters, {
 		name = name,
+		label = label or L[name],
 		priority  = priority,
 		Filter = Filter,
 		PreFilter = PreFilter,
@@ -37,9 +39,9 @@ end
 
 function addon:Filter(bag, slot, itemId, link)
 	for i, filter in pairs(self.filters) do
-		local sectionName, stackType, stackData = filter.Filter(bag, slot, itemId, link)
+		local sectionName, stack = filter.Filter(bag, slot, itemId, link)
 		if sectionName then
-			return sectionName, stackType, stackData
+			return filter.name, section, stack
 		end
 	end
 end
@@ -51,3 +53,4 @@ function addon:PostFilter(event, container)
 		end
 	end
 end
+

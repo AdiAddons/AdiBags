@@ -5,6 +5,7 @@ All rights reserved.
 --]]
 
 local addonName, addon = ...
+local L = addon.L
 
 LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'AceEvent-3.0', 'AceBucket-3.0', 'AceHook-3.0')
 --@debug@
@@ -50,17 +51,17 @@ do
 end
 
 local FAMILY_TAGS = {
-	[0x0001] = "Fl", -- Quiver
-  [0x0002] = "Ba", -- Ammo Pouch
-  [0x0004] = "Âm", -- Soul Bag
-  [0x0008] = "Cu", -- Leatherworking Bag
-  [0x0010] = "Ca", -- Inscription Bag
-  [0x0020] = "H", -- Herb Bag
-  [0x0040] = "En", -- Enchanting Bag
-  [0x0080] = "In", -- Engineering Bag
-  [0x0100] = "Cl", -- Keyring
-  [0x0200] = "Jo", -- Gem Bag
-  [0x0400] = "Mi", -- Mining Bag
+	[0x0001] = L["QUIVER_TAG"] -- Quiver
+  [0x0002] = L["AMMO_TAG"], -- Ammo Pouch
+  [0x0004] = L["SOUL_BAG_TAG"], -- Soul Bag
+  [0x0008] = L["LEATHERWORKING_BAG_TAG"], -- Leatherworking Bag
+  [0x0010] = L["INSCRIPTION_BAG_TAG"], -- Inscription Bag
+  [0x0020] = L["HERB_BAG_TAG"], -- Herb Bag
+  [0x0040] = L["ENCHANTING_BAG_TAG"] , -- Enchanting Bag
+  [0x0080] = L["ENGINEERING_BAG_TAG"], -- Engineering Bag
+  [0x0100] = L["KEYRING_TAG"], -- Keyring
+  [0x0200] = L["GEM_BAG_TAG"], -- Gem Bag
+  [0x0400] = L["MINING_BAG_TAG"], -- Mining Bag
 }
 
 local FAMILY_ICONS = {
@@ -219,7 +220,7 @@ function addon:GetBag(name, noCreate)
 	elseif noCreate then
 		return
 	end
-	if name == "Backpack" then
+	if name == "Backpack" then -- L["Backpack"]
 		bag = self:CreateBag("Backpack", self.BAG_IDS.BAGS)
 		bag:SetPoint("BOTTOMRIGHT", -20, 300)	
 		
@@ -236,10 +237,10 @@ function addon:GetBag(name, noCreate)
 
 		local searchLabel = searchEditBox:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 		searchLabel:SetPoint("TOPRIGHT", searchEditBox, "TOPLEFT", -4, 0)
-		searchLabel:SetText("Search: ")
+		searchLabel:SetText(L["Search:"].." ")
 		searchLabel:SetHeight(18)
 
-	elseif name == "Bank" then
+	elseif name == "Bank" then -- L["Bank"]
 		bag = self:CreateBag("Bank", self.BAG_IDS.BANK, true)
 		bag:SetPoint("BOTTOMRIGHT", self:GetBag("Backpack"), "BOTTOMLEFT", -10, 0)
 		bag:SetBackdropColor(0, 0, 0.5, 1)
