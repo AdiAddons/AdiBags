@@ -243,7 +243,8 @@ function addon:GetBag(name, noCreate)
 	elseif name == "Bank" then -- L["Bank"]
 		bag = self:CreateBag("Bank", self.BAG_IDS.BANK, true)
 		bag:SetPoint("BOTTOMRIGHT", self:GetBag("Backpack"), "BOTTOMLEFT", -10, 0)
-		bag:SetBackdropColor(0, 0, 0.5, 1)
+		bag:SetBackdropColor(0, 0, 0.5, 1)		
+		bag:HookScript('OnHide', function() if addon.atBank then CloseBankFrame() end end)
 	end
 	self.bags[name] = bag
 	return bag
