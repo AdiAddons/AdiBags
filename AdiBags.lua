@@ -128,6 +128,13 @@ function addon:OnEnable()
 	
 	self:RegisterEvent('MAIL_CLOSED', 'CloseAllBags')
 	self:SecureHook('CloseSpecialWindows', 'CloseAllBags')
+	
+	-- Disable the BankFrame
+	BankFrame.Show = BankFrame.Hide
+	BankFrame:UnregisterAllEvents()
+	BankFrame:SetScript('OnEvent', BankFrame.Hide)
+	BankFrame:Hide()
+	--self:HookScript(BankFrame, "OnEvent", "BankFrame_OnEvent")
 end
 
 --------------------------------------------------------------------------------
