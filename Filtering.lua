@@ -41,7 +41,7 @@ function addon:Filter(bag, slot, itemId, link)
 	for i, filter in pairs(self.filters) do
 		local sectionName, stack = filter.Filter(bag, slot, itemId, link)
 		if sectionName then
-			return filter.name, section, stack
+			return filter.name, sectionName, stack
 		end
 	end
 end

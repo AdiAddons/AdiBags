@@ -5,6 +5,7 @@ All rights reserved.
 --]]
 
 local addonName, addon = ...
+local L = addon.L
 
 local GetSlotId = addon.GetSlotId 
 local GetBagSlotFromId = addon.GetBagSlotFromId
