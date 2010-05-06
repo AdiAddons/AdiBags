@@ -63,7 +63,7 @@ function containerProto:OnCreate(name, bags, isBank)
 	self:SetFrameStrata("HIGH")
 
 	self:SetBackdrop(addon.BACKDROP)
-	self:SetBackdropColor(0, 0, 0, 1)
+	self:SetBackdropColor(unpack(addon.BACKDROPCOLOR[isBank and "bank" or "backpack"]))
 	self:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
 
 	self:SetScript('OnShow', self.OnShow)
@@ -107,7 +107,7 @@ function containerProto:OnCreate(name, bags, isBank)
 	bagSlotButton:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
 
 	local title = self:CreateFontString(nil,"OVERLAY","GameFontNormalLarge")
-	title:SetText(name)
+	title:SetText(L[name])
 	title:SetTextColor(1, 1, 1)
 	title:SetHeight(18)
 	title:SetJustifyH("LEFT")
@@ -242,8 +242,7 @@ function containerProto:DispatchItem(slotId, link)
 		button = self:GetStackButton(key)
 		button:AddSlot(slotId)
 	elseif not button then
-		button = addon:AcquireItemButton()
-		button:SetBagSlot(bag, slot)
+		button = addon:AcquireItemButton(bag, slot)
 	end
 	local section = self:GetSection(sectionName)
 	section:AddItemButton(slotId, button)

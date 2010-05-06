@@ -16,7 +16,6 @@ local ITEM_SIZE = addon.ITEM_SIZE
 --------------------------------------------------------------------------------
 
 local buttonClass, buttonProto = addon:NewClass("ItemButton", "Button", "ContainerFrameItemButtonTemplate")
-addon:CreatePool(buttonClass, "AcquireItemButton")
 
 local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture" }
 
@@ -34,6 +33,10 @@ function buttonProto:OnCreate()
 	self:SetHeight(ITEM_SIZE)
 end
 
+function buttonProto:OnAcquire(bag, slot)
+	self:SetBagSlot(bag, slot)
+end
+
 function buttonProto:OnRelease()
 	self:SetSection(nil)
 	self:SetBagSlot(nil, nil)
@@ -44,55 +47,25 @@ function buttonProto:ToString()
 end
 
 --------------------------------------------------------------------------------
--- Button sub-types
+-- Generic bank button sub-type
 --------------------------------------------------------------------------------
 
-local scripts = {}
-do
-	local templates = {
-		bank = CreateFrame("Button", addonName.."BankButtonRef", nil, "BankItemButtonGenericTemplate"),
-		container = CreateFrame("Button", addonName.."ContainerButtonRef", nil, "ContainerFrameItemButtonTemplate"),
-	}
-	local scriptNames = { "OnClick", "OnEnter", "OnLeave", "OnReceiveDrag", "OnDragStart" }
-	for name, button in pairs(templates) do
-		scripts[name] = {}
-		for _, scriptName in pairs(scriptNames) do
-			scripts[name][scriptName] = button:GetScript(scriptName)
-		end
-	end
-end
+local bankButtonClass = addon:NewClass("BankItemButton", "ItemButton")
+bankButtonClass.frameTemplate = "BankItemButtonGenericTemplate"
 
-local function ContainerButton_SplitStack(button, split)
-	SplitContainerItem(button:GetParent():GetID(), button:GetID(), split)
-end
+--------------------------------------------------------------------------------
+-- Pools and acquistion
+--------------------------------------------------------------------------------
 
-local function BankButton_SplitStack(button, split)
-	SplitContainerItem(BANK_CONTAINER, button:GetID(), split)
-end
+local containerButtonPool = addon:CreatePool(buttonClass)
+local bankButtonPool = addon:CreatePool(bankButtonClass)
 
-function buttonProto:SetGenericBank(isGenericBank)
-	if isGenericBank == self.isGenericBank then return end
-	self.isGenericBank = isGenericBank
-
-	local shown = self:IsShown()
-	if shown then self:Hide() end
-
-	local buttonScripts
-	if isGenericBank then
-		buttonScripts = scripts.bank
-		self.SplitStack = BankButton_SplitStack
-		self.GetInventorySlot = ButtonInventorySlot
+function addon:AcquireItemButton(bag, slot)
+	if bag == BANK_CONTAINER then
+		return bankButtonPool:Acquire(bag, slot)
 	else
-		buttonScripts = scripts.container
-		self.SplitStack = ContainerButton_SplitStack
-		self.GetInventorySlot = nil
+		return containerButtonPool:Acquire(bag, slot)
 	end
-	for name, func in pairs(buttonScripts) do
-		self:SetScript(name, func)
-	end
-	self.UpdateTooltip = buttonScripts.OnEnter
-
-	if shown then self:Show() end
 end
 
 --------------------------------------------------------------------------------
@@ -106,7 +79,6 @@ function buttonProto:SetBagSlot(bag, slot)
 		self.bag, self.slot = bag, slot
 		self.slotId = addon.GetSlotId(bag, slot)
 		self:SetParent(bag and addon.itemParentFrames[bag] or nil)
-		self:SetGenericBank(bag == BANK_CONTAINER)
 		if bag and slot then
 			self:SetID(slot)	
 			local _, family = GetContainerNumFreeSlots(bag)
