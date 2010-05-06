@@ -190,7 +190,7 @@ function buttonProto:FullUpdate()
 end
 
 function buttonProto:UpdateCount()
-	local count = self:GetCount()
+	local count = self:GetCount() or 0
 	self.count = count or 0
 	if count > 1 then
 		self.Count:SetText(count)
