@@ -7,37 +7,40 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
-local AceBucket = LibStub('AceBucket-3.0')
+local filterMod = addon:NewModule('Filters')
 
-local filters = {}
+filterMod:SetDefaultModulePrototype{
+	Debug = addon.Debug,
+}
 
-function addon:RegisterFilter(name, priority, Filter, PreFilter, PostFilter, OnEnable, OnDisable)
-	local t
-	if type(name) == "table" then
-		t = name
-	else
-		t = {
-			name = name,
-			priority = priority,
-			Filter = Filter,
-			PreFilter = PreFilter,
-			PostFilter = PostFilter,
-			OnEnable = OnEnable,
-			OnDisable = OnDisable,
-		}
-	end
-	t.label = t.label or L[t.name]
-	t.priority = t.priority or 0
-	tinsert(filters, t)
+function filterMod:OnInitialize()
+	addon:SetupDefaultFilters()
+	self:UpdateFilters()
 end
 
 local function CompareFilters(a, b)
 	return (a and a.priority or 0) > (b and b.priority or 0)
 end
 
-function addon:SetupFilters()
-	self:SetupDefaultFilters()
+local filters = {}
+function filterMod:UpdateFilters()
+	wipe(filters)
+	for name, filter in self:IterateModules() do
+		tinsert(filters, filter)
+	end
 	table.sort(filters, CompareFilters)
+end
+
+function addon:RegisterFilter(name, priority, Filter, ...)
+	local filter
+	if type(Filter) == "function" then
+		filter = filterMod:NewModule(name, ...)
+		filter.Filter = Filter
+	else
+		filter = filterMod:NewModule(name, Filter, ...)
+	end
+	filter.priority = priority or 0
+	return filter
 end
 
 local function safecall_return(success, ...)
@@ -51,34 +54,6 @@ end
 local function safecall(func, ...)
 	if type(func) == "function" then
 		return safecall_return(pcall(func, ...))
-	end
-end
-
-function addon:EnableFilters()
-	for i, filter in ipairs(filters) do
-		if filter.updateOnEvent then
-			AceBucket.RegisterBucketEvent(filter, filter.updateOnEvent, 0.1, addon.UpdateAllBags)
-		end
-		safecall(filter.OnEnable, filter)
-	end
-end
-
-function addon:DisableFilters()
-	for i, filter in ipairs(filters) do
-		safecall(filter.OnDisable, filter)
-		AceBucket.UnregisterAllBuckets(filter)
-	end
-end
-
-function addon:PreFilter(event, container)
-	for i, filter in ipairs(filters) do
-		safecall(filter.PreFilter, filter)
-	end
-end
-
-function addon:PostFilter(event, container)
-	for i, filter in ipairs(filters) do
-		safecall(filter.PostFilter, filter)
 	end
 end
 

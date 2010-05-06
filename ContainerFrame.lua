@@ -287,7 +287,7 @@ function containerProto:Update(event, forceLayout)
 		end
 
 		if next(added) then
-			addon:PreFilter(event, self)
+			addon:SendMessage('AgiBags_PreFilter', self)
 			n = 0
 			for slotId, link in pairs(added) do
 				self:DispatchItem(slotId, link)
@@ -295,7 +295,7 @@ function containerProto:Update(event, forceLayout)
 			end
 			self:Debug('Added', n, 'items')
 			wipe(added)
-			addon:PostFilter(event, self)		
+			addon:SendMessage('AgiBags_PostFilter', self)
 		end
 
 		for name, section in pairs(self.sections) do

@@ -34,6 +34,8 @@ else
 	function addon.Debug() end
 end
 
+addon:SetDefaultModulePrototype{Debug = addon.Debug}
+
 --------------------------------------------------------------------------------
 -- Helful constants
 --------------------------------------------------------------------------------
@@ -116,8 +118,6 @@ function addon:OnInitialize()
 	},}, true)
 	addon.itemParentFrames = {}
 	addon.bags = { Bank = true, Backpack = true }
-	
-	self:SetupFilters()
 end
 
 function addon:OnEnable()
@@ -142,12 +142,6 @@ function addon:OnEnable()
 	BankFrame:SetScript('OnEvent', BankFrame.Hide)
 	BankFrame:Hide()
 	--self:HookScript(BankFrame, "OnEvent", "BankFrame_OnEvent")
-
-	self:EnableFilters()
-end
-
-function addon:OnDisable()
-	self:DisableFilters()
 end
 
 --------------------------------------------------------------------------------

@@ -10,28 +10,40 @@ local L = addon.L
 function addon:SetupDefaultFilters()
 
 	-- [100] Parts of an equipment set
-	addon:RegisterFilter{
-		name = "ItemSets",
-		priority = 100,
-		sets = {},
-		updateOnEvent = "EQUIPMENT_SETS_CHANGED",
-		PreFilter = function(self)
-			wipe(self.sets)
+	do
+		local setFilter = addon:RegisterFilter("ItemSets", 100, "AceEvent-3.0")
+
+		local sets = {}
+
+		function setFilter:OnEnable()
+			self:RegisterEvent('EQUIPMENT_SETS_CHANGED')
+			self:UpdateSets()
+		end
+
+		function setFilter:UpdateSets()
+			wipe(sets)
 			for i = 1, GetNumEquipmentSets() do
 				local name = GetEquipmentSetInfo(i)
 				local section = L["Set: %s"]:format(name)
 				local items = GetEquipmentSetItemIDs(name)
 				for loc, id in pairs(items) do
-					if id and not self.sets[id] then
-						self.sets[id] = section
+					if id and not sets[id] then
+						sets[id] = section
 					end
 				end
 			end
-		end,
-		Filter = function(self, bag, slot, itemId, link)
-			return self.sets[itemId]
-		end,
-	}
+		end
+
+		function setFilter:EQUIPMENT_SETS_CHANGED()
+			self:UpdateSets()
+			addon:UpdateAllBags()
+		end
+
+		function setFilter:Filter(bag, slot, itemId, link)
+			return sets[itemId]
+		end
+
+	end
 
 	-- [90] Ammo and shards
 	addon:RegisterFilter('AmmoShards', 90, function(self, bag, slot, itemId, link) -- L["AmmoShards"]
@@ -50,15 +62,15 @@ function addon:SetupDefaultFilters()
 		end)
 	end
 
-	-- [70] Equipment	
+	-- [70] Equipment
 	addon:RegisterFilter('Equipment', 70, function(self, bag, slot, itemId, link) -- L["Equipement"]
 		local invType = select(9, GetItemInfo(itemId))
 		if invType and invType ~= "" then
 			return L['Equipment']
 		end
 	end)
-	
-	-- [60] Item classes	
+
+	-- [60] Item classes
 	addon:RegisterFilter('ItemCategory', 70, function(self, bag, slot, itemId, link) --L["ItemCategory"]
 		local cat = select(6, GetItemInfo(itemId))
 		if cat == L["Gem"] then
