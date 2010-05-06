@@ -173,7 +173,6 @@ end
 -- Bag content scanning
 --------------------------------------------------------------------------------
 
-local seen = {}
 function containerProto:UpdateContent(bag)
 	self:Debug('UpdateContent', bag)
 	local added, removed = self.added, self.removed
@@ -187,17 +186,10 @@ function containerProto:UpdateContent(bag)
 			local slotId = GetSlotId(bag, slot)
 			added[slotId] = newItem
 			removed[slotId] = oldItem
-		end
-		if newItem and not seen[newItem] then
-			seen[newItem] = true
-			self:UpdateNewItem(newItem)
-		end
-		if oldItem and not seen[oldItem] then
-			seen[oldItem] = true
 			self:UpdateNewItem(oldItem)
 		end
+		self:UpdateNewItem(newItem)
 	end
-	wipe(seen)
 	for slot = content.size, newSize + 1, -1 do
 		removed[GetSlotId(bag, slot)] = content[slot]
 		content[slot] = nil
