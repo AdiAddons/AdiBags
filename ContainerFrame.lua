@@ -122,11 +122,8 @@ function containerProto:ToString() return self.name or self:GetName() end
 --------------------------------------------------------------------------------
 
 function containerProto:RegisterUpdateEvents(event)
-	self.bagUpdateBucket = self:RegisterBucketEvent('BAG_UPDATE', 0.2, "BagsUpdated")
-	if self.bags[BANK_CONTAINER] then
-		self.bankUpdateBucket = self:RegisterBucketEvent('PLAYERBANKSLOTS_CHANGED', 0.2, "BankUpdated")
-		self:Debug('Registering bank update events')
-	end
+	self.bagUpdateBucket = self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, "BagsUpdated")
+	self:RegisterMessage('AdiBags_UpdateAllBags', 'UpdateAllContent')
 	self:UpdateAllContent(event)
 end
 
@@ -135,9 +132,21 @@ function containerProto:UnregisterUpdateEvents(event)
 		self:UnregisterBucket(self.bagUpdateBucket)
 		self.bagUpdateBucket = nil
 	end
-	if self.bankUpdateBucket then
-		self:UnregisterBucket(self.bankUpdateBucket)
-		self.bankUpdateBucket = nil
+end
+
+function containerProto:BagsUpdated(bags)
+	for bag in pairs(bags) do
+		if self.bags[bag] then
+			self:UpdateContent("BagsUpdated", bag)
+		end
+	end
+	if self:HasContentChanged() and self:Update("BagsUpdated") then
+		return
+	end
+	for i, button in pairs(self.buttons) do
+		if bags[button.bag] then
+			button:FullUpdate("BagsUpdated")
+		end
 	end
 end
 
@@ -148,19 +157,13 @@ function containerProto:OnShow()
 	end
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "UnregisterUpdateEvents")
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "RegisterUpdateEvents")
-	self:RegisterUpdateEvents(event)
+	self:RegisterUpdateEvents("OnShow")
 end
 
 function containerProto:OnHide()
-	self.bagUpdateBucket, self.bankUpdateBucket = nil, nil
+	self.bagUpdateBucket = nil
 	self:UnregisterAllEvents()
 	self:UnregisterAllBuckets()
-end
-
-local bankBags = { [BANK_CONTAINER] = 1 }
-function containerProto:BankUpdated(slots)
-	self:Debug('BankUpdated', slots)
-	return self:BagsUpdated(bankBags)
 end
 
 --------------------------------------------------------------------------------
@@ -190,30 +193,15 @@ function containerProto:UpdateContent(event, bag)
 end
 
 function containerProto:UpdateAllContent(event)
+	self:Debug('UpdateAllContent', event)
 	for bag in pairs(self.bags) do
-		self:UpdateContent("OnShow", bag)
+		self:UpdateContent(event, bag)
 	end
-	return self:Update('OnShow', true)
+	return self:Update(event, true)
 end
 
 function containerProto:HasContentChanged()
 	return not not (next(self.added) or next(self.removed))
-end
-
-function containerProto:BagsUpdated(bags)
-	for bag in pairs(bags) do
-		if self.bags[bag] then
-			self:UpdateContent("BagsUpdated", bag)
-		end
-	end
-	if self:HasContentChanged() and self:Update("BagsUpdated") then
-		return
-	end
-	for i, button in pairs(self.buttons) do
-		if bags[button.bag] then
-			button:FullUpdate("BagsUpdated")
-		end
-	end
 end
 
 --------------------------------------------------------------------------------

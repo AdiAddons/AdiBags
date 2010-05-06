@@ -119,6 +119,9 @@ end
 function addon:OnEnable()
 	self:RegisterEvent('BANKFRAME_OPENED')
 	self:RegisterEvent('BANKFRAME_CLOSED')
+
+	self:RegisterEvent('BAG_UPDATE')
+	self:RegisterBucketEvent('PLAYERBANKSLOTS_CHANGED', 0, 'BankUpdated')
 	
 	self:RawHook('ToggleBackpack', true)
 	self:RawHook('OpenBackpack', true)
@@ -135,6 +138,12 @@ function addon:OnEnable()
 	BankFrame:SetScript('OnEvent', BankFrame.Hide)
 	BankFrame:Hide()
 	--self:HookScript(BankFrame, "OnEvent", "BankFrame_OnEvent")
+
+	self:EnableFilters()
+end
+
+function addon:OnDisable()
+	self:DisableFilters()
 end
 
 --------------------------------------------------------------------------------
@@ -149,6 +158,20 @@ end
 function addon:BANKFRAME_CLOSED()
 	self.atBank = false
 	self:CloseAllBags()
+end
+
+function addon:BAG_UPDATE(event, bag)
+	self:SendMessage('AdiBags_BagUpdated', bag)
+end
+
+function addon:BankUpdated(slots)
+	-- Wrap several PLAYERBANKSLOTS_CHANGED into one AdiBags_BagUpdated message
+	self:SendMessage('AdiBags_BagUpdated', BANK_CONTAINER)
+end
+
+-- No typo there, it is really addon.UpdateAllBags
+function addon.UpdateAllBags()
+	addon:SendMessage('AdiBags_UpdateAllBags')
 end
 
 --------------------------------------------------------------------------------
