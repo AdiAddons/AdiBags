@@ -76,6 +76,10 @@ function containerProto:OnCreate(name, bags, isBank)
 	self.content = {}
 	self.stacks = {}
 	self.sections = {}
+
+	self.noNew = true
+	self.itemCounts = {}
+	self.newItems = {}
 	
 	self.added = {}
 	self.removed = {}
@@ -121,13 +125,13 @@ function containerProto:ToString() return self.name or self:GetName() end
 -- Scripts & event handlers
 --------------------------------------------------------------------------------
 
-function containerProto:RegisterUpdateEvents(event)
+function containerProto:RegisterUpdateEvents()
 	self.bagUpdateBucket = self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, "BagsUpdated")
 	self:RegisterMessage('AdiBags_UpdateAllBags', 'UpdateAllContent')
-	self:UpdateAllContent(event)
+	self:UpdateAllContent()
 end
 
-function containerProto:UnregisterUpdateEvents(event)
+function containerProto:UnregisterUpdateEvents()
 	if self.bagUpdateBucket then
 		self:UnregisterBucket(self.bagUpdateBucket)
 		self.bagUpdateBucket = nil
@@ -137,21 +141,20 @@ end
 function containerProto:BagsUpdated(bags)
 	for bag in pairs(bags) do
 		if self.bags[bag] then
-			self:UpdateContent("BagsUpdated", bag)
+			self:UpdateContent(bag)
 		end
 	end
-	if self:HasContentChanged() and self:Update("BagsUpdated") then
+	if self:HasContentChanged() and self:Update() then
 		return
 	end
 	for i, button in pairs(self.buttons) do
 		if bags[button.bag] then
-			button:FullUpdate("BagsUpdated")
+			button:FullUpdate()
 		end
 	end
 end
 
 function containerProto:OnShow()
-	self:Debug('OnShow')
 	if self.isBank then
 		self:RegisterEvent('BANKFRAME_CLOSED', "Hide")
 	end
@@ -170,8 +173,9 @@ end
 -- Bag content scanning
 --------------------------------------------------------------------------------
 
-function containerProto:UpdateContent(event, bag)
-	self:Debug('UpdateContent', event, bag)
+local seen = {}
+function containerProto:UpdateContent(bag)
+	self:Debug('UpdateContent', bag)
 	local added, removed = self.added, self.removed
 	local content = self.content[bag]
 	local newSize = GetContainerNumSlots(bag)
@@ -184,7 +188,16 @@ function containerProto:UpdateContent(event, bag)
 			added[slotId] = newItem
 			removed[slotId] = oldItem
 		end
+		if newItem and not seen[newItem] then
+			seen[newItem] = true
+			self:UpdateNewItem(newItem)
+		end
+		if oldItem and not seen[oldItem] then
+			seen[oldItem] = true
+			self:UpdateNewItem(oldItem)
+		end
 	end
+	wipe(seen)
 	for slot = content.size, newSize + 1, -1 do
 		removed[GetSlotId(bag, slot)] = content[slot]
 		content[slot] = nil
@@ -192,16 +205,63 @@ function containerProto:UpdateContent(event, bag)
 	content.size = newSize
 end
 
-function containerProto:UpdateAllContent(event)
-	self:Debug('UpdateAllContent', event)
+function containerProto:UpdateAllContent()
+	self:Debug('UpdateAllContent')
 	for bag in pairs(self.bags) do
-		self:UpdateContent(event, bag)
+		self:UpdateContent(bag)
 	end
-	return self:Update(event, true)
+	self:Update(true)
 end
 
 function containerProto:HasContentChanged()
 	return not not (next(self.added) or next(self.removed))
+end
+
+--------------------------------------------------------------------------------
+-- New items feature
+--------------------------------------------------------------------------------
+
+function containerProto:UpdateNewItem(link)
+	if not link then return end
+	local id = tonumber(link:match('item:(%d+)'))
+	local count
+	if self.isBank then
+		count = GetItemCount(id, true) - GetItemCount(id)
+	else
+		count = GetItemCount(id)
+	end
+	local oldCount = self.itemCounts[id] or 0
+	self.itemCounts[id] = count
+	if not self.noNew and count > oldCount then
+		self:Debug(GetItemInfo(id), oldCount, '=>', count)
+		self.newItems[id] = (oldCount == 0) and "New" or "+++"
+		self.hasNew = true
+	end
+end
+
+function containerProto:IsNewItem(linkOrId)
+	local id = tonumber(linkOrId) or tonumber(linkOrId:match('item:(%d+)'))
+	if id then
+		return self.newItems[id]
+	end
+end
+
+function containerProto:ResetNewItems()
+	self.hasNew = nil
+	self.noNew = true
+	wipe(self.itemCounts)
+	wipe(self.newItems)
+end
+
+function containerProto:UpdateNewButtons()
+	if self.hasNew then
+		self:Debug('UpdateNewButtons')
+		for _, button in pairs(self.buttons) do
+			button:UpdateNew()
+		end
+		self.hasNew = nil
+	end
+	self.noNew = nil
 end
 
 --------------------------------------------------------------------------------
@@ -211,7 +271,7 @@ end
 function containerProto:GetStackButton(key)
 	local stack = self.stacks[key]
 	if not stack then
-		stack = addon:AcquireStackButton(key)
+		stack = addon:AcquireStackButton(self, key)
 		self.stacks[key] = stack
 	end
 	return stack
@@ -242,7 +302,7 @@ function containerProto:DispatchItem(slotId, link)
 		button = self:GetStackButton(key)
 		button:AddSlot(slotId)
 	elseif not button then
-		button = addon:AcquireItemButton(bag, slot)
+		button = addon:AcquireItemButton(self, bag, slot)
 	end
 	local section = self:GetSection(sectionName)
 	section:AddItemButton(slotId, button)
@@ -267,18 +327,18 @@ function containerProto:RemoveSlot(slotId)
 	end
 end
 
-function containerProto:Update(event, forceLayout)
+function containerProto:Update(forceLayout)
 	local dirtyLayout = forceLayout	
 
 	if self:HasContentChanged() then
-		self:Debug('Updating on', event)
+		self:Debug('Content changed')
 		
 		local added, removed = self.added, self.removed
-
+		
 		local n
 		if next(removed) then
 			n = 0
-			for slotId in pairs(removed) do
+			for slotId, link in pairs(removed) do
 				self:RemoveSlot(slotId)
 				n = n + 1
 			end	
@@ -299,15 +359,17 @@ function containerProto:Update(event, forceLayout)
 		end
 
 		for name, section in pairs(self.sections) do
-			if section:DispatchDone(event) then
+			if section:DispatchDone() then
 				dirtyLayout = true
 			end
 		end
 	end
+	
+	self:UpdateNewButtons()
 
 	if dirtyLayout then
 		self:Debug('Update: dirty layout')
-		self:Layout(event, forceLayout)
+		self:Layout(forceLayout)
 		return true
 	end
 end
@@ -339,11 +401,11 @@ local function GetBestSection(sections, remainingWidth)
 end
 
 local orderedSections = {}
-function containerProto:Layout(event, forceLayout)
+function containerProto:Layout(forceLayout)
 	self:Debug('Layout required')
 	
 	for name, section in pairs(self.sections) do
-		if section:LayoutButtons(event, forceLayout) then
+		if section:LayoutButtons(forceLayout) then
 			tinsert(orderedSections, section)
 		else
 			section:Release()

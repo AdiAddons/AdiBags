@@ -33,11 +33,13 @@ function buttonProto:OnCreate()
 	self:SetHeight(ITEM_SIZE)
 end
 
-function buttonProto:OnAcquire(bag, slot)
+function buttonProto:OnAcquire(container, bag, slot)
+	self.container = container
 	self:SetBagSlot(bag, slot)
 end
 
 function buttonProto:OnRelease()
+	self.container = nil
 	self:SetSection(nil)
 	self:SetBagSlot(nil, nil)
 end
@@ -60,11 +62,11 @@ bankButtonClass.frameTemplate = "BankItemButtonGenericTemplate"
 local containerButtonPool = addon:CreatePool(buttonClass)
 local bankButtonPool = addon:CreatePool(bankButtonClass)
 
-function addon:AcquireItemButton(bag, slot)
+function addon:AcquireItemButton(container, bag, slot)
 	if bag == BANK_CONTAINER then
-		return bankButtonPool:Acquire(bag, slot)
+		return bankButtonPool:Acquire(container, bag, slot)
 	else
-		return containerButtonPool:Acquire(bag, slot)
+		return containerButtonPool:Acquire(container, bag, slot)
 	end
 end
 
@@ -92,7 +94,7 @@ function buttonProto:SetBagSlot(bag, slot)
 		end
 	end
 	if bag and slot then
-		self:FullUpdate('OnSetBagSlot')
+		self:FullUpdate()
 	end
 	return changed
 end
@@ -141,7 +143,7 @@ function buttonProto:OnShow()
 	self:RegisterEvent('ITEM_LOCK_CHANGED')
 	self:RegisterEvent('QUEST_ACCEPTED')
 	self:RegisterEvent('UNIT_QUEST_LOG_CHANGED')
-	self:FullUpdate('OnShow')
+	self:FullUpdate()
 end
 
 function buttonProto:OnHide()
@@ -156,16 +158,16 @@ function buttonProto:OnEvent(event, ...)
 	return self[event](self, event, ...)
 end
 
-function buttonProto:BAG_UPDATE_COOLDOWN(event) return self:UpdateCooldown(event) end
-function buttonProto:ITEM_LOCK_CHANGED(event) return self:UpdateLock(event) end
-function buttonProto:QUEST_ACCEPTED(event) return self:UpdateBorder(event) end
-function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)	if unit == "player" then return self:UpdateBorder(event) end end
+function buttonProto:BAG_UPDATE_COOLDOWN(event) return self:UpdateCooldown() end
+function buttonProto:ITEM_LOCK_CHANGED(event) return self:UpdateLock() end
+function buttonProto:QUEST_ACCEPTED(event) return self:UpdateBorder() end
+function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)	if unit == "player" then return self:UpdateBorder() end end
 
 --------------------------------------------------------------------------------
 -- Display updating
 --------------------------------------------------------------------------------
 
-function buttonProto:FullUpdate(event)
+function buttonProto:FullUpdate()
 	if not self:IsVisible() or not self.bag or not self.slot then return end
 	local texture = GetContainerItemInfo(self.bag, self.slot)
 	local icon = self.IconTexture
@@ -179,14 +181,15 @@ function buttonProto:FullUpdate(event)
 		icon:SetTexCoord(12/64, 51/64, 12/64, 51/64)
 		self.Count:Hide()
 	end
-	self:UpdateCount(event)
-	self:UpdateBorder(event)
-	self:UpdateCooldown(event)
-	self:UpdateLock(event)
-	self:UpdateSearchStatus(event)
+	self:UpdateNew()
+	self:UpdateCount()
+	self:UpdateBorder()
+	self:UpdateCooldown()
+	self:UpdateLock()
+	self:UpdateSearchStatus()
 end
 
-function buttonProto:UpdateCount(event)
+function buttonProto:UpdateCount()
 	local count = self:GetCount()
 	self.count = count or 0
 	if count > 1 then
@@ -197,7 +200,48 @@ function buttonProto:UpdateCount(event)
 	end	
 end
 
-function buttonProto:UpdateLock(event)
+local function CreateGlow(self)
+	local glow = CreateFrame("FRAME", nil, self)
+	glow:SetFrameLevel(self:GetFrameLevel()+15)
+	glow:SetPoint("CENTER")
+	glow:SetWidth(ITEM_SIZE*1.3)
+	glow:SetHeight(ITEM_SIZE*1.3)
+
+	local tex = glow:CreateTexture("OVERLAY")
+	tex:SetTexture([[Interface\Cooldown\starburst]])
+	tex:SetBlendMode("ADD")
+	tex:SetAllPoints(glow)
+	tex:SetVertexColor(0.5, 1, 0.5)
+	
+	local group = glow:CreateAnimationGroup()
+	group:SetLooping("REPEAT")
+
+	local anim = group:CreateAnimation("Rotation")
+	anim:SetOrder(1)
+	anim:SetDuration(10)
+	anim:SetDegrees(360)
+	anim:SetOrigin("CENTER", 0, 0)
+
+	group:Play()
+
+	self.NewGlow = glow
+	return glow
+end
+
+function buttonProto:UpdateNew()
+	local isNew = self.itemId and self.container:IsNewItem(self.itemId)
+	if self.isNew == isNew then return end
+	self:Debug('UpdateNew', self.isNew, '=>', isNew)
+	self.isNew = isNew
+	if isNew then
+		local glow = self.NewGlow or CreateGlow(self)
+		glow:Show()
+	elseif self.NewGlow then
+		self.NewGlow:Hide()
+	end
+end
+
+function buttonProto:UpdateLock()
 	if self.bag == BANK_CONTAINER then
 		BankFrameItemButton_UpdateLocked(self)
 	else
@@ -205,11 +249,11 @@ function buttonProto:UpdateLock(event)
 	end
 end
 
-function buttonProto:UpdateCooldown(event)
+function buttonProto:UpdateCooldown()
 	return ContainerFrame_UpdateCooldown(self.bag, self)
 end
 
-function buttonProto:UpdateBorder(event)
+function buttonProto:UpdateBorder()
 	local itemId = GetContainerItemID(self.bag, self.slot)
 	local border = self.IconQuestTexture
 	if itemId then
@@ -237,7 +281,7 @@ function buttonProto:UpdateBorder(event)
 	border:Hide()
 end
 
-function buttonProto:UpdateSearchStatus(event)
+function buttonProto:UpdateSearchStatus()
 	local text = addon:GetSearchText()
 	local selected = true
 	if text and self.hasItem then
@@ -265,7 +309,8 @@ function stackProto:OnCreate()
 	self.slots = {}
 end
 
-function stackProto:OnAcquire(key)
+function stackProto:OnAcquire(container, key)
+	self.container = container
 	self.key = key
 	self.count = 0
 end

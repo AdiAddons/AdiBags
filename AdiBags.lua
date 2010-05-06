@@ -37,7 +37,7 @@ end
 addon:SetDefaultModulePrototype{Debug = addon.Debug}
 
 --------------------------------------------------------------------------------
--- Helful constants
+-- Helpful constants
 --------------------------------------------------------------------------------
 
 do

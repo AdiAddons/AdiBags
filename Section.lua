@@ -91,7 +91,7 @@ function sectionProto:RemoveItemButton(button)
 	end
 end
 
-function sectionProto:DispatchDone(event)
+function sectionProto:DispatchDone()
 	local slots, freeSlots, buttons = self.slots, self.freeSlots, self.buttons
 	local count = 0
 	for button in pairs(buttons) do
@@ -134,7 +134,7 @@ function sectionProto:SetSize(width, height)
 end
 
 local buttonOrder = {}
-function sectionProto:LayoutButtons(event, forceLayout)
+function sectionProto:LayoutButtons(forceLayout)
 	if self.count == 0 then
 		return false
 	elseif not forceLayout and not self.dirtyLayout then
