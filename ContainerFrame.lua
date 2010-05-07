@@ -428,11 +428,14 @@ end
 --------------------------------------------------------------------------------
 
 local function CompareSections(a, b)
-	local numA, numB = a.count, b.count
-	if numA == numB then
-		return a.name < b.name
+	if a.order == b.order then
+		if a.count == b.count then
+			return a.name < b.name
+		else
+			return b.count < a.count
+		end
 	else
-		return numA > numB
+		return b.order < a.order
 	end
 end
 

@@ -12,6 +12,11 @@ local ITEM_SPACING = addon.ITEM_SPACING
 local SLOT_OFFSET = ITEM_SIZE + ITEM_SPACING
 local HEADER_SIZE = 14 + ITEM_SPACING
 
+local SECTION_ORDER = {
+	[L["New"]] = 10,
+	[L["Free space"]] = -10,
+}
+
 --------------------------------------------------------------------------------
 -- Initialization and release
 --------------------------------------------------------------------------------
@@ -39,8 +44,9 @@ end
 
 function sectionProto:OnAcquire(container, name)
 	self:SetParent(container)
-	self.header:SetText(L[name])
+	self.header:SetText(name)
 	self.name = name
+	self.order = SECTION_ORDER[name] or 0
 	self.container = container
 end
 
