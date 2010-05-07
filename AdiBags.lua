@@ -255,7 +255,7 @@ function addon:GetBag(name, noCreate)
 		local searchEditBox = CreateFrame("EditBox", addonName.."SearchEditBox", bag, "InputBoxTemplate")
 		
 		searchEditBox:SetAutoFocus(false)
-		searchEditBox:SetPoint("TOPRIGHT", -32, -8)
+		searchEditBox:SetPoint("TOPRIGHT", bag.Title)
 		searchEditBox:SetWidth(100)
 		searchEditBox:SetHeight(18)
 		searchEditBox:SetScript("OnEnterPressed", SearchEditBox_OnEnterPressed)

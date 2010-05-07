@@ -47,6 +47,11 @@ local function BagSlotButton_OnLeave(button)
 	end
 end
 
+local function ResetNewButton_OnClick(button)
+	addon:Debug('ResetNewButton_OnClick')
+	button:GetParent():ResetNewItems()
+end
+
 --------------------------------------------------------------------------------
 -- Bag creation
 --------------------------------------------------------------------------------
@@ -110,13 +115,22 @@ function containerProto:OnCreate(name, bags, isBank)
 	bagSlotButton:SetHeight(18)
 	bagSlotButton:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
 
+	local resetNewButton = CreateFrame("Button", nil, self, "UIPanelButtonTemplate")
+	resetNewButton:SetPoint("TOPRIGHT", -32, -6)
+	resetNewButton:SetText("N")
+	resetNewButton:SetWidth(20)
+	resetNewButton:SetHeight(20)
+	resetNewButton:SetScript("OnClick", ResetNewButton_OnClick)
+	self.ResetNewButton = resetNewButton
+
 	local title = self:CreateFontString(nil,"OVERLAY","GameFontNormalLarge")
+	self.Title = title
 	title:SetText(L[name])
 	title:SetTextColor(1, 1, 1)
 	title:SetHeight(18)
 	title:SetJustifyH("LEFT")
 	title:SetPoint("TOPLEFT", bagSlotButton, "TOPRIGHT", 4, 0)
-	title:SetPoint("RIGHT", closeButton, "LEFT", -4, 0)
+	title:SetPoint("RIGHT", resetNewButton, "LEFT", -4, 0)
 end
 
 function containerProto:ToString() return self.name or self:GetName() end
@@ -128,6 +142,7 @@ function containerProto:ToString() return self.name or self:GetName() end
 function containerProto:RegisterUpdateEvents()
 	self.bagUpdateBucket = self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, "BagsUpdated")
 	self:RegisterMessage('AdiBags_UpdateAllBags', 'UpdateAllContent')
+	self:RegisterMessage('AdiBags_FiltersChanged', 'FiltersChanged')
 	self:UpdateAllContent()
 end
 
@@ -152,6 +167,14 @@ function containerProto:BagsUpdated(bags)
 			button:FullUpdate()
 		end
 	end
+end
+
+function containerProto:FiltersChanged()
+	for bag, content in pairs(self.content) do
+		wipe(content)
+		content.size = 0
+	end
+	return self:UpdateAllContent()
 end
 
 function containerProto:OnShow()
@@ -214,7 +237,7 @@ function containerProto:UpdateAllContent()
 	for bag in pairs(self.bags) do
 		self:UpdateContent(bag)
 	end
-	self:Update(true)
+	return self:Update(true)
 end
 
 function containerProto:HasContentChanged()
@@ -239,7 +262,6 @@ function containerProto:UpdateNewItem(link)
 	if self.firstNewItemUpdate or oldCount == count then return end
 	local wasNew = self.newItems[id]
 	local isNew = (count > oldCount) or (wasNew and (count >= oldCount))
-	self:Debug(GetItemInfo(id), oldCount, '=>', count, ':', isNew)
 	if isNew ~= wasNew then
 		 self.newItems[id] = isNew or nil
 		 self.newItemsUpdated = true
@@ -254,11 +276,12 @@ function containerProto:IsNewItem(linkOrId)
 end
 
 function containerProto:ResetNewItems()
-	self.newItemsUpdated = nil
+	self.newItemsUpdated = true
 	self.firstNewItemUpdate = true
 	wipe(self.itemCounts)
 	wipe(self.newItems)
 	self:CountInventoryItems()
+	self:FiltersChanged()
 end
 
 function containerProto:CountInventoryItems()
@@ -281,6 +304,11 @@ function containerProto:UpdateNewButtons()
 			button:UpdateNew()
 		end
 		self.newItemsUpdated = nil
+	end
+	if next(self.newItems) then
+		self.ResetNewButton:Enable()
+	else
+		self.ResetNewButton:Disable()
 	end
 	self.firstNewItemUpdate = nil
 end
