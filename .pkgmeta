@@ -1,0 +1,35 @@
+package-as: AdiBags
+
+externals:
+  libs/LibStub:
+    url: svn://svn.wowace.com/wow/libstub/mainline/trunk
+    tag: latest
+  libs/CallbackHandler-1.0:
+    url: svn://svn.wowace.com/wow/callbackhandler/mainline/trunk/CallbackHandler-1.0
+    tag: latest
+  libs/AceAddon-3.0:
+    url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceAddon-3.0
+    tag: latest
+  libs/AceDB-3.0:
+    url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDB-3.0
+    tag: latest
+  libs/AceEvent-3.0:
+    url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceEvent-3.0
+    tag: latest
+  libs/AceTimer-3.0:
+    url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceTimer-3.0
+    tag: latest
+  libs/AceHook-3.0:
+    url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceHook-3.0
+    tag: latest
+  libs/AceBucket-3.0:
+    url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceBucket-3.0
+    tag: latest
+  libs/LibDataBroker-1.1:
+    url: http://github.com/tekkub/libdatabroker-1-1.git
+    tag: latest
+
+ignore:
+  - UpdateLocalization.lua
+  - README.textile
+

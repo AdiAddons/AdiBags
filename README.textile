@@ -1,0 +1,22 @@
+AdiBags display the content bag in one view, gather into several sections using smart filters.
+
+It is heavily inspired by Nargiddley's Baggins.
+
+As it is still alpha, there is no configuration yet.
+
+h2. Features
+
+* smart filters are used to dispatch items into several sections, including:
+** item sets of the Blizzard's gear manager (one section per set),
+** junk items,
+** equipment (items your character can wear),
+** sections based on item category: trade goods, consumables, recipes, ...
+** ammunition and warlocks' soul shards,
+** free space.
+* smart item sorting inside each section,
+* optimized section layout,
+* new item tracking,
+* name-based search,
+* override default bag and bank, but yet allow to show equipped bags,
+* LDB data source displaying free space.
+

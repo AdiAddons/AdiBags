@@ -17,12 +17,7 @@ local dataobj = {
 }
 
 function mod:OnInitialize()
-	local DataBroker = LibStub('LibDataBroker-1.1', true)
-	if not DataBroker then
-		self:SetEnabledState(false)
-		return
-	end
-	DataBroker:NewDataObject(addonName, dataobj)
+	LibStub('LibDataBroker-1.1'):NewDataObject(addonName, dataobj)
 end
 
 function mod:OnEnable()
