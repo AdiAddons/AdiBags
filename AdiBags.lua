@@ -202,8 +202,8 @@ end
 function addon:OnSearchTextChanged()
 	for name, bag in pairs(self.bags) do
 		if bag ~= true and bag:IsVisible() then
-			for i, button in ipairs(bag.buttons) do
-				button:UpdateSearchStatus("OnSearchTextChanged")
+			for i, button in pairs(bag.buttons) do
+				button:UpdateSearchStatus()
 			end
 		end
 	end
