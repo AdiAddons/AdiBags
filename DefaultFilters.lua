@@ -9,6 +9,26 @@ local L = addon.L
 
 function addon:SetupDefaultFilters()
 
+	-- [110] New items
+	do
+		local newFilter =  addon:RegisterFilter("NewItems", 110, "AceEvent-3.0")
+
+		local newItems = {}
+
+		function newFilter:OnEnable()
+			self:RegisterMessage('AgiBags_PreFilter')
+		end
+
+		function newFilter:AgiBags_PreFilter(event, container)
+			self:Debug(event, container)
+			newItems = container.newItems
+		end
+
+		function newFilter:Filter(bag, slot, itemId, link)
+			return newItems[itemId] and L["New"]
+		end
+	end
+
 	-- [100] Parts of an equipment set
 	do
 		local setFilter = addon:RegisterFilter("ItemSets", 100, "AceEvent-3.0")
@@ -36,7 +56,7 @@ function addon:SetupDefaultFilters()
 
 		function setFilter:EQUIPMENT_SETS_CHANGED()
 			self:UpdateSets()
-			addon:UpdateAllBags()
+			self:SendMessage('AdiBags_FiltersChanged')
 		end
 
 		function setFilter:Filter(bag, slot, itemId, link)

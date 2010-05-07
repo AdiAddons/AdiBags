@@ -27,6 +27,7 @@ L["Trade Goods"] = true
 L["Gem"] = true
 L["Equipment"] = true
 L["Soul shards"] = true
+L["New"] = true
 
 L["Backpack"] = true
 L["Bank"] = true
@@ -55,6 +56,7 @@ if GetLocale() == "frFR" then
 	L["Gem"] = "Gemme"
 	L["Equipment"] = "Equipement"
 	L["Soul shards"] = "Fragments d'âme"
+	L["New"] = "Nouveau"
 
 	L["Backpack"] = "Sac à dos"
 	L["Bank"] = "Banque"
