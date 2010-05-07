@@ -77,7 +77,7 @@ function containerProto:OnCreate(name, bags, isBank)
 	self.stacks = {}
 	self.sections = {}
 
-	self.noNew = true
+	self.firstNewItemUpdate = true
 	self.itemCounts = {}
 	self.newItems = {}
 	
@@ -160,6 +160,7 @@ function containerProto:OnShow()
 	end
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "UnregisterUpdateEvents")
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "RegisterUpdateEvents")
+	self:CountInventoryItems()
 	self:RegisterUpdateEvents("OnShow")
 end
 
@@ -173,6 +174,7 @@ end
 -- Bag content scanning
 --------------------------------------------------------------------------------
 
+local seen = {}
 function containerProto:UpdateContent(bag)
 	self:Debug('UpdateContent', bag)
 	local added, removed = self.added, self.removed
@@ -186,15 +188,25 @@ function containerProto:UpdateContent(bag)
 			local slotId = GetSlotId(bag, slot)
 			added[slotId] = newItem
 			removed[slotId] = oldItem
-			self:UpdateNewItem(oldItem)
+			if oldItem then
+				seen[oldItem] = true
+			end
 		end
-		self:UpdateNewItem(newItem)
+		seen[newItem] = true
 	end
 	for slot = content.size, newSize + 1, -1 do
-		removed[GetSlotId(bag, slot)] = content[slot]
+		local oldItem = content[slot]
+		removed[GetSlotId(bag, slot)] = oldItem
+		if oldItem then
+			seen[oldItem] = true
+		end
 		content[slot] = nil
 	end
 	content.size = newSize
+	for link in pairs(seen) do
+		self:UpdateNewItem(link)
+	end
+	wipe(seen)
 end
 
 function containerProto:UpdateAllContent()
@@ -218,16 +230,19 @@ function containerProto:UpdateNewItem(link)
 	local id = tonumber(link:match('item:(%d+)'))
 	local count
 	if self.isBank then
-		count = GetItemCount(id, true) - GetItemCount(id)
+		count = (GetItemCount(id, true) or 0) - (GetItemCount(id) or 0)
 	else
-		count = GetItemCount(id)
+		count = (GetItemCount(id) or 0)
 	end
 	local oldCount = self.itemCounts[id] or 0
 	self.itemCounts[id] = count
-	if not self.noNew and count > oldCount then
-		self:Debug(GetItemInfo(id), oldCount, '=>', count)
-		self.newItems[id] = (oldCount == 0) and "New" or "+++"
-		self.hasNew = true
+	if self.firstNewItemUpdate or oldCount == count then return end
+	local wasNew = self.newItems[id]
+	local isNew = (count > oldCount) or (wasNew and (count >= oldCount))
+	self:Debug(GetItemInfo(id), oldCount, '=>', count, ':', isNew)
+	if isNew ~= wasNew then
+		 self.newItems[id] = isNew or nil
+		 self.newItemsUpdated = true
 	end
 end
 
@@ -239,21 +254,35 @@ function containerProto:IsNewItem(linkOrId)
 end
 
 function containerProto:ResetNewItems()
-	self.hasNew = nil
-	self.noNew = true
+	self.newItemsUpdated = nil
+	self.firstNewItemUpdate = true
 	wipe(self.itemCounts)
 	wipe(self.newItems)
+	self:CountInventoryItems()
+end
+
+function containerProto:CountInventoryItems()
+	if not self.firstNewItemUpdate then return end
+	self:Debug('CountInventoryItems')
+	for slot = 0, 20 do -- All equipped items and bags
+		self:UpdateNewItem(GetInventoryItemLink("player", slot))
+	end
+	if addon.atBank then
+		for slot = 68, 68+6 do
+			self:UpdateNewItem(GetInventoryItemLink("player", slot))
+		end
+	end
 end
 
 function containerProto:UpdateNewButtons()
-	if self.hasNew then
+	if self.newItemsUpdated then
 		self:Debug('UpdateNewButtons')
 		for _, button in pairs(self.buttons) do
 			button:UpdateNew()
 		end
-		self.hasNew = nil
+		self.newItemsUpdated = nil
 	end
-	self.noNew = nil
+	self.firstNewItemUpdate = nil
 end
 
 --------------------------------------------------------------------------------
@@ -339,7 +368,7 @@ function containerProto:Update(forceLayout)
 		end
 
 		if next(added) then
-			addon:SendMessage('AgiBags_PreFilter', self)
+			self:SendMessage('AgiBags_PreFilter', self)
 			n = 0
 			for slotId, link in pairs(added) do
 				self:DispatchItem(slotId, link)
@@ -347,7 +376,7 @@ function containerProto:Update(forceLayout)
 			end
 			self:Debug('Added', n, 'items')
 			wipe(added)
-			addon:SendMessage('AgiBags_PostFilter', self)
+			self:SendMessage('AgiBags_PostFilter', self)
 		end
 
 		for name, section in pairs(self.sections) do
