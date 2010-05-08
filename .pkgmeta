@@ -28,6 +28,7 @@ externals:
   libs/LibDataBroker-1.1:
     url: http://github.com/tekkub/libdatabroker-1-1.git
     tag: latest
+  libs/LibMovable-1.0: git://github.com/Adirelle/LibMovable-1.0.git
 
 ignore:
   - UpdateLocalization.lua

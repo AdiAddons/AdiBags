@@ -6,7 +6,7 @@
 ## Version: @project-version@
 ## SavedVariables: AdiBagsDB
 ## X-Date: @project-date-iso@
-## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, tekDebug
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibMovable-1.0, tekDebug
 
 #@no-lib-strip@
 libs\LibStub\LibStub.lua
@@ -20,6 +20,7 @@ libs\AceBucket-3.0\AceBucket-3.0.xml
 #@end-no-lib-strip@
 
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+libs\LibMovable-1.0\LibMovable-1.0.lua
 
 Localization.lua
 AdiBags.lua

@@ -7,7 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
-LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'AceEvent-3.0', 'AceBucket-3.0', 'AceHook-3.0')
+LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'AceEvent-3.0', 'AceBucket-3.0', 'AceHook-3.0', 'LibMovable-1.0')
 --@debug@
 _G[addonName] = addon
 --@end-debug@
@@ -116,8 +116,10 @@ function addon:OnInitialize()
 	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", {profile = {
 		anchor = {},
 	},}, true)
-	addon.itemParentFrames = {}
-	addon.bags = { Bank = true, Backpack = true }
+	self.itemParentFrames = {}
+	self.bags = { Bank = true, Backpack = true }
+
+	self:CreateBagAnchor()
 end
 
 function addon:OnEnable()
@@ -141,7 +143,6 @@ function addon:OnEnable()
 	BankFrame:UnregisterAllEvents()
 	BankFrame:SetScript('OnEvent', BankFrame.Hide)
 	BankFrame:Hide()
-	--self:HookScript(BankFrame, "OnEvent", "BankFrame_OnEvent")
 end
 
 --------------------------------------------------------------------------------
@@ -228,8 +229,71 @@ end
 -- Bag handling
 --------------------------------------------------------------------------------
 
+local function Anchor_StartMoving(anchor)
+	for name, container in pairs(addon.bags) do
+		if addon:IsBagOpen(name) then
+			anchor.openBags[name] = true
+			container:Hide()
+		else
+			anchor.openBags[name] = nil
+		end
+	end
+end
+
+local function Anchor_StopMovingOrSizing(anchor)
+	for	name in pairs(anchor.openBags) do
+		addon.bags[name]:Show()
+	end
+	addon:LayoutBags()
+	wipe(anchor.openBags)
+end
+
+function addon:CreateBagAnchor()
+	local anchor = CreateFrame("Frame", addonName.."Anchor", UIParent)
+	anchor:SetPoint("BOTTOMRIGHT", -32, 200)
+	anchor:SetWidth(200)
+	anchor:SetHeight(20)
+	anchor.openBags = {}
+	hooksecurefunc(anchor, "StartMoving", Anchor_StartMoving)
+	hooksecurefunc(anchor, "StopMovingOrSizing", Anchor_StopMovingOrSizing)
+	self.anchor = anchor
+	self:RegisterMovable(anchor, self.db.profile.anchor, L["AdiBags anchor"])
+end
+
+function addon:LayoutBags()
+	local backpack = self:IsBagOpen("Backpack") and self.bags.Backpack
+	local bank = self:IsBagOpen("Bank") and self.bags.Bank
+	if not backpack and not bank then return end
+
+	local w, h = UIParent:GetWidth(), UIParent:GetHeight()
+	local x, y = self.anchor:GetCenter()
+	local anchorPoint =
+		((y > 0.6 * h) and "TOP" or (y < 0.4 * h) and "BOTTOM" or "") ..
+		((x < 0.4 * w) and "LEFT" or (x > 0.6 * w) and "RIGHT" or "")
+	if anchorPoint == "" then anchorPoint = "CENTER" end
+
+	if backpack then
+		backpack:ClearAllPoints()
+		backpack:SetPoint(anchorPoint, 0, 0)
+		if bank then
+			local vPart = anchorPoint:match("TOP") or anchorPoint:match("BOTTOM") or ""
+			local hFrom, hTo, x = "LEFT", "RIGHT", 10
+			if anchorPoint:match("RIGHT") then
+				hFrom, hTo, x = "RIGHT", "LEFT", -10
+			end
+			bank:ClearAllPoints()
+			bank:SetPoint(vPart..hFrom, backpack, vPart..hTo, x, 0)
+		end
+
+	elseif bank then
+		bank:ClearAllPoints()
+		bank:SetPoint(anchorPoint, 0, 0)
+	end
+end
+
 function addon:CreateBag(name, bags, isBank)
 	local container = self:CreateContainerFrame(name, bags, isBank)
+	container:SetParent(self.anchor)
 	local cname = container:GetName()
 	for id in pairs(bags) do
 		local f = CreateFrame("Frame", cname..'Bag'..id, container)
@@ -250,8 +314,7 @@ function addon:GetBag(name, noCreate)
 	end
 	if name == "Backpack" then -- L["Backpack"]
 		bag = self:CreateBag("Backpack", self.BAG_IDS.BAGS)
-		bag:SetPoint("BOTTOMRIGHT", -20, 300)	
-		
+
 		local searchEditBox = CreateFrame("EditBox", addonName.."SearchEditBox", bag, "InputBoxTemplate")
 		
 		searchEditBox:SetAutoFocus(false)
@@ -270,8 +333,6 @@ function addon:GetBag(name, noCreate)
 
 	elseif name == "Bank" then -- L["Bank"]
 		bag = self:CreateBag("Bank", self.BAG_IDS.BANK, true)
-		bag:SetPoint("BOTTOMRIGHT", self:GetBag("Backpack"), "BOTTOMLEFT", -10, 0)
-		bag:HookScript('OnHide', function() if addon.atBank then CloseBankFrame() end end)
 	end
 	self.bags[name] = bag
 	return bag
@@ -286,6 +347,7 @@ function addon:OpenBag(name)
 		local bag = self:GetBag(name)
 		if not bag:IsShown() then
 			bag:Show()
+			self:LayoutBags()
 		else
 			return true
 		end
@@ -295,6 +357,10 @@ end
 function addon:CloseBag(name)
 	if self:IsBagOpen(name) then
 		self:GetBag(name):Hide()
+		self:LayoutBags()
+		if name == "Bank" and self.atBank then
+			CloseBankFrame()
+		end
 	end
 end
 
