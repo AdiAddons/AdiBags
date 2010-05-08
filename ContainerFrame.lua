@@ -161,7 +161,7 @@ function containerProto:BagsUpdated(bags)
 		end
 	end
 	if self:HasContentChanged() then
-		self:Update() then
+		self:Update()
 	end
 end
 
