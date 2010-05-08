@@ -88,6 +88,7 @@ function containerProto:OnCreate(name, bags, isBank)
 	
 	self.added = {}
 	self.removed = {}
+	self.changed = {}
 
 	for bag in pairs(self.bags) do
 		self.content[bag] = { size = 0 }
@@ -159,20 +160,16 @@ function containerProto:BagsUpdated(bags)
 			self:UpdateContent(bag)
 		end
 	end
-	if self:HasContentChanged() and self:Update() then
-		return
-	end
-	for i, button in pairs(self.buttons) do
-		if bags[button.bag] then
-			button:FullUpdate()
-		end
+	if self:HasContentChanged() then
+		self:Update() then
 	end
 end
 
 function containerProto:FiltersChanged()
 	for bag, content in pairs(self.content) do
-		wipe(content)
-		content.size = 0
+		for slotId, slotData in ipairs(content) do
+			slotData.link = nil
+		end
 	end
 	return self:UpdateAllContent()
 end
@@ -200,30 +197,57 @@ end
 local seen = {}
 function containerProto:UpdateContent(bag)
 	self:Debug('UpdateContent', bag)
-	local added, removed = self.added, self.removed
+	local added, removed, changed = self.added, self.removed, self.changed
 	local content = self.content[bag]
 	local newSize = GetContainerNumSlots(bag)
-	content.family = select(2, GetContainerNumFreeSlots(bag))
+	local _, bagFamily = GetContainerNumFreeSlots(bag)
+	content.family = bagFamily
 	for slot = 1, newSize do
-		local oldItem, newItem = content[slot], (GetContainerItemLink(bag, slot) or false)
-		if oldItem ~= newItem then
-			content[slot] = newItem
-			local slotId = GetSlotId(bag, slot)
-			added[slotId] = newItem
-			removed[slotId] = oldItem
-			if oldItem then
-				seen[oldItem] = true
-			end
+		local slotData = content[slot]
+		if not slotData then
+			slotData = {
+				bag = bag,
+				slot = slot,
+				slotId = GetSlotId(bag, slot),
+				bagFamily = bagFamily,
+				count = 0,
+				isBank = self.isBank,
+			}
+			content[slot] = slotData
 		end
-		seen[newItem] = true
+		local _, count, _, _, _, _, link = GetContainerItemInfo(bag, slot)
+		link = link or false
+		count = count or 0
+		if slotData.count ~= count or slotData.link ~= link then
+			if link then
+				seen[link] = true 
+			end
+			if slotData.link ~= link then
+				if slotData.link then
+					seen[slotData.link] = true
+				end
+				slotData.link = link
+				slotData.itemId = link and tonumber(link:match("item:(%d+)"))
+				slotData.name, _, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass, slotData.maxStack, slotData.equipSlot, slotData.texture, slotData.vendorPrice = GetItemInfo(link or "")
+				removed[slotData.slotId] = true
+				added[slotData.slotId] = slotData
+			else
+				changed[slotData.slotId] = true
+			end
+			slotData.count = count
+		end
 	end
 	for slot = content.size, newSize + 1, -1 do
-		local oldItem = content[slot]
-		removed[GetSlotId(bag, slot)] = oldItem
-		if oldItem then
-			seen[oldItem] = true
+		local slotData = content[slot]
+		if slotData then
+			if slotData.count then
+				removed[slotData.slotId] = true
+			end
+			if slotData.link then
+				seen[slotData.link] = true
+			end
+			content[slot] = nil
 		end
-		content[slot] = nil
 	end
 	content.size = newSize
 	for link in pairs(seen) do
@@ -241,7 +265,7 @@ function containerProto:UpdateAllContent()
 end
 
 function containerProto:HasContentChanged()
-	return not not (next(self.added) or next(self.removed))
+	return not not (next(self.added) or next(self.removed) or next(self.changed))
 end
 
 --------------------------------------------------------------------------------
@@ -291,7 +315,7 @@ function containerProto:CountInventoryItems()
 		self:UpdateNewItem(GetInventoryItemLink("player", slot))
 	end
 	if addon.atBank then
-		for slot = 68, 68+6 do
+		for slot = 68, 68+6 do -- Bank equipped bags
 			self:UpdateNewItem(GetInventoryItemLink("player", slot))
 		end
 	end
@@ -335,19 +359,17 @@ function containerProto:GetSection(name)
 	return section
 end
 
-function containerProto:DispatchItem(slotId, link)
+function containerProto:DispatchItem(slotData)
 	local filter, sectionName, stack
-	local bag, slot = GetBagSlotFromId(slotId)
-	local itemId = 0
+	local bag, slotId, slot, link, itemId = slotData.bag, slotData.slotId, slotData.slot, slotData.link, slotData.itemId
 	if link then
-		itemId = tonumber(link:match('item:(%d+)'))
-		filter, sectionName, stack = addon:Filter(bag, slot, itemId, link)
+		filter, sectionName, stack = addon:Filter(slotData)
 	else
 		filter, sectionName, stack = "Free", L["Free space"], true
 	end
 	local button = self.buttons[slotId]
 	if stack then
-		local key = strjoin(':', tostringall(itemId, self.content[bag].family))
+		local key = strjoin(':', tostringall(itemId, slotData.bagFamily))
 		button = self:GetStackButton(key)
 		button:AddSlot(slotId)
 	elseif not button then
@@ -382,29 +404,29 @@ function containerProto:Update(forceLayout)
 	if self:HasContentChanged() then
 		self:Debug('Content changed')
 		
-		local added, removed = self.added, self.removed
+		local added, removed, changed = self.added, self.removed, self.changed
 		
-		local n
 		if next(removed) then
-			n = 0
-			for slotId, link in pairs(removed) do
+			for slotId in pairs(removed) do
 				self:RemoveSlot(slotId)
-				n = n + 1
 			end	
-			self:Debug('Removed', n, 'items')
 			wipe(removed)
 		end
 
 		if next(added) then
 			self:SendMessage('AgiBags_PreFilter', self)
-			n = 0
-			for slotId, link in pairs(added) do
-				self:DispatchItem(slotId, link)
-				n = n + 1
+			for slotId, slotData in pairs(added) do
+				self:DispatchItem(slotData)
 			end
-			self:Debug('Added', n, 'items')
 			wipe(added)
 			self:SendMessage('AgiBags_PostFilter', self)
+		end
+		
+		if next(changed) then
+			for slotId in pairs(changed) do
+				self.buttons[slotId]:FullUpdate()
+			end
+			wipe(changed)
 		end
 
 		for name, section in pairs(self.sections) do

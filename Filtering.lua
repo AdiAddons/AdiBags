@@ -57,9 +57,9 @@ local function safecall(func, ...)
 	end
 end
 
-function addon:Filter(bag, slot, itemId, link)
+function addon:Filter(slotData)
 	for i, filter in ipairs(filters) do
-		local sectionName, stack = safecall(filter.Filter, filter, bag, slot, itemId, link)
+		local sectionName, stack = safecall(filter.Filter, filter, slotData)
 		if sectionName then
 			return filter.name, sectionName, stack
 		end
