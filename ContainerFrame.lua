@@ -61,8 +61,8 @@ local containerClass, containerProto = addon:NewClass("Container", "Frame", "Ace
 function addon:CreateContainerFrame(...) return containerClass:Create(...) end
 
 local bagSlots = {}
-function containerProto:OnCreate(name, bags, isBank)
-	self:SetParent(UIParent)
+function containerProto:OnCreate(name, bags, isBank, anchor)
+	self:SetParent(anchor)
 	self:EnableMouse(true)
 	self:SetScale(0.8)
 	self:SetFrameStrata("HIGH")
@@ -93,6 +93,12 @@ function containerProto:OnCreate(name, bags, isBank)
 	for bag in pairs(self.bags) do
 		self.content[bag] = { size = 0 }
 		tinsert(bagSlots, bag)
+		if not addon.itemParentFrames[bag] then
+			local f = CreateFrame("Frame", addonName..'ItemContainer'..bag, self)
+			f.isBank = isBank
+			f:SetID(bag)
+			addon.itemParentFrames[bag] = f 
+		end
 	end
 	
 	local bagSlotPanel = addon:CreateBagSlotPanel(self, name, bagSlots, isBank)
@@ -144,6 +150,7 @@ function containerProto:RegisterUpdateEvents()
 	self.bagUpdateBucket = self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, "BagsUpdated")
 	self:RegisterMessage('AdiBags_UpdateAllBags', 'UpdateAllContent')
 	self:RegisterMessage('AdiBags_FiltersChanged', 'FiltersChanged')
+	self:RegisterMessage('AdiBags_UpdateAllButtons', 'UpdateAllButtons')
 	self:UpdateAllContent()
 end
 
@@ -160,9 +167,7 @@ function containerProto:BagsUpdated(bags)
 			self:UpdateContent(bag)
 		end
 	end
-	if self:HasContentChanged() then
-		self:Update()
-	end
+	return self:Update()
 end
 
 function containerProto:FiltersChanged()
@@ -175,13 +180,10 @@ function containerProto:FiltersChanged()
 end
 
 function containerProto:OnShow()
-	if self.isBank then
-		self:RegisterEvent('BANKFRAME_CLOSED', "Hide")
-	end
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "UnregisterUpdateEvents")
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "RegisterUpdateEvents")
 	self:CountInventoryItems()
-	self:RegisterUpdateEvents("OnShow")
+	self:RegisterUpdateEvents()
 end
 
 function containerProto:OnHide()
@@ -190,11 +192,24 @@ function containerProto:OnHide()
 	self:UnregisterAllBuckets()
 end
 
+function containerProto:UpdateAllButtons(event)
+	for _, button in pairs(self.buttons) do
+		button:FullUpdate()
+	end
+end
+
+function containerProto:UpdateAllContent()
+	self:Debug('UpdateAllContent')
+	for bag in pairs(self.bags) do
+		self:UpdateContent(bag)
+	end
+	return self:Update(true)
+end
+
 --------------------------------------------------------------------------------
 -- Bag content scanning
 --------------------------------------------------------------------------------
 
-local seen = {}
 function containerProto:UpdateContent(bag)
 	self:Debug('UpdateContent', bag)
 	local added, removed, changed = self.added, self.removed, self.changed
@@ -219,20 +234,14 @@ function containerProto:UpdateContent(bag)
 		link = link or false
 		count = count or 0
 		if slotData.count ~= count or slotData.link ~= link then
-			if link then
-				seen[link] = true 
-			end
 			if slotData.link ~= link then
-				if slotData.link then
-					seen[slotData.link] = true
-				end
+				removed[slotData.slotId] = slotData.link
 				slotData.link = link
 				slotData.itemId = link and tonumber(link:match("item:(%d+)"))
 				slotData.name, _, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass, slotData.maxStack, slotData.equipSlot, slotData.texture, slotData.vendorPrice = GetItemInfo(link or "")
-				removed[slotData.slotId] = true
 				added[slotData.slotId] = slotData
 			else
-				changed[slotData.slotId] = true
+				changed[slotData.slotId] = link
 			end
 			slotData.count = count
 		end
@@ -241,27 +250,12 @@ function containerProto:UpdateContent(bag)
 		local slotData = content[slot]
 		if slotData then
 			if slotData.count then
-				removed[slotData.slotId] = true
-			end
-			if slotData.link then
-				seen[slotData.link] = true
+				removed[slotData.slotId] = slotData.link
 			end
 			content[slot] = nil
 		end
 	end
 	content.size = newSize
-	for link in pairs(seen) do
-		self:UpdateNewItem(link)
-	end
-	wipe(seen)
-end
-
-function containerProto:UpdateAllContent()
-	self:Debug('UpdateAllContent')
-	for bag in pairs(self.bags) do
-		self:UpdateContent(bag)
-	end
-	return self:Update(true)
 end
 
 function containerProto:HasContentChanged()
@@ -405,29 +399,29 @@ function containerProto:Update(forceLayout)
 		self:Debug('Content changed')
 		
 		local added, removed, changed = self.added, self.removed, self.changed
+		self:SendMessage('AdiBags_PreContentUpdate', self, added, removed, changed)
 		
-		if next(removed) then
-			for slotId in pairs(removed) do
-				self:RemoveSlot(slotId)
-			end	
-			wipe(removed)
-		end
+		for slotId in pairs(removed) do
+			self:RemoveSlot(slotId)
+		end	
 
 		if next(added) then
 			self:SendMessage('AgiBags_PreFilter', self)
 			for slotId, slotData in pairs(added) do
 				self:DispatchItem(slotData)
 			end
-			wipe(added)
 			self:SendMessage('AgiBags_PostFilter', self)
 		end
 		
-		if next(changed) then
-			for slotId in pairs(changed) do
-				self.buttons[slotId]:FullUpdate()
-			end
-			wipe(changed)
+		for slotId in pairs(changed) do
+			self.buttons[slotId]:FullUpdate()
 		end
+		
+		self:SendMessage('AdiBags_PostContentUpdate', self, added, removed, changed)
+
+		wipe(added)
+		wipe(removed)
+		wipe(changed)
 
 		for name, section in pairs(self.sections) do
 			if section:DispatchDone() then

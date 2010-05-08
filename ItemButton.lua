@@ -186,7 +186,7 @@ function buttonProto:FullUpdate()
 	self:UpdateBorder()
 	self:UpdateCooldown()
 	self:UpdateLock()
-	self:UpdateSearchStatus()
+	addon:SendMessage('AdiBags_UpdateButton', self)
 end
 
 function buttonProto:UpdateCount()
@@ -198,34 +198,6 @@ function buttonProto:UpdateCount()
 	else
 		self.Count:Hide()
 	end	
-end
-
-local function CreateGlow(self)
-	local glow = CreateFrame("FRAME", nil, self)
-	glow:SetFrameLevel(self:GetFrameLevel()+15)
-	glow:SetPoint("CENTER")
-	glow:SetWidth(ITEM_SIZE*1.5)
-	glow:SetHeight(ITEM_SIZE*1.5)
-
-	local tex = glow:CreateTexture("OVERLAY")
-	tex:SetTexture([[Interface\Cooldown\starburst]])
-	tex:SetBlendMode("ADD")
-	tex:SetAllPoints(glow)
-	tex:SetVertexColor(0.3, 1, 0.3, 0.7)
-	
-	local group = glow:CreateAnimationGroup()
-	group:SetLooping("REPEAT")
-
-	local anim = group:CreateAnimation("Rotation")
-	anim:SetOrder(1)
-	anim:SetDuration(10)
-	anim:SetDegrees(360)
-	anim:SetOrigin("CENTER", 0, 0)
-
-	group:Play()
-
-	self.NewGlow = glow
-	return glow
 end
 
 function buttonProto:UpdateNew()
@@ -279,22 +251,6 @@ function buttonProto:UpdateBorder()
 		end
 	end
 	border:Hide()
-end
-
-function buttonProto:UpdateSearchStatus()
-	local text = addon:GetSearchText()
-	local selected = true
-	if text and self.hasItem then
-		local name = GetItemInfo(self.itemId)
-		if name and not name:lower():match(text:lower()) then
-			selected = false
-		end
-	end
-	if selected then
-		self:SetAlpha(1)
-	else
-		self:SetAlpha(0.3)
-	end
 end
 
 --------------------------------------------------------------------------------

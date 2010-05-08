@@ -128,21 +128,13 @@ function addon:OnEnable()
 
 	self:RegisterEvent('BAG_UPDATE')
 	self:RegisterBucketEvent('PLAYERBANKSLOTS_CHANGED', 0, 'BankUpdated')
+	self:RegisterBucketMessage({'AdiBags_BagOpened', 'AdiBags_BagClosed'}, 0, 'LayoutBags')
 	
-	self:RawHook('ToggleBackpack', true)
-	self:RawHook('OpenBackpack', true)
-	self:RawHook('CloseBackpack', true)
 	self:RawHook("OpenAllBags", true)
 	self:RawHook("CloseAllBags", true)
 	
 	self:RegisterEvent('MAIL_CLOSED', 'CloseAllBags')
 	self:SecureHook('CloseSpecialWindows', 'CloseAllBags')
-	
-	-- Disable the BankFrame
-	BankFrame.Show = BankFrame.Hide
-	BankFrame:UnregisterAllEvents()
-	BankFrame:SetScript('OnEvent', BankFrame.Hide)
-	BankFrame:Hide()
 end
 
 --------------------------------------------------------------------------------
@@ -190,62 +182,22 @@ function addon.GetBagSlotFromId(slotId)
 end
 
 --------------------------------------------------------------------------------
--- Search feature
---------------------------------------------------------------------------------
-
-function addon:GetSearchText()
-	local text = self.searchEditBox and self.searchEditBox:GetText()
-	if text and text:trim() ~= "" then
-		return text
-	end
-end
-
-function addon:OnSearchTextChanged()
-	for name, bag in pairs(self.bags) do
-		if bag ~= true and bag:IsVisible() then
-			for i, button in pairs(bag.buttons) do
-				button:UpdateSearchStatus()
-			end
-		end
-	end
-end
-
-local function SearchEditBox_OnTextChanged(editBox)
-	return addon:OnSearchTextChanged()
-end
-
-local function SearchEditBox_OnEnterPressed(editBox)
-	editBox:ClearFocus()
-	return SearchEditBox_OnTextChanged(editBox)
-end
-
-local function SearchEditBox_OnEscapePressed(editBox)
-	editBox:ClearFocus()
-	editBox:SetText('')
-	return SearchEditBox_OnTextChanged(editBox)
-end
-
---------------------------------------------------------------------------------
--- Bag handling
+-- Bag anchor and layout
 --------------------------------------------------------------------------------
 
 local function Anchor_StartMoving(anchor)
-	for name, container in pairs(addon.bags) do
-		if addon:IsBagOpen(name) then
-			anchor.openBags[name] = true
-			container:Hide()
-		else
-			anchor.openBags[name] = nil
-		end
+	for _, bag in addon:IterateBags(true) do
+		anchor.openBags[bag] = true
+		bag:GetFrame():Hide()
 	end
 end
 
 local function Anchor_StopMovingOrSizing(anchor)
-	for	name in pairs(anchor.openBags) do
-		addon.bags[name]:Show()
+	for	bag in pairs(anchor.openBags) do
+		bag:GetFrame():Show()
 	end
-	addon:LayoutBags()
 	wipe(anchor.openBags)
+	addon:LayoutBags()
 end
 
 function addon:CreateBagAnchor()
@@ -261,9 +213,9 @@ function addon:CreateBagAnchor()
 end
 
 function addon:LayoutBags()
-	local backpack = self:IsBagOpen("Backpack") and self.bags.Backpack
-	local bank = self:IsBagOpen("Bank") and self.bags.Bank
-	if not backpack and not bank then return end
+	local nextBag, data, index, bag = self:IterateBags(true)
+	index, bag = nextBag(data, index)
+	if not bag then return end
 
 	local w, h = UIParent:GetWidth(), UIParent:GetHeight()
 	local x, y = self.anchor:GetCenter()
@@ -272,145 +224,29 @@ function addon:LayoutBags()
 		((x < 0.4 * w) and "LEFT" or (x > 0.6 * w) and "RIGHT" or "")
 	if anchorPoint == "" then anchorPoint = "CENTER" end
 
-	if backpack then
-		backpack:ClearAllPoints()
-		backpack:SetPoint(anchorPoint, 0, 0)
-		if bank then
-			local vPart = anchorPoint:match("TOP") or anchorPoint:match("BOTTOM") or ""
-			local hFrom, hTo, x = "LEFT", "RIGHT", 10
-			if anchorPoint:match("RIGHT") then
-				hFrom, hTo, x = "RIGHT", "LEFT", -10
-			end
-			bank:ClearAllPoints()
-			bank:SetPoint(vPart..hFrom, backpack, vPart..hTo, x, 0)
-		end
-
-	elseif bank then
-		bank:ClearAllPoints()
-		bank:SetPoint(anchorPoint, 0, 0)
+	local frame = bag:GetFrame()
+	frame:ClearAllPoints()
+	frame:SetPoint(anchorPoint, 0, 0)
+	
+	local lastBag = bag	
+	index, bag = nextBag(data, index)
+	if not bag then return end
+	
+	local vPart = anchorPoint:match("TOP") or anchorPoint:match("BOTTOM") or ""
+	local hFrom, hTo, x = "LEFT", "RIGHT", 10
+	if anchorPoint:match("RIGHT") then
+		hFrom, hTo, x = "RIGHT", "LEFT", -10
+	end
+	local fromPoint = vPart..hFrom
+	local toPoint = vPart.hTo
+	
+	while bag do
+		local frame = bag:GetFrame()
+		frame:ClearAllPoints()
+		frame:SetPoint(fromPoint, lastBag, toPoint, x, 0)
+		lastBag, index, bag = bag, nextBag(bag, index)
 	end
 end
 
-function addon:CreateBag(name, bags, isBank)
-	local container = self:CreateContainerFrame(name, bags, isBank)
-	container:SetParent(self.anchor)
-	local cname = container:GetName()
-	for id in pairs(bags) do
-		local f = CreateFrame("Frame", cname..'Bag'..id, container)
-		f.isBank = isBank
-		f:SetID(id)
-		addon.itemParentFrames[id] = f
-	end
-	self.bags[name] = container
-	return container
-end
 
-function addon:GetBag(name, noCreate)
-	local bag = self.bags[name]
-	if bag and bag ~= true then
-		return bag
-	elseif noCreate then
-		return
-	end
-	if name == "Backpack" then -- L["Backpack"]
-		bag = self:CreateBag("Backpack", self.BAG_IDS.BAGS)
-
-		local searchEditBox = CreateFrame("EditBox", addonName.."SearchEditBox", bag, "InputBoxTemplate")
-		
-		searchEditBox:SetAutoFocus(false)
-		searchEditBox:SetPoint("TOPRIGHT", bag.Title)
-		searchEditBox:SetWidth(100)
-		searchEditBox:SetHeight(18)
-		searchEditBox:SetScript("OnEnterPressed", SearchEditBox_OnEnterPressed)
-		searchEditBox:SetScript("OnEscapePressed", SearchEditBox_OnEscapePressed)
-		searchEditBox:SetScript("OnTextChanged", SearchEditBox_OnTextChanged)
-		self.searchEditBox = searchEditBox
-
-		local searchLabel = searchEditBox:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-		searchLabel:SetPoint("TOPRIGHT", searchEditBox, "TOPLEFT", -4, 0)
-		searchLabel:SetText(L["Search:"].." ")
-		searchLabel:SetHeight(18)
-
-	elseif name == "Bank" then -- L["Bank"]
-		bag = self:CreateBag("Bank", self.BAG_IDS.BANK, true)
-	end
-	self.bags[name] = bag
-	return bag
-end
-
-function addon:CanOpenBag(name)
-	return name ~= 'Bank' or self.atBank
-end
-
-function addon:OpenBag(name)
-	if self:CanOpenBag(name) then
-		local bag = self:GetBag(name)
-		if not bag:IsShown() then
-			bag:Show()
-			self:LayoutBags()
-		else
-			return true
-		end
-	end
-end
-
-function addon:CloseBag(name)
-	if self:IsBagOpen(name) then
-		self:GetBag(name):Hide()
-		self:LayoutBags()
-		if name == "Bank" and self.atBank then
-			CloseBankFrame()
-		end
-	end
-end
-
-function addon:IsBagOpen(name)
-	local bag = self:GetBag(name, true)
-	return bag and bag:IsShown()
-end
-
-function addon:AreAllBagsOpen()
-	for name in pairs(self.bags) do
-		if self:CanOpenBag(name) and not self:IsBagOpen(name) then
-			return false
-		end
-	end
-	return true
-end
-
---------------------------------------------------------------------------------
--- Hooks of standard bag function
---------------------------------------------------------------------------------
-
-function addon:OpenBackpack() 
-	return self:OpenBag("Backpack") 
-end
-
-function addon:CloseBackpack() 
-	self:CloseBag("Backpack")
-end
-
-function addon:ToggleBackpack()
-	if self:IsBagOpen("Backpack") then
-		self:CloseBag("Backpack")
-	else
-		self:OpenBag("Backpack")
-	end
-end
-
-function addon:OpenAllBags(forceOpen)
-	if not forceOpen and self:AreAllBagsOpen() then
-		self:CloseAllBags()
-	else
-		for name in pairs(self.bags) do
-			self:OpenBag(name)
-		end
-	end
-end
-
-function addon:CloseAllBags()
-	for name in pairs(self.bags) do
-		self:CloseBag(name)
-	end
-end
 

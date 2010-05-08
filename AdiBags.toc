@@ -26,6 +26,7 @@ Localization.lua
 AdiBags.lua
 OO.lua
 
+Bags.lua
 ContainerFrame.lua
 BagSlots.lua
 ItemButton.lua
@@ -35,5 +36,6 @@ Sorting.lua
 
 DefaultFilters.lua
 
-DataSource.lua
+modules\DataSource.lua
+modules\SearchHighlight.lua
 
