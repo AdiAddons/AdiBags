@@ -181,7 +181,6 @@ function buttonProto:FullUpdate()
 		icon:SetTexCoord(12/64, 51/64, 12/64, 51/64)
 		self.Count:Hide()
 	end
-	self:UpdateNew()
 	self:UpdateCount()
 	self:UpdateBorder()
 	self:UpdateCooldown()
@@ -198,19 +197,6 @@ function buttonProto:UpdateCount()
 	else
 		self.Count:Hide()
 	end	
-end
-
-function buttonProto:UpdateNew()
-	local isNew = self.itemId and self.container:IsNewItem(self.itemId)
-	if self.isNew == isNew then return end
-	self:Debug('UpdateNew', self.isNew, '=>', isNew)
-	self.isNew = isNew
-	if isNew then
-		local glow = self.NewGlow or CreateGlow(self)
-		glow:Show()
-	elseif self.NewGlow then
-		self.NewGlow:Hide()
-	end
 end
 
 function buttonProto:UpdateLock()

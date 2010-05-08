@@ -13,13 +13,15 @@ function mod:OnEnable()
 	addon:HookBagFrameCreation(self, 'OnBagFrameCreated')
 	if self.widget then
 		self.widget:Show()
+		self:SendMessage('AdiBags_UpdateAllButtons')
 	end
-	self:RegisterMessage('AdiBags_UpdateButton')
+	self:RegisterMessage('AdiBags_UpdateButton', 'UpdateButton')
 end
 
 function mod:OnDisable()
 	if self.widget then
 		self.widget:Hide()
+		self:SendMessage('AdiBags_UpdateAllButtons')
 	end
 end
 
@@ -58,7 +60,7 @@ function mod:OnBagFrameCreated(bag)
 	searchLabel:SetHeight(18)
 end
 
-function mod:AdiBags_UpdateButton(event, button)
+function mod:UpdateButton(event, button)
 	if not self.widget then return end
 	local text = self.widget:GetText()
 	local selected = true

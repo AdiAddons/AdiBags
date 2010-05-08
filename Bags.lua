@@ -21,19 +21,21 @@ end
 
 function bagProto:Open()
 	if not self:CanOpen() then return end
-	self:Debug('Open')
 	local frame = self:GetFrame()
 	if not frame:IsShown() then
+		self:Debug('Open')
 		frame:Show()
 		addon:SendMessage('AdiBags_BagOpened', name, self)
+		return true
 	end
 end
 
 function bagProto:Close()
-	self:Debug('Close')
-	if self:IsOpen() then
-		self:GetFrame():Hide()
+	if self.frame and self.frame:IsShown() then
+		self:Debug('Close')
+		self.frame:Hide()
 		addon:SendMessage('AdiBags_BagClosed', name, self)
+		return true
 	end
 end
 
@@ -52,6 +54,7 @@ end
 function bagProto:GetFrame()
 	if not self.frame then
 		self.frame = self:CreateFrame()
+		self.frame.CloseButton:SetScript('OnClick', function() self:Close() end)
 		addon:SendMessage('AdiBags_BagFrameCreated', self)
 	end
 	return self.frame
@@ -171,7 +174,7 @@ end
 --------------------------------------------------------------------------------
 
 do
-	local backpack = addon:NewBag("Backpack", 410, addon.BAG_IDS.BAGS, false, 'AceHook-3.0')
+	local backpack = addon:NewBag("Backpack", 10, addon.BAG_IDS.BAGS, false, 'AceHook-3.0')
 	
 	function backpack:OnEnable()	
 		self:RegisterEvent('BANKFRAME_OPENED', 'Open')
@@ -227,11 +230,10 @@ do
 	end
 	
 	function bank:Close()
-		if self.atBank then
+		if bagProto.Close(self) and self.atBank then
 			CloseBankFrame()
-		end
-		bagProto.Close(self)
+		end		
 	end
-	
+
 end
 

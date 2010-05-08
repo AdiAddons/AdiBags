@@ -21,10 +21,6 @@ local TOP_PADDING = addon.TOP_PADDING
 -- Widget scripts
 --------------------------------------------------------------------------------
 
-local function CloseButton_OnClick(button)
-	button:GetParent():Hide()
-end
-
 local function BagSlotButton_OnClick(button)
 	if button:GetChecked() then
 		button.panel:Show()
@@ -45,11 +41,6 @@ local function BagSlotButton_OnLeave(button)
 	if GameTooltip:GetOwner() == button then
 		GameTooltip:Hide()
 	end
-end
-
-local function ResetNewButton_OnClick(button)
-	addon:Debug('ResetNewButton_OnClick')
-	button:GetParent():ResetNewItems()
 end
 
 --------------------------------------------------------------------------------
@@ -82,10 +73,6 @@ function containerProto:OnCreate(name, bags, isBank, anchor)
 	self.stacks = {}
 	self.sections = {}
 
-	self.firstNewItemUpdate = true
-	self.itemCounts = {}
-	self.newItems = {}
-	
 	self.added = {}
 	self.removed = {}
 	self.changed = {}
@@ -106,9 +93,8 @@ function containerProto:OnCreate(name, bags, isBank, anchor)
 	wipe(bagSlots)
 
 	local closeButton = CreateFrame("Button", nil, self, "UIPanelCloseButton")
-	self.closeButton = closeButton
+	self.CloseButton = closeButton
 	closeButton:SetPoint("TOPRIGHT")
-	closeButton:SetScript('OnClick', CloseButton_OnClick)
 
 	local bagSlotButton = CreateFrame("CheckButton", nil, self)
 	bagSlotButton:SetNormalTexture([[Interface\Buttons\Button-Backpack-Up]])
@@ -122,14 +108,6 @@ function containerProto:OnCreate(name, bags, isBank, anchor)
 	bagSlotButton:SetHeight(18)
 	bagSlotButton:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
 
-	local resetNewButton = CreateFrame("Button", nil, self, "UIPanelButtonTemplate")
-	resetNewButton:SetPoint("TOPRIGHT", -32, -6)
-	resetNewButton:SetText("N")
-	resetNewButton:SetWidth(20)
-	resetNewButton:SetHeight(20)
-	resetNewButton:SetScript("OnClick", ResetNewButton_OnClick)
-	self.ResetNewButton = resetNewButton
-
 	local title = self:CreateFontString(nil,"OVERLAY","GameFontNormalLarge")
 	self.Title = title
 	title:SetText(L[name])
@@ -137,7 +115,7 @@ function containerProto:OnCreate(name, bags, isBank, anchor)
 	title:SetHeight(18)
 	title:SetJustifyH("LEFT")
 	title:SetPoint("TOPLEFT", bagSlotButton, "TOPRIGHT", 4, 0)
-	title:SetPoint("RIGHT", resetNewButton, "LEFT", -4, 0)
+	title:SetPoint("RIGHT", closeButton, "LEFT", -4, 0)
 end
 
 function containerProto:ToString() return self.name or self:GetName() end
@@ -182,7 +160,6 @@ end
 function containerProto:OnShow()
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "UnregisterUpdateEvents")
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "RegisterUpdateEvents")
-	self:CountInventoryItems()
 	self:RegisterUpdateEvents()
 end
 
@@ -249,9 +226,7 @@ function containerProto:UpdateContent(bag)
 	for slot = content.size, newSize + 1, -1 do
 		local slotData = content[slot]
 		if slotData then
-			if slotData.count then
-				removed[slotData.slotId] = slotData.link
-			end
+			removed[slotData.slotId] = slotData.link
 			content[slot] = nil
 		end
 	end
@@ -260,75 +235,6 @@ end
 
 function containerProto:HasContentChanged()
 	return not not (next(self.added) or next(self.removed) or next(self.changed))
-end
-
---------------------------------------------------------------------------------
--- New items feature
---------------------------------------------------------------------------------
-
-function containerProto:UpdateNewItem(link)
-	if not link then return end
-	local id = tonumber(link:match('item:(%d+)'))
-	local count
-	if self.isBank then
-		count = (GetItemCount(id, true) or 0) - (GetItemCount(id) or 0)
-	else
-		count = (GetItemCount(id) or 0)
-	end
-	local oldCount = self.itemCounts[id] or 0
-	self.itemCounts[id] = count
-	if self.firstNewItemUpdate or oldCount == count then return end
-	local wasNew = self.newItems[id]
-	local isNew = (count > oldCount) or (wasNew and (count >= oldCount))
-	if isNew ~= wasNew then
-		 self.newItems[id] = isNew or nil
-		 self.newItemsUpdated = true
-	end
-end
-
-function containerProto:IsNewItem(linkOrId)
-	local id = tonumber(linkOrId) or tonumber(linkOrId:match('item:(%d+)'))
-	if id then
-		return self.newItems[id]
-	end
-end
-
-function containerProto:ResetNewItems()
-	self.newItemsUpdated = true
-	self.firstNewItemUpdate = true
-	wipe(self.itemCounts)
-	wipe(self.newItems)
-	self:CountInventoryItems()
-	self:FiltersChanged()
-end
-
-function containerProto:CountInventoryItems()
-	if not self.firstNewItemUpdate then return end
-	self:Debug('CountInventoryItems')
-	for slot = 0, 20 do -- All equipped items and bags
-		self:UpdateNewItem(GetInventoryItemLink("player", slot))
-	end
-	if addon.atBank then
-		for slot = 68, 68+6 do -- Bank equipped bags
-			self:UpdateNewItem(GetInventoryItemLink("player", slot))
-		end
-	end
-end
-
-function containerProto:UpdateNewButtons()
-	if self.newItemsUpdated then
-		self:Debug('UpdateNewButtons')
-		for _, button in pairs(self.buttons) do
-			button:UpdateNew()
-		end
-		self.newItemsUpdated = nil
-	end
-	if next(self.newItems) then
-		self.ResetNewButton:Enable()
-	else
-		self.ResetNewButton:Disable()
-	end
-	self.firstNewItemUpdate = nil
 end
 
 --------------------------------------------------------------------------------
@@ -429,8 +335,6 @@ function containerProto:Update(forceLayout)
 			end
 		end
 	end
-	
-	self:UpdateNewButtons()
 
 	if dirtyLayout then
 		self:Debug('Update: dirty layout')

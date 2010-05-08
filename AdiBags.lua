@@ -128,7 +128,9 @@ function addon:OnEnable()
 
 	self:RegisterEvent('BAG_UPDATE')
 	self:RegisterBucketEvent('PLAYERBANKSLOTS_CHANGED', 0, 'BankUpdated')
-	self:RegisterBucketMessage({'AdiBags_BagOpened', 'AdiBags_BagClosed'}, 0, 'LayoutBags')
+	
+	self:RegisterMessage('AdiBags_BagOpened', 'LayoutBags')
+	self:RegisterMessage('AdiBags_BagClosed', 'LayoutBags')
 	
 	self:RawHook("OpenAllBags", true)
 	self:RawHook("CloseAllBags", true)
@@ -228,7 +230,7 @@ function addon:LayoutBags()
 	frame:ClearAllPoints()
 	frame:SetPoint(anchorPoint, 0, 0)
 	
-	local lastBag = bag	
+	local lastFrame = frame
 	index, bag = nextBag(data, index)
 	if not bag then return end
 	
@@ -238,13 +240,13 @@ function addon:LayoutBags()
 		hFrom, hTo, x = "RIGHT", "LEFT", -10
 	end
 	local fromPoint = vPart..hFrom
-	local toPoint = vPart.hTo
+	local toPoint = vPart..hTo
 	
 	while bag do
 		local frame = bag:GetFrame()
 		frame:ClearAllPoints()
-		frame:SetPoint(fromPoint, lastBag, toPoint, x, 0)
-		lastBag, index, bag = bag, nextBag(bag, index)
+		frame:SetPoint(fromPoint, lastFrame, toPoint, x, 0)
+		lastFrame, index, bag = frame, nextBag(bag, index)
 	end
 end
 
