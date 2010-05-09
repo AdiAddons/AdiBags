@@ -29,20 +29,6 @@ local function BagSlotButton_OnClick(button)
 	end
 end
 
-local function BagSlotButton_OnEnter(button)
-	GameTooltip:SetOwner(button, "ANCHOR_BOTTOMLEFT", -8, 0)
-	GameTooltip:ClearLines()
-	GameTooltip:AddLine(L["Equipped bags"], 1, 1, 1)
-	GameTooltip:AddLine(L["Click to show/hide the equipped bagIds so you can change them."])
-	GameTooltip:Show()
-end
-
-local function BagSlotButton_OnLeave(button)
-	if GameTooltip:GetOwner() == button then
-		GameTooltip:Hide()
-	end
-end
-
 --------------------------------------------------------------------------------
 -- Bag creation
 --------------------------------------------------------------------------------
@@ -99,18 +85,21 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	local closeButton = CreateFrame("Button", nil, self, "UIPanelCloseButton")
 	self.CloseButton = closeButton
 	closeButton:SetPoint("TOPRIGHT")
+	addon.SetupTooltip(closeButton, L["Close"])
 
 	local bagSlotButton = CreateFrame("CheckButton", nil, self)
 	bagSlotButton:SetNormalTexture([[Interface\Buttons\Button-Backpack-Up]])
 	bagSlotButton:SetCheckedTexture([[Interface\Buttons\CheckButtonHilight]])
 	bagSlotButton:GetCheckedTexture():SetBlendMode("ADD")
 	bagSlotButton:SetScript('OnClick', BagSlotButton_OnClick)
-	bagSlotButton:SetScript('OnEnter', BagSlotButton_OnEnter)
-	bagSlotButton:SetScript('OnLeave', BagSlotButton_OnLeave)
 	bagSlotButton.panel = bagSlotPanel
 	bagSlotButton:SetWidth(18)
 	bagSlotButton:SetHeight(18)
 	bagSlotButton:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
+	addon.SetupTooltip(bagSlotButton, {
+		L["Equipped bags"],
+		L["Click to toggle the equipped bag panel, so you can change them."]
+	}, "ANCHOR_BOTTOMLEFT", -8, 0)
 
 	local title = self:CreateFontString(nil,"OVERLAY","GameFontNormalLarge")
 	self.Title = title

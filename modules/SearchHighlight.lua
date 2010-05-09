@@ -58,6 +58,11 @@ function mod:OnBagFrameCreated(bag)
 	searchLabel:SetText(L["Search:"].." ")
 	searchLabel:SetHeight(18)
 
+	addon.SetupTooltip(searchEditBox, {
+		L["Item search"],
+		L["Enter a text to search in item names."]
+	}, "ANCHOR_TOPLEFT", 0, 8)
+
 	frame:AddHeaderWidget(searchEditBox, -10, 104 + searchLabel:GetStringWidth(), -1)
 end
 

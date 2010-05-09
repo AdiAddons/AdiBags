@@ -189,6 +189,47 @@ function addon.GetBagSlotFromId(slotId)
 	end
 end
 
+local function WidgetTooltip_OnEnter(self)
+	GameTooltip:SetOwner(self, self.tooltipAnchor, self.tootlipAnchorXOffset, self.tootlipAnchorYOffset)
+	self:UpdateTooltip(self)
+end
+
+local function WidgetTooltip_OnLeave(self)
+	if GameTooltip:GetOwner() == self then
+		GameTooltip:Hide()
+	end
+end
+
+local function WidgetTooltip_Update(self)
+	GameTooltip:ClearLines()
+	self:tooltipCallback(GameTooltip)
+	GameTooltip:Show()
+end
+
+function addon.SetupTooltip(widget, content, anchor, xOffset, yOffset)
+	if type(content) == "string" then
+		widget.tooltipCallback = function(self, tooltip)
+			tooltip:AddLine(content)
+		end
+	elseif type(content) == "table" then
+		widget.tooltipCallback = function(self, tooltip)
+			tooltip:AddLine(tostring(content[1]), 1, 1, 1)
+			for i = 2, #content do
+				tooltip:AddLine(tostring(content[i]))
+			end
+		end
+	elseif type(content) == "function" then
+		widget.tooltipCallback = content
+	else
+		return
+	end
+	widget.tooltipAnchor = anchor or "ANCHOR_TOPLEFT"
+	widget.tootlipAnchorXOffset = xOffset or 0
+	widget.tootlipAnchorYOffset = yOffset or 0
+	widget.UpdateTooltip = WidgetTooltip_Update
+	widget:HookScript('OnEnter', WidgetTooltip_OnEnter)
+	widget:HookScript('OnLeave', WidgetTooltip_OnLeave)
+end
 
 --------------------------------------------------------------------------------
 -- Bag prototype

@@ -44,6 +44,10 @@ function mod:OnBagFrameCreated(bag)
 	button:SetHeight(20)
 	button:SetScript("OnClick", ResetButton_OnClick)
 	container:AddHeaderWidget(button, 10)
+	addon.SetupTooltip(button, {
+		L["Reset new items"],
+		L["Click to reset item status."]
+	}, "ANCHOR_TOPLEFT", 0, 8)
 
 	data[container] = {
 		firstUpdate = true,

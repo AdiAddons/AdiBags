@@ -42,6 +42,10 @@ function mod:OnBagFrameCreated(bag)
 	button:SetWidth(20)
 	button:SetHeight(20)
 	button:SetScript("OnClick", TidyButton_OnClick)
+	addon.SetupTooltip(button, {
+		L["Tidy bags"],
+		L["Click to tidy bags."]
+	}, "ANCHOR_TOPLEFT", 0, 8)
 	container:AddHeaderWidget(button, 0)
 
 	container[self] = {
