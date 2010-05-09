@@ -28,11 +28,11 @@ function mod:OnBagFrameCreated(bag)
 
 	local button = CreateFrame("Button", nil, container, "UIPanelButtonTemplate")
 	button.container = container
-	button:SetPoint("TOPRIGHT", -32, -6)
 	button:SetText("N")
 	button:SetWidth(20)
 	button:SetHeight(20)
 	button:SetScript("OnClick", ResetButton_OnClick)	
+	container:AddHeaderWidget(button, 10)
 	
 	data[container] = {
 		firstUpdate = true,
@@ -41,6 +41,8 @@ function mod:OnBagFrameCreated(bag)
 		isBank = bag.isBank,
 		button = button,
 	}
+
+	self:ScanInventory(container)
 end
 
 function mod:AdiBags_BagOpened(event, name, bag)
@@ -78,7 +80,7 @@ function mod:ScanInventory(container)
 		UpdateItem(data, IdFromLink(GetInventoryItemLink("player", slot)))
 	end
 	if addon.atBank then
-		for slot = 68, 68+6 do -- Bank equipped bags
+		for slot = 68, 74 do -- Bank equipped bags
 			UpdateItem(data, IdFromLink(GetInventoryItemLink("player", slot)))
 		end
 	end
@@ -102,14 +104,14 @@ function mod:UpdateCounts(event, container, added, removed, changed)
 			items[IdFromLink(link)] = true
 		end
 	end
-	
+
 	-- Update counts
 	local data = data[container]
 	for id in pairs(items) do
 		UpdateItem(data, id)
 	end
 	wipe(items)
-	
+
 	-- Update display
 	if data.updated then
 		self:SendMessage('AdiBags_UpdateAllButtons')
@@ -135,7 +137,7 @@ end
 
 do
 	local newItems
-		
+
 	function mod:AgiBags_PreFilter(event, container)
 		newItems = data[container].new
 	end

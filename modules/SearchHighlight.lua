@@ -46,7 +46,6 @@ function mod:OnBagFrameCreated(bag)
 	
 	local searchEditBox = CreateFrame("EditBox", addonName.."SearchEditBox", frame, "InputBoxTemplate")
 	searchEditBox:SetAutoFocus(false)
-	searchEditBox:SetPoint("TOPRIGHT", frame.Title)
 	searchEditBox:SetWidth(100)
 	searchEditBox:SetHeight(18)
 	searchEditBox:SetScript("OnEnterPressed", SearchEditBox_OnEnterPressed)
@@ -58,6 +57,8 @@ function mod:OnBagFrameCreated(bag)
 	searchLabel:SetPoint("TOPRIGHT", searchEditBox, "TOPLEFT", -4, 0)
 	searchLabel:SetText(L["Search:"].." ")
 	searchLabel:SetHeight(18)
+
+	frame:AddHeaderWidget(searchEditBox, -10, 104 + searchLabel:GetStringWidth(), -1)	
 end
 
 function mod:UpdateButton(event, button)

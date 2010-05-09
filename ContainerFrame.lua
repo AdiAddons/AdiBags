@@ -75,6 +75,8 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	self.stacks = {}
 	self.sections = {}
 
+	self.headerWidgets = {}
+
 	self.added = {}
 	self.removed = {}
 	self.changed = {}
@@ -117,7 +119,7 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	title:SetHeight(18)
 	title:SetJustifyH("LEFT")
 	title:SetPoint("TOPLEFT", bagSlotButton, "TOPRIGHT", 4, 0)
-	title:SetPoint("RIGHT", closeButton, "LEFT", -4, 0)
+	title:SetPoint("RIGHT", -36, 0)
 end
 
 function containerProto:ToString() return self.name or self:GetName() end
@@ -186,6 +188,46 @@ function containerProto:UpdateAllContent()
 	end
 	self:UpdateButtons()
 	self:LayoutSections(true)
+end
+
+--------------------------------------------------------------------------------
+-- Bag header layout
+--------------------------------------------------------------------------------
+
+local function HeaderWidget_VisibilityChanged(widget)
+	local isShown = not not widget:IsShown()
+	if isShown ~= widget._isShown then
+		widget._isShown = isShown
+		widget._container:LayoutHeaderWidgets()
+	end
+end
+
+function containerProto:AddHeaderWidget(widget, order, width, yOffset)
+	widget._container = self
+	widget._order = order or 0
+	widget._width = width
+	widget._yOffset = yOffset or 0
+	widget:HookScript('OnShow', HeaderWidget_VisibilityChanged)
+	widget:HookScript('OnHide', HeaderWidget_VisibilityChanged)
+	tinsert(self.headerWidgets, widget)
+	HeaderWidget_VisibilityChanged(widget)
+end
+
+local function CompareHeaderWidgets(a, b)
+	return a._order > b._order
+end
+
+function containerProto:LayoutHeaderWidgets()
+	table.sort(self.headerWidgets, CompareHeaderWidgets)
+	local x = 32
+	for i, widget in ipairs(self.headerWidgets) do
+		if widget._isShown then
+			widget:ClearAllPoints()
+			widget:SetPoint("TOPRIGHT", self, "TOPRIGHT", -x, -5 + widget._yOffset)
+			x = x + (widget._width or widget:GetWidth()) + 4
+		end
+	end
+	self.Title:SetPoint("RIGHT", -x, 0)
 end
 
 --------------------------------------------------------------------------------
