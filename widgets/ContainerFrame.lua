@@ -337,30 +337,40 @@ function containerProto:UpdateButtons()
 	local added, removed, changed = self.added, self.removed, self.changed
 	self:SendMessage('AdiBags_PreContentUpdate', self, added, removed, changed)
 
+	--@debug@
 	local numAdded, numRemoved, numChanged = 0, 0, 0
+	--@end-debug@
 
 	for slotId in pairs(removed) do
 		self:RemoveSlot(slotId)
+		--@debug@
 		numRemoved = numRemoved + 1
+		--@end-debug@
 	end
 
 	if next(added) then
 		self:SendMessage('AgiBags_PreFilter', self)
 		for slotId, slotData in pairs(added) do
 			self:DispatchItem(slotData)
+			--@debug@
 			numAdded = numAdded + 1
+			--@end-debug@
 		end
 		self:SendMessage('AgiBags_PostFilter', self)
 	end
 
 	for slotId in pairs(changed) do
 		self.buttons[slotId]:FullUpdate()
+		--@debug@
 		numChanged = numChanged + 1
+		--@end-debug@
 	end
 
 	self:SendMessage('AdiBags_PostContentUpdate', self, added, removed, changed)
 
+	--@debug@
 	self:Debug(numRemoved, 'slot(s) removed', numAdded, 'slot(s) added and', numChanged, 'slot(s) changed')
+	--@end-debug@
 
 	wipe(added)
 	wipe(removed)
@@ -376,12 +386,18 @@ function containerProto:UpdateButtons()
 
 	local dirtyButtons = self.dirtyButtons
 	if next(dirtyButtons) then
+		--@debug@
 		local numButtons = 0
+		--@end-debug@
 		for button in pairs(dirtyButtons) do
 			button:FullUpdate()
+			--@debug@
 			numButtons = numButtons + 1
+			--@end-debug@
 		end
+		--@debug@
 		self:Debug(numButtons, 'late button update(s)')
+		--@end-debug@
 		wipe(dirtyButtons)
 	end
 

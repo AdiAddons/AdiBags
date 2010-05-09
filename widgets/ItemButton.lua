@@ -294,7 +294,7 @@ function stackProto:AddSlot(slotId)
 		if not self.slotId then
 			self:SetBagSlot(GetBagSlotFromId(slotId))
 		elseif self:IsVisible() then
-			self:UpdateCount('OnSlotAdded')
+			self:UpdateCount()
 		end
 		return true
 	end
@@ -309,7 +309,7 @@ function stackProto:RemoveSlot(slotId)
 			local newSlotId = next(slots)
 			self:SetBagSlot(GetBagSlotFromId(newSlotId))
 		elseif self:IsVisible() then
-			self:UpdateCount('OnSlotRemoved')
+			self:UpdateCount()
 		end
 		return true
 	end
