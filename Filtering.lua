@@ -7,11 +7,19 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
-local filterMod = addon:NewModule('Filters')
+local filterMod = addon:NewModule('Filters', 'AceEvent-3.0')
 
-filterMod:SetDefaultModulePrototype{
+addon.filterProto = {
+	OnEnable = function()
+		filterMod:UpdateFilters()
+	end,
+	OnDisable = function()
+		filterMod:UpdateFilters()
+	end,
 	Debug = addon.Debug,
 }
+
+filterMod:SetDefaultModulePrototype(addon.filterProto)
 
 function filterMod:OnInitialize()
 	addon:SetupDefaultFilters()
@@ -23,12 +31,15 @@ local function CompareFilters(a, b)
 end
 
 local filters = {}
-function filterMod:UpdateFilters()
+function filterMod:UpdateFilters()	
 	wipe(filters)
 	for name, filter in self:IterateModules() do
-		tinsert(filters, filter)
+		if filter:IsEnabled() then
+			tinsert(filters, filter)
+		end
 	end
 	table.sort(filters, CompareFilters)
+	self:SendMessage('AdiBags_FiltersChanged')
 end
 
 function addon:RegisterFilter(name, priority, Filter, ...)

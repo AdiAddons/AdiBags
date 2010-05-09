@@ -17,6 +17,17 @@ function mod:OnEnable()
 	self:RegisterMessage('AdiBags_BagOpened')
 	self:RegisterMessage('AdiBags_PreContentUpdate', 'UpdateCounts')
 	self:RegisterMessage('AdiBags_UpdateButton', 'UpdateButton')
+	for _, data in pairs(data) do
+		data.button:Show()
+	end
+	addon.filterProto.OnEnable(self)
+end
+
+function mod:OnDisable()
+	for _, data in pairs(data) do
+		data.button:Hide()
+	end
+	addon.filterProto.OnDisable(self)
 end
 
 local function ResetButton_OnClick(button)

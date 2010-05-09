@@ -145,12 +145,10 @@ end
 
 function addon:BANKFRAME_OPENED()
 	self.atBank = true
-	self:OpenAllBags(true)
 end
 
 function addon:BANKFRAME_CLOSED()
 	self.atBank = false
-	self:CloseAllBags()
 end
 
 function addon:BAG_UPDATE(event, bag)
@@ -249,6 +247,5 @@ function addon:LayoutBags()
 		lastFrame, index, bag = frame, nextBag(bag, index)
 	end
 end
-
 
 

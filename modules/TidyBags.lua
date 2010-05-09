@@ -25,7 +25,7 @@ end
 
 function mod:OnDisable()
 	for container in pairs(containers) do
-		container[self]:Hide()
+		container[self].button:Hide()
 	end
 end
 
@@ -47,6 +47,8 @@ function mod:OnBagFrameCreated(bag)
 	container[self] = {
 		button = button
 	}
+	
+	containers[container] = true
 end
 
 local bor = bit.bor

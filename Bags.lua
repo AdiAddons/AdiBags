@@ -44,7 +44,7 @@ function bagProto:IsOpen()
 end
 
 function bagProto:CanOpen()
-	return true
+	return self:IsEnabled()
 end
 
 function bagProto:HasFrame()
@@ -203,16 +203,19 @@ do
 		self:RegisterEvent('BANKFRAME_OPENED')
 		self:RegisterEvent('BANKFRAME_CLOSED')
 		
-		self:RawHook(BankFrame, "Show", NOOP, true)
 		self:RawHookScript(BankFrame, "OnEvent", NOOP, true)
 		BankFrame:Hide()
+
+		if addon.atBank then
+			self:BANKFRAME_OPENED()
+		end
 	end
 	
 	function bank:OnDisable()
+		bagProto.OnDisable(self)
 		if self.atBank then
 			BankFrame:Show()
 		end
-		bagProto.OnDisable(self)
 	end
 
 	function bank:BANKFRAME_OPENED()	
@@ -226,7 +229,7 @@ do
 	end
 	
 	function bank:CanOpen()
-		return self.atBank
+		return self:IsEnabled() and self.atBank
 	end
 	
 	function bank:Close()
