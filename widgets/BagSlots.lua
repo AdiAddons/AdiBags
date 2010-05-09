@@ -31,7 +31,7 @@ end
 
 local function BankBagPanel_OnEvent(self, event, ...)
 	if not self:IsVisible() then return end
-	
+
 	if event == "ITEM_LOCK_CHANGED" then
 		local bag, slot = ...
 		if bag ~= BANK_CONTAINER or slot <= NUM_BANKGENERIC_SLOTS then
@@ -39,7 +39,7 @@ local function BankBagPanel_OnEvent(self, event, ...)
 		end
 		for i, button in pairs(self.buttons) do
 			BankFrameItemButton_UpdateLocked(button)
-		end		
+		end
 	elseif event == 'PLAYERBANKSLOTS_CHANGED' then
 		local slot = ...
 		if slot <= NUM_BANKGENERIC_SLOTS then
@@ -47,7 +47,7 @@ local function BankBagPanel_OnEvent(self, event, ...)
 		end
 		for i, button in pairs(self.buttons) do
 			BankFrameItemButton_Update(button)
-		end		
+		end
 	end
 end
 
@@ -68,25 +68,25 @@ end
 -- Panel creation
 --------------------------------------------------------------------------------
 
-function addon:CreateBagSlotPanel(container, name, bags, isBank)	
+function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	local self = CreateFrame("Frame", container:GetName().."Bags", container)
 	self:SetBackdrop(addon.BACKDROP)
 	self:SetBackdropColor(unpack(addon.BACKDROPCOLOR[isBank and "bank" or "backpack"]))
 	self:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
 	self:SetPoint("BOTTOMLEFT", container, "TOPLEFT", 0, 4)
-	
+
 	if isBank then
 		self:SetScript('OnShow', BankBagPanel_OnShow)
 		self:SetScript('OnHide', BankBagPanel_OnHide)
 		self:SetScript('OnEvent', BankBagPanel_OnEvent)
 	end
-	
+
 	local title = self:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 	title:SetText(L["Equipped bags"])
 	title:SetTextColor(1, 1, 1)
 	title:SetJustifyH("LEFT")
 	title:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
-	
+
 	table.sort(bags)
 	self.buttons = {}
 	local x = BAG_INSET
@@ -111,7 +111,7 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 			tinsert(self.buttons, button)
 		end
 	end
-	
+
 	self:SetWidth(x + BAG_INSET)
 	self:SetHeight(BAG_INSET + TOP_PADDING + ITEM_SIZE)
 

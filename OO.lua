@@ -28,14 +28,14 @@ end
 
 local function NewClass(name, parent, ...)
 	local prototype, mixins = {}, {}
-	
+
 	local class = {
 		name = name,
 		prototype = prototype,
 		parent = parent,
 		mixins = mixins,
 		serial = 0,
-		metatable = { 
+		metatable = {
 			__index = prototype,
 			__tostring = Meta_ToString
 		},
@@ -53,7 +53,7 @@ local function NewClass(name, parent, ...)
 			mixin:Embed(prototype)
 		end
 	end
-	
+
 	prototype.class = class
 	prototype.Debug = addon.Debug
 	if parent.prototype then
@@ -68,7 +68,7 @@ end
 
 local function NewRootClass(name, frameType, frameTemplate, ...)
 	local class, prototype, parent
-	if LibStub(frameTemplate, true) then		
+	if LibStub(frameTemplate, true) then
 		class, prototype, parent = NewClass(name, CreateFrame(frameType), frameTemplate, ...)
 		frameTemplate = nil
 	else
@@ -134,8 +134,8 @@ local function Pool_Release(pool, self)
 	pool.heap[self] = true
 end
 
-local function Instance_Release(self) 
-	return Pool_Release(self.class.pool, self) 
+local function Instance_Release(self)
+	return Pool_Release(self.class.pool, self)
 end
 
 function addon:CreatePool(class, acquireMethod)
@@ -164,7 +164,7 @@ function SlashCmdList.ADIBAGSOODEBUG()
 	print('Pools:')
 	for name, pool in pairs(pools) do
 		local heapSize = 0
-		for k in pairs(pool.heap) do 
+		for k in pairs(pool.heap) do
 			heapSize = heapSize + 1
 		end
 		print(string.format("- %s: heap size: %d", name, heapSize))

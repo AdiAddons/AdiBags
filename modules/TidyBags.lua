@@ -41,13 +41,13 @@ function mod:OnBagFrameCreated(bag)
 	button:SetText("T")
 	button:SetWidth(20)
 	button:SetHeight(20)
-	button:SetScript("OnClick", TidyButton_OnClick)	
+	button:SetScript("OnClick", TidyButton_OnClick)
 	container:AddHeaderWidget(button, 0)
-	
+
 	container[self] = {
 		button = button
 	}
-	
+
 	containers[container] = true
 end
 
@@ -85,10 +85,10 @@ local function FindNextMove(container)
 		if slots.size > 0 then
 			local bagFamily = slots.family
 			for slot, slotData in ipairs(slots) do
-		
+
 				if slotData and slotData.link then
 					local itemFamily = GetItemFamily(slotData.itemId)
-				
+
 					if band(itemFamily, availableFamilies) ~= 0 and band(itemFamily, bagFamily) == 0 then
 						-- Not in the right bag, look for a better one
 						local toBag, toSlot = FindFreeSlot(container, itemFamily)
@@ -96,10 +96,10 @@ local function FindNextMove(container)
 						if toBag then
 							return toBag, toSlot
 						end
-					
+
 					elseif slotData.count < slotData.maxStack then
 						-- Incomplete stack
-				
+
 						local existingStack = incompleteStacks[slotData.itemId]
 						if existingStack then
 							mod:Debug('Another incomplete stack', slotData.link, bag, slot, slotData.count, slotData.maxStack, '=>', existingStack.bag, existingStack.slot)
@@ -111,9 +111,9 @@ local function FindNextMove(container)
 							incompleteStacks[slotData.itemId] = slotData
 						end
 					end
-				
+
 				end
-			
+
 			end
 		end
 	end

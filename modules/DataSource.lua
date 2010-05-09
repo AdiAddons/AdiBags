@@ -37,7 +37,7 @@ function mod:BANKFRAME_CLOSED()
 	return self:Update()
 end
 
-local FAMILY_ORDER = { 
+local FAMILY_ORDER = {
 	0x0000, -- Regular bag
 	0x0001, -- Quiver
   0x0002, -- Ammo Pouch
@@ -70,7 +70,7 @@ local function BuildSpaceString(bags)
 	wipe(data)
 	local numIcons = 0
 	for i, family in ipairs(FAMILY_ORDER) do
-		if size[family] then			
+		if size[family] then
 			local tag, icon = addon:GetFamilyTag(family)
 			local text = string.format("%d/%d", free[family], size[family])
 			if icon then

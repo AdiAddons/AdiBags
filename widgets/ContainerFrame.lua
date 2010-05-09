@@ -130,7 +130,6 @@ function containerProto:ToString() return self.name or self:GetName() end
 
 function containerProto:RegisterUpdateEvents()
 	self.bagUpdateBucket = self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, "BagsUpdated")
-	self:RegisterMessage('AdiBags_UpdateAllBags', 'UpdateAllContent')
 	self:RegisterMessage('AdiBags_FiltersChanged', 'FiltersChanged')
 	self:RegisterMessage('AdiBags_UpdateAllButtons', 'UpdateAllButtons')
 	self:UpdateAllContent()
@@ -386,7 +385,7 @@ function containerProto:UpdateButtons()
 		button:FullUpdate()
 	end
 	wipe(self.dirtyButtons)
-	
+
 	return dirtyLayout
 end
 

@@ -43,7 +43,7 @@ end
 function mod:OnBagFrameCreated(bag)
 	if bag.bagName ~= "Backpack" then return end
 	local frame = bag:GetFrame()
-	
+
 	local searchEditBox = CreateFrame("EditBox", addonName.."SearchEditBox", frame, "InputBoxTemplate")
 	searchEditBox:SetAutoFocus(false)
 	searchEditBox:SetWidth(100)
@@ -58,7 +58,7 @@ function mod:OnBagFrameCreated(bag)
 	searchLabel:SetText(L["Search:"].." ")
 	searchLabel:SetHeight(18)
 
-	frame:AddHeaderWidget(searchEditBox, -10, 104 + searchLabel:GetStringWidth(), -1)	
+	frame:AddHeaderWidget(searchEditBox, -10, 104 + searchLabel:GetStringWidth(), -1)
 end
 
 function mod:UpdateButton(event, button)

@@ -26,13 +26,10 @@ Localization.lua
 AdiBags.lua
 OO.lua
 
-Bags.lua
-ContainerFrame.lua
-BagSlots.lua
-ItemButton.lua
-Section.lua
-Filtering.lua
-Sorting.lua
+widgets\ContainerFrame.lua
+widgets\BagSlots.lua
+widgets\ItemButton.lua
+widgets\Section.lua
 
 modules\DataSource.lua
 modules\SearchHighlight.lua

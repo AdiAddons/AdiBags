@@ -42,9 +42,9 @@ function mod:OnBagFrameCreated(bag)
 	button:SetText("N")
 	button:SetWidth(20)
 	button:SetHeight(20)
-	button:SetScript("OnClick", ResetButton_OnClick)	
+	button:SetScript("OnClick", ResetButton_OnClick)
 	container:AddHeaderWidget(button, 10)
-	
+
 	data[container] = {
 		firstUpdate = true,
 		counts = {},
@@ -76,7 +76,7 @@ local function UpdateItem(data, id)
 	if isNew ~= wasNew then
 		data.new[id] = isNew or nil
 		data.updated = true
-	end	
+	end
 end
 
 local function IdFromLink(link)
@@ -107,7 +107,7 @@ function mod:UpdateCounts(event, container, added, removed, changed)
 	end
 	for slotId, slotData in pairs(changed) do
 		if slotData.link then
-			items[IdFromLink(slotData.link)] = true 
+			items[IdFromLink(slotData.link)] = true
 		end
 	end
 	for slotId, link in pairs(removed) do
@@ -170,7 +170,7 @@ local function CreateGlow(button)
 	tex:SetBlendMode("ADD")
 	tex:SetAllPoints(glow)
 	tex:SetVertexColor(0.3, 1, 0.3, 0.7)
-	
+
 	local group = glow:CreateAnimationGroup()
 	group:SetLooping("REPEAT")
 
@@ -186,7 +186,7 @@ local function CreateGlow(button)
 	return glow
 end
 
-function mod:UpdateButton(event, button)	
+function mod:UpdateButton(event, button)
 	local isNew = button.itemId and data[button.container].new[button.itemId]
 	if button.isNew == isNew then return end
 	button.isNew = isNew
