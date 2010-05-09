@@ -2,7 +2,7 @@ AdiBags display the content bag in one view, gather into several sections using 
 
 It is heavily inspired by Nargiddley's Baggins.
 
-As it is still alpha, there is no configuration yet.
+As it is still a work in progress, there is no configuration yet.
 
 h2. Features
 
@@ -14,9 +14,10 @@ h2. Features
 ** ammunition and warlocks' soul shards,
 ** free space.
 * smart item sorting inside each section,
-* optimized section layout,
+* smart section layout,
 * new item tracking,
+* bag tidy,
 * name-based search,
-* override default bag and bank, but yet allow to show equipped bags,
+* optional equipped bag panel,
 * LDB data source displaying free space.
 
