@@ -82,7 +82,7 @@ function buttonProto:SetBagSlot(bag, slot)
 		self.slotId = addon.GetSlotId(bag, slot)
 		self:SetParent(bag and addon.itemParentFrames[bag] or nil)
 		if bag and slot then
-			self:SetID(slot)	
+			self:SetID(slot)
 			local _, family = GetContainerNumFreeSlots(bag)
 			local tag = addon:GetFamilyTag(family)
 			if tag then
@@ -169,6 +169,10 @@ function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)	if unit == "player" the
 
 function buttonProto:FullUpdate()
 	if not self:IsVisible() or not self.bag or not self.slot then return end
+	if self.container.inUpdate then
+		self.container.dirtyButtons[self] = true
+		return
+	end
 	local texture = GetContainerItemInfo(self.bag, self.slot)
 	local icon = self.IconTexture
 	if texture then
@@ -196,14 +200,14 @@ function buttonProto:UpdateCount()
 		self.Count:Show()
 	else
 		self.Count:Hide()
-	end	
+	end
 end
 
 function buttonProto:UpdateLock()
 	if self.bag == BANK_CONTAINER then
 		BankFrameItemButton_UpdateLocked(self)
 	else
-		SetItemButtonDesaturated(self, select(3, GetContainerItemInfo(self.bag, self.slot)) and true or false)		
+		SetItemButtonDesaturated(self, select(3, GetContainerItemInfo(self.bag, self.slot)) and true or false)
 	end
 end
 

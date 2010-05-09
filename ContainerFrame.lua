@@ -7,7 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
-local GetSlotId = addon.GetSlotId 
+local GetSlotId = addon.GetSlotId
 local GetBagSlotFromId = addon.GetBagSlotFromId
 
 local ITEM_SIZE = addon.ITEM_SIZE
@@ -32,8 +32,8 @@ end
 local function BagSlotButton_OnEnter(button)
 	GameTooltip:SetOwner(button, "ANCHOR_BOTTOMLEFT", -8, 0)
 	GameTooltip:ClearLines()
-	GameTooltip:AddLine("Equipped bags", 1, 1, 1)
-	GameTooltip:AddLine("Click to show/hide the equipped bags so you can change them.")
+	GameTooltip:AddLine(L["Equipped bags"], 1, 1, 1)
+	GameTooltip:AddLine(L["Click to show/hide the equipped bagIds so you can change them."])
 	GameTooltip:Show()
 end
 
@@ -52,7 +52,7 @@ local containerClass, containerProto = addon:NewClass("Container", "Frame", "Ace
 function addon:CreateContainerFrame(...) return containerClass:Create(...) end
 
 local bagSlots = {}
-function containerProto:OnCreate(name, bags, isBank, anchor)
+function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	self:SetParent(anchor)
 	self:EnableMouse(true)
 	self:SetScale(0.8)
@@ -66,9 +66,11 @@ function containerProto:OnCreate(name, bags, isBank, anchor)
 	self:SetScript('OnHide', self.OnHide)
 
 	self.name = name
-	self.bags = bags
+	self.bagIds = bagIds
 	self.isBank = isBank
+
 	self.buttons = {}
+	self.dirtyButtons = {}
 	self.content = {}
 	self.stacks = {}
 	self.sections = {}
@@ -77,17 +79,17 @@ function containerProto:OnCreate(name, bags, isBank, anchor)
 	self.removed = {}
 	self.changed = {}
 
-	for bag in pairs(self.bags) do
-		self.content[bag] = { size = 0 }
-		tinsert(bagSlots, bag)
-		if not addon.itemParentFrames[bag] then
-			local f = CreateFrame("Frame", addonName..'ItemContainer'..bag, self)
+	for bagId in pairs(self.bagIds) do
+		self.content[bagId] = { size = 0 }
+		tinsert(bagSlots, bagId)
+		if not addon.itemParentFrames[bagId] then
+			local f = CreateFrame("Frame", addonName..'ItemContainer'..bagId, self)
 			f.isBank = isBank
-			f:SetID(bag)
-			addon.itemParentFrames[bag] = f 
+			f:SetID(bagId)
+			addon.itemParentFrames[bagId] = f
 		end
 	end
-	
+
 	local bagSlotPanel = addon:CreateBagSlotPanel(self, name, bagSlots, isBank)
 	bagSlotPanel:Hide()
 	wipe(bagSlots)
@@ -139,13 +141,15 @@ function containerProto:UnregisterUpdateEvents()
 	end
 end
 
-function containerProto:BagsUpdated(bags)
-	for bag in pairs(bags) do
-		if self.bags[bag] then
+function containerProto:BagsUpdated(bagIds)
+	for bag in pairs(bagIds) do
+		if self.bagIds[bag] then
 			self:UpdateContent(bag)
 		end
 	end
-	return self:Update()
+	if self:UpdateButtons() then
+		self:LayoutSections()
+	end
 end
 
 function containerProto:FiltersChanged()
@@ -177,10 +181,11 @@ end
 
 function containerProto:UpdateAllContent()
 	self:Debug('UpdateAllContent')
-	for bag in pairs(self.bags) do
+	for bag in pairs(self.bagIds) do
 		self:UpdateContent(bag)
 	end
-	return self:Update(true)
+	self:UpdateButtons()
+	self:LayoutSections(true)
 end
 
 --------------------------------------------------------------------------------
@@ -298,49 +303,49 @@ function containerProto:RemoveSlot(slotId)
 	end
 end
 
-function containerProto:Update(forceLayout)
-	local dirtyLayout = forceLayout	
+function containerProto:UpdateButtons()
+	if not self:HasContentChanged() then return end
+	self:Debug('UpdateButtons')
+	self.inUpdate = true
 
-	if self:HasContentChanged() then
-		self:Debug('Content changed')
-		
-		local added, removed, changed = self.added, self.removed, self.changed
-		self:SendMessage('AdiBags_PreContentUpdate', self, added, removed, changed)
-		
-		for slotId in pairs(removed) do
-			self:RemoveSlot(slotId)
-		end	
+	local added, removed, changed = self.added, self.removed, self.changed
+	self:SendMessage('AdiBags_PreContentUpdate', self, added, removed, changed)
 
-		if next(added) then
-			self:SendMessage('AgiBags_PreFilter', self)
-			for slotId, slotData in pairs(added) do
-				self:DispatchItem(slotData)
-			end
-			self:SendMessage('AgiBags_PostFilter', self)
+	for slotId in pairs(removed) do
+		self:RemoveSlot(slotId)
+	end
+
+	if next(added) then
+		self:SendMessage('AgiBags_PreFilter', self)
+		for slotId, slotData in pairs(added) do
+			self:DispatchItem(slotData)
 		end
-		
-		for slotId in pairs(changed) do
-			self.buttons[slotId]:FullUpdate()
-		end
-		
-		self:SendMessage('AdiBags_PostContentUpdate', self, added, removed, changed)
+		self:SendMessage('AgiBags_PostFilter', self)
+	end
 
-		wipe(added)
-		wipe(removed)
-		wipe(changed)
+	for slotId in pairs(changed) do
+		self.buttons[slotId]:FullUpdate()
+	end
 
-		for name, section in pairs(self.sections) do
-			if section:DispatchDone() then
-				dirtyLayout = true
-			end
+	self:SendMessage('AdiBags_PostContentUpdate', self, added, removed, changed)
+
+	wipe(added)
+	wipe(removed)
+	wipe(changed)
+
+	for name, section in pairs(self.sections) do
+		if section:DispatchDone() then
+			dirtyLayout = true
 		end
 	end
 
-	if dirtyLayout then
-		self:Debug('Update: dirty layout')
-		self:Layout(forceLayout)
-		return true
+	self.inUpdate = nil
+	for button in pairs(self.dirtyButtons) do
+		button:FullUpdate()
 	end
+	wipe(self.dirtyButtons)
+	
+	return dirtyLayout
 end
 
 --------------------------------------------------------------------------------
@@ -373,9 +378,9 @@ local function GetBestSection(sections, remainingWidth)
 end
 
 local orderedSections = {}
-function containerProto:Layout(forceLayout)
+function containerProto:LayoutSections(forceLayout)
 	self:Debug('Layout required')
-	
+
 	for name, section in pairs(self.sections) do
 		if section:LayoutButtons(forceLayout) then
 			tinsert(orderedSections, section)
@@ -396,13 +401,13 @@ function containerProto:Layout(forceLayout)
 		while section do
 			section:SetPoint('TOPLEFT', BAG_INSET + x, - TOP_PADDING - y)
 			section:Show()
-			
+
 			local sectionWidth = section:GetWidth()
 			realWidth = math.max(realWidth, x + sectionWidth)
 			rowHeight = math.max(rowHeight, section:GetHeight())
-			
+
 			x = x + sectionWidth + SECTION_SPACING
-			
+
 			section = GetBestSection(orderedSections, bagWidth - x)
 		end
 		y = y + rowHeight + ITEM_SPACING
