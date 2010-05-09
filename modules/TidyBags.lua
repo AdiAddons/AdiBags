@@ -92,9 +92,8 @@ local function FindNextMove(container)
 					if band(itemFamily, availableFamilies) ~= 0 and band(itemFamily, bagFamily) == 0 then
 						-- Not in the right bag, look for a better one
 						local toBag, toSlot = FindFreeSlot(container, itemFamily)
-						mod:Debug('Item not in the right bag', slotData.link, bag, slot, '=>', toBag, toSlot)
 						if toBag then
-							return toBag, toSlot
+							return bag, slot, toBag, toSlot
 						end
 
 					elseif slotData.count < slotData.maxStack then
@@ -102,11 +101,9 @@ local function FindNextMove(container)
 
 						local existingStack = incompleteStacks[slotData.itemId]
 						if existingStack then
-							mod:Debug('Another incomplete stack', slotData.link, bag, slot, slotData.count, slotData.maxStack, '=>', existingStack.bag, existingStack.slot)
 							-- Anoter incomplete stack exist for this item, try to merge both
 							return bag, slot, existingStack.bag, existingStack.slot
 						else
-							mod:Debug('First incomplete stack', slotData.link, bag, slot, slotData.count, slotData.maxStack)
 							-- First incomplete stack of this item
 							incompleteStacks[slotData.itemId] = slotData
 						end
