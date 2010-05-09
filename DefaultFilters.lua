@@ -70,7 +70,7 @@ function addon:SetupDefaultFilters()
 	end)
 
 	-- [60] Item classes
-	addon:RegisterFilter('ItemCategory', 70, function(filter, slotData) --L["ItemCategory"]
+	addon:RegisterFilter('ItemCategory', 60, function(filter, slotData) --L["ItemCategory"]
 		if slotData.class == L["Gem"] then
 			return L["Trade Goods"]
 		else
