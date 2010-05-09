@@ -39,5 +39,5 @@ DefaultFilters.lua
 modules\DataSource.lua
 modules\SearchHighlight.lua
 modules\NewItemTracking.lua
-
+modules\TidyBags.lua
 
