@@ -48,9 +48,9 @@ function addon:SetupDefaultFilters()
 	-- [90] Ammo and shards
 	addon:RegisterFilter('AmmoShards', 90, function(filter, slotData) -- L["AmmoShards"]
 		if slotData.itemId == 6265 then -- Soul Shard
-			return L['Soul shards'], true
+			return L['Soul shards']
 		elseif slotData.equipSlot == 'INVTYPE_AMMO' then
-			return L['Ammunition'], true
+			return L['Ammunition']
 		end
 	end)
 

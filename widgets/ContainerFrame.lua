@@ -143,12 +143,8 @@ function containerProto:BagsUpdated(bagIds)
 end
 
 function containerProto:FiltersChanged()
-	for bag, content in pairs(self.content) do
-		for slotId, slotData in ipairs(content) do
-			slotData.link = nil
-		end
-	end
-	return self:UpdateAllContent()
+	self:Debug('FiltersChanged')
+	return self:UpdateAllContent(true)
 end
 
 function containerProto:OnShow()
@@ -164,15 +160,16 @@ function containerProto:OnHide()
 end
 
 function containerProto:UpdateAllButtons(event)
+	self:Debug('UpdateAllButtons')
 	for _, button in pairs(self.buttons) do
 		button:FullUpdate()
 	end
 end
 
-function containerProto:UpdateAllContent()
+function containerProto:UpdateAllContent(forceUpdate)
 	self:Debug('UpdateAllContent')
 	for bag in pairs(self.bagIds) do
-		self:UpdateContent(bag)
+		self:UpdateContent(bag, forceUpdate)
 	end
 	self:UpdateButtons()
 	self:LayoutSections(true)
@@ -222,8 +219,8 @@ end
 -- Bag content scanning
 --------------------------------------------------------------------------------
 
-function containerProto:UpdateContent(bag)
-	self:Debug('UpdateContent', bag)
+function containerProto:UpdateContent(bag, forceUpdate)
+	self:Debug('UpdateContent', bag, forceUpdate)
 	local added, removed, changed = self.added, self.removed, self.changed
 	local content = self.content[bag]
 	local newSize = GetContainerNumSlots(bag)
@@ -245,17 +242,16 @@ function containerProto:UpdateContent(bag)
 		local _, count, _, _, _, _, link = GetContainerItemInfo(bag, slot)
 		link = link or false
 		count = count or 0
-		if slotData.count ~= count or slotData.link ~= link then
-			if slotData.link ~= link then
-				removed[slotData.slotId] = slotData.link
-				slotData.link = link
-				slotData.itemId = link and tonumber(link:match("item:(%d+)"))
-				slotData.name, _, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass, slotData.maxStack, slotData.equipSlot, slotData.texture, slotData.vendorPrice = GetItemInfo(link or "")
-				added[slotData.slotId] = slotData
-			else
-				changed[slotData.slotId] = link
-			end
+		if slotData.link ~= link or forceUpdate then
+			removed[slotData.slotId] = slotData.link
 			slotData.count = count
+			slotData.link = link
+			slotData.itemId = link and tonumber(link:match("item:(%d+)"))
+			slotData.name, _, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass, slotData.maxStack, slotData.equipSlot, slotData.texture, slotData.vendorPrice = GetItemInfo(link or "")
+			added[slotData.slotId] = slotData
+		elseif slotData.count ~= count then
+			slotData.count = count
+			changed[slotData.slotId] = link
 		end
 	end
 	for slot = content.size, newSize + 1, -1 do
@@ -295,15 +291,15 @@ function containerProto:GetSection(name)
 end
 
 function containerProto:DispatchItem(slotData)
-	local filter, sectionName, stack
+	local filter, sectionName
 	local bag, slotId, slot, link, itemId = slotData.bag, slotData.slotId, slotData.slot, slotData.link, slotData.itemId
 	if link then
-		filter, sectionName, stack = addon:Filter(slotData)
+		filter, sectionName = addon:Filter(slotData)
 	else
-		filter, sectionName, stack = "Free", L["Free space"], true
+		filter, sectionName = "Free", L["Free space"]
 	end
 	local button = self.buttons[slotId]
-	if stack then
+	if addon:ShouldStack(slotData) then
 		local key = strjoin(':', tostringall(itemId, slotData.bagFamily))
 		button = self:GetStackButton(key)
 		button:AddSlot(slotId)
@@ -341,23 +337,30 @@ function containerProto:UpdateButtons()
 	local added, removed, changed = self.added, self.removed, self.changed
 	self:SendMessage('AdiBags_PreContentUpdate', self, added, removed, changed)
 
+	local numAdded, numRemoved, numChanged = 0, 0, 0
+
 	for slotId in pairs(removed) do
 		self:RemoveSlot(slotId)
+		numRemoved = numRemoved + 1
 	end
 
 	if next(added) then
 		self:SendMessage('AgiBags_PreFilter', self)
 		for slotId, slotData in pairs(added) do
 			self:DispatchItem(slotData)
+			numAdded = numAdded + 1
 		end
 		self:SendMessage('AgiBags_PostFilter', self)
 	end
 
 	for slotId in pairs(changed) do
 		self.buttons[slotId]:FullUpdate()
+		numChanged = numChanged + 1
 	end
 
 	self:SendMessage('AdiBags_PostContentUpdate', self, added, removed, changed)
+
+	self:Debug(numRemoved, 'slot(s) removed', numAdded, 'slot(s) added and', numChanged, 'slot(s) changed')
 
 	wipe(added)
 	wipe(removed)
@@ -370,10 +373,17 @@ function containerProto:UpdateButtons()
 	end
 
 	self.inUpdate = nil
-	for button in pairs(self.dirtyButtons) do
-		button:FullUpdate()
+
+	local dirtyButtons = self.dirtyButtons
+	if next(dirtyButtons) then
+		local numButtons = 0
+		for button in pairs(dirtyButtons) do
+			button:FullUpdate()
+			numButtons = numButtons + 1
+		end
+		self:Debug(numButtons, 'late button update(s)')
+		wipe(dirtyButtons)
 	end
-	wipe(self.dirtyButtons)
 
 	return dirtyLayout
 end
@@ -409,7 +419,7 @@ end
 
 local orderedSections = {}
 function containerProto:LayoutSections(forceLayout)
-	self:Debug('Layout required')
+	self:Debug('LayoutSections', forceLayout)
 
 	for name, section in pairs(self.sections) do
 		if section:LayoutButtons(forceLayout) then

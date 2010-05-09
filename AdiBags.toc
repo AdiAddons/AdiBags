@@ -24,6 +24,7 @@ libs\LibMovable-1.0\LibMovable-1.0.lua
 
 Localization.lua
 AdiBags.lua
+Options.lua
 OO.lua
 
 widgets\ContainerFrame.lua

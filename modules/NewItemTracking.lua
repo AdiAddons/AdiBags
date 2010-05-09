@@ -10,6 +10,7 @@ local L = addon.L
 local mod = addon:RegisterFilter('NewItem', 1000, 'AceEvent-3.0')
 
 local data = {}
+local glows = {}
 
 function mod:OnEnable()
 	addon:HookBagFrameCreation(self, 'OnBagFrameCreated')
@@ -26,6 +27,9 @@ end
 function mod:OnDisable()
 	for _, data in pairs(data) do
 		data.button:Hide()
+	end
+	for glow in pairs(glows) do
+		glow:Hide()
 	end
 	addon.filterProto.OnDisable(self)
 end
@@ -76,7 +80,7 @@ local function UpdateItem(data, id)
 	data.counts[id] = count
 	if data.firstUpdate or oldCount == count then return end
 	local wasNew = data.new[id]
-	local isNew = (count > oldCount) or (wasNew and (count >= oldCount))
+	local isNew = wasNew or (count > oldCount)
 	if isNew ~= wasNew then
 		data.new[id] = isNew or nil
 		data.updated = true
@@ -187,14 +191,12 @@ local function CreateGlow(button)
 	group:Play()
 
 	button.NewGlow = glow
+	glows[glow] = true
 	return glow
 end
 
 function mod:UpdateButton(event, button)
-	local isNew = button.itemId and data[button.container].new[button.itemId]
-	if button.isNew == isNew then return end
-	button.isNew = isNew
-	if isNew then
+	if button.itemId and data[button.container].new[button.itemId] then
 		local glow = button.NewGlow or CreateGlow(button)
 		glow:Show()
 	elseif button.NewGlow then

@@ -221,15 +221,16 @@ function buttonProto:UpdateBorder()
 	if itemId then
 		local texture, r, g, b, a, x1, x2, y1, y2, blendMode = nil, 1, 1, 1, 1, 0, 1, 0, 1, "BLEND"
 		local isQuestItem, questId, isActive = GetContainerItemQuestInfo(self.bag, self.slot)
-		if questId and not isActive then
+		if addon.db.profile.questIndicator and (questId and not isActive) then
 			texture = TEXTURE_ITEM_QUEST_BANG
-		elseif questId or isQuestItem then
+		elseif addon.db.profile.questIndicator and (questId or isQuestItem) then
 			texture = TEXTURE_ITEM_QUEST_BORDER
-		else
+		elseif addon.db.profile.qualityHighlight then
 			local _, _, quality = GetItemInfo(itemId)
 			if quality >= ITEM_QUALITY_UNCOMMON then
 				r, g, b = GetItemQualityColor(quality)
-				texture, x1, x2, y1, y2, a, blendMode = [[Interface\Buttons\UI-ActionButton-Border]], 14/64, 49/64, 15/64, 50/64, 1, "ADD"
+				texture, x1, x2, y1, y2, blendMode = [[Interface\Buttons\UI-ActionButton-Border]], 14/64, 49/64, 15/64, 50/64, "ADD"
+				a = addon.db.profile.qualityOpacity
 			end
 		end
 		if texture then

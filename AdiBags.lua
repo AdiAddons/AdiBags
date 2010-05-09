@@ -114,21 +114,27 @@ addon.BACKDROPCOLOR = {
 
 function addon:OnInitialize()
 	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", {profile = {
-		anchor = {},
+		anchor = { scale = 1.0 },
+		qualityHighlight = true,
+		qualityOpacity = 1.0,
+		questIndicator = true,
+		stackFreeSpace = true,
+		stackAmmunition = true,
 		filters = { ['*'] = true },
-		bags = { ['*'] = true },
 		modules = { ['*'] = true },
 	},}, true)
+
 	self.itemParentFrames = {}
 
 	self:InitializeFilters()
 	self:CreateBagAnchor()
 
+	LibStub('AceConfig-3.0'):RegisterOptionsTable(addonName, self.GetOptions)
+	addon.configPanel = LibStub('AceConfigDialog-3.0'):AddToBlizOptions(addonName, addonName)
+
 	for name, module in self:IterateModules() do
 		if module.isFilter then
 			module:SetEnabledState(self.db.profile.filters[module.moduleName])
-		elseif module.isBag then
-			module:SetEnabledState(self.db.profile.bags[module.bagName])
 		else
 			module:SetEnabledState(self.db.profile.modules[module.moduleName])
 		end
@@ -141,6 +147,8 @@ function addon:OnEnable()
 
 	self:RegisterEvent('BAG_UPDATE')
 	self:RegisterBucketEvent('PLAYERBANKSLOTS_CHANGED', 0, 'BankUpdated')
+
+	self:RegisterBucketMessage('AdiBags_ConfigChanged', 0.2, 'ConfigChanged')
 
 	self:RegisterMessage('AdiBags_BagOpened', 'LayoutBags')
 	self:RegisterMessage('AdiBags_BagClosed', 'LayoutBags')
@@ -173,8 +181,26 @@ function addon:BankUpdated(slots)
 	self:SendMessage('AdiBags_BagUpdated', BANK_CONTAINER)
 end
 
+local function DebugTable(t, prevKey)
+	local k, v = next(t, prevKey)
+	if k ~= nil then
+		return k, v, DebugTable(t, k)
+	end
+end
+
+function addon:ConfigChanged(vars)
+	self:Debug('ConfigChanged', DebugTable(vars))
+	if vars.stackFreeSpace or vars.stackAmmunition then
+		self:Debug('=> AdiBags_FiltersChanged')
+		self:SendMessage('AdiBags_FiltersChanged')
+	else
+		self:Debug('=> AdiBags_UpdateAllButtons')
+		self:SendMessage('AdiBags_UpdateAllButtons')
+	end
+end
+
 --------------------------------------------------------------------------------
--- Helpers
+-- Miscellaneous helpers
 --------------------------------------------------------------------------------
 
 function addon.GetSlotId(bag, slot)
@@ -589,6 +615,11 @@ function addon:RegisterFilter(name, priority, Filter, ...)
 	return filter
 end
 
+function addon:ShouldStack(slotData)
+	return (not slotData.link and self.db.profile.stackFreeSpace) or
+		((slotData.itemId == 6265 or slotData.equipSlot == "INVTYPE_AMMO") and self.db.profile.stackAmmunition)
+end
+
 --------------------------------------------------------------------------------
 -- Filtering process
 --------------------------------------------------------------------------------
@@ -609,9 +640,9 @@ end
 
 function addon:Filter(slotData)
 	for i, filter in ipairs(filters) do
-		local sectionName, stack = safecall(filter.Filter, filter, slotData)
+		local sectionName = safecall(filter.Filter, filter, slotData)
 		if sectionName then
-			return filter.name, sectionName, stack
+			return filter.name, sectionName
 		end
 	end
 end
