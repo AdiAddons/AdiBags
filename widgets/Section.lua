@@ -29,12 +29,10 @@ function sectionProto:OnCreate()
 	self.slots = {}
 	self.freeSlots = {}
 
-	local header = self:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+	local header = self:CreateFontString(nil, "ARTWORK", "GameFontNormalLeft")
 	header:SetPoint("TOPLEFT")
 	header:SetPoint("TOPRIGHT")
 	header:SetHeight(HEADER_SIZE)
-	header:SetJustifyH("LEFT")
-	header:SetJustifyV("TOP")
 	self.header = header
 end
 

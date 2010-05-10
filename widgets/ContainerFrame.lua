@@ -101,7 +101,7 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 		L["Click to toggle the equipped bag panel, so you can change them."]
 	}, "ANCHOR_BOTTOMLEFT", -8, 0)
 
-	local title = self:CreateFontString(nil,"OVERLAY","GameFontNormalLarge")
+	local title = self:CreateFontString(nil,"OVERLAY","GameFontHighlightLarge")
 	self.Title = title
 	title:SetText(L[name])
 	title:SetTextColor(1, 1, 1)
