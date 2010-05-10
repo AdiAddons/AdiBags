@@ -29,10 +29,6 @@ function sectionProto:OnCreate()
 	self.slots = {}
 	self.freeSlots = {}
 
-	self.width = 0
-	self.height = 0
-	self.count = 0
-
 	local header = self:CreateFontString(nil, "ARTWORK", "GameFontNormal")
 	header:SetPoint("TOPLEFT")
 	header:SetPoint("TOPRIGHT")
@@ -47,6 +43,10 @@ function sectionProto:OnAcquire(container, name)
 	self.header:SetText(name)
 	self.name = name
 	self.order = SECTION_ORDER[name] or 0
+	self.width = 0
+	self.height = 0
+	self.count = 0
+	self.total = 0
 	self.container = container
 end
 
@@ -58,9 +58,6 @@ function sectionProto:OnRelease()
 	wipe(self.freeSlots)
 	wipe(self.slots)
 	wipe(self.buttons)
-	self.width = 0
-	self.height = 0
-	self.count = 0
 	self.container = nil
 end
 
@@ -205,7 +202,7 @@ end
 
 function sectionProto:PutButtonAt(button, index)
 	self.slots[button] = index
-	if index and self.width > 0 then
+	if index and index <= self.total then
 		self.freeSlots[index] = nil
 		if not self.dirtyLayout then
 			local row, col = math.floor((index-1) / self.width), (index-1) % self.width
@@ -222,6 +219,7 @@ function sectionProto:SetSize(width, height)
 	self:Debug('Setting size to ', width, height)
 	self.width = width
 	self.height = height
+	self.total = width * height
 	self:SetWidth(math.max(ITEM_SIZE * width + ITEM_SPACING * math.max(width - 1 ,0), self.header:GetStringWidth()))
 	self:SetHeight(HEADER_SIZE + ITEM_SIZE * height + ITEM_SPACING * math.max(height - 1, 0))
 	self.dirtyLayout = true
@@ -241,7 +239,7 @@ function sectionProto:LayoutButtons(forceLayout)
 
 	wipe(self.freeSlots)
 	wipe(self.slots)
-	for index = 1, width * height do
+	for index = 1, self.total do
 		self.freeSlots[index] = true
 	end
 
@@ -258,4 +256,3 @@ function sectionProto:LayoutButtons(forceLayout)
 	wipe(buttonOrder)
 	return true
 end
-

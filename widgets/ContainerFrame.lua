@@ -410,10 +410,10 @@ end
 
 local function CompareSections(a, b)
 	if a.order == b.order then
-		if a.count == b.count then
+		if a.total == b.total then
 			return a.name < b.name
 		else
-			return b.count < a.count
+			return b.total < a.total
 		end
 	else
 		return b.order < a.order
