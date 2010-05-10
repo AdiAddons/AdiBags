@@ -69,11 +69,8 @@ function sectionProto:AddItemButton(slotId, button)
 	if not self.buttons[button] then
 		button:SetSection(self)
 		self.buttons[button] = slotId
-		if self.slots[button] then
-			return
-		end
 		local freeSlots = self.freeSlots
-		for index = 1, self.width * self.height do
+		for index = 1, self.total do
 			if freeSlots[index] then
 				self:PutButtonAt(button, index)
 				return
@@ -86,25 +83,24 @@ end
 function sectionProto:RemoveItemButton(button)
 	if self.buttons[button] then
 		local index = self.slots[button]
-		if index then
+		if index and index <= self.total then
 			self.freeSlots[index] = true
-			self.slots[button] = nil
 		end
+		self.slots[button] = nil
 		self.buttons[button] = nil
 	end
 end
 
 function sectionProto:DispatchDone()
-	local slots, freeSlots, buttons = self.slots, self.freeSlots, self.buttons
-	local count = 0
-	for button in pairs(buttons) do
-		count = count + 1
+	local newCount = 0
+	for button in pairs(self.buttons) do
+		newCount = newCount + 1
 	end
-	if (count == 0 and self.count > 0) or count > self.width * self.height then
+	if (newCount == 0 and self.count > 0) or newCount > self.total then
 		self.dirtyLayout = true
 	end
-	self.count = count
-	self:Debug(count, 'buttons')
+	self.count = newCount
+	self:Debug(newCount, 'buttons')
 	return self.dirtyLayout
 end
 
@@ -201,16 +197,23 @@ end
 --------------------------------------------------------------------------------
 
 function sectionProto:PutButtonAt(button, index)
+	local oldIndex = self.slots[button]
+	if index == oldIndex then return end
 	self.slots[button] = index
-	if index and index <= self.total then
-		self.freeSlots[index] = nil
-		if not self.dirtyLayout then
-			local row, col = math.floor((index-1) / self.width), (index-1) % self.width
-			button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
-			button:Show()
+	if index then
+		if index <= self.total then
+			self.freeSlots[index] = nil
+			if not self.dirtyLayout then
+				local row, col = math.floor((index-1) / self.width), (index-1) % self.width
+				button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
+				button:Show()
+			end
+		else
+			self.dirtyLayout = true
 		end
-	else
-		self.dirtyLayout = true
+	end
+	if oldIndex and oldIndex <= self.total then
+		self.freeSlots[oldIndex] = true
 	end
 end
 
