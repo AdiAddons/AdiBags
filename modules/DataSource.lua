@@ -22,11 +22,14 @@ local dataobj = {
 	end,
 }
 
-function mod:OnInitialize()
-	LibStub('LibDataBroker-1.1'):NewDataObject(addonName, dataobj)
-end
+mod.cannotDisable = true
 
+local created = false
 function mod:OnEnable()
+	if not created then
+		LibStub('LibDataBroker-1.1'):NewDataObject(addonName, dataobj)
+		created = true
+	end
 	self:RegisterBucketEvent('BAG_UPDATE', 0.5, "Update")
 	self:RegisterEvent('BANKFRAME_OPENED')
 	self:RegisterEvent('BANKFRAME_CLOSED')
