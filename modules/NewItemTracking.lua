@@ -7,10 +7,20 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
-local mod = addon:RegisterFilter('NewItem', 1000, 'AceEvent-3.0')
+local mod = addon:RegisterFilter('NewItem', 100, 'AceEvent-3.0')
 
 local data = {}
 local glows = {}
+
+function mod:OnInitialize()
+	self.db = addon.db:RegisterNamespace(self.moduleName, {
+		profile = {
+			showGlow = true,
+			glowScale = 1.5,
+			glowColor = { 0.3, 1, 0.3, 0.7 },
+		},
+	})
+end
 
 function mod:OnEnable()
 	addon:HookBagFrameCreation(self, 'OnBagFrameCreated')
@@ -27,9 +37,6 @@ end
 function mod:OnDisable()
 	for _, data in pairs(data) do
 		data.button:Hide()
-	end
-	for glow in pairs(glows) do
-		glow:Hide()
 	end
 	addon.filterProto.OnDisable(self)
 end
@@ -62,6 +69,32 @@ function mod:OnBagFrameCreated(bag)
 	}
 
 	self:ScanInventory(container)
+end
+
+function mod:GetFilterOptions() 
+	return {
+		showGlow = {
+			name = L['New item highlight'],
+			type = 'toggle',
+			order = 10,
+		},
+		glowScale = {
+			name = L['Highlight scale'],
+			type = 'range',
+			min = 0.5,
+			max = 3.0,
+			step = 0.01,
+			isPercent = true,
+			bigStep = 0.05,
+			order = 20,
+		},
+		glowColor = {
+			name = L['Highlight color'],
+			type = 'color',
+			order = 30,
+			hasAlpha = true,
+		},
+	}, addon:GetOptionHandler(self, true)
 end
 
 function mod:AdiBags_BagOpened(event, name, bag)
@@ -166,18 +199,23 @@ do
 	end
 end
 
+local function UpdateGlow(glow)
+	glow:SetScale(mod.db.profile.glowScale)
+	glow.Texture:SetVertexColor(unpack(mod.db.profile.glowColor))	
+end
+
 local function CreateGlow(button)
 	local glow = CreateFrame("FRAME", nil, button)
 	glow:SetFrameLevel(button:GetFrameLevel()+15)
 	glow:SetPoint("CENTER")
-	glow:SetWidth(button:GetWidth()*1.5)
-	glow:SetHeight(button:GetHeight()*1.5)
+	glow:SetWidth(addon.ITEM_SIZE)
+	glow:SetHeight(addon.ITEM_SIZE)
 
 	local tex = glow:CreateTexture("OVERLAY")
 	tex:SetTexture([[Interface\Cooldown\starburst]])
 	tex:SetBlendMode("ADD")
 	tex:SetAllPoints(glow)
-	tex:SetVertexColor(0.3, 1, 0.3, 0.7)
+	glow.Texture = tex
 
 	local group = glow:CreateAnimationGroup()
 	group:SetLooping("REPEAT")
@@ -196,11 +234,11 @@ local function CreateGlow(button)
 end
 
 function mod:UpdateButton(event, button)
-	if button.itemId and data[button.container].new[button.itemId] then
+	if button.itemId and data[button.container].new[button.itemId] and mod.db.profile.showGlow then
 		local glow = button.NewGlow or CreateGlow(button)
+		UpdateGlow(glow)
 		glow:Show()
 	elseif button.NewGlow then
 		button.NewGlow:Hide()
 	end
 end
-
