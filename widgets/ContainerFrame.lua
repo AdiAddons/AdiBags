@@ -305,7 +305,7 @@ function containerProto:DispatchItem(slotData)
 	elseif not button then
 		button = addon:AcquireItemButton(self, bag, slot)
 	end
-	local section = self:GetSection(sectionName)
+	local section = self:GetSection(sectionName or L['Miscellaneous'])
 	section:AddItemButton(slotId, button)
 	self.buttons[slotId] = button
 end
