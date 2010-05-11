@@ -9,6 +9,7 @@ local L = addon.L
 
 local mod = addon:NewModule('DataSource', 'AceEvent-3.0', 'AceBucket-3.0')
 mod.uiName = L['LDB Plugin']
+mod.uiDesc = L['Provides a LDB data source to be displayed by LDB display addons.']
 mod.cannotDisable = true
 
 local dataobj = {

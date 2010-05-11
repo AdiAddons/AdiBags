@@ -11,6 +11,8 @@ local GetSlotId = addon.GetSlotId
 local GetBagSlotFromId = addon.GetBagSlotFromId
 
 local mod = addon:NewModule('TidyBags', 'AceEvent-3.0')
+mod.uiName = L['Tidy bags']
+mod.uiDesc = L['Tidy your bags by clicking on the small "T" button at the top left of bags. Special bags with free slots will be filled with macthing items and stackable items will be stacked to save space.']
 
 local containers = {}
 

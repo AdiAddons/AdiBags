@@ -8,6 +8,8 @@ local addonName, addon = ...
 local L = addon.L
 
 local mod = addon:RegisterFilter('NewItem', 100, 'AceEvent-3.0')
+mod.uiName = L['Track new items']
+mod.uiDesc = L['Track new items in each bag, displaying a glowing aura over them and putting them in a special section. "New" status can be reset by clicking on the small "N" button at top left of bags.']
 
 local data = {}
 local glows = {}

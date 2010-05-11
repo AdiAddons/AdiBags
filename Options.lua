@@ -97,10 +97,17 @@ local function AddFilterOptions(filter)
 		type = 'header',
 		order = filterOrder,
 	}
+	if filter.uiDesc then
+		filterOptions['_desc'..name] = {
+			name = filter.uiDesc,
+			type = 'description',
+			order = filterOrder + 1,
+		}
+	end
 	filterOptions['enable'..name] = {
 		name = L['Enabled'],
 		type = 'toggle',
-		order = filterOrder + 1,
+		order = filterOrder + 2,
 		get = function(info) return addon.db.profile.filters[name] end,
 		set = function(info, value)
 			addon.db.profile.filters[name] = value
@@ -110,7 +117,7 @@ local function AddFilterOptions(filter)
 	filterOptions[name..'priority'] = {
 		name = L['Priority'],
 		type = 'range',
-		order = filterOrder + 2,
+		order = filterOrder + 3,
 		min = 0,
 		max = 100,
 		step = 1,
@@ -141,11 +148,18 @@ local function AddModuleOptions(module)
 			type = 'header',
 			order = moduleOrder,
 		}
+		if module.uiDesc then
+			moduleOptions['_desc'..name] = {
+				name = module.uiDesc,
+				type = 'description',
+				order = moduleOrder + 1,
+			}
+		end
 		moduleOptions['enable'..name] = {
 			name = L['Enabled'],
 			desc = L['Check to enable this plugin.'],
 			type = 'toggle',
-			order = moduleOrder + 1,
+			order = moduleOrder + 2,
 			get = function(info) return addon.db.profile.modules[name] end,
 			set = function(info, value)
 				addon.db.profile.modules[name] = value
@@ -197,7 +211,13 @@ local lockOption = {
 
 function addon:GetOptions()
 	if options then return options end
-	filterOptions = {}
+	filterOptions = {
+		_desc = {
+			name = L['Filters are used to dispatch items in bag sections. One item can only appear in one section. If the same item is selected by several filters, the one with the highest priority wins.'],
+			type = 'description',
+			order = 1,
+		},
+	}
 	moduleOptions = {}
 	local profiles = LibStub('AceDBOptions-3.0'):GetOptionsTable(self.db)
 	profiles.order = 30
