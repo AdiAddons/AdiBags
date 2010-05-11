@@ -123,22 +123,15 @@ function addon:OnInitialize()
 		filters = { ['*'] = true },
 		modules = { ['*'] = true },
 	},}, true)
-
+	self.db.RegisterCallback(self, "OnProfileChanged", "Reconfigure")
+	self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")
+	self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
+	
 	self.itemParentFrames = {}
 
 	self:InitializeFilters()
 	self:CreateBagAnchor()
-
-	LibStub('AceConfig-3.0'):RegisterOptionsTable(addonName, self.GetOptions)
-	addon.configPanel = LibStub('AceConfigDialog-3.0'):AddToBlizOptions(addonName, addonName)
-
-	for name, module in self:IterateModules() do
-		if module.isFilter then
-			module:SetEnabledState(self.db.profile.filters[module.moduleName])
-		else
-			module:SetEnabledState(self.db.profile.modules[module.moduleName])
-		end
-	end
+	addon:InitializeOptions()
 end
 
 function addon:OnEnable()
@@ -158,6 +151,22 @@ function addon:OnEnable()
 
 	self:RegisterEvent('MAIL_CLOSED', 'CloseAllBags')
 	self:SecureHook('CloseSpecialWindows', 'CloseAllBags')
+	
+	for name, module in self:IterateModules() do
+		if module.isFilter then
+			module:SetEnabledState(self.db.profile.filters[module.moduleName])
+		else
+			module:SetEnabledState(self.db.profile.modules[module.moduleName])
+		end
+	end	
+end
+
+function addon:Reconfigure()
+	self.holdYourBreath = true -- prevent tons*$% of useless updates
+	self:Disable()
+	self:Enable()
+	self.holdYourBreath = nil
+	self:UpdateFilters()
 end
 
 --------------------------------------------------------------------------------

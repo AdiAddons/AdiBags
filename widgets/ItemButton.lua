@@ -168,7 +168,7 @@ function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)	if unit == "player" the
 --------------------------------------------------------------------------------
 
 function buttonProto:FullUpdate()
-	if not self:IsVisible() or not self.bag or not self.slot then return end
+	if not self:IsVisible() or not self.bag or not self.slot or addon.holdYourBreath then return end
 	if self.container.inUpdate then
 		self.container.dirtyButtons[self] = true
 		return

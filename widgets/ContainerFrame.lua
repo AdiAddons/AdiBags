@@ -143,6 +143,7 @@ function containerProto:BagsUpdated(bagIds)
 end
 
 function containerProto:FiltersChanged()
+	if addon.holdYourBreath then return end
 	self:Debug('FiltersChanged')
 	return self:UpdateAllContent(true)
 end

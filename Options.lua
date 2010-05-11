@@ -68,12 +68,10 @@ function addon:GetOptionHandler(dbHolder, isFilter)
 end
 
 --------------------------------------------------------------------------------
--- Core options
+-- Filter & plugin options
 --------------------------------------------------------------------------------
 
-local options
-local filterOptions
-local moduleOptions
+local options, filterOptions, moduleOptions
 
 local function AddFilterOptions(filter)
 	local name = filter.filterName
@@ -147,134 +145,170 @@ local function OnModuleCreated(self, module)
 	end
 end
 
-function addon.GetOptions()
-	if not options then
-		filterOptions = {}
-		moduleOptions = {}
-		options = {
-			name = addonName,
-			type = 'group',
-			handler = addon:GetOptionHandler(addon),
-			get = 'Get',
-			set = 'Set',
-			disabled = 'IsDisabled',			
-			args = {
-				core = {
-					name = L['Core'],
-					type = 'group',
-					order = 1,
-					args = {
-						_bagHeader = {
-							name = L['Bags'],
-							type = 'header',
-							order = 100,
-						},
-						toggleAnchor = {
-							name = function() 
-								return addon:AreMovablesLocked() and L["Unlock anchor"] or L["Lock anchor"]
-							end,
-							desc = L["Click to toggle the bag anchor."],
-							type = 'execute',
-							order = 110,
-							func = function()
-								if addon:AreMovablesLocked() then
-									 addon:UnlockMovables()
-								else
-									addon:LockMovables()
-								end
-							end,
-						},
-						bagScale = {
-							name = L['Scale'],
-							desc = L['Use this to adjust the bag sizes.'],
-							type = 'range',
-							order = 120,					
-							arg = { 'anchor', 'scale' },
-							isPercent = true,
-							min = 0.1,
-							max = 3.0,
-							step = 0.1,
-							set = function(info, value) info.handler:Set(info, value) addon:UpdateMovableLayout() end,
-						},
-						reset = {
-							name = L['Reset'],
-							desc = L['Click there to reset the bag positions and sizes.'],
-							type = 'execute',
-							order = 130,
-							func = function() addon:ResetMovableLayout() end,
-						},
-						_itemsHeader = {
-							name = L['Items'],
-							type = 'header',
-							order = 200,
-						},
-						qualityHighlight = {
-							name = L['Quality highlight'],
-							desc = L['Check this to display a colored border around items, based on item quality.'],
-							type = 'toggle',
-							order = 210,
-						},
-						qualityOpacity = {
-							name = L['Quality opacity'],
-							desc = L['Use this to adjust the quality-based border opacity. 100% means fully opaque.'],
-							type = 'range',
-							order = 220,
-							isPercent = true,
-							min = 0.05,
-							max = 1.0,
-							step = 0.05,
-							disabled = function(info)
-								return info.handler:IsDisabled(info) or not addon.db.profile.qualityHighlight
-							end,
-						},
-						questIndicator = {
-							name = L['Quest indicator'],
-							desc = L['Check this to display an indicator on quest items.'],
-							type = 'toggle',
-							order = 230,
-						},
-						_stackHeader = {
-							name = L['Virtual stacks'],
-							type = 'header',
-							order = 300,
-						},
-						_stackDesc = {
-							name = L['Virtual stacks display in one place items that actually spread over several bag slots.'],
-							type = 'description',
-							order = 301,
-						},
-						stackFreeSpace = {
-							name = L['Free space'],
-							order = 310,
-							type = 'toggle',
-						},
-						stackAmmunition = {
-							name = L['Ammunition and soul shards'],
-							order = 320,
-							type = 'toggle',
-						},
+--------------------------------------------------------------------------------
+-- Core options
+--------------------------------------------------------------------------------
+
+local lockOption = {
+	name = function() 
+		return addon:AreMovablesLocked() and L["Unlock anchor"] or L["Lock anchor"]
+	end,
+	desc = L["Click to toggle the bag anchor."],
+	type = 'execute',
+	order = 110,
+	func = function()
+		if addon:AreMovablesLocked() then
+			 addon:UnlockMovables()
+		else
+			addon:LockMovables()
+		end
+	end,
+}
+
+function addon:GetOptions()
+	if options then return options end
+	filterOptions = {}
+	moduleOptions = {}
+	options = {
+		name = addonName,
+		type = 'group',
+		handler = addon:GetOptionHandler(addon),
+		get = 'Get',
+		set = 'Set',
+		disabled = 'IsDisabled',			
+		args = {
+			core = {
+				name = L['Core'],
+				type = 'group',
+				order = 1,
+				args = {
+					_bagHeader = {
+						name = L['Bags'],
+						type = 'header',
+						order = 100,
+					},
+					toggleAnchor = lockOption,
+					bagScale = {
+						name = L['Scale'],
+						desc = L['Use this to adjust the bag sizes.'],
+						type = 'range',
+						order = 120,					
+						arg = { 'anchor', 'scale' },
+						isPercent = true,
+						min = 0.1,
+						max = 3.0,
+						step = 0.1,
+						set = function(info, value) info.handler:Set(info, value) addon:UpdateMovableLayout() end,
+					},
+					reset = {
+						name = L['Reset'],
+						desc = L['Click there to reset the bag positions and sizes.'],
+						type = 'execute',
+						order = 130,
+						func = function() addon:ResetMovableLayout() end,
+					},
+					_itemsHeader = {
+						name = L['Items'],
+						type = 'header',
+						order = 200,
+					},
+					qualityHighlight = {
+						name = L['Quality highlight'],
+						desc = L['Check this to display a colored border around items, based on item quality.'],
+						type = 'toggle',
+						order = 210,
+					},
+					qualityOpacity = {
+						name = L['Quality opacity'],
+						desc = L['Use this to adjust the quality-based border opacity. 100% means fully opaque.'],
+						type = 'range',
+						order = 220,
+						isPercent = true,
+						min = 0.05,
+						max = 1.0,
+						step = 0.05,
+						disabled = function(info)
+							return info.handler:IsDisabled(info) or not addon.db.profile.qualityHighlight
+						end,
+					},
+					questIndicator = {
+						name = L['Quest indicator'],
+						desc = L['Check this to display an indicator on quest items.'],
+						type = 'toggle',
+						order = 230,
+					},
+					_stackHeader = {
+						name = L['Virtual stacks'],
+						type = 'header',
+						order = 300,
+					},
+					_stackDesc = {
+						name = L['Virtual stacks display in one place items that actually spread over several bag slots.'],
+						type = 'description',
+						order = 301,
+					},
+					stackFreeSpace = {
+						name = L['Free space'],
+						order = 310,
+						type = 'toggle',
+					},
+					stackAmmunition = {
+						name = L['Ammunition and soul shards'],
+						order = 320,
+						type = 'toggle',
 					},
 				},
-				filters = {
-					name = L['Filters'],
-					type = 'group',
-					order = 10,
-					args = filterOptions,
-				},
-				modules = {
-					name = L['Plugins'],
-					type = 'group',
-					order = 20,
-					args = moduleOptions,
-				}
 			},
-			plugins = {}
-		}
-		addon.OnModuleCreated = OnModuleCreated
-		for name, module in addon:IterateModules() do
-			addon:OnModuleCreated(module)
-		end
+			filters = {
+				name = L['Filters'],
+				type = 'group',
+				order = 10,
+				args = filterOptions,
+			},
+			modules = {
+				name = L['Plugins'],
+				type = 'group',
+				order = 20,
+				args = moduleOptions,
+			}
+		},
+		plugins = {}
+	}
+	addon.OnModuleCreated = OnModuleCreated
+	for name, module in addon:IterateModules() do
+		addon:OnModuleCreated(module)
 	end
 	return options
 end
 
+--------------------------------------------------------------------------------
+-- Setup
+--------------------------------------------------------------------------------
+
+local AceConfigDialog = LibStub('AceConfigDialog-3.0')
+
+function addon:InitializeOptions()
+	local AceConfig = LibStub('AceConfig-3.0')
+
+	AceConfig:RegisterOptionsTable(addonName.."BlizzOptions", {
+		name = addonName,
+		type = 'group',
+		args = {
+			configure = {
+				name = L['Configure'],
+				type = 'execute',
+				order = 100,
+				func = addon.OpenOptions,
+			},
+			lock = lockOption,
+		},
+	})	
+	AceConfigDialog:AddToBlizOptions(addonName.."BlizzOptions", addonName)
+	
+	AceConfig:RegisterOptionsTable(addonName, function() return self:GetOptions() end)
+end
+
+function addon.OpenOptions()
+	InterfaceOptionsFrame:Hide()
+	AceConfigDialog:Open(addonName)
+end

@@ -13,7 +13,13 @@ local dataobj = {
 	label = addonName,
 	text = addonName,
 	icon = [[Interface\Buttons\Button-Backpack-Up]],
-	OnClick = function() addon:OpenAllBags() end,
+	OnClick = function(_, button)
+		if button == "RightButton" then
+			addon:OpenOptions()
+		else
+			addon:OpenAllBags() 
+		end
+	end,
 }
 
 function mod:OnInitialize()
