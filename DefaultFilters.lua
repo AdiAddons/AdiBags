@@ -14,7 +14,7 @@ function addon:SetupDefaultFilters()
 		local setFilter = addon:RegisterFilter("ItemSets", 90, "AceEvent-3.0")
 
 		function setFilter:OnInitialize()
-			self.db = addon.db:RegisterNamespace('ItemSets', { profile = { oneSectionPerSet = true }})
+			self.db = addon.db:RegisterNamespace('ItemSets', { profile = { oneSectionPerSet = true } })
 		end
 
 		function setFilter:OnEnable()
@@ -77,7 +77,9 @@ function addon:SetupDefaultFilters()
 	do
 		local lowQualityPattern = string.format('%s|Hitem:%%d+:0:0:0:0', ITEM_QUALITY_COLORS[ITEM_QUALITY_POOR].hex)
 		addon:RegisterFilter('Junk', 70, function(filter, slotData) -- L["Junk"]
-			return slotData.link:match(lowQualityPattern) and L['Junk']
+			if slotData.class == L['Junk'] or slotData.subclass == L['Junk'] or slotData.link:match(lowQualityPattern) then
+				return L['Junk']
+			end
 		end)
 	end
 
@@ -89,12 +91,63 @@ function addon:SetupDefaultFilters()
 	end)
 
 	-- [10] Item classes
-	addon:RegisterFilter('ItemCategory', 10, function(filter, slotData) --L["ItemCategory"]
-		if slotData.class == L["Gem"] then
-			return L["Trade Goods"]
-		else
-			return slotData.class
+	do
+		local itemCat = addon:RegisterFilter('ItemCategory', 10) --L["ItemCategory"]
+
+		function itemCat:OnInitialize(slotData)
+			self.db = addon.db:RegisterNamespace(self.moduleName, {
+				profile = {
+					split = false,
+					mergeGems = true,
+					mergeGlyphs = true,
+				}
+			})
 		end
-	end)
+		
+		function itemCat:GetFilterOptions()
+			return {
+				split = {
+					name = L['Split by subcategory'],
+					type = 'toggle',
+					order = 10,
+				},
+				mergeGems = {
+					name = L['Merge gems into Trade Goods'],
+					type = 'toggle',
+					width = 'double',
+					order = 20,
+					disabled = function(info) return info.handler:IsDisabled(info) or self.db.profile.split end,
+				},
+				mergeGlyphs = {
+					name = L['Merge glyphs into Trade Goods'],
+					type = 'toggle',
+					width = 'double',
+					order = 30,
+					disabled = function(info) return info.handler:IsDisabled(info) or self.db.profile.split end,
+				},
+			}, addon:GetOptionHandler(self, true)
+		end
+		
+		function itemCat:Filter(slotData)
+			local isGem = (slotData.class == L["Gem"])
+			local isGlyph = (slotData.class == L["Glyph"])
+			if self.db.profile.split then
+				if isGem or isGlyph then
+					return slotData.class
+				else
+					return slotData.subclass
+				end
+			elseif isGem and self.db.profile.mergeGems then
+				return L["Trade Goods"]
+			elseif isGlyph and self.db.profile.mergeGlyphs then
+				return L["Trade Goods"]
+			else
+				return slotData.class
+			end
+		end
+		
+		
+		
+	end
 
 end
