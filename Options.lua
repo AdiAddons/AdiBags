@@ -78,6 +78,7 @@ local handlers = {}
 function addon:GetOptionHandler(dbHolder, isFilter)
 	if not handlers[dbHolder] then
 		handlers[dbHolder] = setmetatable({dbHolder = dbHolder, isFilter = isFilter}, handlerMeta)
+		dbHolder.SendMessage = LibStub('AceEvent-3.0').SendMessage
 	end
 	return handlers[dbHolder]
 end
