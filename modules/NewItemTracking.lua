@@ -71,7 +71,7 @@ function mod:OnBagFrameCreated(bag)
 	self:ScanInventory(container)
 end
 
-function mod:GetFilterOptions() 
+function mod:GetOptions() 
 	return {
 		showGlow = {
 			name = L['New item highlight'],
@@ -94,7 +94,7 @@ function mod:GetFilterOptions()
 			order = 30,
 			hasAlpha = true,
 		},
-	}, addon:GetOptionHandler(self, true)
+	}, addon:GetOptionHandler(self)
 end
 
 function mod:AdiBags_BagOpened(event, name, bag)

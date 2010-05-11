@@ -152,9 +152,14 @@ local function AddModuleOptions(module)
 		}
 	end
 	if module.GetOptions then
-		local moduleOpts, handler = filter:GetOptions()
-		opts.plugins = { [name] = moduleOpts }
-		opts.handler = handler
+		local moduleOpts, handler = module:GetOptions()
+		if moduleOpts.type == 'group' then
+			moduleOpts.handler = handler
+			moduleOptions[name..'Options'] = moduleOpts
+		else
+			opts.plugins = { [name] = moduleOpts }
+			opts.handler = handler
+		end
 	end
 	moduleOptions[name] = opts
 end
