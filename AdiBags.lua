@@ -120,6 +120,8 @@ function addon:OnInitialize()
 		questIndicator = true,
 		stackFreeSpace = true,
 		stackAmmunition = true,
+		stackStackable = false,
+		stackOthers = false,
 		filters = { ['*'] = true },
 		filterPriorities = {},
 		modules = { ['*'] = true },
@@ -200,11 +202,12 @@ end
 
 function addon:ConfigChanged(vars)
 	self:Debug('ConfigChanged', DebugTable(vars))
-	if vars.stackFreeSpace or vars.stackAmmunition or vars.filter or vars.columns then
-		self:SendMessage('AdiBags_FiltersChanged')
-	else
-		self:SendMessage('AdiBags_UpdateAllButtons')
+	for name in pairs(vars) do
+		if name:match('^stack') or name == 'filter' or name == 'columns' then
+			return self:SendMessage('AdiBags_FiltersChanged')
+		end
 	end
+	self:SendMessage('AdiBags_UpdateAllButtons')
 end
 
 --------------------------------------------------------------------------------
@@ -638,8 +641,15 @@ function addon:RegisterFilter(name, priority, Filter, ...)
 end
 
 function addon:ShouldStack(slotData)
-	return (not slotData.link and self.db.profile.stackFreeSpace) or
-		((slotData.itemId == 6265 or slotData.equipSlot == "INVTYPE_AMMO") and self.db.profile.stackAmmunition)
+	if not slotData.link then
+		return self.db.profile.stackFreeSpace
+	elseif slotData.itemId == 6265 or slotData.equipSlot == "INVTYPE_AMMO" then
+		return self.db.profile.stackAmmunition
+	elseif slotData.maxStack > 1 then
+		return self.db.profile.stackStackable
+	else
+		return self.db.profile.stackOthers
+	end
 end
 
 --------------------------------------------------------------------------------

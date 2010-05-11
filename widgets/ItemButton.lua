@@ -269,7 +269,11 @@ function stackProto:OnRelease()
 end
 
 function stackProto:GetCount()
-	return self.count
+	local count = 0
+	for slotId in pairs(self.slots) do
+		count = count + (select(2, GetContainerItemInfo(GetBagSlotFromId(slotId))) or 1)
+	end
+	return count
 end
 
 function stackProto:IsStack()
@@ -280,21 +284,14 @@ function stackProto:GetKey()
 	return self.key
 end
 
-local function GetSlotCount(slotId)
-	local _, count = GetContainerItemInfo(GetBagSlotFromId(slotId))
-	return count or 1
-end
-
 function stackProto:AddSlot(slotId)
 	local slots = self.slots
 	if not slots[slotId] then
-		local count = GetSlotCount(slotId)
-		self.count = self.count + count
-		slots[slotId] = count
+		slots[slotId] = true
 		if not self.slotId then
 			self:SetBagSlot(GetBagSlotFromId(slotId))
 		elseif self:IsVisible() then
-			self:UpdateCount()
+			self:FullUpdate()
 		end
 		return true
 	end
@@ -303,13 +300,12 @@ end
 function stackProto:RemoveSlot(slotId)
 	local slots = self.slots
 	if slots[slotId] then
-		self.count = self.count - slots[slotId]
 		slots[slotId] = nil
 		if slotId == self.slotId then
 			local newSlotId = next(slots)
 			self:SetBagSlot(GetBagSlotFromId(newSlotId))
 		elseif self:IsVisible() then
-			self:UpdateCount()
+			self:FullUpdate()
 		end
 		return true
 	end

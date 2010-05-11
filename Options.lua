@@ -318,6 +318,16 @@ function addon:GetOptions()
 						order = 320,
 						type = 'toggle',
 					},
+					stackStackable = {
+						name = L['Stackable items'],
+						order = 330,
+						type = 'toggle',
+					},
+					stackOthers = {
+						name = L['Other items'],
+						order = 340,
+						type = 'toggle',
+					},
 				},
 			},
 			filters = {
