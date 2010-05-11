@@ -41,7 +41,6 @@ local bagSlots = {}
 function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	self:SetParent(anchor)
 	self:EnableMouse(true)
-	self:SetScale(0.8)
 	self:SetFrameStrata("HIGH")
 
 	self:SetBackdrop(addon.BACKDROP)
