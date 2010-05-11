@@ -7,6 +7,8 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+local AceConfigDialog = LibStub('AceConfigDialog-3.0')
+
 --------------------------------------------------------------------------------
 -- Option handler prototype
 --------------------------------------------------------------------------------
@@ -86,64 +88,63 @@ end
 
 local options, filterOptions, moduleOptions
 
+local filterOrder = 10
 local function AddFilterOptions(filter)
 	local name = filter.filterName
-	local opts = {
+	filterOptions['_header'..name] = {
 		name = filter.uiName or L[name] or name,
-		type = 'group',
-		inline = true,
-		args = {
-			enabled = {
-				name = L['Enabled'],
-				type = 'toggle',
-				order = 1,
-				get = function(info) return addon.db.profile.filters[name] end,
-				set = function(info, value)
-					addon.db.profile.filters[name] = value
-					if value then filter:Enable() else filter:Disable() end
-				end,
-			},
-			priority = {
-				name = L['Priority'],
-				type = 'range',
-				order = 2,
-				min = 0,
-				max = 100,
-				step = 1,
-				bigStep = 5,
-				get = function(info) return filter:GetPriority() end,
-				set = function(info, value) filter:SetPriority(value) end,
-				disabled = function() return not filter:IsEnabled() end,
-			},
-		},
+		type = 'header',
+		order = filterOrder,
+	}
+	filterOptions['enable'..name] = {
+		name = L['Enabled'],
+		type = 'toggle',
+		order = filterOrder + 1,
+		get = function(info) return addon.db.profile.filters[name] end,
+		set = function(info, value)
+			addon.db.profile.filters[name] = value
+			if value then filter:Enable() else filter:Disable() end
+		end,
+	}
+	filterOptions[name..'priority'] = {
+		name = L['Priority'],
+		type = 'range',
+		order = filterOrder + 2,
+		min = 0,
+		max = 100,
+		step = 1,
+		bigStep = 5,
+		get = function(info) return filter:GetPriority() end,
+		set = function(info, value) filter:SetPriority(value) end,
+		disabled = function() return not filter:IsEnabled() end,
 	}
 	if filter.GetFilterOptions then
 		local filterOpts, handler = filter:GetFilterOptions()
-		handler.isFilter = true
-		if filterOpts.type == 'group' then
-			filterOpts.handler = handler
-			filterOptions[name..'Options'] = filterOpts
-		else
-			opts.plugins = { [name] = filterOpts }
-			opts.handler = handler
-		end
+		filterOptions[name] = {
+			name = filter.uiName or L[name] or name,
+			type = 'group',
+			order = filterOrder * 10,
+			handler = handler,
+			args = filterOpts,
+		}
 	end
-	filterOptions[name] = opts
+	filterOrder = filterOrder + 10
 end
 
+local moduleOrder = 10
 local function AddModuleOptions(module)
 	local name = module.moduleName
-	local opts = {
-		name = module.uiName or L[name] or name, 
-		type = 'group',
-		inline = true,
-		args = {}
-	}
 	if not module.isFilter and not module.isBag and not module.cannotDisable then
-		opts.args.enabled = {
+		moduleOptions['_header'..name] = {
+			name = module.uiName or L[name] or name,
+			type = 'header',
+			order = moduleOrder,
+		}
+		moduleOptions['enable'..name] = {
 			name = L['Enabled'],
+			desc = L['Check to enable this plugin.'],
 			type = 'toggle',
-			order = 1,
+			order = moduleOrder + 1,
 			get = function(info) return addon.db.profile.modules[name] end,
 			set = function(info, value)
 				addon.db.profile.modules[name] = value
@@ -153,15 +154,15 @@ local function AddModuleOptions(module)
 	end
 	if module.GetOptions then
 		local moduleOpts, handler = module:GetOptions()
-		if moduleOpts.type == 'group' then
-			moduleOpts.handler = handler
-			moduleOptions[name..'Options'] = moduleOpts
-		else
-			opts.plugins = { [name] = moduleOpts }
-			opts.handler = handler
-		end
+		moduleOptions[name] = {
+			name = module.uiName or L[name] or name,
+			type = 'group',
+			args = moduleOpts,
+			handler = handler,
+			order = moduleOrder * 10,
+		}
 	end
-	moduleOptions[name] = opts
+	moduleOrder = moduleOrder + 10
 end
 
 local function OnModuleCreated(self, module)
@@ -331,8 +332,6 @@ end
 --------------------------------------------------------------------------------
 -- Setup
 --------------------------------------------------------------------------------
-
-local AceConfigDialog = LibStub('AceConfigDialog-3.0')
 
 function addon:InitializeOptions()
 	local AceConfig = LibStub('AceConfig-3.0')
