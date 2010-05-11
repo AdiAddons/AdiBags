@@ -13,7 +13,6 @@ local GetBagSlotFromId = addon.GetBagSlotFromId
 local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING
 local SECTION_SPACING = addon. SECTION_SPACING
-local BAG_WIDTH = addon.BAG_WIDTH
 local BAG_INSET = addon.BAG_INSET
 local TOP_PADDING = addon.TOP_PADDING
 
@@ -449,7 +448,8 @@ function containerProto:LayoutSections(forceLayout)
 	end
 
 	table.sort(orderedSections, CompareSections)
-
+	
+	local BAG_WIDTH = addon.db.profile.columns
 	local bagWidth = ITEM_SIZE * BAG_WIDTH + ITEM_SPACING * (BAG_WIDTH - 1)
 	local y, realWidth = 0, 0
 

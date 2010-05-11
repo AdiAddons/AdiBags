@@ -93,7 +93,6 @@ end
 addon.ITEM_SIZE = 37
 addon.ITEM_SPACING = 4
 addon.SECTION_SPACING = addon.ITEM_SIZE / 3 + addon.ITEM_SPACING
-addon.BAG_WIDTH = 12
 addon.BAG_INSET = 8
 addon.TOP_PADDING = 32
 
@@ -201,7 +200,7 @@ end
 
 function addon:ConfigChanged(vars)
 	self:Debug('ConfigChanged', DebugTable(vars))
-	if vars.stackFreeSpace or vars.stackAmmunition or vars.filter then
+	if vars.stackFreeSpace or vars.stackAmmunition or vars.filter or vars.columns then
 		self:SendMessage('AdiBags_FiltersChanged')
 	else
 		self:SendMessage('AdiBags_UpdateAllButtons')
