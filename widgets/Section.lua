@@ -9,6 +9,7 @@ local L = addon.L
 
 local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING
+local SECTION_SPACING = addon.SECTION_SPACING
 local SLOT_OFFSET = ITEM_SIZE + ITEM_SPACING
 local HEADER_SIZE = 14 + ITEM_SPACING
 
@@ -30,8 +31,8 @@ function sectionProto:OnCreate()
 	self.freeSlots = {}
 
 	local header = self:CreateFontString(nil, "ARTWORK", "GameFontNormalLeft")
-	header:SetPoint("TOPLEFT")
-	header:SetPoint("TOPRIGHT")
+	header:SetPoint("TOPLEFT", 0, 0)
+	header:SetPoint("TOPRIGHT", SECTION_SPACING - ITEM_SPACING, 0)
 	header:SetHeight(HEADER_SIZE)
 	self.header = header
 end
@@ -221,7 +222,8 @@ function sectionProto:SetSize(width, height)
 	self.width = width
 	self.height = height
 	self.total = width * height
-	self:SetWidth(math.max(ITEM_SIZE * width + ITEM_SPACING * math.max(width - 1 ,0), self.header:GetStringWidth()))
+	
+	self:SetWidth(ITEM_SIZE * width + ITEM_SPACING * math.max(width - 1 ,0))
 	self:SetHeight(HEADER_SIZE + ITEM_SIZE * height + ITEM_SPACING * math.max(height - 1, 0))
 	self.dirtyLayout = true
 end

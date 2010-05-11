@@ -49,7 +49,7 @@ function addon:SetupDefaultFilters()
 		function setFilter:Filter(slotData)
 			local set = sets[slotData.itemId]
 			if set then
-				return self.db.profile.oneSectionPerSet and set or L['Sets']
+				return self.db.profile.oneSectionPerSet and set or L['Sets'], L["Equipment"]
 			end
 		end
 		
@@ -69,7 +69,7 @@ function addon:SetupDefaultFilters()
 	-- [80] Ammo and shards
 	local ammoFilter = addon:RegisterFilter('AmmoShards', 80, function(filter, slotData) -- L["AmmoShards"]
 		if slotData.itemId == 6265 then -- Soul Shard
-			return L['Soul shards']
+			return L['Soul shards'], L['Ammunition']
 		elseif slotData.equipSlot == 'INVTYPE_AMMO' then
 			return L['Ammunition']
 		end
@@ -145,11 +145,9 @@ function addon:SetupDefaultFilters()
 				if isGem or isGlyph then
 					return slotData.class
 				else
-					return slotData.subclass
+					return slotData.subclass, slotData.class
 				end
-			elseif isGem and self.db.profile.mergeGems then
-				return L["Trade Goods"]
-			elseif isGlyph and self.db.profile.mergeGlyphs then
+			elseif (isGem and self.db.profile.mergeGems) or (isGlyph and self.db.profile.mergeGlyphs) then
 				return L["Trade Goods"]
 			else
 				return slotData.class

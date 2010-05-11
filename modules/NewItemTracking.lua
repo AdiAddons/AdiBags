@@ -197,7 +197,9 @@ do
 	end
 
 	function mod:Filter(slotData)
-		return newItems[slotData.itemId] and L["New"]
+		if newItems[slotData.itemId] then
+			return L["New"]
+		end
 	end
 end
 

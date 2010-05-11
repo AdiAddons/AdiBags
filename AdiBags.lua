@@ -672,9 +672,9 @@ end
 
 function addon:Filter(slotData)
 	for i, filter in ipairs(filters) do
-		local sectionName = safecall(filter.Filter, filter, slotData)
+		local sectionName, category = safecall(filter.Filter, filter, slotData)
 		if sectionName then
-			return filter.name, sectionName
+			return filter.name, sectionName, (category or sectionName)
 		end
 	end
 end
