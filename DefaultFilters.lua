@@ -13,12 +13,17 @@ function addon:SetupDefaultFilters()
 	do
 		local setFilter = addon:RegisterFilter("ItemSets", 100, "AceEvent-3.0")
 
-		local sets = {}
+		function setFilter:OnInitialize()
+			self.db = addon.db:RegisterNamespace('ItemSets', { profile = { oneSectionPerSet = true }})
+		end
 
 		function setFilter:OnEnable()
 			self:RegisterEvent('EQUIPMENT_SETS_CHANGED')
 			self:UpdateSets()
+			addon:UpdateFilters()
 		end
+
+		local sets = {}
 
 		function setFilter:UpdateSets()
 			wipe(sets)
@@ -40,7 +45,21 @@ function addon:SetupDefaultFilters()
 		end
 
 		function setFilter:Filter(slotData)
-			return sets[slotData.itemId]
+			local set = sets[slotData.itemId]
+			if set then
+				return self.db.profile.oneSectionPerSet and set or L['Sets']
+			end
+		end
+		
+		function setFilter:GetFilterOptions()
+			return {
+				oneSectionPerSet = {
+					name = L['One section per set'],
+					desc = L['Check this to display one individual section per set. If this is disabled, there will be one big "Sets" section.'],
+					type = 'toggle',
+					order = 10,
+				}
+			}, addon:GetOptionHandler(self, true)
 		end
 
 	end

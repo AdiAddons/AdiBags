@@ -190,11 +190,9 @@ end
 
 function addon:ConfigChanged(vars)
 	self:Debug('ConfigChanged', DebugTable(vars))
-	if vars.stackFreeSpace or vars.stackAmmunition then
-		self:Debug('=> AdiBags_FiltersChanged')
+	if vars.stackFreeSpace or vars.stackAmmunition or vars.filter then
 		self:SendMessage('AdiBags_FiltersChanged')
 	else
-		self:Debug('=> AdiBags_UpdateAllButtons')
 		self:SendMessage('AdiBags_UpdateAllButtons')
 	end
 end
@@ -611,6 +609,7 @@ function addon:RegisterFilter(name, priority, Filter, ...)
 	else
 		filter = addon:NewModule(name, filterProto, Filter, ...)
 	end
+	filter.filterName = name
 	filter.priority = priority
 	return filter
 end
