@@ -627,8 +627,10 @@ function addon:RegisterFilter(name, priority, Filter, ...)
 	if type(Filter) == "function" then
 		filter = addon:NewModule(name, filterProto, ...)
 		filter.Filter = Filter
-	else
+	elseif Filter then
 		filter = addon:NewModule(name, filterProto, Filter, ...)
+	else
+		filter = addon:NewModule(name, filterProto)
 	end
 	filter.filterName = name
 	filter.priority = priority
