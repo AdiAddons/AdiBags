@@ -114,13 +114,15 @@ addon.BACKDROPCOLOR = {
 
 function addon:OnInitialize()
 	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", {profile = {
-		anchor = { scale = 1.0 },
+		anchor = { scale = 0.8 },
+		columns = 12,
 		qualityHighlight = true,
 		qualityOpacity = 1.0,
 		questIndicator = true,
 		stackFreeSpace = true,
 		stackAmmunition = true,
 		filters = { ['*'] = true },
+		filterPriorities = {},
 		modules = { ['*'] = true },
 	},}, true)
 	self.db.RegisterCallback(self, "OnProfileChanged", "Reconfigure")
@@ -585,6 +587,17 @@ function filterProto:OnDisable()
 	addon:UpdateFilters()
 end
 
+function filterProto:GetPriority()
+	return addon.db.profile.filterPriorities[self.filterName] or self.priority or 0
+end
+
+function filterProto:SetPriority(value)
+	if value ~= self:GetPriority() then
+		addon.db.profile.filterPriorities[self.filterName] = (value ~= self.priority) and value or nil
+		addon:UpdateFilters()
+	end
+end
+
 --------------------------------------------------------------------------------
 -- Filter handling
 --------------------------------------------------------------------------------
@@ -595,7 +608,7 @@ function addon:InitializeFilters()
 end
 
 local function CompareFilters(a, b)
-	return (a and a.priority or 0) > (b and b.priority or 0)
+	return a:GetPriority() > b:GetPriority() 
 end
 
 local filters = {}

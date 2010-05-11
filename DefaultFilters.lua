@@ -9,9 +9,9 @@ local L = addon.L
 
 function addon:SetupDefaultFilters()
 
-	-- [100] Parts of an equipment set
+	-- [90] Parts of an equipment set
 	do
-		local setFilter = addon:RegisterFilter("ItemSets", 100, "AceEvent-3.0")
+		local setFilter = addon:RegisterFilter("ItemSets", 90, "AceEvent-3.0")
 
 		function setFilter:OnInitialize()
 			self.db = addon.db:RegisterNamespace('ItemSets', { profile = { oneSectionPerSet = true }})
@@ -64,8 +64,8 @@ function addon:SetupDefaultFilters()
 
 	end
 
-	-- [90] Ammo and shards
-	addon:RegisterFilter('AmmoShards', 90, function(filter, slotData) -- L["AmmoShards"]
+	-- [80] Ammo and shards
+	addon:RegisterFilter('AmmoShards', 80, function(filter, slotData) -- L["AmmoShards"]
 		if slotData.itemId == 6265 then -- Soul Shard
 			return L['Soul shards']
 		elseif slotData.equipSlot == 'INVTYPE_AMMO' then
@@ -73,23 +73,23 @@ function addon:SetupDefaultFilters()
 		end
 	end)
 
-	-- [80] Low quality items
+	-- [70] Low quality items
 	do
 		local lowQualityPattern = string.format('%s|Hitem:%%d+:0:0:0:0', ITEM_QUALITY_COLORS[ITEM_QUALITY_POOR].hex)
-		addon:RegisterFilter('Junk', 80, function(filter, slotData) -- L["Junk"]
+		addon:RegisterFilter('Junk', 70, function(filter, slotData) -- L["Junk"]
 			return slotData.link:match(lowQualityPattern) and L['Junk']
 		end)
 	end
 
-	-- [70] Equipment
-	addon:RegisterFilter('Equipment', 70, function(filter, slotData) -- L["Equipement"]
+	-- [60] Equipment
+	addon:RegisterFilter('Equipment', 60, function(filter, slotData) -- L["Equipement"]
 		if slotData.equipSlot and slotData.equipSlot ~= "" then
 			return L['Equipment']
 		end
 	end)
 
-	-- [60] Item classes
-	addon:RegisterFilter('ItemCategory', 60, function(filter, slotData) --L["ItemCategory"]
+	-- [10] Item classes
+	addon:RegisterFilter('ItemCategory', 10, function(filter, slotData) --L["ItemCategory"]
 		if slotData.class == L["Gem"] then
 			return L["Trade Goods"]
 		else

@@ -33,6 +33,8 @@ function handlerProto:Get(info, ...)
 	if info.type == "multiselect" then
 		local subKey = ...
 		return db[key] and db[key][subKey]
+	elseif info.type == 'color' then
+		return unpack(db[key], 1, 4)
 	else
 		return db[key]
 	end
@@ -44,10 +46,17 @@ function handlerProto:Set(info, value, ...)
 		local subKey, value = value, ...
 		db[key][subKey] = value
 		path = strjoin('.', path, subKey)
+	elseif info.type == 'color' then
+		if db[key] then
+			local color = db[key]
+			color[1], color[2], color[3], color[4] = value, ...
+		else
+			db[key] = { value, ... }
+		end
 	else
 		db[key] = value
 	end
-	self.dbHolder:Debug('ConfigSet', path, value)
+	self.dbHolder:Debug('ConfigSet', path, value, ...)
 	if self.isFilter then
 		self.dbHolder:SendMessage('AdiBags_ConfigChanged', 'filter')
 	else
@@ -63,8 +72,12 @@ function handlerProto:IsDisabled(info)
 	end
 end
 
+local handlers = {}
 function addon:GetOptionHandler(dbHolder, isFilter)
-	return setmetatable({dbHolder = dbHolder, isFilter = isFilter}, handlerMeta)
+	if not handlers[dbHolder] then
+		handlers[dbHolder] = setmetatable({dbHolder = dbHolder, isFilter = isFilter}, handlerMeta)
+	end
+	return handlers[dbHolder]
 end
 
 --------------------------------------------------------------------------------
@@ -84,12 +97,23 @@ local function AddFilterOptions(filter)
 				name = L['Enabled'],
 				type = 'toggle',
 				order = 1,
-				handler = options.handler,
 				get = function(info) return addon.db.profile.filters[name] end,
 				set = function(info, value)
 					addon.db.profile.filters[name] = value
 					if value then filter:Enable() else filter:Disable() end
 				end,
+			},
+			priority = {
+				name = L['Priority'],
+				type = 'range',
+				order = 2,
+				min = 0,
+				max = 100,
+				step = 1,
+				bigStep = 5,
+				get = function(info) return filter:GetPriority() end,
+				set = function(info, value) filter:SetPriority(value) end,
+				disabled = function() return not filter:IsEnabled() end,
 			},
 		},
 	}
@@ -120,7 +144,6 @@ local function AddModuleOptions(module)
 			name = L['Enabled'],
 			type = 'toggle',
 			order = 1,
-			handler = options.handler,
 			get = function(info) return addon.db.profile.modules[name] end,
 			set = function(info, value)
 				addon.db.profile.modules[name] = value
@@ -169,18 +192,20 @@ function addon:GetOptions()
 	if options then return options end
 	filterOptions = {}
 	moduleOptions = {}
+	local profiles = LibStub('AceDBOptions-3.0'):GetOptionsTable(self.db)
+	profiles.order = 30
 	options = {
 		name = addonName,
 		type = 'group',
-		handler = addon:GetOptionHandler(addon),
-		get = 'Get',
-		set = 'Set',
-		disabled = 'IsDisabled',			
 		args = {
 			core = {
 				name = L['Core'],
 				type = 'group',
 				order = 1,
+				handler = addon:GetOptionHandler(addon),
+				get = 'Get',
+				set = 'Set',
+				disabled = 'IsDisabled',			
 				args = {
 					_bagHeader = {
 						name = L['Bags'],
@@ -199,6 +224,14 @@ function addon:GetOptions()
 						max = 3.0,
 						step = 0.1,
 						set = function(info, value) info.handler:Set(info, value) addon:UpdateMovableLayout() end,
+					},
+					columns = {
+						name = L['Number of columns'],
+						desc = L['Adjust the number of columns to display in each bag.'],
+						type = 'range',
+						min = 6,
+						max = 16,
+						step = 1,
 					},
 					reset = {
 						name = L['Reset'],
@@ -264,13 +297,22 @@ function addon:GetOptions()
 				type = 'group',
 				order = 10,
 				args = filterOptions,
+				handler = addon:GetOptionHandler(addon),
+				get = 'Get',
+				set = 'Set',
+				disabled = 'IsDisabled',						
 			},
 			modules = {
 				name = L['Plugins'],
 				type = 'group',
 				order = 20,
 				args = moduleOptions,
-			}
+				handler = addon:GetOptionHandler(addon),
+				get = 'Get',
+				set = 'Set',
+				disabled = 'IsDisabled',						
+			},
+			profiles = profiles,
 		},
 		plugins = {}
 	}
