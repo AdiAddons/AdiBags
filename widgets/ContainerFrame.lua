@@ -171,6 +171,7 @@ end
 function containerProto:OnHide()
 	self.bagUpdateBucket = nil
 	self:UnregisterAllEvents()
+	self:UnregisterAllMessages()
 	self:UnregisterAllBuckets()
 end
 
