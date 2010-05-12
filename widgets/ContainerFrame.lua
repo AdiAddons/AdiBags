@@ -311,12 +311,12 @@ function containerProto:GetSection(name)
 end
 
 function containerProto:DispatchItem(slotData)
-	local filter, sectionName
+	local filter, sectionName, category
 	local bag, slotId, slot, link, itemId = slotData.bag, slotData.slotId, slotData.slot, slotData.link, slotData.itemId
 	if link then
-		filter, sectionName = addon:Filter(slotData)
+		filter, sectionName, category = addon:Filter(slotData)
 	else
-		filter, sectionName = "Free", L["Free space"]
+		filter, sectionName, category = "Free", L["Free space"], "Free space"
 	end
 	local button = self.buttons[slotId]
 	if addon:ShouldStack(slotData) then
@@ -327,6 +327,7 @@ function containerProto:DispatchItem(slotData)
 		button = addon:AcquireItemButton(self, bag, slot)
 	end
 	local section = self:GetSection(sectionName or L['Miscellaneous'])
+	section.category = category
 	section:AddItemButton(slotId, button)
 	self.buttons[slotId] = button
 end
@@ -432,26 +433,39 @@ end
 
 local function CompareSections(a, b)
 	if a.order == b.order then
-		if a.total == b.total then
-			return a.name < b.name
+		if a.category == b.category then
+			if a.width == b.width then
+				return a.name < b.name
+			else
+				return b.width < a.width
+			end
 		else
-			return b.total < a.total
+			return a.category < b.category
 		end
 	else
 		return b.order < a.order
 	end
 end
 
-local function GetBestSection(sections, remainingWidth)
-	local bestIndex, leastWasted
+local function GetBestSection(sections, remainingWidth, category)
+	local bestIndexCategory, leastWastedCategory 
+	local bestIndexOther, leastWastedOther
 	for index, section in ipairs(sections) do
 		local wasted = remainingWidth - section:GetWidth()
-		if wasted >= 0 and (not leastWasted or wasted < leastWasted) then
-			bestIndex, leastWasted = index, wasted
+		if wasted >= 0 then
+			if section.category == category then
+				if not leastWastedCategory or wasted < leastWastedCategory then
+					bestIndexCategory, leastWastedCategory = index, wasted
+				end
+			elseif not leastWastedOther or wasted < leastWastedOther then
+				bestIndexOther, leastWastedOther = index, wasted
+			end
 		end
 	end
-	if bestIndex then
-		return tremove(sections, bestIndex)
+	if bestIndexCategory then
+		return tremove(sections, bestIndexCategory)
+	elseif bestIndexOther then
+		return tremove(sections, bestIndexOther)
 	end
 end
 
@@ -463,6 +477,7 @@ function containerProto:LayoutSections(forceLayout)
 		if section:LayoutButtons(forceLayout) then
 			tinsert(orderedSections, section)
 		else
+			section.category = nil
 			section:Release()
 			self.sections[name] = nil
 		end
@@ -487,7 +502,7 @@ function containerProto:LayoutSections(forceLayout)
 
 			x = x + sectionWidth + SECTION_SPACING
 
-			section = GetBestSection(orderedSections, bagWidth - x)
+			section = GetBestSection(orderedSections, bagWidth - x, section.category)
 		end
 		y = y + rowHeight + ITEM_SPACING
 	end
