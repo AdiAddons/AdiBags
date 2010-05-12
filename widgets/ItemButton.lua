@@ -34,13 +34,23 @@ end
 
 function buttonProto:OnAcquire(container, bag, slot)
 	self.container = container
-	self:SetBagSlot(bag, slot)
+	self:SetParent(addon.itemParentFrames[bag])
+	self:SetID(slot)
+	self.itemId, self.texture = GetContainerItemID(bag, slot), GetContainerItemInfo(bag, slot)
+	self.hasItem = not not self.itemId
+	self.bagFamily = select(2, GetContainerNumFreeSlots(bag))
+	local tag = addon:GetFamilyTag(self.bagFamily)
+	if tag then
+		self.Stock:SetText(tag)
+		self.Stock:Show()
+	else
+		self.Stock:Hide()
+	end
 end
 
 function buttonProto:OnRelease()
 	self.container = nil
 	self:SetSection(nil)
-	self:SetBagSlot(nil, nil)
 end
 
 function buttonProto:ToString()
@@ -76,30 +86,6 @@ end
 -- Model data
 --------------------------------------------------------------------------------
 
-function buttonProto:SetBagSlot(bag, slot)
-	if bag == self.bag and slot == self.slot then
-		return self:FullUpdate()
-	end
-	self.bag, self.slot = bag, slot
-	if bag and slot then
-		self:SetParent(addon.itemParentFrames[bag])
-		self:SetID(slot)
-		self.itemId, self.texture = GetContainerItemID(bag, slot), GetContainerItemInfo(bag, slot)
-		self.hasItem = not not self.itemId
-		self.bagFamily = select(2, GetContainerNumFreeSlots(bag))
-		local tag = addon:GetFamilyTag(self.bagFamily)
-		if tag then
-			self.Stock:SetText(tag)
-			self.Stock:Show()
-		else
-			self.Stock:Hide()
-		end
-	else
-		self.hasItem, self.count, self.itemId, self.texture = false, 0, nil, nil
-		self.Stock:Hide()
-	end
-end
-
 function buttonProto:SetSection(section)
 	local oldSection = self.section
 	if oldSection ~= section then
@@ -116,7 +102,7 @@ function buttonProto:GetItemId()
 end
 
 function buttonProto:GetCount()
-	return select(2, GetContainerItemInfo(self.bag, self.slot))
+	return select(2, GetContainerItemInfo(bag, slot))
 end
 
 function buttonProto:GetBagFamily()
@@ -158,12 +144,16 @@ end
 -- Display updating
 --------------------------------------------------------------------------------
 
-function buttonProto:FullUpdate()
-	if not self:IsVisible() or not self.bag or not self.slot or addon.holdYourBreath then return end
+function buttonProto:CanUpdate()
 	if self.container.inUpdate then
 		self.container.dirtyButtons[self] = true
-		return
+		return false
 	end
+	return not addon.holdYourBreath and self:IsVisible()
+end
+
+function buttonProto:FullUpdate()
+	if not self:CanUpdate() then return end
 	local icon = self.IconTexture
 	if self.texture then
 		icon:SetTexture(self.texture)
@@ -181,7 +171,7 @@ end
 
 function buttonProto:UpdateCount()
 	local count = self:GetCount() or 0
-	self.count = count or 0
+	self.count = count
 	if count > 1 then
 		self.Count:SetText(count)
 		self.Count:Show()
@@ -230,31 +220,35 @@ end
 -- Item stack button
 --------------------------------------------------------------------------------
 
-local stackClass, stackProto = addon:NewClass("StackButton", "ItemButton")
+local stackClass, stackProto = addon:NewClass("StackButton", "Frame", "AceEvent-3.0")
 addon:CreatePool(stackClass, "AcquireStackButton")
 
 function stackProto:OnCreate()
-	buttonProto.OnCreate(self)
+	self:SetWidth(ITEM_SIZE)
+	self:SetHeight(ITEM_SIZE)
 	self.slots = {}
+	self:SetScript('OnShow', self.OnShow)
+	self:SetScript('OnHide', self.OnHide)
+	self.GetCountHook = function()
+		return self.count
+	end
 end
 
 function stackProto:OnAcquire(container, key)
-	buttonProto.OnAcquire(self, container)
+	self.container = container
 	self.key = key
 end
 
 function stackProto:OnRelease()
+	self:SetVisibleSlot(nil)
+	self:SetSection(nil)
 	self.key = nil
+	self.container = nil
 	wipe(self.slots)
-	buttonProto.OnRelease(self)
 end
 
 function stackProto:GetCount()
-	local count = 0
-	for slotId in pairs(self.slots) do
-		count = count + (select(2, GetContainerItemInfo(GetBagSlotFromId(slotId))) or 1)
-	end
-	return count
+	return self.count
 end
 
 function stackProto:IsStack()
@@ -270,11 +264,10 @@ function stackProto:AddSlot(slotId)
 	if not slots[slotId] then
 		slots[slotId] = true
 		if not self.slotId then
-			self:SetBagSlot(GetBagSlotFromId(slotId))
+			self:SetVisibleSlot(slotId)
 		else
 			self:FullUpdate()
 		end
-		return true
 	end
 end
 
@@ -284,14 +277,66 @@ function stackProto:RemoveSlot(slotId)
 		slots[slotId] = nil
 		if slotId == self.slotId then
 			local newSlotId = next(slots)
-			self:SetBagSlot(GetBagSlotFromId(newSlotId))
+			self:SetVisibleSlot(newSlotId)
 		else
 			self:FullUpdate()
 		end
-		return true
 	end
 end
 
 function stackProto:IsEmpty()
 	return not next(self.slots)
 end
+
+function stackProto:OnShow()
+	self:RegisterMessage('AdiBags_UpdateAllButtons', 'FullUpdate')
+	self:FullUpdate()
+end
+
+function stackProto:OnHide()
+	self:UnregisterAllMessages()
+end
+
+function stackProto:SetVisibleSlot(slotId)
+	if slotId == self.slotId then return end
+	self.slotId = slotId
+	local button = self.button
+	if button then
+		button.GetCount = nil
+		button:Release()
+	end
+	if slotId then
+		button = addon:AcquireItemButton(self.container, GetBagSlotFromId(slotId))
+		button.GetCount = self.GetCountHook
+		button:SetAllPoints(self)
+		button:Show()
+	else
+		button = nil
+	end
+	self.button = button
+	self:FullUpdate()
+end
+
+function stackProto:FullUpdate()
+	if not self:CanUpdate() then return end
+	local count = 0
+	for slotId in pairs(self.slots) do
+		count = count + (select(2, GetContainerItemInfo(GetBagSlotFromId(slotId))) or 1)
+	end
+	self.count = count
+	if self.button then
+		self.button:FullUpdate()
+	end
+end
+
+function stackProto:GetItemId()
+	return self.button and self.button:GetItemId()
+end
+
+function stackProto:GetBagFamily()
+	return self.button and self.button:GetBagFamily()
+end
+
+-- Reuse button methods
+stackProto.CanUpdate = buttonProto.CanUpdate
+stackProto.SetSection = buttonProto.SetSection
