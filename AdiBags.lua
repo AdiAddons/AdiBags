@@ -102,10 +102,6 @@ addon.BACKDROP = {
 	tile = true, tileSize = 16, edgeSize = 16,
 	insets = { left = 3, right = 3, top = 3, bottom = 3 },
 }
-addon.BACKDROPCOLOR = {
-	backpack = { 0, 0, 0, 1 },
-	bank = { 0, 0, 0.5, 1 },
-}
 
 --------------------------------------------------------------------------------
 -- Addon initialization and enabling
@@ -125,6 +121,10 @@ function addon:OnInitialize()
 		filters = { ['*'] = true },
 		filterPriorities = {},
 		modules = { ['*'] = true },
+		backgroundColors = {
+			Backpack = { 0, 0, 0, 1 },
+			Bank = { 0, 0, 0.5, 1 },
+		}
 	},}, true)
 	self.db.RegisterCallback(self, "OnProfileChanged", "Reconfigure")
 	self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")

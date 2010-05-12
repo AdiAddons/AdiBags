@@ -43,8 +43,6 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	self:SetFrameStrata("HIGH")
 
 	self:SetBackdrop(addon.BACKDROP)
-	self:SetBackdropColor(unpack(addon.BACKDROPCOLOR[isBank and "bank" or "backpack"]))
-	self:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
 
 	self:SetScript('OnShow', self.OnShow)
 	self:SetScript('OnHide', self.OnHide)
@@ -78,7 +76,10 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 
 	local bagSlotPanel = addon:CreateBagSlotPanel(self, name, bagSlots, isBank)
 	bagSlotPanel:Hide()
+	self.BagSlotPanel = bagSlotPanel
 	wipe(bagSlots)
+	
+	self:UpdateBackgroundColor()
 
 	local closeButton = CreateFrame("Button", nil, self, "UIPanelCloseButton")
 	self.CloseButton = closeButton
@@ -111,14 +112,20 @@ end
 
 function containerProto:ToString() return self.name or self:GetName() end
 
+function containerProto:UpdateBackgroundColor()
+	local r, g, b, a = unpack(addon.db.profile.backgroundColors[self.name], 1, 4)
+	self:SetBackdropColor(r, g, b, a)
+	self:SetBackdropBorderColor(0.5, 0.5, 0.5, a)
+	self.BagSlotPanel:SetBackdropColor(r, g, b, a)
+	self.BagSlotPanel:SetBackdropBorderColor(0.5, 0.5, 0.5, a)
+end
+
 --------------------------------------------------------------------------------
 -- Scripts & event handlers
 --------------------------------------------------------------------------------
 
 function containerProto:RegisterUpdateEvents()
 	self.bagUpdateBucket = self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, "BagsUpdated")
-	self:RegisterMessage('AdiBags_FiltersChanged', 'FiltersChanged')
-	self:RegisterMessage('AdiBags_UpdateAllButtons', 'UpdateAllButtons')
 	self:UpdateAllContent()
 end
 
@@ -146,9 +153,18 @@ function containerProto:FiltersChanged()
 	return self:UpdateAllContent(true)
 end
 
+function containerProto:ConfigChanged(event, name)
+	if name:match('^backgroundColors%.') then
+		self:UpdateBackgroundColor()
+	end
+end
+
 function containerProto:OnShow()
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "UnregisterUpdateEvents")
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "RegisterUpdateEvents")
+	self:RegisterMessage('AdiBags_FiltersChanged', 'FiltersChanged')
+	self:RegisterMessage('AdiBags_UpdateAllButtons', 'UpdateAllButtons')
+	self:RegisterMessage('AdiBags_ConfigChanged', 'ConfigChanged')
 	self:RegisterUpdateEvents()
 end
 

@@ -71,8 +71,6 @@ end
 function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	local self = CreateFrame("Frame", container:GetName().."Bags", container)
 	self:SetBackdrop(addon.BACKDROP)
-	self:SetBackdropColor(unpack(addon.BACKDROPCOLOR[isBank and "bank" or "backpack"]))
-	self:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
 	self:SetPoint("BOTTOMLEFT", container, "TOPLEFT", 0, 4)
 
 	if isBank then

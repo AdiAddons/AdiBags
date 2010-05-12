@@ -268,6 +268,20 @@ function addon:GetOptions()
 						max = 16,
 						step = 1,
 					},
+					backpackColor = {
+						name = L['Backpack background color'],
+						type = 'color',
+						order = 150,
+						hasAlpha = true,
+						arg = { "backgroundColors", "Backpack" },
+					},
+					bankColor = {
+						name = L['Bank background color'],
+						type = 'color',
+						order = 160,
+						hasAlpha = true,
+						arg = { "backgroundColors", "Bank" },
+					},
 					_itemsHeader = {
 						name = L['Items'],
 						type = 'header',
