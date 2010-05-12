@@ -218,6 +218,13 @@ end
 -- Bag content scanning
 --------------------------------------------------------------------------------
 
+--[[ Make some global locals to avoid issues with hooking
+local GetContainerNumSlots = _G.GetContainerNumSlots
+local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
+local GetContainerItemInfo = _G.GetContainerItemInfo
+local GetItemInfo = _G.GetItemInfo
+--]]
+
 function containerProto:UpdateContent(bag, forceUpdate)
 	self:Debug('UpdateContent', bag, forceUpdate)
 	local added, removed, changed = self.added, self.removed, self.changed
@@ -239,8 +246,22 @@ function containerProto:UpdateContent(bag, forceUpdate)
 			content[slot] = slotData
 		end
 		local _, count, _, _, _, _, link = GetContainerItemInfo(bag, slot)
-		link = link or false
-		count = count or 0
+		-- Try to catch weird link values (see ticket #2)
+		if link ~= nil and type(link) ~= "string" then
+			local secure, tainter = issecurevariable("GetContainerItemInfo")
+			if tainter then
+				print(strjoin("\n",
+					"AdiBags: GetContainerItemInfo returned a weird link value where a string is expected.",
+					"It seems has been hooked by "..tainter..", please disable this addon to see if it fixes this error.",
+					"If it does, please report the bug to the author of "..tainter.."."
+				))
+				error("GetContainerItemInfo returned a "..type(link).." for the link, where a string is expected. Check your chat window for details.")
+			else
+				error("GetContainerItemInfo returned a "..type(link).." for the link, where a string is expected. No more information available.")
+			end
+		end
+		link, count = link or false, count or 0
+
 		if slotData.link ~= link or forceUpdate then
 			removed[slotData.slotId] = slotData.link
 			slotData.count = count
@@ -250,7 +271,7 @@ function containerProto:UpdateContent(bag, forceUpdate)
 			added[slotData.slotId] = slotData
 		elseif slotData.count ~= count then
 			slotData.count = count
-			changed[slotData.slotId] = link
+			changed[slotData.slotId] = slotData
 		end
 	end
 	for slot = content.size, newSize + 1, -1 do
