@@ -165,25 +165,18 @@ local itemCompareCache = setmetatable({}, {
 	end
 })
 
-local GetContainerItemID = GetContainerItemID
-local GetContainerItemInfo = GetContainerItemInfo
-local GetContainerNumFreeSlots = GetContainerNumFreeSlots
 local strformat = string.format
 
 local function CompareButtons(a, b)
-	local idA = GetContainerItemID(a.bag, a.slot)
-	local idB = GetContainerItemID(b.bag, b.slot)
+	local idA, idB = a:GetItemId(), b:GetItemId()
 	if idA and idB then
 		if idA ~= idB then
 			return itemCompareCache[strformat("%d:%d", idA, idB)]
 		else
-			local _, countA = GetContainerItemInfo(a.bag, a.slot)
-			local _, countB = GetContainerItemInfo(b.bag, b.slot)
-			return countA > countB
+			return a:GetCount() > b:GetCount()
 		end
 	elseif not idA and not idB then
-		local _, famA = GetContainerNumFreeSlots(a.bag)
-		local _, famB = GetContainerNumFreeSlots(b.bag)
+		local famA, famB = a:GetBagFamily(), b:GetBagFamily()
 		if famA and famB and famA ~= famB then
 			return famA < famB
 		end

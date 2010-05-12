@@ -122,12 +122,16 @@ function buttonProto:GetSection()
 	return self.section
 end
 
+function buttonProto:GetItemId()
+	return GetContainerItemID(self.bag, self.slot)
+end
+
 function buttonProto:GetCount()
 	return select(2, GetContainerItemInfo(self.bag, self.slot))
 end
 
-function buttonProto:IsBankItem()
-	return not not addon.BAG_IDS.BANK[self.bag or ""]
+function buttonProto:GetBagFamily()
+	return select(2, GetContainerNumFreeSlots(self.bag))
 end
 
 function buttonProto:IsStack()
