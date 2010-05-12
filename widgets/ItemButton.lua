@@ -240,6 +240,9 @@ end
 function stackProto:OnAcquire(container, key)
 	self.container = container
 	self.key = key
+	self.count = 0
+	self.dirtyCount = true
+	self:SetParent(container)
 end
 
 function stackProto:OnRelease()
@@ -266,6 +269,7 @@ function stackProto:AddSlot(slotId)
 	local slots = self.slots
 	if not slots[slotId] then
 		slots[slotId] = true
+		self.dirtyCount = true
 		if not self.slotId then
 			self:SetVisibleSlot(slotId)
 		else
@@ -278,6 +282,7 @@ function stackProto:RemoveSlot(slotId)
 	local slots = self.slots
 	if slots[slotId] then
 		slots[slotId] = nil
+		self.dirtyCount = true
 		if slotId == self.slotId then
 			local newSlotId = next(slots)
 			self:SetVisibleSlot(newSlotId)
@@ -293,6 +298,7 @@ end
 
 function stackProto:OnShow()
 	self:RegisterMessage('AdiBags_UpdateAllButtons', 'FullUpdate')
+	self:RegisterMessage('AdiBags_PostContentUpdate')
 	self:FullUpdate()
 end
 
@@ -322,13 +328,24 @@ end
 
 function stackProto:FullUpdate()
 	if not self:CanUpdate() then return end
+	self:UpdateCount()
+	if self.button then
+		self.button:FullUpdate()
+	end
+end
+
+function stackProto:UpdateCount()
 	local count = 0
 	for slotId in pairs(self.slots) do
 		count = count + (select(2, GetContainerItemInfo(GetBagSlotFromId(slotId))) or 1)
 	end
 	self.count = count
-	if self.button then
-		self.button:FullUpdate()
+	self.dirtyCount = nil
+end
+
+function stackProto:AdiBags_PostContentUpdate()
+	if self.dirtyCount then
+		self:UpdateCount()
 	end
 end
 
