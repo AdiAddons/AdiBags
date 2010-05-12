@@ -15,7 +15,7 @@ local ITEM_SIZE = addon.ITEM_SIZE
 -- Button initialization
 --------------------------------------------------------------------------------
 
-local buttonClass, buttonProto = addon:NewClass("ItemButton", "Button", "ContainerFrameItemButtonTemplate")
+local buttonClass, buttonProto = addon:NewClass("ItemButton", "Button", "ContainerFrameItemButtonTemplate", "AceEvent-3.0")
 
 local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture" }
 
@@ -28,7 +28,6 @@ function buttonProto:OnCreate()
 	self:RegisterForClicks("LeftButtonUp","RightButtonUp")
 	self:SetScript('OnShow', self.OnShow)
 	self:SetScript('OnHide', self.OnHide)
-	self:SetScript('OnEvent', self.OnEvent)
 	self:SetWidth(ITEM_SIZE)
 	self:SetHeight(ITEM_SIZE)
 end
@@ -143,29 +142,27 @@ end
 --------------------------------------------------------------------------------
 
 function buttonProto:OnShow()
-	self:RegisterEvent('BAG_UPDATE_COOLDOWN')
-	self:RegisterEvent('ITEM_LOCK_CHANGED')
-	self:RegisterEvent('QUEST_ACCEPTED')
+	self:RegisterEvent('BAG_UPDATE_COOLDOWN', 'UpdateCooldown')
+	self:RegisterEvent('ITEM_LOCK_CHANGED', 'UpdateLock')
+	self:RegisterEvent('QUEST_ACCEPTED', 'UpdateBorder')
 	self:RegisterEvent('UNIT_QUEST_LOG_CHANGED')
+	self:RegisterMessage('AdiBags_UpdateAllButtons', 'FullUpdate')
 	self:FullUpdate()
 end
 
 function buttonProto:OnHide()
 	self:UnregisterAllEvents()
+	self:UnregisterAllMessages()
 	if self.hasStackSplit and self.hasStackSplit == 1 then
 		StackSplitFrame:Hide()
 	end
 end
 
-function buttonProto:OnEvent(event, ...)
-	if not self:IsVisible() or not self.bag or not self.slot then return end
-	return self[event](self, event, ...)
+function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)
+	if unit == "player" then
+		self:UpdateBorder() 
+	end
 end
-
-function buttonProto:BAG_UPDATE_COOLDOWN(event) return self:UpdateCooldown() end
-function buttonProto:ITEM_LOCK_CHANGED(event) return self:UpdateLock() end
-function buttonProto:QUEST_ACCEPTED(event) return self:UpdateBorder() end
-function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)	if unit == "player" then return self:UpdateBorder() end end
 
 --------------------------------------------------------------------------------
 -- Display updating

@@ -163,7 +163,6 @@ function containerProto:OnShow()
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "UnregisterUpdateEvents")
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "RegisterUpdateEvents")
 	self:RegisterMessage('AdiBags_FiltersChanged', 'FiltersChanged')
-	self:RegisterMessage('AdiBags_UpdateAllButtons', 'UpdateAllButtons')
 	self:RegisterMessage('AdiBags_ConfigChanged', 'ConfigChanged')
 	self:RegisterUpdateEvents()
 end
@@ -173,13 +172,6 @@ function containerProto:OnHide()
 	self:UnregisterAllEvents()
 	self:UnregisterAllMessages()
 	self:UnregisterAllBuckets()
-end
-
-function containerProto:UpdateAllButtons(event)
-	self:Debug('UpdateAllButtons')
-	for _, button in pairs(self.buttons) do
-		button:FullUpdate()
-	end
 end
 
 function containerProto:UpdateAllContent(forceUpdate)
