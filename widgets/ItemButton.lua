@@ -141,11 +141,13 @@ end
 --------------------------------------------------------------------------------
 
 function buttonProto:CanUpdate()
-	if self.container.inUpdate then
+	if not self:IsVisible() or addon.holdYourBreath then
+		return false
+	elseif self.container.inUpdate then
 		self.container.dirtyButtons[self] = true
 		return false
 	end
-	return not addon.holdYourBreath and self:IsVisible()
+	return true
 end
 
 function buttonProto:FullUpdate()

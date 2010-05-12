@@ -421,8 +421,11 @@ function containerProto:UpdateButtons()
 		--@debug@
 		local numButtons = 0
 		--@end-debug@
+		local buttons = self.buttons
 		for button in pairs(dirtyButtons) do
-			button:FullUpdate()
+			if button.container == self then -- sanity check
+				button:FullUpdate()
+			end
 			--@debug@
 			numButtons = numButtons + 1
 			--@end-debug@
