@@ -45,8 +45,8 @@ function buttonProto:OnAcquire(container, bag, slot)
 end
 
 function buttonProto:OnRelease()
-	self.container = nil
 	self:SetSection(nil)
+	self.container = nil
 end
 
 function buttonProto:ToString()
