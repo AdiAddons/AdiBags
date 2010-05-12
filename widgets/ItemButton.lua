@@ -51,8 +51,11 @@ end
 -- Generic bank button sub-type
 --------------------------------------------------------------------------------
 
-local bankButtonClass = addon:NewClass("BankItemButton", "ItemButton")
+local bankButtonClass, bankButtonProto = addon:NewClass("BankItemButton", "ItemButton")
 bankButtonClass.frameTemplate = "BankItemButtonGenericTemplate"
+
+-- Override buttonProto.UpdateLock
+bankButtonProto.UpdateLock = BankFrameItemButton_UpdateLocked
 
 --------------------------------------------------------------------------------
 -- Pools and acquistion
@@ -205,11 +208,7 @@ function buttonProto:UpdateCount()
 end
 
 function buttonProto:UpdateLock()
-	if self.bag == BANK_CONTAINER then
-		BankFrameItemButton_UpdateLocked(self)
-	else
-		SetItemButtonDesaturated(self, select(3, GetContainerItemInfo(self.bag, self.slot)) and true or false)
-	end
+	SetItemButtonDesaturated(self, select(3, GetContainerItemInfo(self.bag, self.slot)) and true or false)
 end
 
 function buttonProto:UpdateCooldown()
@@ -291,7 +290,7 @@ function stackProto:AddSlot(slotId)
 		slots[slotId] = true
 		if not self.slotId then
 			self:SetBagSlot(GetBagSlotFromId(slotId))
-		elseif self:IsVisible() then
+		else
 			self:FullUpdate()
 		end
 		return true
@@ -305,7 +304,7 @@ function stackProto:RemoveSlot(slotId)
 		if slotId == self.slotId then
 			local newSlotId = next(slots)
 			self:SetBagSlot(GetBagSlotFromId(newSlotId))
-		elseif self:IsVisible() then
+		else
 			self:FullUpdate()
 		end
 		return true
