@@ -34,18 +34,14 @@ end
 
 function buttonProto:OnAcquire(container, bag, slot)
 	self.container = container
+	self.bag = bag
+	self.slot = slot
 	self:SetParent(addon.itemParentFrames[bag])
 	self:SetID(slot)
-	self.itemId, self.texture = GetContainerItemID(bag, slot), GetContainerItemInfo(bag, slot)
+	self.itemId = GetContainerItemID(bag, slot)
 	self.hasItem = not not self.itemId
+	self.texture = GetContainerItemInfo(bag, slot)
 	self.bagFamily = select(2, GetContainerNumFreeSlots(bag))
-	local tag = addon:GetFamilyTag(self.bagFamily)
-	if tag then
-		self.Stock:SetText(tag)
-		self.Stock:Show()
-	else
-		self.Stock:Hide()
-	end
 end
 
 function buttonProto:OnRelease()
@@ -102,7 +98,7 @@ function buttonProto:GetItemId()
 end
 
 function buttonProto:GetCount()
-	return select(2, GetContainerItemInfo(bag, slot))
+	return select(2, GetContainerItemInfo(self.bag, self.slot))
 end
 
 function buttonProto:GetBagFamily()
@@ -162,6 +158,13 @@ function buttonProto:FullUpdate()
 		icon:SetTexture([[Interface\BUTTONS\UI-EmptySlot]])
 		icon:SetTexCoord(12/64, 51/64, 12/64, 51/64)
 	end
+	local tag = addon:GetFamilyTag(self.bagFamily)
+	if tag then
+		self.Stock:SetText(tag)
+		self.Stock:Show()
+	else
+		self.Stock:Hide()
+	end	
 	self:UpdateCount()
 	self:UpdateBorder()
 	self:UpdateCooldown()
