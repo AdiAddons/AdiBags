@@ -77,36 +77,27 @@ end
 --------------------------------------------------------------------------------
 
 function buttonProto:SetBagSlot(bag, slot)
-	local oldBag = self.bag
-	local changed = bag ~= oldBag or slot ~= self.slot
-	if changed then
-		self.bag, self.slot = bag, slot
-		self.slotId = addon.GetSlotId(bag, slot)
-		self:SetParent(bag and addon.itemParentFrames[bag] or nil)
-		if bag and slot then
-			self:SetID(slot)
-			local _, family = GetContainerNumFreeSlots(bag)
-			local tag = addon:GetFamilyTag(family)
-			if tag then
-				self.Stock:SetText(tag)
-				self.Stock:Show()
-			else
-				self.Stock:Hide()
-			end
-		end
+	if bag == self.bag and slot == self.slot then
+		return self:FullUpdate()
 	end
+	self.bag, self.slot = bag, slot
 	if bag and slot then
-		self:FullUpdate()
+		self:SetParent(addon.itemParentFrames[bag])
+		self:SetID(slot)
+		self.itemId, self.texture = GetContainerItemID(bag, slot), GetContainerItemInfo(bag, slot)
+		self.hasItem = not not self.itemId
+		self.bagFamily = select(2, GetContainerNumFreeSlots(bag))
+		local tag = addon:GetFamilyTag(self.bagFamily)
+		if tag then
+			self.Stock:SetText(tag)
+			self.Stock:Show()
+		else
+			self.Stock:Hide()
+		end
+	else
+		self.hasItem, self.count, self.itemId, self.texture = false, 0, nil, nil
+		self.Stock:Hide()
 	end
-	return changed
-end
-
-function buttonProto:GetBagSlot()
-	return self.bag, self.slot
-end
-
-function buttonProto:GetSlotId()
-	return self.slotId
 end
 
 function buttonProto:SetSection(section)
@@ -120,12 +111,8 @@ function buttonProto:SetSection(section)
 	end
 end
 
-function buttonProto:GetSection()
-	return self.section
-end
-
 function buttonProto:GetItemId()
-	return GetContainerItemID(self.bag, self.slot)
+	return self.itemId
 end
 
 function buttonProto:GetCount()
@@ -133,7 +120,7 @@ function buttonProto:GetCount()
 end
 
 function buttonProto:GetBagFamily()
-	return select(2, GetContainerNumFreeSlots(self.bag))
+	return self.bagFamily
 end
 
 function buttonProto:IsStack()
@@ -177,17 +164,13 @@ function buttonProto:FullUpdate()
 		self.container.dirtyButtons[self] = true
 		return
 	end
-	local texture = GetContainerItemInfo(self.bag, self.slot)
 	local icon = self.IconTexture
-	if texture then
-		self.hasItem, self.itemId = true, GetContainerItemID(self.bag, self.slot)
-		icon:SetTexture(texture)
+	if self.texture then
+		icon:SetTexture(self.texture)
 		icon:SetTexCoord(0,1,0,1)
 	else
-		self.hasItem, self.itemId = false, nil
 		icon:SetTexture([[Interface\BUTTONS\UI-EmptySlot]])
 		icon:SetTexCoord(12/64, 51/64, 12/64, 51/64)
-		self.Count:Hide()
 	end
 	self:UpdateCount()
 	self:UpdateBorder()
@@ -216,9 +199,7 @@ function buttonProto:UpdateCooldown()
 end
 
 function buttonProto:UpdateBorder()
-	local itemId = GetContainerItemID(self.bag, self.slot)
-	local border = self.IconQuestTexture
-	if itemId then
+	if self.hasItem then
 		local texture, r, g, b, a, x1, x2, y1, y2, blendMode = nil, 1, 1, 1, 1, 0, 1, 0, 1, "BLEND"
 		local isQuestItem, questId, isActive = GetContainerItemQuestInfo(self.bag, self.slot)
 		if addon.db.profile.questIndicator and (questId and not isActive) then
@@ -226,7 +207,7 @@ function buttonProto:UpdateBorder()
 		elseif addon.db.profile.questIndicator and (questId or isQuestItem) then
 			texture = TEXTURE_ITEM_QUEST_BORDER
 		elseif addon.db.profile.qualityHighlight then
-			local _, _, quality = GetItemInfo(itemId)
+			local _, _, quality = GetItemInfo(self.itemId)
 			if quality >= ITEM_QUALITY_UNCOMMON then
 				r, g, b = GetItemQualityColor(quality)
 				texture, x1, x2, y1, y2, blendMode = [[Interface\Buttons\UI-ActionButton-Border]], 14/64, 49/64, 15/64, 50/64, "ADD"
@@ -234,6 +215,7 @@ function buttonProto:UpdateBorder()
 			end
 		end
 		if texture then
+			local border = self.IconQuestTexture
 			border:SetTexture(texture)
 			border:SetTexCoord(x1, x2, y1, y2)
 			border:SetVertexColor(r, g, b, a)
@@ -241,7 +223,7 @@ function buttonProto:UpdateBorder()
 			return border:Show()
 		end
 	end
-	border:Hide()
+	self.IconQuestTexture:Hide()
 end
 
 --------------------------------------------------------------------------------
@@ -257,15 +239,14 @@ function stackProto:OnCreate()
 end
 
 function stackProto:OnAcquire(container, key)
-	self.container = container
+	buttonProto.OnAcquire(self, container)
 	self.key = key
-	self.count = 0
 end
 
 function stackProto:OnRelease()
 	self.key = nil
 	wipe(self.slots)
-	return buttonProto.OnRelease(self)
+	buttonProto.OnRelease(self)
 end
 
 function stackProto:GetCount()
