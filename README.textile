@@ -22,3 +22,11 @@ h2. Features
 * LDB data source displaying free space.
 * ConfigMode support.
 
+h2. Things that likely will not be implemented
+
+* anything else than the existing "all-in-one" views,
+* guild bank,
+* bag skinning,
+* alt bags and bank acces,
+* complete filter/sectuin editor.
+
