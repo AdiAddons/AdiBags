@@ -108,6 +108,8 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	title:SetJustifyH("LEFT")
 	title:SetPoint("TOPLEFT", bagSlotButton, "TOPRIGHT", 4, 0)
 	title:SetPoint("RIGHT", -36, 0)
+
+	self:RegisterPersistentListeners()
 end
 
 function containerProto:ToString() return self.name or self:GetName() end
@@ -124,9 +126,14 @@ end
 -- Scripts & event handlers
 --------------------------------------------------------------------------------
 
+function containerProto:RegisterPersistentListeners()
+	self:RegisterMessage('AdiBags_FiltersChanged', 'FiltersChanged')
+	self:RegisterMessage('AdiBags_ConfigChanged', 'ConfigChanged')
+end
+
 function containerProto:RegisterUpdateEvents()
 	self.bagUpdateBucket = self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, "BagsUpdated")
-	self:UpdateAllContent()
+	self:UpdateAllContent(self.fullUpdateRequired)
 end
 
 function containerProto:UnregisterUpdateEvents()
@@ -148,13 +155,20 @@ function containerProto:BagsUpdated(bagIds)
 end
 
 function containerProto:FiltersChanged()
-	if addon.holdYourBreath then return end
+	if addon.holdYourBreath or not self:IsVisible() then
+		self.fullUpdateRequired = true
+		return
+	end
 	self:Debug('FiltersChanged')
 	return self:UpdateAllContent(true)
 end
 
 function containerProto:ConfigChanged(event, name)
 	if name:match('^backgroundColors%.') then
+		if addon.holdYourBreath or not self:IsVisible() then
+			self.fullUpdateRequired = true
+			return
+		end
 		self:UpdateBackgroundColor()
 	end
 end
@@ -163,8 +177,6 @@ function containerProto:OnShow()
 	PlaySound(self.isBank and "igMainMenuClose" or "igBackPackClose")
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "UnregisterUpdateEvents")
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "RegisterUpdateEvents")
-	self:RegisterMessage('AdiBags_FiltersChanged', 'FiltersChanged')
-	self:RegisterMessage('AdiBags_ConfigChanged', 'ConfigChanged')
 	self:RegisterUpdateEvents()
 end
 	
@@ -174,6 +186,7 @@ function containerProto:OnHide()
 	self:UnregisterAllEvents()
 	self:UnregisterAllMessages()
 	self:UnregisterAllBuckets()
+	self:RegisterPersistentListeners()
 end
 
 function containerProto:UpdateAllContent(forceUpdate)
@@ -183,6 +196,7 @@ function containerProto:UpdateAllContent(forceUpdate)
 	end
 	self:UpdateButtons()
 	self:LayoutSections(true)
+	self.fullUpdateRequired = nil
 end
 
 --------------------------------------------------------------------------------
