@@ -4,6 +4,12 @@ It is heavily inspired by Nargiddley's Baggins.
 
 Configuration is available through Blizzard addon panel, /adibags chat command or right-clicking on the LDB plugin.
 
+Related pages:
+
+"WoWace forum thread":http://forums.wowace.com/showthread.php?p=301168
+"WoWace project page":http://www.wowace.com/addons/adibags/
+"Bug tracker":http://www.wowace.com/addons/adibags/tickets/
+
 h2. Features
 
 * smart filters are used to dispatch items into several sections, including:
@@ -19,14 +25,14 @@ h2. Features
 * bag tidy,
 * name-based search,
 * optional equipped bag panel,
-* LDB data source displaying free space.
+* LDB data source displaying free space,
+* display character money in the backpack,
 * ConfigMode support.
 
 h2. Things that likely will not be implemented
 
 * anything else than the existing "all-in-one" views,
 * guild bank,
+* alt bags and bank,
 * bag skinning,
-* alt bags and bank acces,
-* complete filter/sectuin editor.
-
+* complete in-game filter/section editor.
