@@ -19,14 +19,15 @@ h2. Features
 * bag tidy,
 * name-based search,
 * optional equipped bag panel,
-* LDB data source displaying free space.
+* LDB data source displaying free space,
+* display character money in the backpack,
 * ConfigMode support.
 
 h2. Things that likely will not be implemented
 
 * anything else than the existing "all-in-one" views,
 * guild bank,
+* alt bags and bank,
 * bag skinning,
-* alt bags and bank acces,
-* complete filter/sectuin editor.
+* complete in-game filter/section editor.
 
