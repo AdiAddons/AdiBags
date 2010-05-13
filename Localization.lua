@@ -6,10 +6,6 @@ All rights reserved.
 
 local addonName, addon = ...
 
---------------------------------------------------------------------------------
--- Fancy locale table
---------------------------------------------------------------------------------
-
 local L = setmetatable({}, {
 	__index = function(self, key)
 		if key ~= nil then
@@ -24,40 +20,15 @@ local L = setmetatable({}, {
 })
 addon.L = L
 
---------------------------------------------------------------------------------
--- Fetch some locales directly from the client
---------------------------------------------------------------------------------
-
-L["Soul shards"] = GetItemInfo(6265)
-
-do
-	-- Little trick to get localized item classes and subclasses: use the values returned by GetItemInfo for some chosen items.
-	-- Drawbacks:
-	--  * If Blizzard changes some items, we are screwed.
-	--  * This may fail at first login when the item cache is empty.
-
-	local function GetClasses(item)
-		local name, _, _, _, _, class, subClass = GetItemInfo(item)
-		if class and subClass then
-			return class, subClass
-		else
-			geterrorhandler()(addonName..": missing item class and subclass of "..tostring(name or item))
-		end
-	end
-
-	-- Just get what is needed
-	L["Consumable"], L["Food & Drinks"] = GetClasses(35953) -- Mead Basted Caribou
-	L["Miscellaneous"], L["Junk"] = GetClasses(6948) -- Hearth Stone
-	L["Gem"], L["Simple"] = GetClasses(774) -- Malachite
-	L["Trade Goods"], L["Cloth"] = GetClasses(2589) -- Linen Cloth
-end
-
---------------------------------------------------------------------------------
--- English strings
---------------------------------------------------------------------------------
-
-L["New"] = true
+L["Ammunition"] = true
+L["Consumable"] = true
+L["Miscellaneous"] = true
+L["Junk"] = true
+L["Trade Goods"] = true
+L["Gem"] = true
 L["Equipment"] = true
+L["Soul shards"] = true
+L["New"] = true
 
 L["Backpack"] = true
 L["Bank"] = true
@@ -78,13 +49,16 @@ L["KEYRING_TAG"] = "Ke"
 L["GEM_BAG_TAG"] = "Ge"
 L["MINING_BAG_TAG"] = "Mi"
 
---------------------------------------------------------------------------------
--- Other locales
---------------------------------------------------------------------------------
-
 if GetLocale() == "frFR" then
-	L["New"] = "Nouveau"
+	L["Ammunition"] = "Munitions"
+	L["Consumable"] = "Consommable"
+	L["Miscellaneous"] = "Divers"
+	L["Junk"] = "Camelote"
+	L["Trade Goods"] = "Artisanat"
+	L["Gem"] = "Gemme"
 	L["Equipment"] = "Equipement"
+	L["Soul shards"] = "Fragments d'âme"
+	L["New"] = "Nouveau"
 
 	L["Backpack"] = "Sac à dos"
 	L["Bank"] = "Banque"
