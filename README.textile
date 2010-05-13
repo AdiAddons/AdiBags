@@ -2,7 +2,7 @@ AdiBags display the content bag in one view, gather into several sections using 
 
 It is heavily inspired by Nargiddley's Baggins.
 
-As it is still a work in progress, there is no configuration yet.
+Configuration is available through Blizzard addon panel, /adibags chat command or right-clicking on the LDB plugin.
 
 h2. Features
 
@@ -20,4 +20,5 @@ h2. Features
 * name-based search,
 * optional equipped bag panel,
 * LDB data source displaying free space.
+* ConfigMode support.
 

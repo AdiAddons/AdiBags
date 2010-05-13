@@ -160,14 +160,16 @@ function containerProto:ConfigChanged(event, name)
 end
 
 function containerProto:OnShow()
+	PlaySound(self.isBank and "igMainMenuClose" or "igBackPackClose")
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "UnregisterUpdateEvents")
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "RegisterUpdateEvents")
 	self:RegisterMessage('AdiBags_FiltersChanged', 'FiltersChanged')
 	self:RegisterMessage('AdiBags_ConfigChanged', 'ConfigChanged')
 	self:RegisterUpdateEvents()
 end
-
+	
 function containerProto:OnHide()
+	PlaySound(self.isBank and "igMainMenuOpen" or "igBackPackOpen")
 	self.bagUpdateBucket = nil
 	self:UnregisterAllEvents()
 	self:UnregisterAllMessages()

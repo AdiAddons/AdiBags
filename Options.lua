@@ -390,7 +390,11 @@ function addon:InitializeOptions()
 				name = L['Configure'],
 				type = 'execute',
 				order = 100,
-				func = addon.OpenOptions,
+				func = function()
+					InterfaceOptionsFrame.lastFrame = nil
+					InterfaceOptionsFrame:Hide()
+					addon.OpenOptions()
+				end,
 			},
 			lock = lockOption,
 		},
@@ -398,9 +402,10 @@ function addon:InitializeOptions()
 	AceConfigDialog:AddToBlizOptions(addonName.."BlizzOptions", addonName)
 	
 	AceConfig:RegisterOptionsTable(addonName, function() return self:GetOptions() end)
+
+	LibStub('AceConsole-3.0'):RegisterChatCommand("adibags", addon.OpenOptions, true)
 end
 
 function addon.OpenOptions()
-	InterfaceOptionsFrame:Hide()
 	AceConfigDialog:Open(addonName)
 end

@@ -151,9 +151,9 @@ function addon:OnEnable()
 
 	self:RawHook("OpenAllBags", true)
 	self:RawHook("CloseAllBags", true)
+	self:RawHook('CloseSpecialWindows', true)
 
 	self:RegisterEvent('MAIL_CLOSED', 'CloseAllBags')
-	self:SecureHook('CloseSpecialWindows', 'CloseAllBags')
 	
 	for name, module in self:IterateModules() do
 		if module.isFilter then
@@ -193,15 +193,24 @@ function addon:BankUpdated(slots)
 	self:SendMessage('AdiBags_BagUpdated', BANK_CONTAINER)
 end
 
+function addon:CloseSpecialWindows()
+	local bagWasOpen = self:CloseAllBags()
+	return self.hooks.CloseSpecialWindows() or bagWasOpen
+end
+
+--@debug@
 local function DebugTable(t, prevKey)
 	local k, v = next(t, prevKey)
 	if k ~= nil then
 		return k, v, DebugTable(t, k)
 	end
 end
+--@end-debug@
 
 function addon:ConfigChanged(vars)
+	--@debug@
 	self:Debug('ConfigChanged', DebugTable(vars))
+	--@end-debug@
 	for name in pairs(vars) do
 		if name:match('^stack') or name == 'filter' or name == 'columns' then
 			return self:SendMessage('AdiBags_FiltersChanged')
@@ -379,7 +388,8 @@ end
 
 function addon:OpenAllBags(forceOpen)
 	if not forceOpen and self:AreAllBagsOpen() then
-		return self:CloseAllBags()
+		self:CloseAllBags()
+		return
 	end
 	for i, bag in ipairs(bags) do
 		bag:Open()
@@ -387,11 +397,11 @@ function addon:OpenAllBags(forceOpen)
 end
 
 function addon:CloseAllBags()
+	local closed = false
 	for i, bag in ipairs(bags) do
-		if bag:IsOpen() then
-			bag:Close()
-		end
+		closed = bag:Close() or closed
 	end
+	return closed
 end
 
 --------------------------------------------------------------------------------

@@ -28,6 +28,9 @@ externals:
   libs/AceGUI-3.0:
     url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceGUI-3.0
     tag: latest
+  libs/AceConsole-3.0:
+    url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceConsole-3.0
+    tag: latest
   libs/AceConfig-3.0:
     url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceConfig-3.0
     tag: latest
