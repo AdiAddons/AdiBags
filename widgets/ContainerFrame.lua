@@ -13,8 +13,6 @@ local GetBagSlotFromId = addon.GetBagSlotFromId
 local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING
 local SECTION_SPACING = addon. SECTION_SPACING
-local BAG_INSET = addon.BAG_INSET
-local TOP_PADDING = addon.TOP_PADDING
 
 --------------------------------------------------------------------------------
 -- Widget scripts
@@ -58,6 +56,14 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	self.sections = {}
 
 	self.headerWidgets = {}
+	self.bottomWidgets = { LEFT = {}, RIGHT = {} }
+
+	self.insets = {
+		top = addon.TOP_PADDING,
+		left = addon.BAG_INSET,
+		right = addon.BAG_INSET,
+		bottom = addon.BAG_INSET,
+	}
 
 	self.added = {}
 	self.removed = {}
@@ -94,7 +100,7 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	bagSlotButton.panel = bagSlotPanel
 	bagSlotButton:SetWidth(18)
 	bagSlotButton:SetHeight(18)
-	bagSlotButton:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
+	bagSlotButton:SetPoint("TOPLEFT", addon.BAG_INSET, -addon.BAG_INSET)
 	addon.SetupTooltip(bagSlotButton, {
 		L["Equipped bags"],
 		L["Click to toggle the equipped bag panel, so you can change them."]
@@ -108,19 +114,13 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	title:SetJustifyH("LEFT")
 	title:SetPoint("TOPLEFT", bagSlotButton, "TOPRIGHT", 4, 0)
 	title:SetPoint("RIGHT", -36, 0)
-
-	self:RegisterPersistentListeners()
+	
+	local content = CreateFrame("Frame", nil, self)
+	content:SetPoint("TOPLEFT", self.insets.left, -self.insets.top)
+	self.Content = content
 end
 
 function containerProto:ToString() return self.name or self:GetName() end
-
-function containerProto:UpdateBackgroundColor()
-	local r, g, b, a = unpack(addon.db.profile.backgroundColors[self.name], 1, 4)
-	self:SetBackdropColor(r, g, b, a)
-	self:SetBackdropBorderColor(0.5, 0.5, 0.5, a)
-	self.BagSlotPanel:SetBackdropColor(r, g, b, a)
-	self.BagSlotPanel:SetBackdropBorderColor(0.5, 0.5, 0.5, a)
-end
 
 --------------------------------------------------------------------------------
 -- Scripts & event handlers
@@ -203,6 +203,10 @@ end
 -- Bag header layout
 --------------------------------------------------------------------------------
 
+local function CompareWidgets(a, b)
+	return a._order > b._order
+end
+
 local function HeaderWidget_VisibilityChanged(widget)
 	local isShown = not not widget:IsShown()
 	if isShown ~= widget._isShown then
@@ -219,15 +223,11 @@ function containerProto:AddHeaderWidget(widget, order, width, yOffset)
 	widget:HookScript('OnShow', HeaderWidget_VisibilityChanged)
 	widget:HookScript('OnHide', HeaderWidget_VisibilityChanged)
 	tinsert(self.headerWidgets, widget)
+	table.sort(self.headerWidgets, CompareWidgets)
 	HeaderWidget_VisibilityChanged(widget)
 end
 
-local function CompareHeaderWidgets(a, b)
-	return a._order > b._order
-end
-
 function containerProto:LayoutHeaderWidgets()
-	table.sort(self.headerWidgets, CompareHeaderWidgets)
 	local x = 32
 	for i, widget in ipairs(self.headerWidgets) do
 		if widget._isShown then
@@ -237,6 +237,70 @@ function containerProto:LayoutHeaderWidgets()
 		end
 	end
 	self.Title:SetPoint("RIGHT", -x, 0)
+end
+
+--------------------------------------------------------------------------------
+-- Bottom widgets layout
+--------------------------------------------------------------------------------
+
+local function BottomWidget_VisibilityChanged(widget)
+	local isShown = not not widget:IsShown()
+	if isShown ~= widget._isShown then
+		widget._isShown = isShown
+		widget._container:LayoutBottomWidgets()
+	end
+end
+
+function containerProto:AddBottomWidget(widget, side, order, height, yOffset)
+	widget._container = self
+	widget._order = order or 0
+	widget._yOffset = yOffset or 0
+	widget._height = height
+	widget:HookScript('OnShow', BottomWidget_VisibilityChanged)
+	widget:HookScript('OnHide', BottomWidget_VisibilityChanged)
+	side = side == "RIGHT" and "RIGHT" or "LEFT"
+	tinsert(self.bottomWidgets[side], widget)
+	table.sort(self.bottomWidgets[side], CompareWidgets)
+	BottomWidget_VisibilityChanged(widget)
+end
+
+local function LayoutBottomWidget(self, widgets, anchor, offsetX, offsetY)
+	local y = 0
+	for index, widget in ipairs(widgets) do
+		if widget:IsShown() then
+			widget:ClearAllPoints()
+			if y > 0 then y = y + ITEM_SPACING end
+			widget:SetPoint(anchor, self, offsetX, y + offsetY + widget._yOffset)
+			y = y + (widget._height or widget:GetHeight())
+		end
+	end
+	return y
+end
+
+function containerProto:LayoutBottomWidgets()
+	local inset = addon.BAG_INSET
+	self.insets.bottom = inset + math.max(
+		LayoutBottomWidget(self, self.bottomWidgets.LEFT, "BOTTOMLEFT", self.insets.left, inset),
+		LayoutBottomWidget(self, self.bottomWidgets.RIGHT, "BOTTOMRIGHT", self.insets.right, inset)
+	)
+	self:Resize()
+end
+
+--------------------------------------------------------------------------------
+-- Miscellaneous
+--------------------------------------------------------------------------------
+
+function containerProto:UpdateBackgroundColor()
+	local r, g, b, a = unpack(addon.db.profile.backgroundColors[self.name], 1, 4)
+	self:SetBackdropColor(r, g, b, a)
+	self:SetBackdropBorderColor(0.5, 0.5, 0.5, a)
+	self.BagSlotPanel:SetBackdropColor(r, g, b, a)
+	self.BagSlotPanel:SetBackdropBorderColor(0.5, 0.5, 0.5, a)
+end
+
+function containerProto:Resize()
+	self:SetWidth(self.insets.left + self.insets.right + self.Content:GetWidth())
+	self:SetHeight(self.insets.top + self.insets.bottom + self.Content:GetHeight())
 end
 
 --------------------------------------------------------------------------------
@@ -512,16 +576,16 @@ function containerProto:LayoutSections(forceLayout)
 	end
 
 	table.sort(orderedSections, CompareSections)
-	
-	local BAG_WIDTH = addon.db.profile.columns
-	local bagWidth = ITEM_SIZE * BAG_WIDTH + ITEM_SPACING * (BAG_WIDTH - 1)
+
+	local content = self.Content
+	local bagWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.columns - ITEM_SPACING
 	local y, realWidth = 0, 0
 
 	while next(orderedSections) do
 		local rowHeight, x = 0, 0
 		local section = tremove(orderedSections, 1)
 		while section do
-			section:SetPoint('TOPLEFT', BAG_INSET + x, - TOP_PADDING - y)
+			section:SetPoint('TOPLEFT', content, "TOPLEFT", x, -y)
 			section:Show()
 
 			local sectionWidth = section:GetWidth()
@@ -534,7 +598,9 @@ function containerProto:LayoutSections(forceLayout)
 		end
 		y = y + rowHeight + ITEM_SPACING
 	end
-
-	self:SetWidth(BAG_INSET * 2 + realWidth)
-	self:SetHeight(BAG_INSET + TOP_PADDING + y - ITEM_SPACING)
+	
+	content:SetWidth(realWidth)
+	content:SetHeight(y - ITEM_SPACING)
+	
+	self:Resize()
 end
