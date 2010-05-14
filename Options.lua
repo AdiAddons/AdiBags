@@ -391,9 +391,16 @@ function addon:InitializeOptions()
 				type = 'execute',
 				order = 100,
 				func = function()
-					InterfaceOptionsFrame.lastFrame = nil
-					InterfaceOptionsFrame:Hide()
-					addon.OpenOptions()
+					-- Close all UIPanels
+					-- Doing InterfaceOptionsFrame.lastFrame = nil here taints the thing, causing weird issues
+					local currentFrame = InterfaceOptionsFrame
+					while currentFrame do
+						local lastFrame = currentFrame.lastFrame
+						HideUIPanel(currentFrame)
+						currentFrame = lastFrame
+					end
+					-- Open the option pane on next update, hopefully after AceConfigDialog tried to close all its windows
+					LibStub('AceTimer-3.0').ScheduleTimer(addonName, addon.OpenOptions, 0)
 				end,
 			},
 			lock = lockOption,
