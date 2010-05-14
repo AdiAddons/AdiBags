@@ -312,6 +312,17 @@ function addon:GetOptions()
 						type = 'toggle',
 						order = 230,
 					},
+					sortingOrder = {
+						name = L['Sorting order'],
+						width = 'double',
+						type = 'select',
+						order = 240,
+						values = {
+							default = L['By category, subcategory, quality and item level (default)'],
+							byName = L['By name'],
+							byQualityAndLevel = L['By quality and item level'],
+						}
+					},
 					_stackHeader = {
 						name = L['Virtual stacks'],
 						type = 'header',

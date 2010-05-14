@@ -120,6 +120,7 @@ function addon:OnInitialize()
 		stackOthers = false,
 		filters = { ['*'] = true },
 		filterPriorities = {},
+		sortingOrder = 'default',
 		modules = { ['*'] = true },
 		backgroundColors = {
 			Backpack = { 0, 0, 0, 1 },
@@ -154,6 +155,8 @@ function addon:OnEnable()
 	self:RawHook('CloseSpecialWindows', true)
 
 	self:RegisterEvent('MAIL_CLOSED', 'CloseAllBags')
+
+	self:SetSortingOrder(self.db.profile.sortingOrder)
 	
 	for name, module in self:IterateModules() do
 		if module.isFilter then
@@ -214,6 +217,8 @@ function addon:ConfigChanged(vars)
 	for name in pairs(vars) do
 		if name:match('^stack') or name == 'filter' or name == 'columns' then
 			return self:SendMessage('AdiBags_FiltersChanged')
+		elseif name == 'sortingOrder' then
+			return self:SetSortingOrder(self.db.profile.sortingOrder)
 		end
 	end
 	self:SendMessage('AdiBags_UpdateAllButtons')

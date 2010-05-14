@@ -137,33 +137,65 @@ local EQUIP_LOCS = {
 	INVTYPE_BAG = 20,
 }
 
-local function CompareItems(idA, idB)
-	local nameA, _, qualityA, levelA, _, classA, subclassA, _, equipSlotA = GetItemInfo(idA)
-	local nameB, _, qualityB, levelB, _, classB, subclassB, _, equipSlotB = GetItemInfo(idB)
-	local equipLocA = EQUIP_LOCS[equipSlotA or ""]
-	local equipLocB = EQUIP_LOCS[equipSlotB or ""]
-	if equipLocA and equipLocB and equipLocA ~= equipLocB then
-		return equipLocA < equipLocB
-	elseif classA ~= classB then
-		return classA < classB
-	elseif subclassA ~= subclassB then
-		return subclassA < subclassB
-	elseif qualityA ~= qualityB then
-		return qualityA > qualityB
-	elseif levelA ~= levelB then
-		return levelA > levelB
-	else
-		return nameA < nameB
-	end
-end
+local sortingFuncs = {
+
+	default = function(idA, idB)
+		local nameA, _, qualityA, levelA, _, classA, subclassA, _, equipSlotA = GetItemInfo(idA)
+		local nameB, _, qualityB, levelB, _, classB, subclassB, _, equipSlotB = GetItemInfo(idB)
+		local equipLocA = EQUIP_LOCS[equipSlotA or ""]
+		local equipLocB = EQUIP_LOCS[equipSlotB or ""]
+		if equipLocA and equipLocB and equipLocA ~= equipLocB then
+			return equipLocA < equipLocB
+		elseif classA ~= classB then
+			return classA < classB
+		elseif subclassA ~= subclassB then
+			return subclassA < subclassB
+		elseif qualityA ~= qualityB then
+			return qualityA > qualityB
+		elseif levelA ~= levelB then
+			return levelA > levelB
+		else
+			return nameA < nameB
+		end
+	end,
+
+	byName = function(idA, idB)
+		return GetItemInfo(idA) < GetItemInfo(idB)
+	end,
+
+	byQualityAndLevel = function(idA, idB)
+		local nameA, _, qualityA, levelA = GetItemInfo(idA)
+		local nameB, _, qualityB, levelB = GetItemInfo(idB)
+		if qualityA ~= qualityB then
+			return qualityA > qualityB
+		elseif levelA ~= levelB then
+			return levelA > levelB
+		else
+			return nameA < nameB
+		end
+	end,
+
+}
+
+local currentSortingFunc = sortingFuncs.default
 
 local itemCompareCache = setmetatable({}, {
 	__index = function(t, key)
-		local result = CompareItems(strsplit(':', key, 2))
+		local result = currentSortingFunc(strsplit(':', key, 2))
 		t[key] = result
 		return result
 	end
 })
+
+function addon:SetSortingOrder(order)
+	local func = sortingFuncs[order]
+	if func and func ~= currentSortingFunc then
+		self:Debug('SetSortingOrder', order, func)
+		currentSortingFunc = func
+		wipe(itemCompareCache)
+		self:SendMessage('AdiBags_FiltersChanged')
+	end
+end
 
 local strformat = string.format
 
@@ -228,6 +260,7 @@ function sectionProto:LayoutButtons(forceLayout)
 	elseif not forceLayout and not self.dirtyLayout then
 		return true
 	end
+	self:Debug('LayoutButtons', forceLayout)
 
 	local width = math.min(self.count, addon.db.profile.columns)
 	local height = math.ceil(self.count / math.max(width, 1))
