@@ -85,8 +85,6 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	self.BagSlotPanel = bagSlotPanel
 	wipe(bagSlots)
 	
-	self:UpdateBackgroundColor()
-
 	local closeButton = CreateFrame("Button", nil, self, "UIPanelCloseButton")
 	self.CloseButton = closeButton
 	closeButton:SetPoint("TOPRIGHT")
@@ -118,6 +116,9 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	local content = CreateFrame("Frame", nil, self)
 	content:SetPoint("TOPLEFT", self.insets.left, -self.insets.top)
 	self.Content = content
+
+	self:UpdateBackgroundColor()
+	self:RegisterPersistentListeners()
 end
 
 function containerProto:ToString() return self.name or self:GetName() end
@@ -133,7 +134,8 @@ end
 
 function containerProto:RegisterUpdateEvents()
 	self.bagUpdateBucket = self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, "BagsUpdated")
-	self:UpdateAllContent(self.fullUpdateRequired)
+	self:UpdateAllContent(self.postponedUpdate)
+	self.postponedUpdate = nil
 end
 
 function containerProto:UnregisterUpdateEvents()
@@ -155,8 +157,9 @@ function containerProto:BagsUpdated(bagIds)
 end
 
 function containerProto:FiltersChanged()
-	if addon.holdYourBreath or not self:IsVisible() then
-		self.fullUpdateRequired = true
+	if addon.holdYourBreath or not self.bagUpdateBucket then
+		self:Debug('Postponing FiltersChanged')
+		self.postponedUpdate = true
 		return
 	end
 	self:Debug('FiltersChanged')
@@ -165,10 +168,6 @@ end
 
 function containerProto:ConfigChanged(event, name)
 	if name:match('^backgroundColors%.') then
-		if addon.holdYourBreath or not self:IsVisible() then
-			self.fullUpdateRequired = true
-			return
-		end
 		self:UpdateBackgroundColor()
 	end
 end
@@ -190,13 +189,12 @@ function containerProto:OnHide()
 end
 
 function containerProto:UpdateAllContent(forceUpdate)
-	self:Debug('UpdateAllContent')
+	self:Debug('UpdateAllContent', forceUpdate)
 	for bag in pairs(self.bagIds) do
 		self:UpdateContent(bag, forceUpdate)
 	end
 	self:UpdateButtons()
 	self:LayoutSections(true)
-	self.fullUpdateRequired = nil
 end
 
 --------------------------------------------------------------------------------
