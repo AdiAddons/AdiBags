@@ -36,3 +36,4 @@ h2. Things that likely will not be implemented
 * alt bags and bank,
 * bag skinning,
 * complete in-game filter/section editor.
+
