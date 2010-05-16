@@ -29,6 +29,6 @@ function mod:OnBagFrameCreated(bag)
 	local frame = bag:GetFrame()	
 	self.widget = CreateFrame("Frame", addonName.."MoneyFrame", frame, "MoneyFrameTemplate")
 	self.widget:SetHeight(19)
-	frame:AddBottomWidget(self.widget, "RIGHT", 50)
+	frame:AddBottomWidget(self.widget, "RIGHT", 50, nil, 13, 0)
 end
 

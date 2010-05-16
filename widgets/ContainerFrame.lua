@@ -223,16 +223,22 @@ function containerProto:AddHeaderWidget(widget, order, width, yOffset, side)
 	region:AddWidget(widget, order, width, 0, yOffset)
 end
 
-function containerProto:AddBottomWidget(widget, side, order, height, yOffset)
+function containerProto:AddBottomWidget(widget, side, order, height, xOffset, yOffset)
 	local region = (side == "RIGHT") and self.BottomRightRegion or self.BottomLeftRegion
-	region:AddWidget(widget, order, height, 0, yOffset)
+	region:AddWidget(widget, order, height, xOffset, yOffset)
 end
 
 function containerProto:OnLayout()
-	local bottom_padding = BAG_INSET + math.max(self.BottomLeftRegion:GetHeight(), self.BottomRightRegion:GetHeight())
+	local bottomHeight = 0
+	if self.BottomLeftRegion:IsShown() then
+		bottomHeight = self.BottomLeftRegion:GetHeight() + BAG_INSET
+	end
+	if self.BottomRightRegion:IsShown() then
+		bottomHeight = math.max(bottomHeight, self.BottomRightRegion:GetHeight() + BAG_INSET)
+	end
 
 	self:SetWidth(BAG_INSET * 2 + self.Content:GetWidth())
-	self:SetHeight(addon.TOP_PADDING + bottom_padding + self.Content:GetHeight())
+	self:SetHeight(addon.TOP_PADDING + BAG_INSET + bottomHeight + self.Content:GetHeight())
 end
 
 --------------------------------------------------------------------------------
