@@ -277,14 +277,44 @@ function stackProto:GetKey()
 	return self.key
 end
 
+function stackProto:UpdateVisibleSlot()
+	local bestLockedId, bestLockedCount
+	local bestUnlockedId, bestUnlockedCount
+	if self.slotId then
+		local _, count, locked = GetContainerItemInfo(GetBagSlotFromId(self.slotId))
+		count = count or 1
+		if locked then
+			bestLockedId, bestLockedCount = self.slotId, count
+		else
+			bestUnlockedId, bestUnlockedCount = self.slotId, count
+		end
+	end
+	for slotId in pairs(self.slots) do
+		local _, count, locked =  GetContainerItemInfo(GetBagSlotFromId(slotId))
+		count = count or 1
+		if locked then
+			if not bestLockedId or count > bestLockedCount then
+				bestLockedId, bestLockedCount = slotId, count
+			end
+		else
+			if not bestUnlockedId or count > bestUnlockedCount then
+				bestUnlockedId, bestUnlockedCount = slotId, count
+			end
+		end
+	end
+	return self:SetVisibleSlot(bestUnlockedId or bestLockedId)
+end
+
+function stackProto:ITEM_LOCK_CHANGED()
+	return self:UpdateVisibleSlot()
+end
+
 function stackProto:AddSlot(slotId)
 	local slots = self.slots
 	if not slots[slotId] then
 		slots[slotId] = true
 		self.dirtyCount = true
-		if not self.slotId then
-			self:SetVisibleSlot(slotId)
-		else
+		if not self:UpdateVisibleSlot() then
 			self:FullUpdate()
 		end
 	end
@@ -295,10 +325,7 @@ function stackProto:RemoveSlot(slotId)
 	if slots[slotId] then
 		slots[slotId] = nil
 		self.dirtyCount = true
-		if slotId == self.slotId then
-			local newSlotId = next(slots)
-			self:SetVisibleSlot(newSlotId)
-		else
+		if not self:UpdateVisibleSlot() then
 			self:FullUpdate()
 		end
 	end
@@ -311,10 +338,12 @@ end
 function stackProto:OnShow()
 	self:RegisterMessage('AdiBags_UpdateAllButtons', 'FullUpdate')
 	self:RegisterMessage('AdiBags_PostContentUpdate')
+	self:RegisterEvent('ITEM_LOCK_CHANGED')	
 	self:FullUpdate()
 end
 
 function stackProto:OnHide()
+	self:UnregisterAllEvents()
 	self:UnregisterAllMessages()
 end
 
@@ -336,6 +365,7 @@ function stackProto:SetVisibleSlot(slotId)
 	end
 	self.button = button
 	self:FullUpdate()
+	return true
 end
 
 function stackProto:FullUpdate()
