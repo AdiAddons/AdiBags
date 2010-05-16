@@ -195,6 +195,7 @@ function mod:EQUIPMENT_SWAP_FINISHED(event)
 end
 
 function mod:UpdateBags(bagIds, event)
+	if self.frozen then return end
 	self:Debug('UpdateBags', event)
 	for name, bag in pairs(bags) do
 		if bag.available then
@@ -264,6 +265,7 @@ function mod:UpdateBags(bagIds, event)
 end
 
 function mod:UpdateInventory(event)
+	if self.frozen then return end
 	self:Debug('UpdateInventory', event)
 
 	-- All equipped items and bags
@@ -279,6 +281,7 @@ function mod:UpdateInventory(event)
 end
 
 function mod:UpdateAll(event)
+	if self.frozen then return end
 	self:Debug('UpdateAll', event)
 	self:UpdateInventory(event)
 	self:UpdateBags(allBagIds, event)
