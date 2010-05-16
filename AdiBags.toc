@@ -30,6 +30,7 @@ AdiBags.lua
 Options.lua
 OO.lua
 
+widgets\LayeredRegion.lua
 widgets\ContainerFrame.lua
 widgets\BagSlots.lua
 widgets\ItemButton.lua

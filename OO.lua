@@ -10,6 +10,8 @@ local addonName, addon = ...
 -- Classes
 --------------------------------------------------------------------------------
 
+local classes = {}
+
 local function Meta_ToString(self)
 	return self:ToString()
 end
@@ -80,8 +82,6 @@ local function NewRootClass(name, frameType, frameTemplate, ...)
 	return class, prototype, parent
 end
 
-local classes = {}
-
 function addon:NewClass(name, frameType, ...)
 	local class, prototype, parent
 	if classes[frameType] then
@@ -91,6 +91,10 @@ function addon:NewClass(name, frameType, ...)
 	end
 	classes[name] = class
 	return class, prototype, parent
+end
+
+function addon:GetClass(name)
+	return name and classes[name]
 end
 
 --------------------------------------------------------------------------------

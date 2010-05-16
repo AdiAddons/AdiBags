@@ -12,7 +12,8 @@ local GetBagSlotFromId = addon.GetBagSlotFromId
 
 local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING
-local SECTION_SPACING = addon. SECTION_SPACING
+local SECTION_SPACING = addon.SECTION_SPACING
+local BAG_INSET = addon.BAG_INSET
 
 --------------------------------------------------------------------------------
 -- Widget scripts
@@ -30,13 +31,16 @@ end
 -- Bag creation
 --------------------------------------------------------------------------------
 
-local containerClass, containerProto = addon:NewClass("Container", "Frame", "AceEvent-3.0", "AceBucket-3.0")
+local containerClass, containerProto, containerParentProto = addon:NewClass("Container", "LayeredRegion", "AceEvent-3.0", "AceBucket-3.0")
 
 function addon:CreateContainerFrame(...) return containerClass:Create(...) end
 
+local SimpleLayeredRegion = addon:GetClass("SimpleLayeredRegion")
+
 local bagSlots = {}
 function containerProto:OnCreate(name, bagIds, isBank, anchor)
-	self:SetParent(anchor)
+	containerParentProto.OnCreate(self, anchor)
+
 	self:EnableMouse(true)
 	self:SetFrameStrata("HIGH")
 
@@ -55,16 +59,6 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	self.stacks = {}
 	self.sections = {}
 
-	self.headerWidgets = {}
-	self.bottomWidgets = { LEFT = {}, RIGHT = {} }
-
-	self.insets = {
-		top = addon.TOP_PADDING,
-		left = addon.BAG_INSET,
-		right = addon.BAG_INSET,
-		bottom = addon.BAG_INSET,
-	}
-
 	self.added = {}
 	self.removed = {}
 	self.changed = {}
@@ -80,11 +74,26 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 		end
 	end
 
+	local headerRegion = SimpleLayeredRegion:Create(self, "TOPRIGHT", "LEFT", 4)
+	headerRegion:SetPoint("TOPRIGHT", -32, -5)
+	self.HeaderRegion = headerRegion
+	self:AddWidget(headerRegion)
+	
+	local bottomLeftRegion = SimpleLayeredRegion:Create(self, "BOTTOMLEFT", "UP", 4)
+	bottomLeftRegion:SetPoint("BOTTOMLEFT", BAG_INSET, BAG_INSET)
+	self.BottomLeftRegion = bottomLeftRegion
+	self:AddWidget(bottomLeftRegion)
+
+	local bottomRightRegion = SimpleLayeredRegion:Create(self, "BOTTOMRIGHT", "UP", 4)
+	bottomRightRegion:SetPoint("BOTTOMRIGHT", -BAG_INSET, BAG_INSET)
+	self.BottomRightRegion = bottomRightRegion
+	self:AddWidget(bottomRightRegion)
+
 	local bagSlotPanel = addon:CreateBagSlotPanel(self, name, bagSlots, isBank)
 	bagSlotPanel:Hide()
 	self.BagSlotPanel = bagSlotPanel
 	wipe(bagSlots)
-	
+
 	local closeButton = CreateFrame("Button", nil, self, "UIPanelCloseButton")
 	self.CloseButton = closeButton
 	closeButton:SetPoint("TOPRIGHT")
@@ -98,7 +107,7 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	bagSlotButton.panel = bagSlotPanel
 	bagSlotButton:SetWidth(18)
 	bagSlotButton:SetHeight(18)
-	bagSlotButton:SetPoint("TOPLEFT", addon.BAG_INSET, -addon.BAG_INSET)
+	bagSlotButton:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
 	addon.SetupTooltip(bagSlotButton, {
 		L["Equipped bags"],
 		L["Click to toggle the equipped bag panel, so you can change them."]
@@ -111,11 +120,12 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	title:SetHeight(18)
 	title:SetJustifyH("LEFT")
 	title:SetPoint("TOPLEFT", bagSlotButton, "TOPRIGHT", 4, 0)
-	title:SetPoint("RIGHT", -36, 0)
+	title:SetPoint("RIGHT", headerRegion, "LEFT", -4, 0)
 	
 	local content = CreateFrame("Frame", nil, self)
-	content:SetPoint("TOPLEFT", self.insets.left, -self.insets.top)
+	content:SetPoint("TOPLEFT", BAG_INSET, -addon.TOP_PADDING)
 	self.Content = content
+	self:AddWidget(content)
 
 	self:UpdateBackgroundColor()
 	self:RegisterPersistentListeners()
@@ -173,6 +183,7 @@ function containerProto:ConfigChanged(event, name)
 end
 
 function containerProto:OnShow()
+	containerParentProto.OnShow(self)
 	PlaySound(self.isBank and "igMainMenuOpen" or "igBackPackOpen")
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "UnregisterUpdateEvents")
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "RegisterUpdateEvents")
@@ -180,6 +191,7 @@ function containerProto:OnShow()
 end
 	
 function containerProto:OnHide()
+	containerParentProto.OnHide(self)
 	PlaySound(self.isBank and "igMainMenuClose" or "igBackPackClose")
 	self.bagUpdateBucket = nil
 	self:UnregisterAllEvents()
@@ -198,90 +210,23 @@ function containerProto:UpdateAllContent(forceUpdate)
 end
 
 --------------------------------------------------------------------------------
--- Bag header layout
+-- Regions and global layout
 --------------------------------------------------------------------------------
-
-local function CompareWidgets(a, b)
-	return a._order > b._order
-end
-
-local function HeaderWidget_VisibilityChanged(widget)
-	local isShown = not not widget:IsShown()
-	if isShown ~= widget._isShown then
-		widget._isShown = isShown
-		widget._container:LayoutHeaderWidgets()
-	end
-end
 
 function containerProto:AddHeaderWidget(widget, order, width, yOffset)
-	widget._container = self
-	widget._order = order or 0
-	widget._width = width
-	widget._yOffset = yOffset or 0
-	widget:HookScript('OnShow', HeaderWidget_VisibilityChanged)
-	widget:HookScript('OnHide', HeaderWidget_VisibilityChanged)
-	tinsert(self.headerWidgets, widget)
-	table.sort(self.headerWidgets, CompareWidgets)
-	HeaderWidget_VisibilityChanged(widget)
-end
-
-function containerProto:LayoutHeaderWidgets()
-	local x = 32
-	for i, widget in ipairs(self.headerWidgets) do
-		if widget._isShown then
-			widget:ClearAllPoints()
-			widget:SetPoint("TOPRIGHT", self, "TOPRIGHT", -x, -5 + widget._yOffset)
-			x = x + (widget._width or widget:GetWidth()) + 4
-		end
-	end
-	self.Title:SetPoint("RIGHT", -x, 0)
-end
-
---------------------------------------------------------------------------------
--- Bottom widgets layout
---------------------------------------------------------------------------------
-
-local function BottomWidget_VisibilityChanged(widget)
-	local isShown = not not widget:IsShown()
-	if isShown ~= widget._isShown then
-		widget._isShown = isShown
-		widget._container:LayoutBottomWidgets()
-	end
+	return self.HeaderRegion:AddWidget(widget, order, width, 0, yOffset)
 end
 
 function containerProto:AddBottomWidget(widget, side, order, height, yOffset)
-	widget._container = self
-	widget._order = order or 0
-	widget._yOffset = yOffset or 0
-	widget._height = height
-	widget:HookScript('OnShow', BottomWidget_VisibilityChanged)
-	widget:HookScript('OnHide', BottomWidget_VisibilityChanged)
-	side = side == "RIGHT" and "RIGHT" or "LEFT"
-	tinsert(self.bottomWidgets[side], widget)
-	table.sort(self.bottomWidgets[side], CompareWidgets)
-	BottomWidget_VisibilityChanged(widget)
+	local region = (side == "RIGHT") and self.BottomRightRegion or self.BottomLeftRegion
+	return region:AddWidget(widget, order, height, 0, yOffset)
 end
 
-local function LayoutBottomWidget(self, widgets, anchor, offsetX, offsetY)
-	local y = 0
-	for index, widget in ipairs(widgets) do
-		if widget:IsShown() then
-			widget:ClearAllPoints()
-			if y > 0 then y = y + ITEM_SPACING end
-			widget:SetPoint(anchor, self, offsetX, y + offsetY + widget._yOffset)
-			y = y + (widget._height or widget:GetHeight())
-		end
-	end
-	return y
-end
+function containerProto:OnLayout()
+	local bottom_padding = BAG_INSET + math.max(self.BottomLeftRegion:GetHeight(), self.BottomRightRegion:GetHeight())
 
-function containerProto:LayoutBottomWidgets()
-	local inset = addon.BAG_INSET
-	self.insets.bottom = inset + math.max(
-		LayoutBottomWidget(self, self.bottomWidgets.LEFT, "BOTTOMLEFT", self.insets.left, inset),
-		LayoutBottomWidget(self, self.bottomWidgets.RIGHT, "BOTTOMRIGHT", self.insets.right, inset)
-	)
-	self:Resize()
+	self:SetWidth(BAG_INSET * 2 + self.Content:GetWidth())
+	self:SetHeight(addon.TOP_PADDING + bottom_padding + self.Content:GetHeight())
 end
 
 --------------------------------------------------------------------------------
@@ -294,11 +239,6 @@ function containerProto:UpdateBackgroundColor()
 	self:SetBackdropBorderColor(0.5, 0.5, 0.5, a)
 	self.BagSlotPanel:SetBackdropColor(r, g, b, a)
 	self.BagSlotPanel:SetBackdropBorderColor(0.5, 0.5, 0.5, a)
-end
-
-function containerProto:Resize()
-	self:SetWidth(self.insets.left + self.insets.right + self.Content:GetWidth())
-	self:SetHeight(self.insets.top + self.insets.bottom + self.Content:GetHeight())
 end
 
 --------------------------------------------------------------------------------
@@ -599,6 +539,4 @@ function containerProto:LayoutSections(forceLayout)
 	
 	content:SetWidth(realWidth)
 	content:SetHeight(y - ITEM_SPACING)
-	
-	self:Resize()
 end
