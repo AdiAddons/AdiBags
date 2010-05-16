@@ -28,6 +28,7 @@ function mod:OnBagFrameCreated(bag)
 	if bag.bagName ~= "Backpack" then return end	
 	local frame = bag:GetFrame()	
 	self.widget = CreateFrame("Frame", addonName.."MoneyFrame", frame, "MoneyFrameTemplate")
-	frame:AddBottomWidget(self.widget, "RIGHT", 50, 19, -7)
+	self.widget:SetHeight(19)
+	frame:AddBottomWidget(self.widget, "RIGHT", 50)
 end
 
