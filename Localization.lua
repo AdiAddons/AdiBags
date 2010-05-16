@@ -20,12 +20,16 @@ local L = setmetatable({}, {
 })
 addon.L = L
 
+-- AH (sub)categories
 L["Ammunition"] = true
 L["Consumable"] = true
 L["Miscellaneous"] = true
 L["Junk"] = true
 L["Trade Goods"] = true
 L["Gem"] = true
+L["Quest"] = true
+-- End of AH (sub)categories
+
 L["Equipment"] = true
 L["Soul shards"] = true
 L["New"] = true
@@ -56,6 +60,8 @@ if GetLocale() == "frFR" then
 	L["Junk"] = "Camelote"
 	L["Trade Goods"] = "Artisanat"
 	L["Gem"] = "Gemme"
+	L["Quest"] = "Quête"
+
 	L["Equipment"] = "Equipement"
 	L["Soul shards"] = "Fragments d'âme"
 	L["New"] = "Nouveau"

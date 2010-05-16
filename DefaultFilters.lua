@@ -80,7 +80,7 @@ function addon:SetupDefaultFilters()
 	-- [70] Low quality items
 	do
 		local lowQualityPattern = string.format('%s|Hitem:%%d+:0:0:0:0', ITEM_QUALITY_COLORS[ITEM_QUALITY_POOR].hex)
-		local junkFilter = addon:RegisterFilter('Junk', 70, function(filter, slotData) -- L["Junk"]
+		local junkFilter = addon:RegisterFilter('Junk', 70, function(filter, slotData)
 			if slotData.class == L['Junk'] or slotData.subclass == L['Junk'] or slotData.link:match(lowQualityPattern) then
 				return L['Junk']
 			end
@@ -89,8 +89,22 @@ function addon:SetupDefaultFilters()
 		junkFilter.uiDesc = L['Put items of poor quality or labeled as junk in the "Junk" section.']
 	end
 
+	-- [75] Quest Items
+	do
+		local questItemFilter = addon:RegisterFilter('Quest', 75, function(filter, slotData)
+			if slotData.class == L['Quest'] or slotData.subclass == L['Quest'] then
+				return L['Quest']
+			else
+				local isQuestItem, questId = GetContainerItemQuestInfo(slotData.bag, slotData.slot)
+				return (questId or isQuestItem) and L['Quest']
+			end
+		end)
+		questItemFilter.uiName = L['Quest Items']
+		questItemFilter.uiDesc = L['Put quest-related items in their own section.']
+	end
+
 	-- [60] Equipment
-	local equipmentFilter = addon:RegisterFilter('Equipment', 60, function(filter, slotData) -- L["Equipement"]
+	local equipmentFilter = addon:RegisterFilter('Equipment', 60, function(filter, slotData)
 		if slotData.equipSlot and slotData.equipSlot ~= "" then
 			return L['Equipment']
 		end
@@ -100,7 +114,7 @@ function addon:SetupDefaultFilters()
 
 	-- [10] Item classes
 	do
-		local itemCat = addon:RegisterFilter('ItemCategory', 10) --L["ItemCategory"]
+		local itemCat = addon:RegisterFilter('ItemCategory', 10)
 		itemCat.uiName = L['Item category']
 		itemCat.uiDesc = L['Put items in sections depending on their first-level category at the Auction House.']
 
