@@ -17,18 +17,30 @@ _G[addonName] = addon
 --------------------------------------------------------------------------------
 
 if tekDebug then
+	local type, tostring, select, unpack, strjoin = type, tostring, select, unpack, string.join
+	local function TableToString(t)
+		return (t == addon and 'Core')
+			or (type(t.ToString) == "function" and t:ToString())
+			or (type(t.GetName) == "function" and t:GetName())
+			or t.moduleName
+			or t.name
+			or tostring(t)
+	end
+	local t = {}
+	local function MyToStringAll(...)
+		local n = select('#', ...)
+		if n > 0 then
+			for i = 1, n do
+				local value = select(i, ...)
+				t[i] = type(value) == "table" and TableToString(value) or tostring(value)
+			end
+			return unpack(t, 1, n)
+		end
+	end
+
 	local frame = tekDebug:GetFrame(addonName)
 	function addon:Debug(...)
-		if self.ToString then
-			self = self:ToString()
-		elseif self.GetName then
-			self = self:GetName()
-		elseif self == addon then
-			self = 'Core'
-		else
-			self = self.moduleName or self.name or tostring(self)
-		end
-		frame:AddMessage(string.join(" ", "|cffff7700["..self.."]|r", tostringall(...)))
+		frame:AddMessage(strjoin(" ", "|cffff7700["..TableToString(self).."]|r", MyToStringAll(...)))
 	end
 else
 	function addon.Debug() end
