@@ -74,10 +74,15 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 		end
 	end
 
-	local headerRegion = SimpleLayeredRegion:Create(self, "TOPRIGHT", "LEFT", 4)
-	headerRegion:SetPoint("TOPRIGHT", -32, -5)
-	self.HeaderRegion = headerRegion
-	self:AddWidget(headerRegion)
+	local headerLeftRegion = SimpleLayeredRegion:Create(self, "TOPLEFT", "RIGHT", 4)
+	headerLeftRegion:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
+	self.HeaderLeftRegion = headerLeftRegion
+	self:AddWidget(headerLeftRegion)
+
+	local headerRightRegion = SimpleLayeredRegion:Create(self, "TOPRIGHT", "LEFT", 4)
+	headerRightRegion:SetPoint("TOPRIGHT", -32, -BAG_INSET)
+	self.HeaderRightRegion = headerRightRegion
+	self:AddWidget(headerRightRegion)
 	
 	local bottomLeftRegion = SimpleLayeredRegion:Create(self, "BOTTOMLEFT", "UP", 4)
 	bottomLeftRegion:SetPoint("BOTTOMLEFT", BAG_INSET, BAG_INSET)
@@ -96,7 +101,7 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 
 	local closeButton = CreateFrame("Button", nil, self, "UIPanelCloseButton")
 	self.CloseButton = closeButton
-	closeButton:SetPoint("TOPRIGHT")
+	closeButton:SetPoint("TOPRIGHT", -2, -2)
 	addon.SetupTooltip(closeButton, L["Close"])
 
 	local bagSlotButton = CreateFrame("CheckButton", nil, self)
@@ -107,20 +112,20 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	bagSlotButton.panel = bagSlotPanel
 	bagSlotButton:SetWidth(18)
 	bagSlotButton:SetHeight(18)
-	bagSlotButton:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
 	addon.SetupTooltip(bagSlotButton, {
 		L["Equipped bags"],
 		L["Click to toggle the equipped bag panel, so you can change them."]
 	}, "ANCHOR_BOTTOMLEFT", -8, 0)
+	headerLeftRegion:AddWidget(bagSlotButton, 50)
 
-	local title = self:CreateFontString(nil,"OVERLAY","GameFontHighlightLarge")
+	local title = self:CreateFontString(self:GetName().."Title","OVERLAY","GameFontHighlightLarge")
 	self.Title = title
 	title:SetText(L[name])
 	title:SetTextColor(1, 1, 1)
 	title:SetHeight(18)
 	title:SetJustifyH("LEFT")
-	title:SetPoint("TOPLEFT", bagSlotButton, "TOPRIGHT", 4, 0)
-	title:SetPoint("RIGHT", headerRegion, "LEFT", -4, 0)
+	title:SetPoint("LEFT", headerLeftRegion, "RIGHT", 4, 0)
+	title:SetPoint("RIGHT", headerRightRegion, "LEFT", -4, 0)
 	
 	local content = CreateFrame("Frame", nil, self)
 	content:SetPoint("TOPLEFT", BAG_INSET, -addon.TOP_PADDING)
@@ -213,13 +218,14 @@ end
 -- Regions and global layout
 --------------------------------------------------------------------------------
 
-function containerProto:AddHeaderWidget(widget, order, width, yOffset)
-	return self.HeaderRegion:AddWidget(widget, order, width, 0, yOffset)
+function containerProto:AddHeaderWidget(widget, order, width, yOffset, side)
+	local region = (side == "LEFT") and self.HeaderLeftRegion or self.HeaderRightRegion
+	region:AddWidget(widget, order, width, 0, yOffset)
 end
 
 function containerProto:AddBottomWidget(widget, side, order, height, yOffset)
 	local region = (side == "RIGHT") and self.BottomRightRegion or self.BottomLeftRegion
-	return region:AddWidget(widget, order, height, 0, yOffset)
+	region:AddWidget(widget, order, height, 0, yOffset)
 end
 
 function containerProto:OnLayout()
