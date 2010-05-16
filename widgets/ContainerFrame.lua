@@ -404,14 +404,14 @@ function containerProto:UpdateButtons()
 	end
 
 	if next(added) then
-		self:SendMessage('AgiBags_PreFilter', self)
+		self:SendMessage('AdiBags_PreFilter', self)
 		for slotId, slotData in pairs(added) do
 			self:DispatchItem(slotData)
 			--@debug@
 			numAdded = numAdded + 1
 			--@end-debug@
 		end
-		self:SendMessage('AgiBags_PostFilter', self)
+		self:SendMessage('AdiBags_PostFilter', self)
 	end
 
 	-- Just push the buttons into dirtyButtons

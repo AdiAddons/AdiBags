@@ -39,6 +39,7 @@ function buttonProto:OnAcquire(container, bag, slot)
 	self:SetParent(addon.itemParentFrames[bag])
 	self:SetID(slot)
 	self.itemId = GetContainerItemID(bag, slot)
+	self.itemLink = GetContainerItemLink(bag, slot)
 	self.hasItem = not not self.itemId
 	self.texture = GetContainerItemInfo(bag, slot)
 	self.bagFamily = select(2, GetContainerNumFreeSlots(bag))
@@ -97,12 +98,21 @@ function buttonProto:GetItemId()
 	return self.itemId
 end
 
+function buttonProto:GetItemLink()
+	return self.itemLink
+end
+
 function buttonProto:GetCount()
 	return select(2, GetContainerItemInfo(self.bag, self.slot))
 end
 
 function buttonProto:GetBagFamily()
 	return self.bagFamily
+end
+
+local BANK_BAG_IDS = addon.BAG_IDS.BANK
+function buttonProto:IsBank()
+	return not not BANK_BAG_IDS[self.bag]
 end
 
 function buttonProto:IsStack()
@@ -353,6 +363,14 @@ end
 
 function stackProto:GetItemId()
 	return self.button and self.button:GetItemId()
+end
+
+function stackProto:GetItemLink()
+	return self.button and self.button:GetItemLink()
+end
+
+function stackProto:IsBank()
+	return self.button and self.button:IsBank()
 end
 
 function stackProto:GetBagFamily()

@@ -60,8 +60,13 @@ do
 	-- Bank bags
 	local BANK = { [BANK_CONTAINER] = BANK_CONTAINER }
 	for i = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do BANK[i] = i end
+	
+	-- All bags
+	local ALL = {}
+	for id in pairs(BAGS) do ALL[id] = id end
+	for id in pairs(BANK) do ALL[id] = id end
 
-	addon.BAG_IDS = { BAGS = BAGS, BANK = BANK }
+	addon.BAG_IDS = { BAGS = BAGS, BANK = BANK, ALL = ALL }
 end
 
 local FAMILY_TAGS = {
@@ -390,7 +395,7 @@ function addon:IterateBags(onlyOpen)
 	if onlyOpen then
 		return IterateOpenBags, bags, 0
 	else
-		return ipairs, bags
+		return ipairs(bags)
 	end
 end
 
