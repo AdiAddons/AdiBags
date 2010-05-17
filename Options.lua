@@ -127,6 +127,13 @@ local function AddFilterOptions(filter)
 		disabled = function() return not filter:IsEnabled() end,
 	}
 	if filter.GetFilterOptions then
+		filterOptions[name..'configure'] = {
+			name = L['Configure'],
+			type = 'execute',
+			order = filterOrder + 4,
+			func = function() AceConfigDialog:SelectGroup(addonName, "filters", name) end,
+			disabled = function() return not filter:IsEnabled() end,
+		}
 		local filterOpts, handler = filter:GetFilterOptions()
 		filterOptions[name] = {
 			name = filter.uiName or L[name] or name,
@@ -134,6 +141,14 @@ local function AddFilterOptions(filter)
 			order = filterOrder * 10,
 			handler = handler,
 			args = filterOpts,
+		}
+	elseif filter.GetOptions then
+		filterOptions[name..'configure'] = {
+			name = L['Configure'],
+			type = 'execute',
+			order = filterOrder + 4,
+			func = function() AceConfigDialog:SelectGroup(addonName, "modules", name) end,
+			disabled = function() return not filter:IsEnabled() end,
 		}
 	end
 	filterOrder = filterOrder + 10
@@ -166,6 +181,15 @@ local function AddModuleOptions(module)
 				if value then module:Enable() else module:Disable() end
 			end,
 		}
+		if module.GetOptions then
+			moduleOptions[name..'configure'] = {
+				name = L['Configure'],
+				type = 'execute',
+				order = moduleOrder + 3,
+				func = function() AceConfigDialog:SelectGroup(addonName, "modules", name) end,
+				disabled = function() return not module:IsEnabled() end,
+			}	
+		end
 	end
 	if module.GetOptions then
 		local moduleOpts, handler = module:GetOptions()
@@ -425,5 +449,6 @@ function addon:InitializeOptions()
 end
 
 function addon.OpenOptions()
+	AceConfigDialog:SetDefaultSize(addonName, 800, 600)
 	AceConfigDialog:Open(addonName)
 end
