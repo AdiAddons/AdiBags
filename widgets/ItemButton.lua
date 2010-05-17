@@ -213,18 +213,26 @@ function buttonProto:UpdateBorder()
 			texture = TEXTURE_ITEM_QUEST_BORDER
 		elseif addon.db.profile.qualityHighlight then
 			local _, _, quality = GetItemInfo(self.itemId)
-			if quality ~= ITEM_QUALITY_COMMON then
+			if quality >= ITEM_QUALITY_UNCOMMON then
 				r, g, b = GetItemQualityColor(quality)
 				a = addon.db.profile.qualityOpacity
 				texture, x1, x2, y1, y2 = [[Interface\Buttons\UI-ActionButton-Border]], 14/64, 49/64, 15/64, 50/64
-				blendMode = (quality == ITEM_QUALITY_POOR) and "MOD" or "ADD"
+				blendMode = "ADD"
+			elseif quality == ITEM_QUALITY_POOR then
+				local v = 1 - 0.5 * addon.db.profile.qualityOpacity
+				texture, blendMode, r, g, b = true, "MOD", v, v, v
 			end
 		end
 		if texture then
 			local border = self.IconQuestTexture
-			border:SetTexture(texture)
+			if texture == true then
+				border:SetVertexColor(1, 1, 1, 1)
+				border:SetTexture(r, g, b, a)
+			else
+				border:SetTexture(texture)
+				border:SetVertexColor(r, g, b, a)
+			end
 			border:SetTexCoord(x1, x2, y1, y2)
-			border:SetVertexColor(r, g, b, a)
 			border:SetBlendMode(blendMode)
 			return border:Show()
 		end
