@@ -9,7 +9,7 @@ local L = addon.L
 
 local mod = addon:RegisterFilter("mod", 95, "AceEvent-3.0")
 mod.uiName = L['Manual filtering']
-mod.uiDesc = L['Allow you ']
+mod.uiDesc = L['Allow you manually redefine the section in which an item should be put. Simply drag an item on the section title.']
 
 local buttons = {}
 
@@ -44,6 +44,34 @@ function mod:HookSection(event, section)
 	local button = self:NewHeaderButton(section)
 	button:Show()
 	buttons[button] = true
+end
+
+local strsplit, strformat = string.split, string.format
+local t = {}
+function mod:GetOptions()
+	return {
+		overrides = {
+			name = L['Item-section associations'],
+			desc = L['Uncheck this to remove this association.'],
+			type = 'multiselect',
+			confirm = true,
+			confirmText = L['Are you sure you want to remove this association ?'],
+			get = function(info, key)
+				return not not info.handler:Get(info, key)
+			end,
+			set = function(info, key, value)
+				return info.handler:Set(info, key, value and self.db.profile.overrides[itemId] or nil)
+			end,
+			values = function()
+				wipe(t)
+				for itemId, override in pairs(self.db.profile.overrides) do
+					local section, category = strsplit('#', tostring(override))
+					t[itemId] = strformat("%s: %s", GetItemInfo(itemId), tostring(section))
+				end
+				return t
+			end,
+		}
+	}, addon:GetOptionHandler(self)
 end
 
 function mod:Filter(slotData)
