@@ -213,10 +213,11 @@ function buttonProto:UpdateBorder()
 			texture = TEXTURE_ITEM_QUEST_BORDER
 		elseif addon.db.profile.qualityHighlight then
 			local _, _, quality = GetItemInfo(self.itemId)
-			if quality >= ITEM_QUALITY_UNCOMMON then
+			if quality ~= ITEM_QUALITY_COMMON then
 				r, g, b = GetItemQualityColor(quality)
-				texture, x1, x2, y1, y2, blendMode = [[Interface\Buttons\UI-ActionButton-Border]], 14/64, 49/64, 15/64, 50/64, "ADD"
 				a = addon.db.profile.qualityOpacity
+				texture, x1, x2, y1, y2 = [[Interface\Buttons\UI-ActionButton-Border]], 14/64, 49/64, 15/64, 50/64
+				blendMode = (quality == ITEM_QUALITY_POOR) and "MOD" or "ADD"
 			end
 		end
 		if texture then

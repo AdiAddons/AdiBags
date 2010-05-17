@@ -70,7 +70,7 @@ end
 
 local function NewRootClass(name, frameType, frameTemplate, ...)
 	local class, prototype, parent
-	if LibStub(frameTemplate, true) then
+	if frameTemplate and LibStub(frameTemplate, true) then
 		class, prototype, parent = NewClass(name, CreateFrame(frameType), frameTemplate, ...)
 		frameTemplate = nil
 	else
@@ -103,52 +103,75 @@ end
 
 local pools = {}
 
-local function Pool_Acquire(pool, ...)
-	local class = pool.class
-	local self = next(pool.heap)
-	if self then
-		pool.heap[self] = nil
+local poolProto = {}
+local poolMeta = { __index = poolProto }
+
+function poolProto:Acquire(...)
+	local object = next(self.heap)
+	if object then
+		self.heap[object] = nil
 	else
-		self = class:Create()
+		object = self.class:Create()
 	end
-	for name, mixin in pairs(class.mixins) do
+	self.actives[object] = true
+	for name, mixin in pairs(self.class.mixins) do
 		if mixin.OnEmbedEnable then
-			mixin:OnEmbedEnable(self)
+			mixin:OnEmbedEnable(object)
 		end
 	end
-	if self.OnAcquire then
-		self:OnAcquire(...)
+	if object.OnAcquire then
+		object:OnAcquire(...)
 	end
-	return self
+	return object
 end
 
-local function Pool_Release(pool, self)
-	self:Hide()
-	self:ClearAllPoints()
-	self:SetParent(nil)
-	if self.OnRelease then
-		self:OnRelease()
+function poolProto:Release(object)
+	object:Hide()
+	object:ClearAllPoints()
+	object:SetParent(nil)
+	if object.OnRelease then
+		object:OnRelease()
 	end
-	local class = pool.class
-	for name, mixin in pairs(class.mixins) do
+	for name, mixin in pairs(self.class.mixins) do
 		if mixin.OnEmbedDisable then
-			mixin:OnEmbedDisable(self)
+			mixin:OnEmbedDisable(object)
 		end
 	end
-	pool.heap[self] = true
+	self.actives[object] = nil
+	self.heap[object] = true
+end
+
+local function PoolIterator(data, current)
+	current = next(data.pool[data.attribute], current)
+	if current == nil and data.attribute == "heap" then
+		data.attribute = "actives"
+		return next(data.pool.actives)
+	end
+	return current
+end
+
+function poolProto:IterateAllObjects()
+	return PoolIterator, { pool = self, attribute = "heap" }
+end
+
+function poolProto:IterateHeap()
+	return pairs(self.heap)
+end
+
+function poolProto:IterateActiveObjects()
+	return pairs(self.actives)
 end
 
 local function Instance_Release(self)
-	return Pool_Release(self.class.pool, self)
+	return self.class.pool:Release(self)
 end
 
 function addon:CreatePool(class, acquireMethod)
-	local pool = {
+	local pool = setmetatable({
 		heap = {},
+		actives = {},
 		class = class,
-		Acquire = Pool_Acquire,
-		Release = Pool_Release,
-	}
+	}, poolMeta)
 	class.pool = pool
 	class.prototype.Release = Instance_Release
 	pools[class.name] = pool
@@ -156,6 +179,10 @@ function addon:CreatePool(class, acquireMethod)
 		self[acquireMethod] = function(self, ...) return pool:Acquire(...) end
 	end
 	return pool
+end
+
+function addon:GetPool(name)
+	return name and pools[name]
 end
 
 --@debug@
@@ -167,11 +194,14 @@ function SlashCmdList.ADIBAGSOODEBUG()
 	end
 	print('Pools:')
 	for name, pool in pairs(pools) do
-		local heapSize = 0
+		local heapSize, numActives = 0, 0
+		for k in pairs(pool.activtes) do
+			numActives = numActives + 1
+		end
 		for k in pairs(pool.heap) do
 			heapSize = heapSize + 1
 		end
-		print(string.format("- %s: heap size: %d", name, heapSize))
+		print(string.format("- %s: heap size: %d, number of active objects: %d", name, heapSize, numActives))
 	end
 end
 --@end-debug@

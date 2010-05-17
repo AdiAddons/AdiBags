@@ -34,12 +34,13 @@ function sectionProto:OnCreate()
 	header:SetPoint("TOPLEFT", 0, 0)
 	header:SetPoint("TOPRIGHT", SECTION_SPACING - ITEM_SPACING, 0)
 	header:SetHeight(HEADER_SIZE)
-	self.header = header
+	self.Header = header
+	addon:SendMessage('AdiBags_SectionCreated', self)
 end
 
 function sectionProto:OnAcquire(container, name)
 	self:SetParent(container)
-	self.header:SetText(name)
+	self.Header:SetText(name)
 	self.name = name
 	self.order = SECTION_ORDER[name] or 0
 	self.width = 0
