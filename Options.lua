@@ -87,6 +87,7 @@ end
 -- Filter & plugin options
 --------------------------------------------------------------------------------
 
+--[[
 local options, filterOptions, moduleOptions
 
 local filterOrder = 10
@@ -203,13 +204,130 @@ local function AddModuleOptions(module)
 	end
 	moduleOrder = moduleOrder + 10
 end
+--]]
 
-local function OnModuleCreated(self, module)
-	if module.isFilter then
-		AddFilterOptions(module)
+local options
+local filterOptions, moduleOptions = {}, {}
+
+local OnModuleCreated
+
+do
+	local filters = {
+		options = filterOptions,
+		count = 0,
+		nameAttribute = "filterName",
+		dbKey = "filters",
+		optionPath = "filters",
+	}
+	local modules = {
+		options = moduleOptions,
+		count = 0,
+		nameAttribute = "moduleName",
+		dbKey = "modules",
+		optionPath = "modules",
+	}
+
+	function OnModuleCreated(self, module)
+		if module.isBag and not module.isFilter and not module.GetOptions then
+			return
+		end
+	
+		local data = module.isFilter and filters or modules
+		local name = module[data.nameAttribute]
+
+		local baseOptions = {
+			name = module.uiName or L[name] or name,
+			desc = module.uiDesc,
+			type = 'group',
+			inline = true,
+			order = 100 + data.count,
+			args = {
+				enabled = {
+					name = L['Enabled'],
+					desc = L['Check to enable this module.'],
+					type = 'toggle',
+					order = 20,
+					get = function(info) return addon.db.profile[data.dbKey][name] end,
+					set = function(info, value)
+						addon.db.profile[data.dbKey][name] = value
+						if value then module:Enable() else module:Disable() end
+					end,
+				},
+			}
+		}
+		local extendedOptions
+		
+		if module.cannotDisable then
+			baseOptions.args.enabled.disabled = true
+		end
+		if module.uiDesc then
+			baseOptions.args.description = {
+				name = module.uiDesc,
+				type = 'description',
+				order = 10,
+			}
+		end
+		if module.isFilter then
+			baseOptions.args.priority = {
+				name = L['Priority'],
+				type = 'range',
+				order = 30,
+				min = 0,
+				max = 100,
+				step = 1,
+				bigStep = 5,
+				get = function(info) return module:GetPriority() end,
+				set = function(info, value) module:SetPriority(value) end,
+				disabled = function() return not module:IsEnabled() end,
+			}
+		end
+		
+		if module.GetOptions then
+			local opts, handler = module:GetOptions()
+			extendedOptions = {
+				handler = handler,
+				args = opts,
+			}
+		elseif module.GetFilterOptions then
+			local opts, handler = module:GetFilterOptions()
+			extendedOptions = {
+				handler = handler,
+				args = opts,
+			}
+		end
+
+		data.options[name..'Basic'] = baseOptions		
+
+		if extendedOptions then
+			extendedOptions.name = module.uiName or L[name] or name
+			extendedOptions.desc = module.uiDesc
+			extendedOptions.type = "group"
+			extendedOptions.order = 1000 + data.count
+			extendedOptions.disabled = function() return not module:IsEnabled() end
+			data.options[name] = extendedOptions
+			
+			if module.uiDesc then
+				extendedOptions.args.description = {
+					name = module.uiDesc,
+					type = 'description',
+					order = 1,
+				}
+			end
+			
+			baseOptions.args.configure = {
+				name = L["Configure"],
+				type = 'execute',
+				func = function() AceConfigDialog:SelectGroup(addonName, data.optionPath, name) end,
+				disabled = function() return not module:IsEnabled() end,
+			}
+		end
+		data.count = data.count + 1
 	end
-	if module.GetOptions or (not module.isFilter and not module.isBag and not module.cannotDisable) then
-		AddModuleOptions(module)
+end	
+
+local function UpdateFilterOrder()
+	for index, filter in addon:IterateFilters() do
+		filterOptions[filter.filterName .. 'Basic'].order = 200 - filter:GetPriority()
 	end
 end
 
@@ -218,7 +336,7 @@ end
 --------------------------------------------------------------------------------
 
 local lockOption = {
-	name = function() 
+	name = function()
 		return addon:AreMovablesLocked() and L["Unlock anchor"] or L["Lock anchor"]
 	end,
 	desc = L["Click to toggle the bag anchor."],
@@ -235,14 +353,11 @@ local lockOption = {
 
 function addon:GetOptions()
 	if options then return options end
-	filterOptions = {
-		_desc = {
-			name = L['Filters are used to dispatch items in bag sections. One item can only appear in one section. If the same item is selected by several filters, the one with the highest priority wins.'],
-			type = 'description',
-			order = 1,
-		},
+	filterOptions._desc = {
+		name = L['Filters are used to dispatch items in bag sections. One item can only appear in one section. If the same item is selected by several filters, the one with the highest priority wins.'],
+		type = 'description',
+		order = 1,
 	}
-	moduleOptions = {}
 	local profiles = LibStub('AceDBOptions-3.0'):GetOptionsTable(self.db)
 	profiles.order = 30
 	options = {
@@ -251,6 +366,7 @@ function addon:GetOptions()
 		args = {
 			core = {
 				name = L['Core'],
+				desc = L['Basic AdiBags configuration'],
 				type = 'group',
 				order = 1,
 				handler = addon:GetOptionHandler(addon),
@@ -273,15 +389,20 @@ function addon:GetOptions()
 					},
 					bagScale = {
 						name = L['Scale'],
-						desc = L['Use this to adjust the bag sizes.'],
+						desc = L['Use this to adjust the bag scale.'],
 						type = 'range',
 						order = 130,					
-						arg = { 'anchor', 'scale' },
 						isPercent = true,
 						min = 0.1,
 						max = 3.0,
 						step = 0.1,
-						set = function(info, value) info.handler:Set(info, value) addon:UpdateMovableLayout() end,
+						get = function()
+							return addon.db.profile.anchor.scale
+						end,
+						set = function(info, value)
+							addon.db.profile.anchor.scale = value
+							addon.acnhorScale = value
+						end,
 					},
 					columns = {
 						name = L['Number of columns'],
@@ -338,6 +459,7 @@ function addon:GetOptions()
 					},
 					sortingOrder = {
 						name = L['Sorting order'],
+						desc = L['Select how items should be sorted within each section.'],
 						width = 'double',
 						type = 'select',
 						order = 240,
@@ -359,21 +481,25 @@ function addon:GetOptions()
 					},
 					stackFreeSpace = {
 						name = L['Free space'],
+						desc = L['Display one slot for free space per bag type.'],
 						order = 310,
 						type = 'toggle',
 					},
 					stackAmmunition = {
 						name = L['Ammunition and soul shards'],
+						desc = L['Display virtual stacks of ammunition and soul shards.'],
 						order = 320,
 						type = 'toggle',
 					},
 					stackStackable = {
 						name = L['Stackable items'],
+						desc = L['Display virtual stacks of items that normally stack, like clothes, ores, herbs, ...'],
 						order = 330,
 						type = 'toggle',
 					},
 					stackOthers = {
 						name = L['Other items'],
+						desc = L['Display virtual stacks of item that normally do not stack, like equipment or cut gems.'],
 						order = 340,
 						type = 'toggle',
 					},
@@ -381,6 +507,7 @@ function addon:GetOptions()
 			},
 			filters = {
 				name = L['Filters'],
+				desc = L['Toggle and configure item filters.'],
 				type = 'group',
 				order = 10,
 				args = filterOptions,
@@ -391,6 +518,7 @@ function addon:GetOptions()
 			},
 			modules = {
 				name = L['Plugins'],
+				desc = L['Toggle and configure plugins.'],
 				type = 'group',
 				order = 20,
 				args = moduleOptions,
@@ -407,6 +535,10 @@ function addon:GetOptions()
 	for name, module in addon:IterateModules() do
 		addon:OnModuleCreated(module)
 	end
+	UpdateFilterOrder()
+	
+	LibStub('AceEvent-3.0').RegisterMessage(addonName.."Options", 'AdiBags_FiltersChanged', UpdateFilterOrder)
+	
 	return options
 end
 

@@ -657,6 +657,10 @@ function addon:UpdateFilters()
 	self:SendMessage('AdiBags_FiltersChanged')
 end
 
+function addon:IterateFilters()
+	return ipairs(filters)
+end
+
 function addon:RegisterFilter(name, priority, Filter, ...)
 	local filter
 	if type(Filter) == "function" then
