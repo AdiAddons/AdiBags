@@ -67,7 +67,7 @@ function addon:SetupDefaultFilters()
 	end
 
 	-- [80] Ammo and shards
-	local ammoFilter = addon:RegisterFilter('AmmoShards', 80, function(filter, slotData) -- L["AmmoShards"]
+	local ammoFilter = addon:RegisterFilter('AmmoShards', 80, function(filter, slotData)
 		if slotData.itemId == 6265 then -- Soul Shard
 			return L['Soul shards'], L['Ammunition']
 		elseif slotData.equipSlot == 'INVTYPE_AMMO' then
@@ -80,25 +80,29 @@ function addon:SetupDefaultFilters()
 	-- [70] Low quality items
 	do
 		local lowQualityPattern = string.format('%s|Hitem:%%d+:0:0:0:0', ITEM_QUALITY_COLORS[ITEM_QUALITY_POOR].hex)
+		--@noloc[[
 		local junkFilter = addon:RegisterFilter('Junk', 70, function(filter, slotData)
 			if slotData.class == L['Junk'] or slotData.subclass == L['Junk'] or slotData.link:match(lowQualityPattern) then
 				return L['Junk']
 			end
 		end)
 		junkFilter.uiName = L['Junk']
+		--@noloc]]
 		junkFilter.uiDesc = L['Put items of poor quality or labeled as junk in the "Junk" section.']
 	end
 
 	-- [75] Quest Items
 	do
+		--@noloc[[
 		local questItemFilter = addon:RegisterFilter('Quest', 75, function(filter, slotData)
-			if slotData.class == L['Quest'] or slotData.subclass == L['Quest'] then
+			if slotData.class == L['Quest'] or slotData.subclass == L['Quest'] then 
 				return L['Quest']
 			else
 				local isQuestItem, questId = GetContainerItemQuestInfo(slotData.bag, slotData.slot)
 				return (questId or isQuestItem) and L['Quest']
 			end
 		end)
+		--@noloc]]
 		questItemFilter.uiName = L['Quest Items']
 		questItemFilter.uiDesc = L['Put quest-related items in their own section.']
 	end
@@ -153,6 +157,7 @@ function addon:SetupDefaultFilters()
 			}, addon:GetOptionHandler(self, true)
 		end
 		
+		--@noloc[[
 		function itemCat:Filter(slotData)
 			local isGem = (slotData.class == L["Gem"])
 			local isGlyph = (slotData.class == L["Glyph"])
@@ -168,6 +173,7 @@ function addon:SetupDefaultFilters()
 				return slotData.class
 			end
 		end
+		--@noloc]]
 		
 	end
 

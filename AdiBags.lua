@@ -70,6 +70,7 @@ do
 end
 
 local FAMILY_TAGS = {
+--@noloc[[
 	[0x0001] = L["QUIVER_TAG"], -- Quiver
   [0x0002] = L["AMMO_TAG"], -- Ammo Pouch
   [0x0004] = L["SOUL_BAG_TAG"], -- Soul Bag
@@ -81,6 +82,7 @@ local FAMILY_TAGS = {
   [0x0100] = L["KEYRING_TAG"], -- Keyring
   [0x0200] = L["GEM_BAG_TAG"], -- Gem Bag
   [0x0400] = L["MINING_BAG_TAG"], -- Mining Bag
+--@noloc]]
 }
 
 local FAMILY_ICONS = {
@@ -469,6 +471,7 @@ end
 --------------------------------------------------------------------------------
 
 do
+	-- L["Backpack"]
 	local backpack = addon:NewBag("Backpack", 10, addon.BAG_IDS.BAGS, false, 'AceHook-3.0')
 
 	function backpack:OnEnable()
@@ -490,6 +493,7 @@ end
 --------------------------------------------------------------------------------
 
 do
+	-- L["Bank"]
 	local bank = addon:NewBag("Bank", 20, addon.BAG_IDS.BANK, true, 'AceHook-3.0')
 
 	local function NOOP() end

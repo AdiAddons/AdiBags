@@ -20,27 +20,6 @@ local L = setmetatable({}, {
 })
 addon.L = L
 
--- AH (sub)categories
-L["Ammunition"] = true
-L["Consumable"] = true
-L["Miscellaneous"] = true
-L["Junk"] = true
-L["Trade Goods"] = true
-L["Gem"] = true
-L["Quest"] = true
--- End of AH (sub)categories
-
-L["Equipment"] = true
-L["Soul shards"] = true
-L["New"] = true
-
-L["Backpack"] = true
-L["Bank"] = true
-L["Equipped bags"] = true
-L["Search:"] = true
-L["Set: %s"] = true
-L["Free space"] = true
-
 L["QUIVER_TAG"] = "Qu"
 L["AMMO_TAG"] = "Am"
 L["SOUL_BAG_TAG"] = "So"
@@ -53,37 +32,126 @@ L["KEYRING_TAG"] = "Ke"
 L["GEM_BAG_TAG"] = "Ge"
 L["MINING_BAG_TAG"] = "Mi"
 
-if GetLocale() == "frFR" then
-	L["Ammunition"] = "Munitions"
-	L["Consumable"] = "Consommable"
-	L["Miscellaneous"] = "Divers"
-	L["Junk"] = "Camelote"
-	L["Trade Goods"] = "Artisanat"
-	L["Gem"] = "Gemme"
-	L["Quest"] = "Quête"
+-- AH (sub)categories
+L["Consumable"] = true
+L["Miscellaneous"] = true
+L["Junk"] = true
+L["Trade Goods"] = true
+L["Gem"] = true
+L["Quest"] = true
+-- End of AH (sub)categories
 
-	L["Equipment"] = "Equipement"
-	L["Soul shards"] = "Fragments d'âme"
-	L["New"] = "Nouveau"
-
-	L["Backpack"] = "Sac à dos"
-	L["Bank"] = "Banque"
-	L["Equipped bags"] = "Sacs équipés"
-	L["Search:"] = "Recherche :"
-	L["Free space"] = "Espace libre"
-
-	L["QUIVER_TAG"] = "Fl"
-	L["AMMO_TAG"] = "Ba"
-	L["SOUL_BAG_TAG"] = "Âm"
-	L["LEATHERWORKING_BAG_TAG"] = "Cu"
-	L["INSCRIPTION_BAG_TAG"] = "Ca"
-	L["HERB_BAG_TAG"] = "He"
-	L["ENCHANTING_BAG_TAG"] = "En"
-	L["ENGINEERING_BAG_TAG"] = "In"
-	L["KEYRING_TAG"] = "Cl"
-	L["GEM_BAG_TAG"] = "Jo"
-	L["MINING_BAG_TAG"] = "Mi"
-end
+L["AdiBags anchor"] = true
+L["Adjust the number of columns to display in each bag."] = true
+L["Allow you manually redefine the section in which an item should be put. Simply drag an item on the section title."] = true
+L["Ammunition"] = true
+L["Ammunition and soul shards"] = true
+L["Are you sure you want to remove this association ?"] = true
+L["Backpack"] = true
+L["Backpack background color"] = true
+L["Bag usage format"] = true
+L["Bags"] = true
+L["Bank"] = true
+L["Bank background color"] = true
+L["Basic AdiBags configuration"] = true
+L["By category, subcategory, quality and item level (default)"] = true
+L["By name"] = true
+L["By quality and item level"] = true
+L["Check this to display a colored border around items, based on item quality."] = true
+L["Check this to display an icon after usage of each type of bags."] = true
+L["Check this to display an indicator on quest items."] = true
+L["Check this to display an textual tag before usage of each type of bags."] = true
+L["Check this to display one individual section per set. If this is disabled, there will be one big \"Sets\" section."] = true
+L["Check this to display only one value counting all equipped bags, ignoring their type."] = true
+L["Check this to show space at your bank in the plugin."] = true
+L["Check to enable this module."] = true
+L["Check to enable this plugin."] = true
+L["Click there to reset the bag positions and sizes."] = true
+L["Click to reset item status."] = true
+L["Click to tidy bags."] = true
+L["Click to toggle the bag anchor."] = true
+L["Click to toggle the equipped bag panel, so you can change them."] = true
+L["Close"] = true
+L["Configure"] = true
+L["Core"] = true
+L["Display character money at bottom right of the backpack."] = true
+L["Display one slot for free space per bag type."] = true
+L["Display virtual stacks of ammunition and soul shards."] = true
+L["Display virtual stacks of item that normally do not stack, like equipment or cut gems."] = true
+L["Display virtual stacks of items that normally stack, like clothes, ores, herbs, ..."] = true
+L["Drop your item there to add it to this section."] = true
+L["Enabled"] = true
+L["Enter a text to search in item names."] = true
+L["Equipment"] = true
+L["Equipped bags"] = true
+L["Filters"] = true
+L["Filters are used to dispatch items in bag sections. One item can only appear in one section. If the same item is selected by several filters, the one with the highest priority wins."] = true
+L["Free space"] = true
+L["Free space / total space"] = true
+L["Gear manager item sets"] = true
+L["Highlight color"] = true
+L["Highlight scale"] = true
+L["Item category"] = true
+L["Item search"] = true
+L["Item-section associations"] = true
+L["Items"] = true
+L["LDB Plugin"] = true
+L["List gems as trade goods"] = true
+L["List glyphs as trade goods"] = true
+L["Lock anchor"] = true
+L["Manual filtering"] = true
+L["Merge bag types"] = true
+L["Miscellaneous"] = true
+L["Money"] = true
+L["New"] = true
+L["New item highlight"] = true
+L["Number of columns"] = true
+L["One section per set"] = true
+L["Other items"] = true
+L["Please note this filter matchs every item. Any filter with lower priority than this one will have no effect."] = true
+L["Plugins"] = true
+L["Priority"] = true
+L["Provides a LDB data source to be displayed by LDB display addons."] = true
+L["Provides a text widget at top of the backpack where you can type (part of) an item name to locate it in your bags."] = true
+L["Put ammunition and soul shards in their own sections."] = true
+L["Put any item that can be equipped (including bags) into the \"Equipment\" section."] = true
+L["Put items belonging to one or more sets of the built-in gear manager in specific sections."] = true
+L["Put items in sections depending on their first-level category at the Auction House."] = true
+L["Put items of poor quality or labeled as junk in the \"Junk\" section."] = true
+L["Put quest-related items in their own section."] = true
+L["Quality highlight"] = true
+L["Quality opacity"] = true
+L["Quest indicator"] = true
+L["Quest Items"] = true
+L["Reset new items"] = true
+L["Reset position"] = true
+L["Scale"] = true
+L["Search:"] = true
+L["Select how bag usage should be formatted in the plugin."] = true
+L["Select how items should be sorted within each section."] = true
+L["Set: %s"] = true
+L["Sets"] = true
+L["Show bag type icons"] = true
+L["Show bag type tags"] = true
+L["Show bank usage"] = true
+L["Sorting order"] = true
+L["Soul shards"] = true
+L["Space in use"] = true
+L["Space in use / total space"] = true
+L["Split by second-level category"] = true
+L["Stackable items"] = true
+L["Tidy bags"] = true
+L["Tidy your bags by clicking on the small \"T\" button at the top left of bags. Special bags with free slots will be filled with macthing items and stackable items will be stacked to save space."] = true
+L["Toggle and configure item filters."] = true
+L["Toggle and configure plugins."] = true
+L["Track new items"] = true
+L["Track new items in each bag, displaying a glowing aura over them and putting them in a special section. \"New\" status can be reset by clicking on the small \"N\" button at top left of bags."] = true
+L["Uncheck this to remove this association."] = true
+L["Unlock anchor"] = true
+L["Use this to adjust the bag scale."] = true
+L["Use this to adjust the quality-based border opacity. 100% means fully opaque."] = true
+L["Virtual stacks"] = true
+L["Virtual stacks display in one place items that actually spread over several bag slots."] = true
 
 --[[
 		["Armor"] = "Armure",
@@ -139,3 +207,32 @@ end
 -- ANY CHANGE BELOW THIS LINE WILL BE LOST ON NEXT UPDATE
 -- CHANGES SHOULD BE MADE USING http://www.wowace.com/addons/adibags/localization/
 
+local locale = GetLocale()
+if locale == "frFR" then
+L["AMMO_TAG"] = "Ba"
+L["Ammunition"] = "Munitions"
+L["Backpack"] = "Sac à dos"
+L["Bank"] = "Banque"
+L["Consumable"] = "Consommable"
+L["ENCHANTING_BAG_TAG"] = "En"
+L["ENGINEERING_BAG_TAG"] = "In"
+L["Equipment"] = "Equipement"
+L["Equipped bags"] = "Sacs équipés"
+L["Free space"] = "Espace libre"
+L["Gem"] = "Gemme"
+L["GEM_BAG_TAG"] = "Jo"
+L["HERB_BAG_TAG"] = "He"
+L["INSCRIPTION_BAG_TAG"] = "Ca"
+L["Junk"] = "Camelote"
+L["KEYRING_TAG"] = "Cl"
+L["LEATHERWORKING_BAG_TAG"] = "Cu"
+L["MINING_BAG_TAG"] = "Mi"
+L["Miscellaneous"] = "Divers"
+L["New"] = "Nouveau"
+L["Quest"] = "Quête"
+L["QUIVER_TAG"] = "Fl"
+L["Search:"] = "Recherche :"
+L["SOUL_BAG_TAG"] = "Âm"
+L["Soul shards"] = "Fragments d'âme"
+L["Trade Goods"] = "Artisanat"
+end
