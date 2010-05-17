@@ -76,12 +76,6 @@ function mod:OnEnable()
 	
 	self.frozen = false
 
-	if IsLoggedIn() then
-		self:UpdateAll()
-	else
-		self:RegisterEvent('PLAYER_LOGIN', 'UpdateAll')
-	end
-	
 	addon.filterProto.OnEnable(self)
 end
 
@@ -204,7 +198,7 @@ function mod:UpdateBags(bagIds, event)
 			
 			-- Gather every link of every bag
 			for bagId in pairs(bag.bagIds) do
-				if bagIds[bagId] then
+				if bag.first or bagIds[bagId] then
 					bagUpdated = true
 					for slot = 1, GetContainerNumSlots(bagId) do
 						local link = GetContainerItemLink(bagId, slot)
