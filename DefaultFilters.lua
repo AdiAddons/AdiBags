@@ -117,6 +117,7 @@ function addon:SetupDefaultFilters()
 		local itemCat = addon:RegisterFilter('ItemCategory', 10)
 		itemCat.uiName = L['Item category']
 		itemCat.uiDesc = L['Put items in sections depending on their first-level category at the Auction House.']
+			..'\n|cffff7700'..L['Please note this filter matchs every item. Any filter with lower priority than this one will have no effect.']..'|r'
 
 		function itemCat:OnInitialize(slotData)
 			self.db = addon.db:RegisterNamespace(self.moduleName, {
