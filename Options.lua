@@ -87,125 +87,6 @@ end
 -- Filter & plugin options
 --------------------------------------------------------------------------------
 
---[[
-local options, filterOptions, moduleOptions
-
-local filterOrder = 10
-local function AddFilterOptions(filter)
-	local name = filter.filterName
-	filterOptions['_header'..name] = {
-		name = filter.uiName or L[name] or name,
-		type = 'header',
-		order = filterOrder,
-	}
-	if filter.uiDesc then
-		filterOptions['_desc'..name] = {
-			name = filter.uiDesc,
-			type = 'description',
-			order = filterOrder + 1,
-		}
-	end
-	filterOptions['enable'..name] = {
-		name = L['Enabled'],
-		type = 'toggle',
-		order = filterOrder + 2,
-		get = function(info) return addon.db.profile.filters[name] end,
-		set = function(info, value)
-			addon.db.profile.filters[name] = value
-			if value then filter:Enable() else filter:Disable() end
-		end,
-	}
-	filterOptions[name..'priority'] = {
-		name = L['Priority'],
-		type = 'range',
-		order = filterOrder + 3,
-		min = 0,
-		max = 100,
-		step = 1,
-		bigStep = 5,
-		get = function(info) return filter:GetPriority() end,
-		set = function(info, value) filter:SetPriority(value) end,
-		disabled = function() return not filter:IsEnabled() end,
-	}
-	if filter.GetFilterOptions then
-		filterOptions[name..'configure'] = {
-			name = L['Configure'],
-			type = 'execute',
-			order = filterOrder + 4,
-			func = function() AceConfigDialog:SelectGroup(addonName, "filters", name) end,
-			disabled = function() return not filter:IsEnabled() end,
-		}
-		local filterOpts, handler = filter:GetFilterOptions()
-		filterOptions[name] = {
-			name = filter.uiName or L[name] or name,
-			type = 'group',
-			order = filterOrder * 10,
-			handler = handler,
-			args = filterOpts,
-		}
-	elseif filter.GetOptions then
-		filterOptions[name..'configure'] = {
-			name = L['Configure'],
-			type = 'execute',
-			order = filterOrder + 4,
-			func = function() AceConfigDialog:SelectGroup(addonName, "modules", name) end,
-			disabled = function() return not filter:IsEnabled() end,
-		}
-	end
-	filterOrder = filterOrder + 10
-end
-
-local moduleOrder = 10
-local function AddModuleOptions(module)
-	local name = module.moduleName
-	if not module.isFilter and not module.isBag and not module.cannotDisable then
-		moduleOptions['_header'..name] = {
-			name = module.uiName or L[name] or name,
-			type = 'header',
-			order = moduleOrder,
-		}
-		if module.uiDesc then
-			moduleOptions['_desc'..name] = {
-				name = module.uiDesc,
-				type = 'description',
-				order = moduleOrder + 1,
-			}
-		end
-		moduleOptions['enable'..name] = {
-			name = L['Enabled'],
-			desc = L['Check to enable this plugin.'],
-			type = 'toggle',
-			order = moduleOrder + 2,
-			get = function(info) return addon.db.profile.modules[name] end,
-			set = function(info, value)
-				addon.db.profile.modules[name] = value
-				if value then module:Enable() else module:Disable() end
-			end,
-		}
-		if module.GetOptions then
-			moduleOptions[name..'configure'] = {
-				name = L['Configure'],
-				type = 'execute',
-				order = moduleOrder + 3,
-				func = function() AceConfigDialog:SelectGroup(addonName, "modules", name) end,
-				disabled = function() return not module:IsEnabled() end,
-			}	
-		end
-	end
-	if module.GetOptions then
-		local moduleOpts, handler = module:GetOptions()
-		moduleOptions[name] = {
-			name = module.uiName or L[name] or name,
-			type = 'group',
-			args = moduleOpts,
-			handler = handler,
-			order = moduleOrder * 10,
-		}
-	end
-	moduleOrder = moduleOrder + 10
-end
---]]
-
 local options
 local filterOptions, moduleOptions = {}, {}
 
@@ -457,12 +338,18 @@ function addon:GetOptions()
 						type = 'toggle',
 						order = 230,
 					},
+					showBagType = {
+						name = L['Bag type'],
+						desc = L['Check this to display a bag type tag in the top left corner of items.'],
+						type = 'toggle',
+						order = 240,
+					},
 					sortingOrder = {
 						name = L['Sorting order'],
 						desc = L['Select how items should be sorted within each section.'],
 						width = 'double',
 						type = 'select',
-						order = 240,
+						order = 250,
 						values = {
 							default = L['By category, subcategory, quality and item level (default)'],
 							byName = L['By name'],

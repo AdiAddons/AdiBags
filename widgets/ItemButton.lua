@@ -170,7 +170,7 @@ function buttonProto:FullUpdate()
 		icon:SetTexture([[Interface\BUTTONS\UI-EmptySlot]])
 		icon:SetTexCoord(12/64, 51/64, 12/64, 51/64)
 	end
-	local tag = addon:GetFamilyTag(self.bagFamily)
+	local tag = (not self.itemId or addon.db.profile.showBagType) and addon:GetFamilyTag(self.bagFamily)
 	if tag then
 		self.Stock:SetText(tag)
 		self.Stock:Show()

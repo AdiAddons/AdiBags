@@ -137,6 +137,7 @@ function addon:OnInitialize()
 		stackAmmunition = true,
 		stackStackable = false,
 		stackOthers = false,
+		showBagType = true,
 		filters = { ['*'] = true },
 		filterPriorities = {},
 		sortingOrder = 'default',
