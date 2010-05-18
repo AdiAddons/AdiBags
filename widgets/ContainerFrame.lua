@@ -365,7 +365,7 @@ function containerProto:DispatchItem(slotData)
 	if link then
 		filter, sectionName, category = addon:Filter(slotData)
 	else
-		filter, sectionName, category = "Free", L["Free space"], "Free space"
+		filter, sectionName, category = "Free", L["Free space"], L["Free space"]
 	end
 	local button = self.buttons[slotId]
 	if addon:ShouldStack(slotData) then
@@ -486,48 +486,41 @@ end
 local function CompareSections(a, b)
 	if a.order == b.order then
 		if a.category == b.category then
-			if a.width == b.width then
-				return a.name < b.name
-			else
-				return b.width < a.width
-			end
+			return a.name < b.name
 		else
 			return a.category < b.category
 		end
 	else
-		return b.order < a.order
+		return a.order > b.order
 	end
 end
 
-local function GetBestSection(sections, remainingWidth, category)
-	local bestIndexCategory, leastWastedCategory 
-	local bestIndexOther, leastWastedOther
+local sections = {}
+
+local function GetBestSection(remainingWidth, category, order)
+	local bestIndex, leastWasted
 	for index, section in ipairs(sections) do
+		if section.category ~= category or section.order ~= order then
+			break
+		end
 		local wasted = remainingWidth - section:GetWidth()
-		if wasted >= 0 then
-			if section.category == category then
-				if not leastWastedCategory or wasted < leastWastedCategory then
-					bestIndexCategory, leastWastedCategory = index, wasted
-				end
-			elseif not leastWastedOther or wasted < leastWastedOther then
-				bestIndexOther, leastWastedOther = index, wasted
-			end
+		if wasted >= 0 and (not leastWasted or wasted < leastWasted) then
+			bestIndex, leastWasted = index, leastWasted
 		end
 	end
-	if bestIndexCategory then
-		return tremove(sections, bestIndexCategory)
-	elseif bestIndexOther then
-		return tremove(sections, bestIndexOther)
+	if bestIndex then
+		return bestIndex
+	elseif sections[1]:GetWidth() <= remainingWidth then
+		return 1
 	end
 end
 
-local orderedSections = {}
 function containerProto:LayoutSections(forceLayout)
 	self:Debug('LayoutSections', forceLayout)
 
 	for name, section in pairs(self.sections) do
 		if section:LayoutButtons(forceLayout) then
-			tinsert(orderedSections, section)
+			tinsert(sections, section)
 		else
 			section.category = nil
 			section:Release()
@@ -535,16 +528,20 @@ function containerProto:LayoutSections(forceLayout)
 		end
 	end
 
-	table.sort(orderedSections, CompareSections)
+	table.sort(sections, CompareSections)
+	self:Debug('Ordered sections:', unpack(sections))
 
 	local content = self.Content
 	local bagWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.columns - ITEM_SPACING
 	local y, realWidth = 0, 0
 
-	while next(orderedSections) do
-		local rowHeight, x = 0, 0
-		local section = tremove(orderedSections, 1)
-		while section do
+	local num = #sections
+	while num > 0 do
+		local rowHeight, x, nextIndex = 0, 0, 1
+		while nextIndex do
+			local section = tremove(sections, nextIndex)
+			num = num - 1
+			
 			section:SetPoint('TOPLEFT', content, "TOPLEFT", x, -y)
 			section:Show()
 
@@ -554,7 +551,11 @@ function containerProto:LayoutSections(forceLayout)
 
 			x = x + sectionWidth + SECTION_SPACING
 
-			section = GetBestSection(orderedSections, bagWidth - x, section.category)
+			if num > 0 and x < bagWidth then
+				nextIndex = GetBestSection(bagWidth - x, section.category, section.order)
+			else
+				break
+			end
 		end
 		y = y + rowHeight + ITEM_SPACING
 	end
