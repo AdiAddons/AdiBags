@@ -15,18 +15,20 @@ h2. Features
 * smart filters are used to dispatch items into several sections, including:
 ** item sets of the Blizzard's gear manager (one section per set),
 ** junk items,
+** quest items,
 ** equipment (items your character can wear),
 ** sections based on item category: trade goods, consumables, recipes, ...
+** manual filtering,
 ** ammunition and warlocks' soul shards,
 ** free space.
 * smart item sorting inside each section,
 * smart section layout,
-* new item tracking,
+* new item tracker,
 * bag tidy,
 * name-based search,
-* optional equipped bag panel,
-* LDB data source displaying free space,
+* equipped bag panel,
 * display character money in the backpack,
+* LDB data source displaying free space,
 * ConfigMode support.
 
 h2. Things that likely will not be implemented
