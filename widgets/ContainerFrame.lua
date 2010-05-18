@@ -131,7 +131,7 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	content:SetPoint("TOPLEFT", BAG_INSET, -addon.TOP_PADDING)
 	self.Content = content
 	self:AddWidget(content)
-
+	
 	self:UpdateBackgroundColor()
 	self:RegisterPersistentListeners()
 end
@@ -229,15 +229,25 @@ function containerProto:AddBottomWidget(widget, side, order, height, xOffset, yO
 end
 
 function containerProto:OnLayout()
-	local bottomHeight = 0
+	local bottomHeight, bottomWidth = 0, 0
 	if self.BottomLeftRegion:IsShown() then
 		bottomHeight = self.BottomLeftRegion:GetHeight() + BAG_INSET
+		bottomWidth = bottomWidth + self.BottomLeftRegion:GetWidth()
 	end
 	if self.BottomRightRegion:IsShown() then
 		bottomHeight = math.max(bottomHeight, self.BottomRightRegion:GetHeight() + BAG_INSET)
+		bottomWidth = bottomWidth + self.BottomRightRegion:GetWidth()
 	end
-
-	self:SetWidth(BAG_INSET * 2 + self.Content:GetWidth())
+	
+	local headerWidth = self.Title:GetStringWidth() + 32
+	if self.HeaderLeftRegion:IsShown() then
+		headerWidth = headerWidth + self.HeaderLeftRegion:GetWidth() + 4
+	end
+	if self.HeaderRightRegion:IsShown() then
+		headerWidth = headerWidth + self.HeaderRightRegion:GetWidth() + 4
+	end
+	
+	self:SetWidth(BAG_INSET * 2 + math.max(headerWidth, bottomWidth, self.Content:GetWidth()))
 	self:SetHeight(addon.TOP_PADDING + BAG_INSET + bottomHeight + self.Content:GetHeight())
 end
 
