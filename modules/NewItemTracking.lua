@@ -80,8 +80,10 @@ function mod:OnEnable()
 end
 
 function mod:OnDisable()
-	for button in pairs(buttons) do
-		button:Hide()
+	for name, bag in pairs(bags) do
+		if bag.button then
+			bag.button:Hide()
+		end
 	end
 	addon.filterProto.OnDisable(self)
 end
