@@ -33,12 +33,14 @@ L["GEM_BAG_TAG"] = "Ge"
 L["MINING_BAG_TAG"] = "Mi"
 
 -- AH (sub)categories
+L['Recipe'] = true
 L["Consumable"] = true
 L["Miscellaneous"] = true
-L["Junk"] = true
 L["Trade Goods"] = true
 L["Gem"] = true
+L['Glyph'] = true
 L["Quest"] = true
+L["Junk"] = true
 -- End of AH (sub)categories
 
 L["AdiBags anchor"] = true
@@ -168,52 +170,6 @@ L["Use this to adjust the quality-based border opacity. 100% means fully opaque.
 L["Virtual stacks"] = true
 L["Virtual stacks display in one place items that actually spread over several bag slots."] = true
 
-
---[[
-		["Armor"] = "Armure",
-			["Cloth"] = "Tissu",
-			["Idols"] = "Idoles",
-			["Leather"] = "Cuir",
-			["Librams"] = "Librams",
-			["Mail"] = "Mailles",
-			["Miscellaneous"] = "Divers",
-			["Shields"] = "Boucliers",
-			["Totems"] = "Totems",
-			["Plate"] = "Plaques",
-		["Consumable"] = "Consommables",
-		["Container"] = "Conteneur",
-			["Bag"] = "Conteneur",
-			["Enchanting Bag"] = "Sac d'enchanteur",
-			["Engineering Bag"] = "Sac d'ing\195\169nieur",
-			["Herb Bag"] = "Sac d'herbes",
-			["Soul Bag"] = "Sac d'\195\162me",
-		["Key"] = "Cl\195\169",
-		["Miscellaneous"] = "Divers",
-			["Junk"] = "Camelote",
-		["Reagent"] = "Composant",
-		["Recipe"] = "Recette",
-			["Alchemy"] = "Alchimie",
-			["Blacksmithing"] = "Forge",
-      ["Book"] = "Livre",
-			["Cooking"] = "Cuisine",
-			["Enchanting"] = "Enchantement",
-			["Engineering"] = "Ing\195\169nierie",
-			["First Aid"] = "Secourisme",
-			["Leatherworking"] = "Travail du cuir",
-			["Tailoring"] = "Couture",
-		["Projectile"] = "Projectile",
-			["Arrow"] = "Fl\195\168che",
-			["Bullet"] = "Balle",
-		["Quest"] = "Qu\195\170te",
-		["Quiver"] = "Carquois",
-			["Ammo Pouch"] = "Giberne",
-			["Quiver"] = "Carquois",
-		["Trade Goods"] = "Artisanat",
-			["Devices"] = "Appareils",
-			["Explosives"] = "Explosifs",
-			["Parts"] = "El\195\169ments",
---]]
-
 --------------------------------------------------------------------------------
 -- Locales from localization system (not yet)
 --------------------------------------------------------------------------------
@@ -251,6 +207,8 @@ L["Search:"] = "Recherche :"
 L["SOUL_BAG_TAG"] = "Âm"
 L["Soul shards"] = "Fragments d'âme"
 L["Trade Goods"] = "Artisanat"
+L['Recipe'] = "Recette"
+L['Glyph'] = "Glyphe"
 elseif locale == "koKR" then
 L["AdiBags anchor"] = "AdiBags 앵커"
 L["Ammunition"] = "탄약"

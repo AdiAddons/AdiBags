@@ -184,7 +184,7 @@ function addon:SetupDefaultFilters()
 		function itemCat:OnInitialize(slotData)
 			self.db = addon.db:RegisterNamespace(self.moduleName, {
 				profile = {
-					split = false,
+					splitBySubclass = { false },
 					mergeGems = true,
 					mergeGlyphs = true,
 				}
@@ -193,48 +193,50 @@ function addon:SetupDefaultFilters()
 		
 		function itemCat:GetFilterOptions()
 			return {
-				split = {
-					name = L['Split by second-level category'],
-					type = 'toggle',
+				splitBySubclass = {
+					name = L['Split by subcategories'],
+					desc = L['Select which first-level categories should be split by sub-categories.'],
+					type = 'multiselect',
 					order = 10,
+					values = {
+						[L['Trade Goods']] = L['Trade Goods'],
+						[L['Consumable']] = L['Consumable'],
+						[L['Miscellaneous']] = L['Miscellaneous'],
+						[L['Gem']] = L['Gem'],
+						[L['Glyph']] = L['Glyph'],
+						[L['Recipe']] = L['Recipe'],
+					}
 				},
 				mergeGems = {
-					name = L['List gems as trade goods'],
+					name = L['Gems are trade goods'],
+					desc = L['Consider gems as a subcategory of trade goods'],
 					type = 'toggle',
 					width = 'double',
 					order = 20,
-					disabled = function(info) return info.handler:IsDisabled(info) or self.db.profile.split end,
 				},
 				mergeGlyphs = {
-					name = L['List glyphs as trade goods'],
+					name = L['Glyphs are trade goods'],
+					desc = L['Consider glyphs as a subcategory of trade goods'],
 					type = 'toggle',
 					width = 'double',
 					order = 30,
-					disabled = function(info) return info.handler:IsDisabled(info) or self.db.profile.split end,
 				},
 			}, addon:GetOptionHandler(self, true)
 		end
 		
-		--@noloc[[
 		function itemCat:Filter(slotData)
 			local class, subclass = slotData.class, slotData.subclass
-			local isGem = (class == L["Gem"])
-			local isGlyph = (class == L["Glyph"])
-			if self.db.profile.split then
-				if isGem or isGlyph then
-					return class, L["Trade Goods"]
-				else
-					return subclass, class
-				end
-			elseif isGem then
-				return self.db.profile.mergeGems and L["Trade Goods"] or class, L["Trade Goods"]
-			elseif isGlyph then
-				return self.db.profile.mergeGlyphs and L["Trade Goods"] or class, L["Trade Goods"]
+			if class == L['Gem'] and self.db.profile.mergeGems then
+				class, subclass = L["Trade Goods"], class
+			elseif class == L['Glyph'] and self.db.profile.mergeGlyphs then
+				class, subclass = L["Trade Goods"], class
+			end
+			if self.db.profile.splitBySubclass[class] then
+				return subclass, class
 			else
 				return class
 			end
 		end
-		--@noloc]]
 		
 	end
 
