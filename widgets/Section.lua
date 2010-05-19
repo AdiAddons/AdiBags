@@ -13,10 +13,35 @@ local SECTION_SPACING = addon.SECTION_SPACING
 local SLOT_OFFSET = ITEM_SIZE + ITEM_SPACING
 local HEADER_SIZE = 14 + ITEM_SPACING
 
-local SECTION_ORDER = {
-	[L["New"]] = 10,
-	[L["Free space"]] = -10,
+--------------------------------------------------------------------------------
+-- Section ordering
+--------------------------------------------------------------------------------
+
+local sectionOrder = {}
+
+local categoryOrder = {
+	[L["Free space"]] = -100
 }
+
+function addon:SetSectionOrder(name, order, ...)
+	sectionOrder[name] = order
+end
+
+function addon:SetSectionOrders(t)
+	for name, order in pairs(t) do
+		sectionOrder[name] = order
+	end
+end
+
+function addon:SetCategoryOrder(name, order)
+	categoryOrder[name] = order
+end
+
+function addon:SetCategoryOrders(t)
+	for name, order in pairs(t) do
+		categoryOrder[name] = order
+	end
+end
 
 --------------------------------------------------------------------------------
 -- Initialization and release
@@ -38,11 +63,11 @@ function sectionProto:OnCreate()
 	addon:SendMessage('AdiBags_SectionCreated', self)
 end
 
-function sectionProto:OnAcquire(container, name)
+function sectionProto:OnAcquire(container, name, category)
 	self:SetParent(container)
 	self.Header:SetText(name)
 	self.name = name
-	self.order = SECTION_ORDER[name] or 0
+	self.category = category or name
 	self.width = 0
 	self.height = 0
 	self.count = 0
@@ -51,14 +76,24 @@ function sectionProto:OnAcquire(container, name)
 end
 
 function sectionProto:ToString()
-	return string.format("Section-%s", tostring(self.name))
+	return string.format("Section[%q,%q]", tostring(self.name), tostring(self.category))
 end
 
 function sectionProto:OnRelease()
 	wipe(self.freeSlots)
 	wipe(self.slots)
 	wipe(self.buttons)
+	self.name = nil
+	self.category = nil
 	self.container = nil
+end
+
+function sectionProto:GetOrder()
+	return self.name and sectionOrder[self.name] or 0
+end
+
+function sectionProto:GetCategoryOrder()
+	return self.category and categoryOrder[self.category] or 0
 end
 
 --------------------------------------------------------------------------------

@@ -89,6 +89,7 @@ L["Filters are used to dispatch items in bag sections. One item can only appear 
 L["Free space"] = true
 L["Free space / total space"] = true
 L["Gear manager item sets"] = true
+L["Glyph"] = true
 L["Highlight color"] = true
 L["Highlight scale"] = true
 L["Item category"] = true
@@ -221,6 +222,7 @@ L["Equipped bags"] = "Sacs équipés"
 L["Free space"] = "Espace libre"
 L["Gem"] = "Gemme"
 L["GEM_BAG_TAG"] = "Jo"
+L["Glyph"] = "Glyphe"
 L["HERB_BAG_TAG"] = "He"
 L["INSCRIPTION_BAG_TAG"] = "Ca"
 L["Junk"] = "Camelote"

@@ -27,6 +27,7 @@ function mod:OnInitialize()
 			glowColor = { 0.3, 1, 0.3, 0.7 },
 		},
 	})
+	addon:SetCategoryOrder(L['New'], 100)
 end
 
 function mod:OnEnable()

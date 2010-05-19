@@ -9,6 +9,17 @@ local L = addon.L
 
 function addon:SetupDefaultFilters()
 
+	-- Define global ordering
+	self:SetCategoryOrders{
+		[L['Quest']] = 30,
+		[L['Trade Goods']] = 20,
+		[L['Equipment']] = 10,
+		[L['Consumable']] = -10,
+		[L['Miscellaneous']] = -20,
+		[L['Ammunition']] = -30,
+		[L['Junk']] = -40,
+	}
+
 	-- [90] Parts of an equipment set
 	do
 		local setFilter = addon:RegisterFilter("ItemSets", 90, "AceEvent-3.0")
@@ -159,18 +170,21 @@ function addon:SetupDefaultFilters()
 		
 		--@noloc[[
 		function itemCat:Filter(slotData)
-			local isGem = (slotData.class == L["Gem"])
-			local isGlyph = (slotData.class == L["Glyph"])
+			local class, subclass = slotData.class, slotData.subclass
+			local isGem = (class == L["Gem"])
+			local isGlyph = (class == L["Glyph"])
 			if self.db.profile.split then
 				if isGem or isGlyph then
-					return slotData.class
+					return class, L["Trade Goods"]
 				else
-					return slotData.subclass, slotData.class
+					return subclass, class
 				end
-			elseif (isGem and self.db.profile.mergeGems) or (isGlyph and self.db.profile.mergeGlyphs) then
-				return L["Trade Goods"]
+			elseif isGem then
+				return self.db.profile.mergeGems and L["Trade Goods"] or class, L["Trade Goods"]
+			elseif isGlyph then
+				return self.db.profile.mergeGlyphs and L["Trade Goods"] or class, L["Trade Goods"]
 			else
-				return slotData.class
+				return class
 			end
 		end
 		--@noloc]]

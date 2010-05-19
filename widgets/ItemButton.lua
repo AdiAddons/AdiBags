@@ -299,7 +299,7 @@ function stackProto:UpdateVisibleSlot()
 		end
 	end
 	for slotId in pairs(self.slots) do
-		local _, count, locked =  GetContainerItemInfo(GetBagSlotFromId(slotId))
+		local _, count, locked = GetContainerItemInfo(GetBagSlotFromId(slotId))
 		count = count or 1
 		if locked then
 			if not bestLockedId or count > bestLockedCount then

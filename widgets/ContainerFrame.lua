@@ -355,11 +355,12 @@ function containerProto:GetStackButton(key)
 	return stack
 end
 
-function containerProto:GetSection(name)
-	local section = self.sections[name]
+function containerProto:GetSection(name, category)
+	local key = strjoin('#', name, category or name)
+	local section = self.sections[key]
 	if not section then
-		section = addon:AcquireSection(self, name)
-		self.sections[name] = section
+		section = addon:AcquireSection(self, name, category)
+		self.sections[key] = section
 	end
 	return section
 end
@@ -383,8 +384,7 @@ function containerProto:DispatchItem(slotData)
 	elseif not button then
 		button = addon:AcquireItemButton(self, bag, slot)
 	end
-	local section = self:GetSection(sectionName or L['Miscellaneous'])
-	section.category = category
+	local section = self:GetSection(sectionName or L['Miscellaneous'], category)
 	section:AddItemButton(slotId, button)
 	self.buttons[slotId] = button
 end
@@ -492,14 +492,20 @@ end
 --------------------------------------------------------------------------------
 
 local function CompareSections(a, b)
-	if a.order == b.order then
-		if a.category == b.category then
+	if a.category == b.category then
+		local secA, secB = a:GetOrder(), b:GetOrder()
+		if secA == secB then
 			return a.name < b.name
 		else
-			return a.category < b.category
+			return secA > secB
 		end
 	else
-		return a.order > b.order
+		local catA, catB = a:GetCategoryOrder(), b:GetCategoryOrder()
+		if catA == catB then
+			return a.category < b.category
+		else
+			return catA > catB
+		end
 	end
 end
 
@@ -530,7 +536,6 @@ function containerProto:LayoutSections(forceLayout)
 		if section:LayoutButtons(forceLayout) then
 			tinsert(sections, section)
 		else
-			section.category = nil
 			section:Release()
 			self.sections[name] = nil
 		end
