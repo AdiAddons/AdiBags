@@ -144,6 +144,7 @@ function containerProto:ToString() return self.name or self:GetName() end
 
 function containerProto:RegisterPersistentListeners()
 	self:RegisterMessage('AdiBags_FiltersChanged', 'FiltersChanged')
+	self:RegisterMessage('AdiBags_LayoutChanged', 'LayoutChanged')
 	self:RegisterMessage('AdiBags_ConfigChanged', 'ConfigChanged')
 end
 
@@ -179,6 +180,10 @@ function containerProto:FiltersChanged()
 	end
 	self:Debug('FiltersChanged')
 	return self:UpdateAllContent(true)
+end
+
+function containerProto:LayoutChanged()
+	return self:LayoutSections(true)
 end
 
 function containerProto:ConfigChanged(event, name)
@@ -535,34 +540,46 @@ function containerProto:LayoutSections(forceLayout)
 	self:Debug('Ordered sections:', unpack(sections))
 
 	local content = self.Content
-	local bagWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.columns - ITEM_SPACING
-	local y, realWidth = 0, 0
-
+	local columnX, contentWidth, contentHeight = 0, 0, 0
+	local maxColumnHeight, bagWidth
+	if addon.db.profile.multiColumn then
+		maxColumnHeight = (ITEM_SIZE + SECTION_SPACING) * addon.db.profile.multiColumnHeight - SECTION_SPACING
+		bagWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.multiColumnWidth - ITEM_SPACING
+	else
+		maxColumnHeight = 0.9 * UIParent:GetHeight() * self:GetEffectiveScale() / UIParent:GetEffectiveScale()
+		bagWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.columns - ITEM_SPACING
+	end
 	local num = #sections
-	while num > 0 do
-		local rowHeight, x, nextIndex = 0, 0, 1
-		while nextIndex do
-			local section = tremove(sections, nextIndex)
-			num = num - 1
-			
-			section:SetPoint('TOPLEFT', content, "TOPLEFT", x, -y)
-			section:Show()
+	
+	while num > 0 do	
+		local y, columnWidth = 0, 0
 
-			local sectionWidth = section:GetWidth()
-			realWidth = math.max(realWidth, x + sectionWidth)
-			rowHeight = math.max(rowHeight, section:GetHeight())
+		while num > 0 and y < maxColumnHeight do
+			local rowHeight, x, nextIndex = 0, 0, 1
+			while nextIndex do
+				local section = tremove(sections, nextIndex)
+				num = num - 1
+				
+				section:SetPoint('TOPLEFT', content, "TOPLEFT", columnX + x, -y)
+				section:Show()
 
-			x = x + sectionWidth + SECTION_SPACING
+				x = x + section:GetWidth() + SECTION_SPACING
+				rowHeight = math.max(rowHeight, section:GetHeight())
 
-			if num > 0 and x < bagWidth then
-				nextIndex = GetBestSection(bagWidth - x, section.category, section.order)
-			else
-				break
+				if num > 0 and x < bagWidth then
+					nextIndex = GetBestSection(bagWidth - x, section.category, section.order)
+				else
+					break
+				end
 			end
+			y = y + rowHeight + ITEM_SPACING
+			columnWidth = math.max(columnWidth, x)
+			contentHeight = math.max(contentHeight, y)
 		end
-		y = y + rowHeight + ITEM_SPACING
+		
+		columnX = columnX + columnWidth
 	end
 	
-	content:SetWidth(realWidth)
-	content:SetHeight(y - ITEM_SPACING)
+	content:SetWidth(columnX - SECTION_SPACING)
+	content:SetHeight(contentHeight - ITEM_SPACING)
 end

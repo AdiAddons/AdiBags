@@ -116,8 +116,8 @@ addon.BAG_INSET = 8
 addon.TOP_PADDING = 32
 
 addon.BACKDROP = {
-	bgFile = "Interface/Tooltips/UI-Tooltip-Background",
-	edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
+	bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
+	edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]],
 	tile = true, tileSize = 16, edgeSize = 16,
 	insets = { left = 3, right = 3, top = 3, bottom = 3 },
 }
@@ -130,6 +130,9 @@ function addon:OnInitialize()
 	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", {profile = {
 		anchor = { scale = 0.8 },
 		columns = 12,
+		multiColumn = false,
+		multiColumnWidth = 5,
+		multiColumnHeight = 10,
 		qualityHighlight = true,
 		qualityOpacity = 1.0,
 		questIndicator = true,
@@ -239,6 +242,8 @@ function addon:ConfigChanged(vars)
 			return self:SendMessage('AdiBags_FiltersChanged')
 		elseif name == 'sortingOrder' then
 			return self:SetSortingOrder(self.db.profile.sortingOrder)
+		elseif name:lower():match('column') then
+			return self:SendMessage('AdiBags_LayoutChanged')
 		end
 	end
 	self:SendMessage('AdiBags_UpdateAllButtons')
