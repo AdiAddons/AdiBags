@@ -136,10 +136,6 @@ function addon:OnInitialize()
 		qualityHighlight = true,
 		qualityOpacity = 1.0,
 		questIndicator = true,
-		stackFreeSpace = true,
-		stackAmmunition = true,
-		stackStackable = false,
-		stackOthers = false,
 		showBagType = true,
 		filters = { ['*'] = true },
 		filterPriorities = {},
@@ -148,8 +144,13 @@ function addon:OnInitialize()
 		backgroundColors = {
 			Backpack = { 0, 0, 0, 1 },
 			Bank = { 0, 0, 0.5, 1 },
-		}
-	},}, true)
+		},
+		virtualStacks = {
+			['*'] = false,
+			freeSpace = true,
+			ammunition = true,	
+		},
+	}}, true)
 	self.db.RegisterCallback(self, "OnProfileChanged", "Reconfigure")
 	self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")
 	self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
@@ -238,7 +239,7 @@ function addon:ConfigChanged(vars)
 	self:Debug('ConfigChanged', DebugTable(vars))
 	--@end-debug@
 	for name in pairs(vars) do
-		if name:match('^stack') or name == 'filter' or name == 'columns' then
+		if name:match('virtualStacks') or name == 'filter' then
 			return self:SendMessage('AdiBags_FiltersChanged')
 		elseif name == 'sortingOrder' then
 			return self:SetSortingOrder(self.db.profile.sortingOrder)
@@ -692,13 +693,13 @@ end
 
 function addon:ShouldStack(slotData)
 	if not slotData.link then
-		return self.db.profile.stackFreeSpace
+		return self.db.profile.virtualStacks.freeSpace, "*Free*"
 	elseif slotData.itemId == 6265 or slotData.equipSlot == "INVTYPE_AMMO" then
-		return self.db.profile.stackAmmunition
+		return self.db.profile.virtualStacks.ammunition, slotData.itemId
 	elseif slotData.maxStack > 1 then
-		return self.db.profile.stackStackable
-	else
-		return self.db.profile.stackOthers
+		return self.db.profile.virtualStacks.stackable, slotData.itemId
+	elseif self.db.profile.virtualStacks.others then
+		return true, slotData.link:match("item:(%d+:%d+:%d+:%d+:%d+)")
 	end
 end
 

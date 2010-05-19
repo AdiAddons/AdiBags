@@ -255,168 +255,153 @@ function addon:GetOptions()
 				set = 'Set',
 				disabled = 'IsDisabled',			
 				args = {
-					_bagHeader = {
+					bags = {
 						name = L['Bags'],
-						type = 'header',
+						type = 'group',
+						inline = true,
 						order = 100,
+						args = {
+							toggleAnchor = lockOption,
+							reset = {
+								name = L['Reset position'],
+								desc = L['Click there to reset the bag positions and sizes.'],
+								type = 'execute',
+								order = 120,
+								func = function() addon:ResetMovableLayout() end,
+							},
+							bagScale = {
+								name = L['Scale'],
+								desc = L['Use this to adjust the bag scale.'],
+								type = 'range',
+								order = 130,					
+								isPercent = true,
+								min = 0.1,
+								max = 3.0,
+								step = 0.1,
+								get = function()
+									return addon.db.profile.anchor.scale
+								end,
+								set = function(info, value)
+									addon.db.profile.anchor.scale = value
+									addon.acnhorScale = value
+								end,
+							},
+							multiColumn = {
+								name = L['Multi-column layout'],
+								desc = L['Check this to have the bag content spread over several columns.'],
+								type = 'toggle',
+								order = 140,
+							},
+							columns = {
+								name = L['Bag width'],
+								desc = L['Adjust the maximum number of items per row.'],
+								type = 'range',
+								order = 145,
+								min = 6,
+								max = 16,
+								step = 1,
+								hidden = function() return addon.db.profile.multiColumn end,
+							},
+							multiColumnWidth = {
+								name = L['Column width'],
+								desc = L['Adjust the maximum number of items per row for each column.'],
+								type = 'range',
+								order = 145,
+								min = 4,
+								max = 10,
+								step = 1,
+								hidden = function() return not addon.db.profile.multiColumn end,
+							},
+							multiColumnHeight = {
+								name = L['Bag height'],
+								desc = L['Adjust the maximum number of rows.'],
+								type = 'range',
+								order = 148,
+								min = 4,
+								max = 10,
+								step = 1,
+								hidden = function() return not addon.db.profile.multiColumn end,
+							},
+							backpackColor = {
+								name = L['Backpack background color'],
+								type = 'color',
+								order = 150,
+								hasAlpha = true,
+								arg = { "backgroundColors", "Backpack" },
+							},
+							bankColor = {
+								name = L['Bank background color'],
+								type = 'color',
+								order = 160,
+								hasAlpha = true,
+								arg = { "backgroundColors", "Bank" },
+							},
+						},
 					},
-					toggleAnchor = lockOption,
-					reset = {
-						name = L['Reset position'],
-						desc = L['Click there to reset the bag positions and sizes.'],
-						type = 'execute',
-						order = 120,
-						func = function() addon:ResetMovableLayout() end,
-					},
-					bagScale = {
-						name = L['Scale'],
-						desc = L['Use this to adjust the bag scale.'],
-						type = 'range',
-						order = 130,					
-						isPercent = true,
-						min = 0.1,
-						max = 3.0,
-						step = 0.1,
-						get = function()
-							return addon.db.profile.anchor.scale
-						end,
-						set = function(info, value)
-							addon.db.profile.anchor.scale = value
-							addon.acnhorScale = value
-						end,
-					},
-					multiColumn = {
-						name = L['Multi-column layout'],
-						desc = L['Check this to have the bag content spread over several columns.'],
-						type = 'toggle',
-						order = 140,
-					},
-					columns = {
-						name = L['Bag width'],
-						desc = L['Adjust the maximum number of items per row.'],
-						type = 'range',
-						order = 145,
-						min = 6,
-						max = 16,
-						step = 1,
-						hidden = function() return addon.db.profile.multiColumn end,
-					},
-					multiColumnWidth = {
-						name = L['Column width'],
-						desc = L['Adjust the maximum number of items per row for each column.'],
-						type = 'range',
-						order = 145,
-						min = 4,
-						max = 10,
-						step = 1,
-						hidden = function() return not addon.db.profile.multiColumn end,
-					},
-					multiColumnHeight = {
-						name = L['Bag height'],
-						desc = L['Adjust the maximum number of rows.'],
-						type = 'range',
-						order = 148,
-						min = 4,
-						max = 10,
-						step = 1,
-						hidden = function() return not addon.db.profile.multiColumn end,
-					},
-					backpackColor = {
-						name = L['Backpack background color'],
-						type = 'color',
-						order = 150,
-						hasAlpha = true,
-						arg = { "backgroundColors", "Backpack" },
-					},
-					bankColor = {
-						name = L['Bank background color'],
-						type = 'color',
-						order = 160,
-						hasAlpha = true,
-						arg = { "backgroundColors", "Bank" },
-					},
-					_itemsHeader = {
+					items = {
 						name = L['Items'],
-						type = 'header',
+						type = 'group',
+						inline = true,
 						order = 200,
+						args = {
+							qualityHighlight = {
+								name = L['Quality highlight'],
+								desc = L['Check this to display a colored border around items, based on item quality.'],
+								type = 'toggle',
+								order = 210,
+							},
+							qualityOpacity = {
+								name = L['Quality opacity'],
+								desc = L['Use this to adjust the quality-based border opacity. 100% means fully opaque.'],
+								type = 'range',
+								order = 220,
+								isPercent = true,
+								min = 0.05,
+								max = 1.0,
+								step = 0.05,
+								disabled = function(info)
+									return info.handler:IsDisabled(info) or not addon.db.profile.qualityHighlight
+								end,
+							},
+							questIndicator = {
+								name = L['Quest indicator'],
+								desc = L['Check this to display an indicator on quest items.'],
+								type = 'toggle',
+								order = 230,
+							},
+							showBagType = {
+								name = L['Bag type'],
+								desc = L['Check this to display a bag type tag in the top left corner of items.'],
+								type = 'toggle',
+								order = 240,
+							},
+							sortingOrder = {
+								name = L['Sorting order'],
+								desc = L['Select how items should be sorted within each section.'],
+								width = 'double',
+								type = 'select',
+								order = 250,
+								values = {
+									default = L['By category, subcategory, quality and item level (default)'],
+									byName = L['By name'],
+									byQualityAndLevel = L['By quality and item level'],
+								}
+							},
+						},
 					},
-					qualityHighlight = {
-						name = L['Quality highlight'],
-						desc = L['Check this to display a colored border around items, based on item quality.'],
-						type = 'toggle',
-						order = 210,
-					},
-					qualityOpacity = {
-						name = L['Quality opacity'],
-						desc = L['Use this to adjust the quality-based border opacity. 100% means fully opaque.'],
-						type = 'range',
-						order = 220,
-						isPercent = true,
-						min = 0.05,
-						max = 1.0,
-						step = 0.05,
-						disabled = function(info)
-							return info.handler:IsDisabled(info) or not addon.db.profile.qualityHighlight
-						end,
-					},
-					questIndicator = {
-						name = L['Quest indicator'],
-						desc = L['Check this to display an indicator on quest items.'],
-						type = 'toggle',
-						order = 230,
-					},
-					showBagType = {
-						name = L['Bag type'],
-						desc = L['Check this to display a bag type tag in the top left corner of items.'],
-						type = 'toggle',
-						order = 240,
-					},
-					sortingOrder = {
-						name = L['Sorting order'],
-						desc = L['Select how items should be sorted within each section.'],
-						width = 'double',
-						type = 'select',
-						order = 250,
-						values = {
-							default = L['By category, subcategory, quality and item level (default)'],
-							byName = L['By name'],
-							byQualityAndLevel = L['By quality and item level'],
-						}
-					},
-					_stackHeader = {
+					virtualStacks = {
 						name = L['Virtual stacks'],
-						type = 'header',
-						order = 300,
-					},
-					_stackDesc = {
-						name = L['Virtual stacks display in one place items that actually spread over several bag slots.'],
-						type = 'description',
-						order = 301,
-					},
-					stackFreeSpace = {
-						name = L['Free space'],
-						desc = L['Display one slot for free space per bag type.'],
+						desc = L['Virtual stacks display in one place items that actually spread over several bag slots.'],
+						type = 'multiselect',
 						order = 310,
-						type = 'toggle',
-					},
-					stackAmmunition = {
-						name = L['Ammunition and soul shards'],
-						desc = L['Display virtual stacks of ammunition and soul shards.'],
-						order = 320,
-						type = 'toggle',
-					},
-					stackStackable = {
-						name = L['Stackable items'],
-						desc = L['Display virtual stacks of items that normally stack, like clothes, ores, herbs, ...'],
-						order = 330,
-						type = 'toggle',
-					},
-					stackOthers = {
-						name = L['Other items'],
-						desc = L['Display virtual stacks of item that normally do not stack, like equipment or cut gems.'],
-						order = 340,
-						type = 'toggle',
-					},
+						values = {
+							freeSpace = L['Free space'],
+							ammunition = L['Ammunition and soul shards'],
+							stackable = L['Stackable items'],
+							other = L['Other items'],
+							incomplete = L['Incomplete stacks'],
+						}
+					}
 				},
 			},
 			filters = {

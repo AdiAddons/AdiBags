@@ -371,15 +371,19 @@ function containerProto:DispatchItem(slotData)
 	local isFull = false
 	if link then
 		filter, sectionName, category = addon:Filter(slotData)
-		isFull = (slotData.count or 1) == (slotData.maxStack or 1)
+		isFull = addon.db.profile.virtualStacks.incomplete or (slotData.count or 1) == (slotData.maxStack or 1)
 	else
 		filter, sectionName, category = "Free", L["Free space"], L["Free space"]
 		isFull = true
 	end
 	local button = self.buttons[slotId]
-	if isFull and addon:ShouldStack(slotData) then
-		local key = strjoin(':', tostringall(itemId, slotData.bagFamily))
-		button = self:GetStackButton(key)
+	local shouldStack, stackKey 
+	if isFull then 
+		shouldStack, stackKey = addon:ShouldStack(slotData)
+	end
+	if shouldStack then
+		local fullKey = strjoin('#', tostringall(stackKey, slotData.bagFamily))
+		button = self:GetStackButton(fullKey)
 		button:AddSlot(slotId)
 	elseif not button then
 		button = addon:AcquireItemButton(self, bag, slot)
