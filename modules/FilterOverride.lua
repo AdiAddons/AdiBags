@@ -71,7 +71,7 @@ function mod:GetOptions()
 				return t
 			end,
 		}
-	}, addon:GetOptionHandler(self)
+	}, addon:GetOptionHandler(self, true)
 end
 
 function mod:Filter(slotData)
