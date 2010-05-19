@@ -27,7 +27,10 @@ function addon:SetupDefaultFilters()
 		setFilter.uiDesc = L['Put items belonging to one or more sets of the built-in gear manager in specific sections.']
 
 		function setFilter:OnInitialize()
-			self.db = addon.db:RegisterNamespace('ItemSets', { profile = { oneSectionPerSet = true } })
+			self.db = addon.db:RegisterNamespace('ItemSets', {
+				profile = { oneSectionPerSet = true },
+				char = { mergedSets = { ['*'] = false } },
+			})
 		end
 
 		function setFilter:OnEnable()
@@ -37,16 +40,18 @@ function addon:SetupDefaultFilters()
 		end
 
 		local sets = {}
+		local setNames = {}
 
 		function setFilter:UpdateSets()
 			wipe(sets)
+			wipe(setNames)
 			for i = 1, GetNumEquipmentSets() do
 				local name = GetEquipmentSetInfo(i)
-				local section = L["Set: %s"]:format(name)
+				setNames[name] = name
 				local items = GetEquipmentSetItemIDs(name)
 				for loc, id in pairs(items) do
 					if id and not sets[id] then
-						sets[id] = section
+						sets[id] = name
 					end
 				end
 			end
@@ -58,9 +63,13 @@ function addon:SetupDefaultFilters()
 		end
 
 		function setFilter:Filter(slotData)
-			local set = sets[slotData.itemId]
-			if set then
-				return self.db.profile.oneSectionPerSet and set or L['Sets'], L["Equipment"]
+			local name = sets[slotData.itemId]
+			if name then
+				if not self.db.profile.oneSectionPerSet or self.db.char.mergedSets[name] then
+					return L['Sets'], L["Equipment"]
+				else
+					return L["Set: %s"]:format(name), L["Equipment"]
+				end
 			end
 		end
 		
@@ -71,7 +80,22 @@ function addon:SetupDefaultFilters()
 					desc = L['Check this to display one individual section per set. If this is disabled, there will be one big "Sets" section.'],
 					type = 'toggle',
 					order = 10,
-				}
+				},
+				mergedSets = {
+					name = L['Merged sets'],
+					desc = L['Check sets that should be merged into a unique "Sets" section. This is obviously a per-character setting.'],
+					type = 'multiselect',
+					order = 20,
+					values = setNames,
+					get = function(info, name)
+						return self.db.char.mergedSets[name]
+					end,
+					set = function(info, name, value)
+						self.db.char.mergedSets[name] = value
+						self:SendMessage('AdiBags_FiltersChanged')
+					end,
+					disabled = function() return not self.db.profile.oneSectionPerSet end,
+				},
 			}, addon:GetOptionHandler(self, true)
 		end
 
@@ -92,7 +116,7 @@ function addon:SetupDefaultFilters()
 	do
 		local lowQualityPattern = string.format('%s|Hitem:%%d+:0:0:0:0', ITEM_QUALITY_COLORS[ITEM_QUALITY_POOR].hex)
 		--@noloc[[
-		local junkFilter = addon:RegisterFilter('Junk', 70, function(filter, slotData)
+		local junkFilter = addon:RegisterFilter('Junk', 70, function(self, slotData)
 			if slotData.class == L['Junk'] or slotData.subclass == L['Junk'] or slotData.link:match(lowQualityPattern) then
 				return L['Junk']
 			end
@@ -105,7 +129,7 @@ function addon:SetupDefaultFilters()
 	-- [75] Quest Items
 	do
 		--@noloc[[
-		local questItemFilter = addon:RegisterFilter('Quest', 75, function(filter, slotData)
+		local questItemFilter = addon:RegisterFilter('Quest', 75, function(self, slotData)
 			if slotData.class == L['Quest'] or slotData.subclass == L['Quest'] then 
 				return L['Quest']
 			else
@@ -119,14 +143,37 @@ function addon:SetupDefaultFilters()
 	end
 
 	-- [60] Equipment
-	local equipmentFilter = addon:RegisterFilter('Equipment', 60, function(filter, slotData)
-		if slotData.equipSlot and slotData.equipSlot ~= "" then
-			return L['Equipment']
+	do
+		local equipmentFilter = addon:RegisterFilter('Equipment', 60, function(self, slotData)
+			local equipSlot = slotData.equipSlot
+			if equipSlot and equipSlot ~= "" then
+				self:Debug('splitBySlot', slotData.link, equipSlot, _G[equipSlot])
+				if self.db.profile.splitBySlot then
+					return _G[equipSlot], L['Equipment']
+				else
+					return L['Equipment']
+				end
+			end
+		end)
+		equipmentFilter.uiName = L['Equipment']
+		equipmentFilter.uiDesc = L['Put any item that can be equipped (including bags) into the "Equipment" section.']
+		
+		function equipmentFilter:OnInitialize()
+			self.db = addon.db:RegisterNamespace('Equipment', { profile = { splitBySlot = false } })
 		end
-	end)
-	equipmentFilter.uiName = L['Equipment']
-	equipmentFilter.uiDesc = L['Put any item that can be equipped (including bags) into the "Equipment" section.']
-
+		
+		function equipmentFilter:GetFilterOptions()
+			return {
+				splitBySlot = {
+					name = L['Split by inventory slot'],
+					desc = L['Check this to display one section per inventory slot.'],
+					type = 'toggle',
+					order = 10,
+				}
+			}, addon:GetOptionHandler(self, true)
+		end
+	end
+	
 	-- [10] Item classes
 	do
 		local itemCat = addon:RegisterFilter('ItemCategory', 10)
