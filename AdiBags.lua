@@ -559,6 +559,7 @@ local function Anchor_StopMovingOrSizing(anchor)
 	addon:LayoutBags()
 end
 
+local AceConfigRegistry = LibStub('AceConfigRegistry-3.0')
 function addon:CreateBagAnchor()
 	local anchor = CreateFrame("Frame", addonName.."Anchor", UIParent)
 	anchor:SetPoint("BOTTOMRIGHT", -32, 200)
@@ -567,6 +568,7 @@ function addon:CreateBagAnchor()
 	anchor.openBags = {}
 	hooksecurefunc(anchor, "StartMoving", Anchor_StartMoving)
 	hooksecurefunc(anchor, "StopMovingOrSizing", Anchor_StopMovingOrSizing)
+	hooksecurefunc(anchor, "SetScale", function() AceConfigRegistry:NotifyChange(addonName) end)
 	self.anchor = anchor
 	self:RegisterMovable(anchor, self.db.profile.anchor, L["AdiBags anchor"])
 end
@@ -578,6 +580,8 @@ function addon:LayoutBags()
 
 	local w, h = UIParent:GetWidth(), UIParent:GetHeight()
 	local x, y = self.anchor:GetCenter()
+	local scale = self.anchor:GetScale()
+	x, y = x * scale, y * scale
 	local anchorPoint =
 		((y > 0.6 * h) and "TOP" or (y < 0.4 * h) and "BOTTOM" or "") ..
 		((x < 0.4 * w) and "LEFT" or (x > 0.6 * w) and "RIGHT" or "")
