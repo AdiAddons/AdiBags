@@ -356,7 +356,7 @@ function containerProto:GetStackButton(key)
 end
 
 function containerProto:GetSection(name, category)
-	local key = strjoin('#', name, category or name)
+	local key = strjoin('#', tostringall(name, category or name))
 	local section = self.sections[key]
 	if not section then
 		section = addon:AcquireSection(self, name, category)
