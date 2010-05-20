@@ -9,14 +9,13 @@ local addonName, addon = ...
 local L = setmetatable({}, {
 	__index = function(self, key)
 		if key ~= nil then
-			self[key] = tostring(key)
+			--@debug@
+			addon:Debug('Missing locale', tostring(key))
+			--@end-debug@
+			rawset(self, key, tostring(key))
 		end
 		return tostring(key)
 	end,
-	__newindex = function(self, key, value)
-		if value == true then value = key end
-		rawset(self, tostring(key), tostring(value))
-	end
 })
 addon.L = L
 
@@ -172,6 +171,9 @@ L["Use this to adjust the bag scale."] = true
 L["Use this to adjust the quality-based border opacity. 100% means fully opaque."] = true
 L["Virtual stacks"] = true
 L["Virtual stacks display in one place items that actually spread over several bag slots."] = true
+
+-- Replace true with the key
+for k, v in pairs(L) do if v == true then L[k] = k end end
 
 --------------------------------------------------------------------------------
 -- Locales from localization system (not yet)
