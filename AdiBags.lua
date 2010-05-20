@@ -694,6 +694,8 @@ end
 function addon:ShouldStack(slotData)
 	if not slotData.link then
 		return self.db.profile.virtualStacks.freeSpace, "*Free*"
+	elseif not self.db.profile.virtualStacks.incomplete and (slotData.count or 1) < (slotData.maxStack or 1) then
+		return false
 	elseif slotData.itemId == 6265 or slotData.equipSlot == "INVTYPE_AMMO" then
 		return self.db.profile.virtualStacks.ammunition, slotData.itemId
 	elseif slotData.maxStack > 1 then
@@ -721,12 +723,15 @@ local function safecall(func, ...)
 	end
 end
 
-function addon:Filter(slotData)
+function addon:Filter(slotData, defaultSection, defaultCategory)
 	for i, filter in ipairs(filters) do
 		local sectionName, category = safecall(filter.Filter, filter, slotData)
 		if sectionName then
-			return filter.name, sectionName, (category or sectionName)
+			assert(type(sectionName) == "string", "Filter "..filter.name.." returned "..type(sectionName).." as section name instead of a string")
+			assert(category == nil or type(category) == "string", "Filter "..filter.name.." returned "..type(category).." as category instead of a string")
+			return sectionName, category
 		end
 	end
+	return defaultSection, defaultCategory
 end
 
