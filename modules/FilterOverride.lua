@@ -99,10 +99,10 @@ function headerButtonProto:OnCreate(section)
 	self:SetScript('OnReceiveDrag', self.OnClick)
 	self:EnableMouse(true)
 	self:RegisterForClicks("AnyUp")
-	
+
 	self:SetHighlightTexture([[Interface\BUTTONS\UI-Panel-Button-Highlight]], "ADD")
 	self:GetHighlightTexture():SetTexCoord(4/128, 76/128, 4/32, 18/32)
-	
+
 	addon.SetupTooltip(self, L["Drop your item there to add it to this section."])
 end
 

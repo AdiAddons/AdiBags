@@ -25,8 +25,8 @@ function mod:OnDisable()
 end
 
 function mod:OnBagFrameCreated(bag)
-	if bag.bagName ~= "Backpack" then return end	
-	local frame = bag:GetFrame()	
+	if bag.bagName ~= "Backpack" then return end
+	local frame = bag:GetFrame()
 	self.widget = CreateFrame("Frame", addonName.."MoneyFrame", frame, "MoneyFrameTemplate")
 	self.widget:SetHeight(19)
 	frame:AddBottomWidget(self.widget, "RIGHT", 50, nil, 13, 0)

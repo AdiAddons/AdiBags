@@ -283,7 +283,7 @@ function sectionProto:SetSize(width, height)
 	self.width = width
 	self.height = height
 	self.total = width * height
-	
+
 	self:SetWidth(ITEM_SIZE * width + ITEM_SPACING * math.max(width - 1 ,0))
 	self:SetHeight(HEADER_SIZE + ITEM_SIZE * height + ITEM_SPACING * math.max(height - 1, 0))
 	self.dirtyLayout = true

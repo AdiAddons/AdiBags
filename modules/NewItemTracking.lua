@@ -40,21 +40,21 @@ function mod:OnEnable()
 				isBank = bag.isBank,
 				counts = {},
 				newItems = {},
-				first = true,			
+				first = true,
 			}
 			for id in pairs(bag.bagIds) do
 				allBagIds[id] = id
 			end
 			if data.isBank then
-				data.GetCount = function(item) 
+				data.GetCount = function(item)
 					return item and (GetItemCount(item, true) or 0) - (GetItemCount(item) or 0) or 0
 				end
 			else
-				data.GetCount = function(item) 
+				data.GetCount = function(item)
 					return item and GetItemCount(item) or 0
 				end
 				data.available = true
-			end		
+			end
 			bags[bag.bagName] = data
 		end
 	end
@@ -73,9 +73,9 @@ function mod:OnEnable()
 	self:RegisterEvent('BANKFRAME_OPENED')
 	self:RegisterEvent('BANKFRAME_CLOSED')
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING')
-	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED')	
+	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED')
 	self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, 'UpdateBags')
-	
+
 	frozen = false
 	inventoryScanned = false
 
@@ -113,24 +113,24 @@ function mod:OnBagFrameCreated(bag)
 		L["Reset new items"],
 		L["Click to reset item status."]
 	}, "ANCHOR_TOPLEFT", 0, 8)
-	
+
 	if not next(bags[bag.bagName].newItems) then
 		button:Disable()
 	end
-	
+
 	container:HookScript('OnShow', function()
-		mod:UpdateBags(bag.bagIds, 'OnShow') 
+		mod:UpdateBags(bag.bagIds, 'OnShow')
 	end)
 
-	bags[bag.bagName].button = button	
-	bags[bag.bagName].container = container	
+	bags[bag.bagName].button = button
+	bags[bag.bagName].container = container
 end
 
 --------------------------------------------------------------------------------
 -- Options
 --------------------------------------------------------------------------------
 
-function mod:GetOptions() 
+function mod:GetOptions()
 	return {
 		showGlow = {
 			name = L['New item highlight'],
@@ -204,10 +204,10 @@ function mod:UpdateBags(bagIds, event)
 	self:Debug('UpdateBags', event or "BAG_UPDATED")
 	for name, bag in pairs(bags) do
 		if bag.available and (bag.first or (bag.container and bag.container:IsVisible())) then
-			local counts = bag.counts			
+			local counts = bag.counts
 			local bagUpdated = false
 			local first = bag.first
-			
+
 			-- Gather every item id of every updated bag (or all bags on first update)
 			for bagId in pairs(bag.bagIds) do
 				if first or bagIds[bagId] then
@@ -220,10 +220,10 @@ function mod:UpdateBags(bagIds, event)
 					end
 				end
 			end
-			
+
 			if bagUpdated then
 				self:Debug(name, 'updated, checking items')
-			
+
 				-- Update inventory if need be
 				if not inventoryScanned then
 					self:UpdateInventory(event)
@@ -235,7 +235,7 @@ function mod:UpdateBags(bagIds, event)
 						counts[itemId] = 0 -- Never seen before, assume we haven't any of it
 					end
 				end
-				
+
 				-- Update counts and new statuses
 				local newItems, GetCount = bag.newItems, bag.GetCount
 				for itemId, oldCount in pairs(counts) do
@@ -257,7 +257,7 @@ function mod:UpdateBags(bagIds, event)
 			end
 		end
 	end
-	
+
 	local filterChanged = false
 	for name, bag in pairs(bags) do
 		if bag.button then
@@ -284,20 +284,20 @@ function mod:UpdateInventory(event)
 	self:Debug('UpdateInventory', event)
 
 	-- All equipped items and bags
-	for slot = 0, 20 do 
+	for slot = 0, 20 do
 		inventory[slot] = GetInventoryItemID("player", slot) or nil
 	end
 	-- Bank equipped bags
-	for slot = 68, 74 do 
+	for slot = 68, 74 do
 		inventory[slot] = GetInventoryItemID("player", slot) or nil
 	end
-	
+
 	inventoryScanned = true
 end
 
 function mod:Reset(name)
 	local bag = bags[name]
-	self:Debug('Reset', name) 
+	self:Debug('Reset', name)
 	wipe(bag.counts)
 	wipe(bag.newItems)
 	bag.first = true
@@ -317,7 +317,7 @@ end
 
 do
 	local currentContainerName
-	
+
 	function mod:AdiBags_PreFilter(event, container)
 		currentContainerName = container.name
 	end
@@ -335,7 +335,7 @@ end
 
 local function Glow_Update(glow)
 	glow:SetScale(mod.db.profile.glowScale)
-	glow.Texture:SetVertexColor(unpack(mod.db.profile.glowColor))	
+	glow.Texture:SetVertexColor(unpack(mod.db.profile.glowColor))
 end
 
 local function CreateGlow(button)
@@ -361,7 +361,7 @@ local function CreateGlow(button)
 	anim:SetOrigin("CENTER", 0, 0)
 
 	group:Play()
-	
+
 	glow.Update = Glow_Update
 
 	glows[button] = glow
