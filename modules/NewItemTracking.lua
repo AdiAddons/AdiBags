@@ -117,8 +117,13 @@ function mod:OnBagFrameCreated(bag)
 	if not next(bags[bag.bagName].newItems) then
 		button:Disable()
 	end
+	
+	container:HookScript('OnShow', function()
+		mod:UpdateBags(bag.bagIds, 'OnShow') 
+	end)
 
 	bags[bag.bagName].button = button	
+	bags[bag.bagName].container = container	
 end
 
 --------------------------------------------------------------------------------
@@ -198,7 +203,7 @@ function mod:UpdateBags(bagIds, event)
 	if frozen then return end
 	self:Debug('UpdateBags', event or "BAG_UPDATED")
 	for name, bag in pairs(bags) do
-		if bag.available then
+		if bag.available and (bag.first or (bag.container and bag.container:IsVisible())) then
 			local counts = bag.counts			
 			local bagUpdated = false
 			local first = bag.first
@@ -241,8 +246,10 @@ function mod:UpdateBags(bagIds, event)
 							self:Debug(itemId, GetItemInfo(itemId), ':', oldCount, '=>', newCount, 'NEW!')
 							newItems[itemId] = true
 							bag.updated = true
+						--@debug@
 						else
 							self:Debug(itemId, GetItemInfo(itemId), ':', oldCount, '=>', newCount)
+						--@end-debug@
 						end
 					end
 				end
