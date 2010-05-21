@@ -41,7 +41,7 @@ local bagSlots = {}
 function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	containerParentProto.OnCreate(self, anchor)
 
-	self:EnableMouse(true)
+	--self:EnableMouse(true)
 	self:SetFrameStrata("HIGH")
 
 	self:SetBackdrop(addon.BACKDROP)
@@ -74,25 +74,37 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 		end
 	end
 
+	local button = CreateFrame("Button", nil, self)
+	button:SetAllPoints(self)
+	button:RegisterForClicks("AnyUp")
+	button:SetScript('OnClick', function(_, ...) return self:OnClick(...) end)
+	button:SetScript('OnReceiveDrag', function() return self:OnClick("LeftButton") end)
+	self.ClickReceiver = button
+	local minFrameLevel = button:GetFrameLevel() + 1
+
 	local headerLeftRegion = SimpleLayeredRegion:Create(self, "TOPLEFT", "RIGHT", 4)
 	headerLeftRegion:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
 	self.HeaderLeftRegion = headerLeftRegion
 	self:AddWidget(headerLeftRegion)
+	headerLeftRegion:SetFrameLevel(minFrameLevel)
 
 	local headerRightRegion = SimpleLayeredRegion:Create(self, "TOPRIGHT", "LEFT", 4)
 	headerRightRegion:SetPoint("TOPRIGHT", -32, -BAG_INSET)
 	self.HeaderRightRegion = headerRightRegion
 	self:AddWidget(headerRightRegion)
-	
+	headerRightRegion:SetFrameLevel(minFrameLevel)
+
 	local bottomLeftRegion = SimpleLayeredRegion:Create(self, "BOTTOMLEFT", "UP", 4)
 	bottomLeftRegion:SetPoint("BOTTOMLEFT", BAG_INSET, BAG_INSET)
 	self.BottomLeftRegion = bottomLeftRegion
 	self:AddWidget(bottomLeftRegion)
+	bottomLeftRegion:SetFrameLevel(minFrameLevel)
 
 	local bottomRightRegion = SimpleLayeredRegion:Create(self, "BOTTOMRIGHT", "UP", 4)
 	bottomRightRegion:SetPoint("BOTTOMRIGHT", -BAG_INSET, BAG_INSET)
 	self.BottomRightRegion = bottomRightRegion
 	self:AddWidget(bottomRightRegion)
+	bottomRightRegion:SetFrameLevel(minFrameLevel)
 
 	local bagSlotPanel = addon:CreateBagSlotPanel(self, name, bagSlots, isBank)
 	bagSlotPanel:Hide()
@@ -103,6 +115,7 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	self.CloseButton = closeButton
 	closeButton:SetPoint("TOPRIGHT", -2, -2)
 	addon.SetupTooltip(closeButton, L["Close"])
+	closeButton:SetFrameLevel(minFrameLevel)
 
 	local bagSlotButton = CreateFrame("CheckButton", nil, self)
 	bagSlotButton:SetNormalTexture([[Interface\Buttons\Button-Backpack-Up]])
@@ -126,12 +139,12 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	title:SetJustifyH("LEFT")
 	title:SetPoint("LEFT", headerLeftRegion, "RIGHT", 4, 0)
 	title:SetPoint("RIGHT", headerRightRegion, "LEFT", -4, 0)
-	
+
 	local content = CreateFrame("Frame", nil, self)
 	content:SetPoint("TOPLEFT", BAG_INSET, -addon.TOP_PADDING)
 	self.Content = content
 	self:AddWidget(content)
-	
+
 	self:UpdateBackgroundColor()
 	self:RegisterPersistentListeners()
 end
@@ -199,7 +212,7 @@ function containerProto:OnShow()
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "RegisterUpdateEvents")
 	self:RegisterUpdateEvents()
 end
-	
+
 function containerProto:OnHide()
 	containerParentProto.OnHide(self)
 	PlaySound(self.isBank and "igMainMenuClose" or "igBackPackClose")
@@ -217,6 +230,62 @@ function containerProto:UpdateAllContent(forceUpdate)
 	end
 	self:UpdateButtons()
 	self:LayoutSections(true)
+end
+
+--------------------------------------------------------------------------------
+-- Backdrop click handler
+--------------------------------------------------------------------------------
+
+local band = bit.band
+local function FindBagWithRoom(self, itemFamily)
+	local fallback
+	for bag in pairs(self.bagIds) do
+		local numFree, family = GetContainerNumFreeSlots(bag)
+		if numFree and numFree > 0 then
+			if band(family, itemFamily) ~= 0 then
+				return bag
+			elseif not fallback then
+				fallback = bag
+			end
+		end
+	end
+	return fallback
+end
+
+local FindFreeSlot
+do
+	local slots = {}
+	FindFreeSlot = function(self, item)
+		local bag = FindBagWithRoom(self, GetItemFamily(item))
+		if not bag then return end
+		wipe(slots)
+		GetContainerFreeSlots(bag, slots)
+		return GetSlotId(bag, slots[1])
+	end
+end
+
+function containerProto:OnClick(...)
+	local kind, data1, data2 = GetCursorInfo()
+	local itemLink
+	if kind == "item" then
+		itemLink = data2
+	elseif kind == "merchant" then
+		itemLink = GetMerchantItemLink(data1)
+	else
+		return
+	end
+	self:Debug('OnClick', kind, data1, data2, '=>', itemLink)
+	if itemLink then
+		local slotId = FindFreeSlot(self, itemLink)
+		if slotId then
+			local button = self.buttons[slotId]
+			if button then
+				local button = button:GetRealButton()
+				self:Debug('Redirecting click to', button)
+				return button:GetScript('OnClick')(button, ...)
+			end
+		end
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -243,7 +312,7 @@ function containerProto:OnLayout()
 		bottomHeight = math.max(bottomHeight, self.BottomRightRegion:GetHeight() + BAG_INSET)
 		bottomWidth = bottomWidth + self.BottomRightRegion:GetWidth()
 	end
-	
+
 	local headerWidth = self.Title:GetStringWidth() + 32
 	if self.HeaderLeftRegion:IsShown() then
 		headerWidth = headerWidth + self.HeaderLeftRegion:GetWidth() + 4
@@ -251,7 +320,7 @@ function containerProto:OnLayout()
 	if self.HeaderRightRegion:IsShown() then
 		headerWidth = headerWidth + self.HeaderRightRegion:GetWidth() + 4
 	end
-	
+
 	self:SetWidth(BAG_INSET * 2 + math.max(headerWidth, bottomWidth, self.Content:GetWidth()))
 	self:SetHeight(addon.TOP_PADDING + BAG_INSET + bottomHeight + self.Content:GetHeight())
 end
@@ -397,12 +466,10 @@ function containerProto:RemoveSlot(slotId)
 		if button:IsStack() then
 			button:RemoveSlot(slotId)
 			if button:IsEmpty() then
-				self:Debug('Removing empty stack', button)
 				self.stacks[button:GetKey()] = nil
 				button:Release()
 			end
 		else
-			self:Debug('Removing item', button)
 			button:Release()
 		end
 	end
@@ -465,7 +532,7 @@ function containerProto:UpdateButtons()
 	end
 
 	self.inUpdate = nil
-	
+
 	if next(dirtyButtons) then
 		--@debug@
 		local numButtons = 0
@@ -556,8 +623,8 @@ function containerProto:LayoutSections(forceLayout)
 		bagWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.columns - ITEM_SPACING
 	end
 	local num = #sections
-	
-	while num > 0 do	
+
+	while num > 0 do
 		local y, columnWidth = 0, 0
 
 		while num > 0 and y < maxColumnHeight do
@@ -565,7 +632,7 @@ function containerProto:LayoutSections(forceLayout)
 			while nextIndex do
 				local section = tremove(sections, nextIndex)
 				num = num - 1
-				
+
 				section:SetPoint('TOPLEFT', content, "TOPLEFT", columnX + x, -y)
 				section:Show()
 
@@ -582,10 +649,10 @@ function containerProto:LayoutSections(forceLayout)
 			columnWidth = math.max(columnWidth, x)
 			contentHeight = math.max(contentHeight, y)
 		end
-		
+
 		columnX = columnX + columnWidth
 	end
-	
+
 	content:SetWidth(columnX - SECTION_SPACING)
 	content:SetHeight(contentHeight - ITEM_SPACING)
 end
