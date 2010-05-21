@@ -188,7 +188,9 @@ function addon:OnEnable()
 		else
 			module:SetEnabledState(self.db.profile.modules[module.moduleName])
 		end
-	end	
+	end
+	
+	self:UpdateMovableLayout()
 end
 
 function addon:Reconfigure()
@@ -550,7 +552,7 @@ end
 -- Bag anchor and layout
 --------------------------------------------------------------------------------
 
-local function Anchor_StartMoving(anchor)
+local function Anchor_OnStartedMovingg(anchor)
 	for _, bag in addon:IterateBags(true) do
 		anchor.openBags[bag] = true
 		bag:GetFrame():Hide()
@@ -565,18 +567,26 @@ local function Anchor_StopMovingOrSizing(anchor)
 	addon:LayoutBags()
 end
 
+local function Anchor_GetDatabase(anchor)
+	return addon.db.profile.anchor
+end
+
 local AceConfigRegistry = LibStub('AceConfigRegistry-3.0')
+local function Anchor_OnDatabaseUpdated(anchor)
+	AceConfigRegistry:NotifyChange(addonName)
+end
+
 function addon:CreateBagAnchor()
 	local anchor = CreateFrame("Frame", addonName.."Anchor", UIParent)
 	anchor:SetPoint("BOTTOMRIGHT", -32, 200)
 	anchor:SetWidth(200)
 	anchor:SetHeight(20)
 	anchor.openBags = {}
-	hooksecurefunc(anchor, "StartMoving", Anchor_StartMoving)
-	hooksecurefunc(anchor, "StopMovingOrSizing", Anchor_StopMovingOrSizing)
-	hooksecurefunc(anchor, "SetScale", function() AceConfigRegistry:NotifyChange(addonName) end)
+	anchor.LM10_OnStartedMoving = Anchor_OnStartedMovingg
+	anchor.LM10_OnStoppedMoving = Anchor_OnStoppedMoving
+	anchor.LM10_OnDatabaseUpdated = Anchor_OnDatabaseUpdated
 	self.anchor = anchor
-	self:RegisterMovable(anchor, self.db.profile.anchor, L["AdiBags anchor"])
+	self:RegisterMovable(anchor, Anchor_GetDatabase, L["AdiBags anchor"])
 end
 
 function addon:LayoutBags()
@@ -694,6 +704,8 @@ end
 function addon:ShouldStack(slotData)
 	if not slotData.link then
 		return self.db.profile.virtualStacks.freeSpace, "*Free*"
+	elseif not self.db.profile.virtualStacks.incomplete and (slotData.count or 1) < (slotData.maxStack or 1) then
+		return false
 	elseif slotData.itemId == 6265 or slotData.equipSlot == "INVTYPE_AMMO" then
 		return self.db.profile.virtualStacks.ammunition, slotData.itemId
 	elseif slotData.maxStack > 1 then
@@ -721,12 +733,15 @@ local function safecall(func, ...)
 	end
 end
 
-function addon:Filter(slotData)
+function addon:Filter(slotData, defaultSection, defaultCategory)
 	for i, filter in ipairs(filters) do
 		local sectionName, category = safecall(filter.Filter, filter, slotData)
 		if sectionName then
-			return filter.name, sectionName, (category or sectionName)
+			assert(type(sectionName) == "string", "Filter "..filter.name.." returned "..type(sectionName).." as section name instead of a string")
+			assert(category == nil or type(category) == "string", "Filter "..filter.name.." returned "..type(category).." as category instead of a string")
+			return sectionName, category
 		end
 	end
+	return defaultSection, defaultCategory
 end
 

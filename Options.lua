@@ -283,7 +283,7 @@ function addon:GetOptions()
 								end,
 								set = function(info, value)
 									addon.db.profile.anchor.scale = value
-									addon.acnhorScale = value
+									self:UpdateMovableLayout()
 								end,
 							},
 							multiColumn = {

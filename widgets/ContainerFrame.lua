@@ -356,7 +356,7 @@ function containerProto:GetStackButton(key)
 end
 
 function containerProto:GetSection(name, category)
-	local key = strjoin('#', name, category or name)
+	local key = strjoin('#', name, category)
 	local section = self.sections[key]
 	if not section then
 		section = addon:AcquireSection(self, name, category)
@@ -365,30 +365,27 @@ function containerProto:GetSection(name, category)
 	return section
 end
 
-function containerProto:DispatchItem(slotData)
-	local filter, sectionName, category
-	local bag, slotId, slot, link, itemId = slotData.bag, slotData.slotId, slotData.slot, slotData.link, slotData.itemId
-	local isFull = false
-	if link then
-		filter, sectionName, category = addon:Filter(slotData)
-		isFull = addon.db.profile.virtualStacks.incomplete or (slotData.count or 1) == (slotData.maxStack or 1)
+local function FilterSlot(slotData)
+	if slotData.link then
+		local section, category = addon:Filter(slotData, L['Miscellaneous'])
+		return section, category, addon:ShouldStack(slotData)
 	else
-		filter, sectionName, category = "Free", L["Free space"], L["Free space"]
-		isFull = true
+		return L["Free space"], nil, addon:ShouldStack(slotData)
 	end
+end
+
+function containerProto:DispatchItem(slotData)
+	local sectionName, category, shouldStack, stackKey = FilterSlot(slotData)
+	local slotId = slotData.slotId
 	local button = self.buttons[slotId]
-	local shouldStack, stackKey 
-	if isFull then 
-		shouldStack, stackKey = addon:ShouldStack(slotData)
-	end
 	if shouldStack then
-		local fullKey = strjoin('#', tostringall(stackKey, slotData.bagFamily))
+		local fullKey = strjoin('#', stackKey, tostring(slotData.bagFamily))
 		button = self:GetStackButton(fullKey)
 		button:AddSlot(slotId)
 	elseif not button then
-		button = addon:AcquireItemButton(self, bag, slot)
+		button = addon:AcquireItemButton(self, slotData.bag, slotData.slot)
 	end
-	local section = self:GetSection(sectionName or L['Miscellaneous'], category)
+	local section = self:GetSection(sectionName, category or sectionName)
 	section:AddItemButton(slotId, button)
 	self.buttons[slotId] = button
 end
