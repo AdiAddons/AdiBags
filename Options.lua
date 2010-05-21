@@ -322,6 +322,16 @@ function addon:GetOptions()
 								step = 1,
 								hidden = function() return not addon.db.profile.multiColumn end,
 							},
+							laxOrdering = {
+								name = L['Layout priority'],
+								order = 149,
+								type = 'select',
+								values = {
+									[0] = L['Strictly keep ordering'],
+									[1] = L['Group sections of same category'],
+									[2] = L['Fill lines at most'],
+								}
+							},
 							backpackColor = {
 								name = L['Backpack background color'],
 								type = 'color',
