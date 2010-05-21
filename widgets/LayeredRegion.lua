@@ -48,19 +48,20 @@ end
 
 function layeredRegionProto:AddWidget(widget, ...)
 	self:Debug('Adding widget', widget, ...)
-	
+
 	local data = { widget = widget }
 	tinsert(self.widgets, data)
 	self:OnWidgetAdded(data, ...)
+	widget:SetFrameLevel(self:GetFrameLevel()+1)
 
 	if type(widget.SetContainer) == "function" and type(widget.Layout) == "function" then
 		data.layered = true
 		widget:SetContainer(self)
-	else			
+	else
 		data.isShown = widget:IsShown()
 		data.width = widget:GetWidth()
 		data.height = widget:GetHeight()
-	
+
 		local visibility_callback = function()
 			local isShown = widget:IsShown()
 			if data.shown ~= isShown then
@@ -68,7 +69,7 @@ function layeredRegionProto:AddWidget(widget, ...)
 				self:RequestLayout()
 			end
 		end
-	
+
 		widget:HookScript('OnShow', visibility_callback)
 		widget:HookScript('OnHide', visibility_callback)
 		widget:HookScript('OnSizeChanged', function()
@@ -102,6 +103,8 @@ function layeredRegionProto:RequestLayout()
 		self.dirtyLayout = true
 		if self.container then
 			self.container:RequestLayout()
+		elseif self:IsVisible() then
+			self:Layout()
 		else
 			self:SetScript('OnUpdate', self.Layout)
 		end
