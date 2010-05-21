@@ -559,12 +559,11 @@ local function Anchor_OnStartedMovingg(anchor)
 	end
 end
 
-local function Anchor_StopMovingOrSizing(anchor)
+local function Anchor_OnStoppedMoving(anchor)
 	for	bag in pairs(anchor.openBags) do
 		bag:GetFrame():Show()
 	end
 	wipe(anchor.openBags)
-	addon:LayoutBags()
 end
 
 local function Anchor_GetDatabase(anchor)
@@ -574,6 +573,7 @@ end
 local AceConfigRegistry = LibStub('AceConfigRegistry-3.0')
 local function Anchor_OnDatabaseUpdated(anchor)
 	AceConfigRegistry:NotifyChange(addonName)
+	addon:LayoutBags()
 end
 
 function addon:CreateBagAnchor()
