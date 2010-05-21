@@ -188,7 +188,9 @@ function addon:OnEnable()
 		else
 			module:SetEnabledState(self.db.profile.modules[module.moduleName])
 		end
-	end	
+	end
+	
+	self:UpdateMovableLayout()
 end
 
 function addon:Reconfigure()
@@ -550,7 +552,7 @@ end
 -- Bag anchor and layout
 --------------------------------------------------------------------------------
 
-local function Anchor_StartMoving(anchor)
+local function Anchor_OnStartedMovingg(anchor)
 	for _, bag in addon:IterateBags(true) do
 		anchor.openBags[bag] = true
 		bag:GetFrame():Hide()
@@ -565,18 +567,26 @@ local function Anchor_StopMovingOrSizing(anchor)
 	addon:LayoutBags()
 end
 
+local function Anchor_GetDatabase(anchor)
+	return addon.db.profile.anchor
+end
+
 local AceConfigRegistry = LibStub('AceConfigRegistry-3.0')
+local function Anchor_OnDatabaseUpdated(anchor)
+	AceConfigRegistry:NotifyChange(addonName)
+end
+
 function addon:CreateBagAnchor()
 	local anchor = CreateFrame("Frame", addonName.."Anchor", UIParent)
 	anchor:SetPoint("BOTTOMRIGHT", -32, 200)
 	anchor:SetWidth(200)
 	anchor:SetHeight(20)
 	anchor.openBags = {}
-	hooksecurefunc(anchor, "StartMoving", Anchor_StartMoving)
-	hooksecurefunc(anchor, "StopMovingOrSizing", Anchor_StopMovingOrSizing)
-	hooksecurefunc(anchor, "SetScale", function() AceConfigRegistry:NotifyChange(addonName) end)
+	anchor.LM10_OnStartedMoving = Anchor_OnStartedMovingg
+	anchor.LM10_OnStoppedMoving = Anchor_OnStoppedMoving
+	anchor.LM10_OnDatabaseUpdated = Anchor_OnDatabaseUpdated
 	self.anchor = anchor
-	self:RegisterMovable(anchor, self.db.profile.anchor, L["AdiBags anchor"])
+	self:RegisterMovable(anchor, Anchor_GetDatabase, L["AdiBags anchor"])
 end
 
 function addon:LayoutBags()
