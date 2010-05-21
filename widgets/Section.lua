@@ -12,26 +12,15 @@ local ITEM_SPACING = addon.ITEM_SPACING
 local SECTION_SPACING = addon.SECTION_SPACING
 local SLOT_OFFSET = ITEM_SIZE + ITEM_SPACING
 local HEADER_SIZE = 14 + ITEM_SPACING
+addon.HEADER_SIZE = HEADER_SIZE
 
 --------------------------------------------------------------------------------
 -- Section ordering
 --------------------------------------------------------------------------------
 
-local sectionOrder = {}
-
 local categoryOrder = {
 	[L["Free space"]] = -100
 }
-
-function addon:SetSectionOrder(name, order, ...)
-	sectionOrder[name] = order
-end
-
-function addon:SetSectionOrders(t)
-	for name, order in pairs(t) do
-		sectionOrder[name] = order
-	end
-end
 
 function addon:SetCategoryOrder(name, order)
 	categoryOrder[name] = order
@@ -89,10 +78,6 @@ function sectionProto:OnRelease()
 end
 
 function sectionProto:GetOrder()
-	return self.name and sectionOrder[self.name] or 0
-end
-
-function sectionProto:GetCategoryOrder()
 	return self.category and categoryOrder[self.category] or 0
 end
 

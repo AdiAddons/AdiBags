@@ -133,6 +133,7 @@ function addon:OnInitialize()
 		multiColumn = false,
 		multiColumnWidth = 5,
 		multiColumnHeight = 10,
+		laxOrdering = 0,
 		qualityHighlight = true,
 		qualityOpacity = 1.0,
 		questIndicator = true,
@@ -154,6 +155,10 @@ function addon:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileChanged", "Reconfigure")
 	self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")
 	self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
+	
+	if self.db.profile.laxOrdering == true then
+		self.db.profile.laxOrdering = 1
+	end
 	
 	self.itemParentFrames = {}
 
@@ -245,7 +250,7 @@ function addon:ConfigChanged(vars)
 			return self:SendMessage('AdiBags_FiltersChanged')
 		elseif name == 'sortingOrder' then
 			return self:SetSortingOrder(self.db.profile.sortingOrder)
-		elseif name:lower():match('column') then
+		elseif name:lower():match('column') or name == 'laxOrdering' then
 			return self:SendMessage('AdiBags_LayoutChanged')
 		end
 	end
