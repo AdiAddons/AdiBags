@@ -119,6 +119,10 @@ function buttonProto:IsStack()
 	return false
 end
 
+function buttonProto:GetRealButton()
+	return self
+end
+
 --------------------------------------------------------------------------------
 -- Scripts & event handlers
 --------------------------------------------------------------------------------
@@ -142,7 +146,7 @@ end
 
 function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)
 	if unit == "player" then
-		self:UpdateBorder() 
+		self:UpdateBorder()
 	end
 end
 
@@ -176,7 +180,7 @@ function buttonProto:FullUpdate()
 		self.Stock:Show()
 	else
 		self.Stock:Hide()
-	end	
+	end
 	self:UpdateCount()
 	self:UpdateBorder()
 	self:UpdateCooldown()
@@ -282,6 +286,10 @@ function stackProto:IsStack()
 	return true
 end
 
+function stackProto:GetRealButton()
+	return self.button
+end
+
 function stackProto:GetKey()
 	return self.key
 end
@@ -289,7 +297,7 @@ end
 function stackProto:UpdateVisibleSlot()
 	local bestLockedId, bestLockedCount
 	local bestUnlockedId, bestUnlockedCount
-	if self.slotId then
+	if self.slotId and self.slots[self.slotId] then
 		local _, count, locked = GetContainerItemInfo(GetBagSlotFromId(self.slotId))
 		count = count or 1
 		if locked then
@@ -321,6 +329,7 @@ end
 function stackProto:AddSlot(slotId)
 	local slots = self.slots
 	if not slots[slotId] then
+		self:Debug('AddSlot', slotId)
 		slots[slotId] = true
 		self.dirtyCount = true
 		if not self:UpdateVisibleSlot() then
@@ -332,6 +341,7 @@ end
 function stackProto:RemoveSlot(slotId)
 	local slots = self.slots
 	if slots[slotId] then
+		self:Debug('RemoveSlot', slotId)
 		slots[slotId] = nil
 		self.dirtyCount = true
 		if not self:UpdateVisibleSlot() then
@@ -347,7 +357,7 @@ end
 function stackProto:OnShow()
 	self:RegisterMessage('AdiBags_UpdateAllButtons', 'FullUpdate')
 	self:RegisterMessage('AdiBags_PostContentUpdate')
-	self:RegisterEvent('ITEM_LOCK_CHANGED')	
+	self:RegisterEvent('ITEM_LOCK_CHANGED')
 	self:FullUpdate()
 end
 
@@ -358,6 +368,7 @@ end
 
 function stackProto:SetVisibleSlot(slotId)
 	if slotId == self.slotId then return end
+	self:Debug('SetVisibleSlot', self.slotId, '=>', slotId)
 	self.slotId = slotId
 	local button = self.button
 	if button then
