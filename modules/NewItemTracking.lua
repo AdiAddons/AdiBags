@@ -246,10 +246,6 @@ function mod:UpdateBags(bagIds, event)
 							self:Debug(itemId, GetItemInfo(itemId), ':', oldCount, '=>', newCount, 'NEW!')
 							newItems[itemId] = true
 							bag.updated = true
-						--@debug@
-						else
-							self:Debug(itemId, GetItemInfo(itemId), ':', oldCount, '=>', newCount)
-						--@end-debug@
 						end
 					end
 				end

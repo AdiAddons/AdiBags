@@ -329,7 +329,6 @@ end
 function stackProto:AddSlot(slotId)
 	local slots = self.slots
 	if not slots[slotId] then
-		self:Debug('AddSlot', slotId)
 		slots[slotId] = true
 		self.dirtyCount = true
 		self:FullUpdate()
@@ -339,7 +338,6 @@ end
 function stackProto:RemoveSlot(slotId)
 	local slots = self.slots
 	if slots[slotId] then
-		self:Debug('RemoveSlot', slotId)
 		slots[slotId] = nil
 		self.dirtyCount = true
 		self:FullUpdate()
