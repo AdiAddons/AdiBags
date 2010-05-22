@@ -192,7 +192,9 @@ function containerProto:FiltersChanged()
 		return
 	end
 	self:Debug('FiltersChanged')
-	return self:UpdateAllContent(true)
+	if self:RedispatchAllItems() then
+		self:LayoutSections()
+	end
 end
 
 function containerProto:LayoutChanged()
@@ -306,7 +308,7 @@ function containerProto:GetContentMinWidth()
 	return math.max(
 		(self.BottomLeftRegion:IsShown() and self.BottomLeftRegion:GetWidth() or 0) +
 			(self.BottomRightRegion:IsShown() and self.BottomRightRegion:GetWidth() or 0),
-		self.Title:GetStringWidth() + 32 + 
+		self.Title:GetStringWidth() + 32 +
 			(self.HeaderLeftRegion:IsShown() and (self.HeaderLeftRegion:GetWidth() + 4) or 0) +
 			(self.HeaderRightRegion:IsShown() and (self.HeaderRightRegion:GetWidth() + 4) or 0)
 	)
@@ -446,6 +448,11 @@ function containerProto:DispatchItem(slotData)
 	local sectionName, category, shouldStack, stackKey = FilterSlot(slotData)
 	local slotId = slotData.slotId
 	local button = self.buttons[slotId]
+	if button and ((button:IsStack() and not shouldStack) or (not button:IsStack() and shouldStack)) then
+		self:RemoveSlot(slotId)
+		button = nil
+	end
+	local isNew = not button
 	if shouldStack then
 		local fullKey = strjoin('#', stackKey, tostring(slotData.bagFamily))
 		button = self:GetStackButton(fullKey)
@@ -455,6 +462,9 @@ function containerProto:DispatchItem(slotData)
 	end
 	local section = self:GetSection(sectionName, category or sectionName)
 	section:AddItemButton(slotId, button)
+	if not isNew then
+		button:FullUpdate()
+	end
 	self.buttons[slotId] = button
 end
 
@@ -471,6 +481,38 @@ function containerProto:RemoveSlot(slotId)
 		else
 			button:Release()
 		end
+	end
+end
+
+local function UpdateSections(self)
+	local dirtyLayout = false
+	for name, section in pairs(self.sections) do
+		if section:DispatchDone() then
+			dirtyLayout = true
+		end
+	end
+	return dirtyLayout
+end
+
+local function UpdateDirtyButtons(self)
+	local dirtyButtons = self.dirtyButtons
+	if next(dirtyButtons) then
+		--@debug@
+		local numButtons = 0
+		--@end-debug@
+		local buttons = self.buttons
+		for button in pairs(dirtyButtons) do
+			if button.container == self then -- sanity check
+				button:FullUpdate()
+			end
+			--@debug@
+			numButtons = numButtons + 1
+			--@end-debug@
+		end
+		--@debug@
+		self:Debug(numButtons, 'late button update(s)')
+		--@end-debug@
+		wipe(dirtyButtons)
 	end
 end
 
@@ -524,33 +566,29 @@ function containerProto:UpdateButtons()
 	wipe(removed)
 	wipe(changed)
 
-	for name, section in pairs(self.sections) do
-		if section:DispatchDone() then
-			dirtyLayout = true
+	local dirtyLayout = UpdateSections(self)
+	self.inUpdate = nil
+	UpdateDirtyButtons(self)
+	return dirtyLayout
+end
+
+function containerProto:RedispatchAllItems()
+	self:Debug('RedispatchAllItems')
+
+	self.inUpdate = true
+
+	self:SendMessage('AdiBags_PreFilter', self)
+	for bag, content in pairs(self.content) do
+		for slotId, slotData in ipairs(content) do
+			self:DispatchItem(slotData)
 		end
 	end
+	self:SendMessage('AdiBags_PostFilter', self)
+
+	local dirtyLayout = UpdateSections(self)
 
 	self.inUpdate = nil
-
-	if next(dirtyButtons) then
-		--@debug@
-		local numButtons = 0
-		--@end-debug@
-		local buttons = self.buttons
-		for button in pairs(dirtyButtons) do
-			if button.container == self then -- sanity check
-				button:FullUpdate()
-			end
-			--@debug@
-			numButtons = numButtons + 1
-			--@end-debug@
-		end
-		--@debug@
-		self:Debug(numButtons, 'late button update(s)')
-		--@end-debug@
-		wipe(dirtyButtons)
-	end
-
+	UpdateDirtyButtons(self)
 	return dirtyLayout
 end
 
@@ -575,10 +613,10 @@ local sections = {}
 local max, floor = math.max, math.floor
 
 local getNextSection = {
-	-- 0: keep section of the same category together and in the right order 
+	-- 0: keep section of the same category together and in the right order
 	[0] = function(maxWidth, maxHeight, category)
 		if floor(sections[1]:GetWidth()) <= maxWidth and floor(sections[1]:GetHeight()) <= maxHeight then
-			return 1 
+			return 1
 		end
 	end,
 	-- 1: keep categories together
@@ -623,18 +661,15 @@ local function DoLayoutSections(self, rowWidth, maxHeight)
 
 	local content = self.Content
 	local getNext = getNextSection[addon.db.profile.laxOrdering]
-	
+
 	local wasted = 0
 	local contentWidth, contentHeight = 0, 0
-	local columnX, numColumns = 0, 0	
+	local columnX, numColumns = 0, 0
 	local num = #sections
 	local category = sections[1].category
-	self:Debug('rowWidth, maxHeight:', rowWidth, maxHeight)
 	while num > 0 do
-		self:Debug('Start of column', numColumns)
 		local columnWidth, y = 0, 0
 		while num > 0 and y < maxHeight do
-			self:Debug('Start of row at', y)
 			local rowHeight, x = 0, 0
 			while num > 0 and x < rowWidth do
 				local index = getNext(rowWidth - x, maxHeight - y, category)
@@ -645,12 +680,8 @@ local function DoLayoutSections(self, rowWidth, maxHeight)
 					end
 					index = index or getNextSection[0](rowWidth - x, maxHeight - y)
 					if not index then
-						self:Debug('No section to fit in ', rowWidth - x, maxHeight - y, 'first section:', sections[1]:GetWidth(), sections[1]:GetHeight())
 						break
 					end
-					self:Debug('Found any section for space', rowWidth - x, maxHeight - y, ':', sections[index])
-				else
-					self:Debug('Found section in category', category, 'for space', rowWidth - x, maxHeight - y, ':', sections[index])
 				end
 				local section = tremove(sections, index)
 				category = section.category
@@ -665,7 +696,6 @@ local function DoLayoutSections(self, rowWidth, maxHeight)
 				columnWidth = math.max(columnWidth, x)
 				contentHeight = math.max(contentHeight, y)
 			else
-				self:Debug('Empty row, start new column')
 				break
 			end
 		end
@@ -675,11 +705,10 @@ local function DoLayoutSections(self, rowWidth, maxHeight)
 			contentWidth = math.max(contentWidth, columnX)
 			wasted = maxHeight - y
 		else
-			self:Debug('Empty column ??')
 			break
 		end
 	end
-	return contentWidth - SECTION_SPACING, contentHeight - ITEM_SPACING, numColumns, wasted 
+	return contentWidth - SECTION_SPACING, contentHeight - ITEM_SPACING, numColumns, wasted
 end
 
 function containerProto:LayoutSections(forceLayout)
@@ -699,19 +728,17 @@ function containerProto:LayoutSections(forceLayout)
 	else
 		maxHeight = 0.9 * UIParent:GetHeight() * self:GetEffectiveScale() / UIParent:GetEffectiveScale()
 		rowWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.columns - ITEM_SPACING
-	end	
-	
+	end
+
 	local contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight)
 	local step = ITEM_SIZE + ITEM_SPACING + addon.HEADER_SIZE
 	if numColumns > 1 and wastedHeight / contentHeight > 0.1 then
 		local totalHeight = contentHeight * numColumns - wastedHeight
 		maxHeight = totalHeight / numColumns
-		self:Debug('LayoutSections, height=', contentHeight, 'numColumns=', numColumns, 'wasted=', wastedHeight, '=> maxHeight=', maxHeight)
 		contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight)
 	elseif numColumns == 1 and contentWidth < self:GetContentMinWidth()  then
 		contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self:GetContentMinWidth(), maxHeight)
 	end
-	self:Debug('LayoutSections, at final: width=', contentWidth, 'height=', contentHeight, 'numColumns=', numColumns, 'wasted=', wastedHeight)
 	self.Content:SetWidth(contentWidth)
 	self.Content:SetHeight(contentHeight)
 end
