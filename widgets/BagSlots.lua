@@ -16,15 +16,47 @@ local TOP_PADDING = addon.TOP_PADDING
 -- Widget scripts
 --------------------------------------------------------------------------------
 
+local function BagSlotButton_OnClick(self)
+	if not PutItemInBag(self:GetID()) then
+		PickupBagFromSlot(self:GetID())
+	end
+end
+
+local function BankBagButton_OnClick(self)
+	if self.toPurchase then
+		PlaySound("igMainMenuOption")
+		StaticPopup_Show("CONFIRM_BUY_BANK_SLOT")
+	else
+		local id = self:GetInventorySlot()
+		if not PutItemInBag(id) then
+			PickupBagFromSlot(id)
+		end
+	end
+end
+
 local function BankBagPanel_UpdateStatus(self)
 	local numSlots = GetNumBankSlots()
 	for i, button in pairs(self.buttons) do
+		button.canPurchase = nil
 		if i <= numSlots then
 			SetItemButtonTextureVertexColor(button, 1, 1, 1)
 			button.tooltipText = BANK_BAG
+			button.toPurchase = false
 		else
 			SetItemButtonTextureVertexColor(button, 1, 0.1, 0.1)
-			button.tooltipText = BANK_BAG_PURCHASE
+			local cost = GetBankSlotCost(i)
+			if i == numSlots + 1 then
+				BankFrame.nextSlotCost = cost
+				button.tooltipText = strjoin("",
+					BANK_BAG_PURCHASE, "\n",
+					COSTS_LABEL, " ", GetCoinTextureString(cost), "\n",
+					L["Click to purchase"]
+				)
+				button.toPurchase = true
+			else
+				button.tooltipText = strjoin("", BANK_BAG_PURCHASE, "\n", COSTS_LABEL, " ", GetCoinTextureString(cost))
+				button.toPurchase = false
+			end
 		end
 	end
 end
@@ -96,8 +128,10 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 			if isBank then
 				button = CreateFrame("Button", string.format("AdiBank__Bag%d", bag - NUM_BAG_SLOTS), self, "BankItemButtonBagTemplate")
 				button:SetID(bag)
+				button:SetScript('OnClick', BankBagButton_OnClick)
 			else
 				button = CreateFrame("CheckButton", string.format("AdiBag___Bag%dSlot", bag - 1), self, "BagSlotButtonTemplate")
+				button:SetScript('OnClick', BagSlotButton_OnClick)
 				local normalTexture = button:GetNormalTexture()
 				normalTexture:SetWidth(64 * 37 / ITEM_SIZE)
 				normalTexture:SetHeight(64 * 37 / ITEM_SIZE)
