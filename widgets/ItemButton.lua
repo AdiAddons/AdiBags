@@ -323,7 +323,7 @@ function stackProto:UpdateVisibleSlot()
 end
 
 function stackProto:ITEM_LOCK_CHANGED()
-	return self:UpdateVisibleSlot()
+	return self:FullUpdate()
 end
 
 function stackProto:AddSlot(slotId)
@@ -332,9 +332,7 @@ function stackProto:AddSlot(slotId)
 		self:Debug('AddSlot', slotId)
 		slots[slotId] = true
 		self.dirtyCount = true
-		if not self:UpdateVisibleSlot() then
-			self:FullUpdate()
-		end
+		self:FullUpdate()
 	end
 end
 
@@ -344,9 +342,7 @@ function stackProto:RemoveSlot(slotId)
 		self:Debug('RemoveSlot', slotId)
 		slots[slotId] = nil
 		self.dirtyCount = true
-		if not self:UpdateVisibleSlot() then
-			self:FullUpdate()
-		end
+		self:FullUpdate()
 	end
 end
 
@@ -384,12 +380,12 @@ function stackProto:SetVisibleSlot(slotId)
 		button = nil
 	end
 	self.button = button
-	self:FullUpdate()
 	return true
 end
 
 function stackProto:FullUpdate()
 	if not self:CanUpdate() then return end
+	self:UpdateVisibleSlot()
 	self:UpdateCount()
 	if self.button then
 		self.button:FullUpdate()
