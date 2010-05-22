@@ -83,7 +83,17 @@ local function BankBagPanel_OnEvent(self, event, ...)
 	end
 end
 
+local function BagPanel_OnShow(self)
+	PlaySound("igBackPackOpen")
+end
+
+local function BagPanel_OnHide(self)
+	PlaySound("igBackPackClose")
+end
+
 local function BankBagPanel_OnShow(self)
+	PlaySound("igMainMenuOpen")
+	BagPanel_OnShow(self)
 	self:RegisterEvent("ITEM_LOCK_CHANGED")
 	self:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
 	BankBagPanel_UpdateStatus(self)
@@ -93,6 +103,7 @@ local function BankBagPanel_OnShow(self)
 end
 
 local function BankBagPanel_OnHide(self)
+	PlaySound("igMainMenuClose")
 	self:UnregisterAllEvents()
 end
 
@@ -109,6 +120,9 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 		self:SetScript('OnShow', BankBagPanel_OnShow)
 		self:SetScript('OnHide', BankBagPanel_OnHide)
 		self:SetScript('OnEvent', BankBagPanel_OnEvent)
+	else
+		self:SetScript('OnShow', BagPanel_OnShow)
+		self:SetScript('OnHide', BagPanel_OnHide)
 	end
 
 	local title = self:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")

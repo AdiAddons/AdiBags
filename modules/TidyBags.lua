@@ -32,6 +32,7 @@ function mod:OnDisable()
 end
 
 local function TidyButton_OnClick(button)
+	PlaySound("igMainMenuOptionCheckBoxOn")
 	mod:Start(button.container)
 end
 
