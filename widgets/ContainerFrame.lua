@@ -675,11 +675,7 @@ local function DoLayoutSections(self, rowWidth, maxHeight)
 			while num > 0 and x < rowWidth do
 				local index = getNext(rowWidth - x, maxHeight - y)
 				if not index then
-					if x > 0 then
-						break
-					else
-						index = 1
-					end
+					break
 				end
 				local section = tremove(sections, index)
 				category = section.category
@@ -720,7 +716,7 @@ function containerProto:LayoutSections(forceLayout)
 	end
 
 	local rowWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.rowWidth - ITEM_SPACING
-	local maxHeight = addon.db.profile.maxHeight * UIParent:GetHeight() / self:GetScale()
+	local maxHeight = addon.db.profile.maxHeight * UIParent:GetHeight() * UIParent:GetEffectiveScale() / self:GetEffectiveScale()
 
 	local contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight)
 	local step = ITEM_SIZE + ITEM_SPACING + addon.HEADER_SIZE
