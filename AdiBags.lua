@@ -129,10 +129,8 @@ addon.BACKDROP = {
 function addon:OnInitialize()
 	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", {profile = {
 		anchor = { scale = 0.8 },
-		columns = 12,
-		multiColumn = false,
-		multiColumnWidth = 5,
-		multiColumnHeight = 10,
+		rowWidth = 6,
+		maxHeight = 0.90,
 		laxOrdering = 0,
 		qualityHighlight = true,
 		qualityOpacity = 1.0,
@@ -250,7 +248,7 @@ function addon:ConfigChanged(vars)
 			return self:SendMessage('AdiBags_FiltersChanged')
 		elseif name == 'sortingOrder' then
 			return self:SetSortingOrder(self.db.profile.sortingOrder)
-		elseif name:lower():match('column') or name == 'laxOrdering' then
+		elseif name == "bagScale" or name == "rowWidth" or name == "maxHeight" or name == 'laxOrdering' then
 			return self:SendMessage('AdiBags_LayoutChanged')
 		end
 	end

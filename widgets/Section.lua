@@ -283,7 +283,7 @@ function sectionProto:LayoutButtons(forceLayout)
 	end
 	self:Debug('LayoutButtons', forceLayout)
 
-	local width = math.min(self.count, addon.db.profile.multiColumn and addon.db.profile.multiColumnWidth or addon.db.profile.columns)
+	local width = math.min(self.count, addon.db.profile.rowWidth)
 	local height = math.ceil(self.count / math.max(width, 1))
 	self:SetSize(width, height)
 
