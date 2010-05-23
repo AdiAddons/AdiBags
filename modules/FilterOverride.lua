@@ -25,6 +25,7 @@ function mod:OnEnable()
 	for button in pairs(buttons) do
 		button:Show()
 	end
+	self:UpdateOptions()	
 end
 
 function mod:OnDisable()
@@ -46,32 +47,54 @@ function mod:HookSection(event, section)
 	buttons[button] = true
 end
 
-local strsplit, strformat = string.split, string.format
-local t = {}
-function mod:GetOptions()
-	return {
-		overrides = {
-			name = L['Item-section associations'],
-			desc = L['Uncheck this to remove this association.'],
-			type = 'multiselect',
-			confirm = true,
-			confirmText = L['Are you sure you want to remove this association ?'],
-			get = function(info, key)
-				return not not info.handler:Get(info, key)
-			end,
-			set = function(info, key, value)
-				return info.handler:Set(info, key, value and self.db.profile.overrides[itemId] or nil)
-			end,
-			values = function()
-				wipe(t)
-				for itemId, override in pairs(self.db.profile.overrides) do
-					local section, category = strsplit('#', tostring(override))
-					t[itemId] = strformat("%s: %s", GetItemInfo(itemId), tostring(section))
+local overrideOptionList = {}
+do
+	local proto = {
+		type = 'multiselect',
+		confirm = true,
+		confirmText = L['Are you sure you want to remove this association ?'],
+		get = function(info, itemId) return true end,
+		set = function(info, itemId, value)
+			if not value then
+				 mod.db.profile.overrides[itemId] = nil
+				 mod:UpdateOptions()
+				 mod:SendMessage('AdiBags_FiltersChanged')
+			end
+		end,
+	}
+	local meta = { __index = proto }
+	local AceConfigRegistry = LibStub('AceConfigRegistry-3.0')
+	local ours = {}
+
+	function mod:UpdateOptions()
+		for option in pairs(ours) do
+			wipe(option.values)
+			option.hidden = true
+		end
+		for itemId, override in pairs(self.db.profile.overrides) do
+			local section, category = strsplit('#', tostring(override))
+			local key = strjoin('_', section, category)
+			local option = overrideOptionList[key]
+			if not option then
+				option = setmetatable({ values = {} }, meta)
+				if category ~= section then
+					option.name = section.. ' ('..category..')'
+				else
+					option.name = section
 				end
-				return t
-			end,
-		}
-	}, addon:GetOptionHandler(self, true)
+				ours[option] = true
+				overrideOptionList[key] = option
+			end
+			option.hidden = false
+			option.values[itemId] = GetItemInfo(itemId)
+		end
+		AceConfigRegistry:NotifyChange(addonName)	
+	end
+end
+
+local strsplit, strformat = string.split, string.format
+function mod:GetOptions()
+	return overrideOptionList
 end
 
 function mod:Filter(slotData)
@@ -132,6 +155,7 @@ function headerButtonProto:OnClick()
 	local contentType, itemId = GetCursorInfo()
 	if contentType ~= "item" then return end
 	mod.db.profile.overrides[itemId] = self:GetOverride()
+	mod:UpdateOptions()
 	self:SendMessage('AdiBags_FiltersChanged')
 	ClearCursor()
 end
