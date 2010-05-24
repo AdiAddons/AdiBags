@@ -356,6 +356,15 @@ function addon:GetOptions()
 									return info.handler:IsDisabled(info) or not addon.db.profile.qualityHighlight
 								end,
 							},
+							dimJunk = {
+								name = L['Dim junk'],
+								desc = L['Check this to have poor quality items dimmed.'],
+								type = 'toggle',
+								order = 225,
+								disabled = function(info)
+									return info.handler:IsDisabled(info) or not addon.db.profile.qualityHighlight
+								end,
+							},
 							questIndicator = {
 								name = L['Quest indicator'],
 								desc = L['Check this to display an indicator on quest items.'],

@@ -134,6 +134,7 @@ function addon:OnInitialize()
 		laxOrdering = 0,
 		qualityHighlight = true,
 		qualityOpacity = 1.0,
+		dimJunk = true,
 		questIndicator = true,
 		showBagType = true,
 		filters = { ['*'] = true },

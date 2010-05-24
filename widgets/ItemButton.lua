@@ -222,7 +222,7 @@ function buttonProto:UpdateBorder()
 				a = addon.db.profile.qualityOpacity
 				texture, x1, x2, y1, y2 = [[Interface\Buttons\UI-ActionButton-Border]], 14/64, 49/64, 15/64, 50/64
 				blendMode = "ADD"
-			elseif quality == ITEM_QUALITY_POOR then
+			elseif quality == ITEM_QUALITY_POOR and addon.db.profile.dimJunk then
 				local v = 1 - 0.5 * addon.db.profile.qualityOpacity
 				texture, blendMode, r, g, b = true, "MOD", v, v, v
 			end
