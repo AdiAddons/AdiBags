@@ -36,7 +36,7 @@ end
 -- Initialization and release
 --------------------------------------------------------------------------------
 
-local sectionClass, sectionProto = addon:NewClass("Section", "Frame")
+local sectionClass, sectionProto = addon:NewClass("Section", "Frame", "AceEvent-3.0")
 addon:CreatePool(sectionClass, "AcquireSection")
 
 function sectionProto:OnCreate()
@@ -49,7 +49,13 @@ function sectionProto:OnCreate()
 	header:SetPoint("TOPRIGHT", SECTION_SPACING - ITEM_SPACING, 0)
 	header:SetHeight(HEADER_SIZE)
 	self.Header = header
-	addon:SendMessage('AdiBags_SectionCreated', self)
+	self:SendMessage('AdiBags_SectionCreated', self)
+
+	self:SetScript('OnShow', self.OnShow)
+end
+
+function sectionProto:ToString()
+	return string.format("Section[%q,%q]", tostring(self.name), tostring(self.category))
 end
 
 function sectionProto:OnAcquire(container, name, category)
@@ -61,11 +67,10 @@ function sectionProto:OnAcquire(container, name, category)
 	self.height = 0
 	self.count = 0
 	self.total = 0
+	self.dirtyLayout = false
+	self.dirtyOrder = false
 	self.container = container
-end
-
-function sectionProto:ToString()
-	return string.format("Section[%q,%q]", tostring(self.name), tostring(self.category))
+	self:RegisterMessage('AdiBags_OrderChanged')
 end
 
 function sectionProto:OnRelease()
@@ -75,6 +80,17 @@ function sectionProto:OnRelease()
 	self.name = nil
 	self.category = nil
 	self.container = nil
+end
+
+function sectionProto:OnShow()
+	self:ReorderButtons()
+end
+
+function sectionProto:AdiBags_OrderChanged()
+	self.dirtyOrder = true
+	if self:IsVisible() then
+		self:ReorderButtons(true)
+	end
 end
 
 function sectionProto:GetOrder()
@@ -92,6 +108,8 @@ function sectionProto:AddItemButton(slotId, button)
 		local freeSlots = self.freeSlots
 		for index = 1, self.total do
 			if freeSlots[index] then
+				self:Debug('AddItemButton: dirty order')
+				self.dirtyOrder = true
 				self:PutButtonAt(button, index)
 				return
 			end
@@ -104,6 +122,8 @@ function sectionProto:RemoveItemButton(button)
 	if self.buttons[button] then
 		local index = self.slots[button]
 		if index and index <= self.total then
+			self:Debug('RemoveItemButton: dirty order')
+			self.dirtyOrder = true
 			self.freeSlots[index] = true
 		end
 		self.slots[button] = nil
@@ -214,7 +234,7 @@ function addon:SetSortingOrder(order)
 		self:Debug('SetSortingOrder', order, func)
 		currentSortingFunc = func
 		wipe(itemCompareCache)
-		self:SendMessage('AdiBags_FiltersChanged')
+		self:SendMessage('AdiBags_OrderChanged')
 	end
 end
 
@@ -272,11 +292,12 @@ function sectionProto:SetSize(width, height)
 	self:SetWidth(ITEM_SIZE * width + ITEM_SPACING * math.max(width - 1 ,0))
 	self:SetHeight(HEADER_SIZE + ITEM_SIZE * height + ITEM_SPACING * math.max(height - 1, 0))
 	self.dirtyLayout = true
+	self.dirtyOrder = true
 end
 
-local buttonOrder = {}
 function sectionProto:LayoutButtons(forceLayout)
 	if self.count == 0 then
+		self.dirtyLayout = false
 		return false
 	elseif not forceLayout and not self.dirtyLayout then
 		return true
@@ -286,23 +307,37 @@ function sectionProto:LayoutButtons(forceLayout)
 	local width = math.min(self.count, addon.db.profile.rowWidth)
 	local height = math.ceil(self.count / math.max(width, 1))
 	self:SetSize(width, height)
+	self.dirtyLayout = false
+
+	self:ReorderButtons()
+
+	return true
+end
+
+local buttonOrder = {}
+function sectionProto:ReorderButtons(forceReorder)
+	if self.count == 0 then
+		self.dirtyOrder = false
+		return
+	elseif not self.dirtyOrder and not forceReorder then
+		return
+	end
+	self:Debug('ReorderButtons', forceReorder)
 
 	wipe(self.freeSlots)
 	wipe(self.slots)
 	for index = 1, self.total do
 		self.freeSlots[index] = true
 	end
-
 	for button in pairs(self.buttons) do
 		tinsert(buttonOrder, button)
 	end
 	table.sort(buttonOrder, CompareButtons)
-
-	self.dirtyLayout = false
 	for index, button in ipairs(buttonOrder) do
 		self:PutButtonAt(button, index)
 	end
-
 	wipe(buttonOrder)
-	return true
+
+	self.dirtyOrder = false
 end
+
