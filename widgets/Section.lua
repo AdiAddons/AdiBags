@@ -83,7 +83,7 @@ function sectionProto:OnRelease()
 end
 
 function sectionProto:OnShow()
-	self:ReorderButtons()
+	self:ReorderButtons(true)
 end
 
 function sectionProto:AdiBags_OrderChanged()
