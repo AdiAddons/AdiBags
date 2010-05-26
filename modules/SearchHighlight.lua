@@ -71,17 +71,14 @@ end
 function mod:UpdateButton(event, button)
 	if not self.widget then return end
 	local text = self.widget:GetText()
-	local selected = true
 	if text and button.hasItem and text:trim() ~= "" then
 		local name = GetItemInfo(button.itemId)
 		if name and not name:lower():match(text:lower()) then
-			selected = false
+			button.IconTexture:SetVertexColor(0.2, 0.2, 0.2)
+			button.IconQuestTexture:Hide()
+			button.Count:Hide()
+			button.Stock:Hide()
 		end
-	end
-	if selected then
-		button:SetAlpha(1)
-	else
-		button:SetAlpha(0.3)
 	end
 end
 
