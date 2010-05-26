@@ -5,6 +5,7 @@ All rights reserved.
 --]]
 
 local addonName, addon = ...
+local safecall = addon.safecall
 
 --------------------------------------------------------------------------------
 -- Classes
@@ -22,9 +23,7 @@ local function Class_Create(class, ...)
 	setmetatable(self, class.metatable)
 	self:ClearAllPoints()
 	self:Hide()
-	if self.OnCreate then
-		self:OnCreate(...)
-	end
+	safecall(self, "OnCreate", ...)
 	return self
 end
 
@@ -52,7 +51,7 @@ local function NewClass(name, parent, ...)
 		if not mixins[name] then
 			local mixin = LibStub(name)
 			mixins[name] = mixin
-			mixin:Embed(prototype)
+			safecall(mixin, "Embed", prototype)
 		end
 	end
 
@@ -115,13 +114,9 @@ function poolProto:Acquire(...)
 	end
 	self.actives[object] = true
 	for name, mixin in pairs(self.class.mixins) do
-		if mixin.OnEmbedEnable then
-			mixin:OnEmbedEnable(object)
-		end
+		safecall(mixin, "OnEmbedEnable", object)
 	end
-	if object.OnAcquire then
-		object:OnAcquire(...)
-	end
+	safecall(object, "OnAcquire", ...)
 	return object
 end
 
@@ -129,13 +124,9 @@ function poolProto:Release(object)
 	object:Hide()
 	object:ClearAllPoints()
 	object:SetParent(nil)
-	if object.OnRelease then
-		object:OnRelease()
-	end
+	safecall(object, "OnRelease")
 	for name, mixin in pairs(self.class.mixins) do
-		if mixin.OnEmbedDisable then
-			mixin:OnEmbedDisable(object)
-		end
+		safecall(mixin, "OnEmbedDisable", object)
 	end
 	self.actives[object] = nil
 	self.heap[object] = true

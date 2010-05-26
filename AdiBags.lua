@@ -272,6 +272,27 @@ function addon.GetBagSlotFromId(slotId)
 	end
 end
 
+local function safecall_return(success, ...)
+	if success then
+		return ...
+	else
+		geterrorhandler()((...))
+	end
+end
+
+local function safecall(funcOrSelf, argOrMethod, ...)
+	local func, arg
+	if type(funcOrSelf) == "table" and type(argOrMethod) == "function" then
+		func, arg = funcOrSelf[argOrMethod], funcOrSelf
+	else
+		func, arg = funcOrSelf, argOrMethod
+	end
+	if type(func) == "function" then
+		return safecall_return(pcall(func, arg, ...))
+	end
+end
+addon.safecall = safecall
+
 local function WidgetTooltip_OnEnter(self)
 	GameTooltip:SetOwner(self, self.tooltipAnchor, self.tootlipAnchorXOffset, self.tootlipAnchorYOffset)
 	self:UpdateTooltip(self)
@@ -285,7 +306,7 @@ end
 
 local function WidgetTooltip_Update(self)
 	GameTooltip:ClearLines()
-	self:tooltipCallback(GameTooltip)
+	safecall(self, "tooltipCallback", GameTooltip)
 	GameTooltip:Show()
 end
 
@@ -723,20 +744,6 @@ end
 -- Filtering process
 --------------------------------------------------------------------------------
 
-local function safecall_return(success, ...)
-	if success then
-		return ...
-	else
-		geterrorhandler()((...))
-	end
-end
-
-local function safecall(func, ...)
-	if type(func) == "function" then
-		return safecall_return(pcall(func, ...))
-	end
-end
-
 function addon:Filter(slotData, defaultSection, defaultCategory)
 	for i, filter in ipairs(filters) do
 		local sectionName, category = safecall(filter.Filter, filter, slotData)
@@ -748,4 +755,3 @@ function addon:Filter(slotData, defaultSection, defaultCategory)
 	end
 	return defaultSection, defaultCategory
 end
-

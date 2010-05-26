@@ -6,6 +6,7 @@ All rights reserved.
 
 local addonName, addon = ...
 local L = addon.L
+local safecall = addon.safecall
 
 --------------------------------------------------------------------------------
 -- Abstract layered region
@@ -51,7 +52,7 @@ function layeredRegionProto:AddWidget(widget, ...)
 
 	local data = { widget = widget }
 	tinsert(self.widgets, data)
-	self:OnWidgetAdded(data, ...)
+	safecall(self, "OnWidgetAdded", data, ...)
 	widget:SetFrameLevel(self:GetFrameLevel()+1)
 
 	if type(widget.SetContainer) == "function" and type(widget.Layout) == "function" then
@@ -93,7 +94,7 @@ function layeredRegionProto:Layout()
 			data.widget:Layout()
 		end
 	end
-	self:OnLayout()
+	safecall(self, "OnLayout")
 	self.dirtyLayout = nil
 	self:SetScript('OnUpdate', nil)
 end
@@ -110,9 +111,6 @@ function layeredRegionProto:RequestLayout()
 		end
 	end
 end
-
-function layeredRegionProto:OnWidgetAdded() end
-function layeredRegionProto:OnLayout() end
 
 --------------------------------------------------------------------------------
 -- Simple layered region
