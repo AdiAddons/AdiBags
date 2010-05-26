@@ -312,8 +312,9 @@ function addon:GetOptions()
 							},
 							laxOrdering = {
 								name = L['Layout priority'],
-								order = 149,
 								type = 'select',
+								width = 'double',
+								order = 149,
 								values = {
 									[0] = L['Strictly keep ordering'],
 									[1] = L['Group sections of same category'],

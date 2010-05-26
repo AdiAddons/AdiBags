@@ -129,9 +129,9 @@ addon.BACKDROP = {
 function addon:OnInitialize()
 	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", {profile = {
 		anchor = { scale = 0.8 },
-		rowWidth = 6,
-		maxHeight = 0.90,
-		laxOrdering = 0,
+		rowWidth = 9,
+		maxHeight = 0.60,
+		laxOrdering = 1,
 		qualityHighlight = true,
 		qualityOpacity = 1.0,
 		dimJunk = true,
