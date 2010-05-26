@@ -282,7 +282,7 @@ end
 
 local function safecall(funcOrSelf, argOrMethod, ...)
 	local func, arg
-	if type(funcOrSelf) == "table" and type(argOrMethod) == "function" then
+	if type(funcOrSelf) == "table" and type(argOrMethod) == "string" then
 		func, arg = funcOrSelf[argOrMethod], funcOrSelf
 	else
 		func, arg = funcOrSelf, argOrMethod
