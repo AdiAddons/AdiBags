@@ -242,7 +242,12 @@ function addon:GetOptions()
 	local profiles = LibStub('AceDBOptions-3.0'):GetOptionsTable(self.db)
 	profiles.order = 30
 	options = {
-		name = addonName,
+		--@debug@
+		name = addonName..' DEV',
+		--@end-debug@
+		--[===[@non-debug@
+		name = addonName..' @project-version@',
+		--@end-non-debug@]===]
 		type = 'group',
 		args = {
 			core = {

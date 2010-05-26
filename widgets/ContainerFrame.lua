@@ -370,6 +370,7 @@ function containerProto:UpdateContent(bag, forceUpdate)
 			content[slot] = slotData
 		end
 		local _, count, _, _, _, _, link = GetContainerItemInfo(bag, slot)
+		--@alpha@
 		-- Try to catch weird link values (see ticket #2)
 		if link ~= nil and type(link) ~= "string" then
 			local secure, tainter = issecurevariable("GetContainerItemInfo")
@@ -384,6 +385,7 @@ function containerProto:UpdateContent(bag, forceUpdate)
 				error("GetContainerItemInfo returned a "..type(link).." for the link, where a string is expected. No more information available.")
 			end
 		end
+		--@end-alpha@
 		link, count = link or false, count or 0
 
 		if slotData.link ~= link or forceUpdate then
