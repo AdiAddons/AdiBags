@@ -146,7 +146,14 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	self:AddWidget(content)
 
 	self:UpdateBackgroundColor()
-	self:RegisterPersistentListeners()
+	self.paused = true
+
+	-- Register persitent listeners
+	local name = self:GetName()
+	local RegisterMessage = LibStub('AceEvent-3.0').RegisterMessage
+	RegisterMessage(name, 'AdiBags_FiltersChanged', self.FiltersChanged, self)
+	RegisterMessage(name, 'AdiBags_LayoutChanged', self.LayoutChanged, self)
+	RegisterMessage(name, 'AdiBags_ConfigChanged', self.ConfigChanged, self)
 end
 
 function containerProto:ToString() return self.name or self:GetName() end
@@ -155,50 +162,33 @@ function containerProto:ToString() return self.name or self:GetName() end
 -- Scripts & event handlers
 --------------------------------------------------------------------------------
 
-function containerProto:RegisterPersistentListeners()
-	self:RegisterMessage('AdiBags_FiltersChanged', 'FiltersChanged')
-	self:RegisterMessage('AdiBags_LayoutChanged', 'LayoutChanged')
-	self:RegisterMessage('AdiBags_ConfigChanged', 'ConfigChanged')
-end
-
-function containerProto:RegisterUpdateEvents()
-	self.bagUpdateBucket = self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, "BagsUpdated")
-	self:UpdateAllContent(self.postponedUpdate)
-	self.postponedUpdate = nil
-end
-
-function containerProto:UnregisterUpdateEvents()
-	if self.bagUpdateBucket then
-		self:UnregisterBucket(self.bagUpdateBucket)
-		self.bagUpdateBucket = nil
-	end
-end
-
 function containerProto:BagsUpdated(bagIds)
 	for bag in pairs(bagIds) do
 		if self.bagIds[bag] then
 			self:UpdateContent(bag)
 		end
 	end
-	if self:UpdateButtons() then
-		self:LayoutSections()
-	end
+	self:UpdateButtons()
+	self:LayoutSections()
+end
+
+function containerProto:CanUpdate()
+	return not addon.holdYourBreath and not self.paused and self:IsVisible()
 end
 
 function containerProto:FiltersChanged()
-	if addon.holdYourBreath or not self.bagUpdateBucket then
-		self:Debug('Postponing FiltersChanged')
-		self.postponedUpdate = true
-		return
-	end
-	self:Debug('FiltersChanged')
-	if self:RedispatchAllItems() then
-		self:LayoutSections()
+	self.filtersChanged = true
+	if self:CanUpdate() then
+		self:RedispatchAllItems()
+		self:LayoutSections(true)
 	end
 end
 
 function containerProto:LayoutChanged()
-	return self:LayoutSections(true)
+	self.forceLayout = true
+	if self:CanUpdate() then
+		self:LayoutSections(true)
+	end
 end
 
 function containerProto:ConfigChanged(event, name)
@@ -208,30 +198,42 @@ function containerProto:ConfigChanged(event, name)
 end
 
 function containerProto:OnShow()
-	containerParentProto.OnShow(self)
 	PlaySound(self.isBank and "igMainMenuOpen" or "igBackPackOpen")
-	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "UnregisterUpdateEvents")
-	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "RegisterUpdateEvents")
-	self:RegisterUpdateEvents()
+	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "PauseUpdates")
+	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "ResumeUpdates")
+	containerParentProto.OnShow(self)
+	self:ResumeUpdates()
 end
 
 function containerProto:OnHide()
 	containerParentProto.OnHide(self)
 	PlaySound(self.isBank and "igMainMenuClose" or "igBackPackClose")
-	self.bagUpdateBucket = nil
+	self:PauseUpdates()
 	self:UnregisterAllEvents()
 	self:UnregisterAllMessages()
 	self:UnregisterAllBuckets()
-	self:RegisterPersistentListeners()
 end
 
-function containerProto:UpdateAllContent(forceUpdate)
-	self:Debug('UpdateAllContent', forceUpdate)
+function containerProto:ResumeUpdates()
+	if not self.paused then return end
+	self.paused = false
+	self.bagUpdateBucket = self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, "BagsUpdated")
+	self:Debug('ResumeUpdates')
 	for bag in pairs(self.bagIds) do
-		self:UpdateContent(bag, forceUpdate)
+		self:UpdateContent(bag)
 	end
 	self:UpdateButtons()
+	if self.filtersChanged  then
+		self:RedispatchAllItems()
+	end
 	self:LayoutSections(true)
+end
+
+function containerProto:PauseUpdates()
+	if self.paused then return end
+	self:Debug('PauseUpdates')
+	self:UnregisterBucket(self.bagUpdateBucket, true)
+	self.paused = true
 end
 
 --------------------------------------------------------------------------------
@@ -342,15 +344,8 @@ end
 -- Bag content scanning
 --------------------------------------------------------------------------------
 
---[[ Make some global locals to avoid issues with hooking
-local GetContainerNumSlots = _G.GetContainerNumSlots
-local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
-local GetContainerItemInfo = _G.GetContainerItemInfo
-local GetItemInfo = _G.GetItemInfo
---]]
-
-function containerProto:UpdateContent(bag, forceUpdate)
-	self:Debug('UpdateContent', bag, forceUpdate)
+function containerProto:UpdateContent(bag)
+	self:Debug('UpdateContent', bag)
 	local added, removed, changed = self.added, self.removed, self.changed
 	local content = self.content[bag]
 	local newSize = GetContainerNumSlots(bag)
@@ -388,7 +383,7 @@ function containerProto:UpdateContent(bag, forceUpdate)
 		--@end-alpha@
 		link, count = link or false, count or 0
 
-		if slotData.link ~= link or forceUpdate then
+		if slotData.link ~= link then
 			removed[slotData.slotId] = slotData.link
 			slotData.count = count
 			slotData.link = link
@@ -419,7 +414,7 @@ end
 --------------------------------------------------------------------------------
 
 function containerProto:GetStackButton(key)
-	local stack = self.stacks[key]
+	local stack, isNew = self.stacks[key]
 	if not stack then
 		stack = addon:AcquireStackButton(self, key)
 		self.stacks[key] = stack
@@ -454,7 +449,6 @@ function containerProto:DispatchItem(slotData)
 		self:RemoveSlot(slotId)
 		button = nil
 	end
-	local isNew = not button
 	if shouldStack then
 		local fullKey = strjoin('#', stackKey, tostring(slotData.bagFamily))
 		button = self:GetStackButton(fullKey)
@@ -463,10 +457,10 @@ function containerProto:DispatchItem(slotData)
 		button = addon:AcquireItemButton(self, slotData.bag, slotData.slot)
 	end
 	local section = self:GetSection(sectionName, category or sectionName)
-	section:AddItemButton(slotId, button)
-	if not isNew then
-		button:FullUpdate()
+	if button:GetSection() ~= section then
+		section:AddItemButton(slotId, button)
 	end
+	button:FullUpdate()
 	self.buttons[slotId] = button
 end
 
@@ -486,45 +480,11 @@ function containerProto:RemoveSlot(slotId)
 	end
 end
 
-local function UpdateSections(self)
-	local dirtyLayout = false
-	for name, section in pairs(self.sections) do
-		if section:DispatchDone() then
-			dirtyLayout = true
-		end
-	end
-	return dirtyLayout
-end
-
-local function UpdateDirtyButtons(self)
-	local dirtyButtons = self.dirtyButtons
-	if next(dirtyButtons) then
-		--@debug@
-		local numButtons = 0
-		--@end-debug@
-		local buttons = self.buttons
-		for button in pairs(dirtyButtons) do
-			if button.container == self then -- sanity check
-				button:FullUpdate()
-			end
-			--@debug@
-			numButtons = numButtons + 1
-			--@end-debug@
-		end
-		--@debug@
-		self:Debug(numButtons, 'late button update(s)')
-		--@end-debug@
-		wipe(dirtyButtons)
-	end
-end
-
 function containerProto:UpdateButtons()
 	if not self:HasContentChanged() then return end
 	self:Debug('UpdateButtons')
-	self.inUpdate = true
 
 	local added, removed, changed = self.added, self.removed, self.changed
-	local dirtyButtons = self.dirtyButtons
 	self:SendMessage('AdiBags_PreContentUpdate', self, added, removed, changed)
 
 	--@debug@
@@ -552,7 +512,7 @@ function containerProto:UpdateButtons()
 	-- Just push the buttons into dirtyButtons
 	local buttons = self.buttons
 	for slotId in pairs(changed) do
-		dirtyButtons[buttons[slotId]] = true
+		buttons[slotId]:FullUpdate()
 		--@debug@
 		numChanged = numChanged + 1
 		--@end-debug@
@@ -567,18 +527,10 @@ function containerProto:UpdateButtons()
 	wipe(added)
 	wipe(removed)
 	wipe(changed)
-
-	local dirtyLayout = UpdateSections(self)
-	self.inUpdate = nil
-	UpdateDirtyButtons(self)
-	return dirtyLayout
 end
 
 function containerProto:RedispatchAllItems()
 	self:Debug('RedispatchAllItems')
-
-	self.inUpdate = true
-
 	self:SendMessage('AdiBags_PreFilter', self)
 	for bag, content in pairs(self.content) do
 		for slotId, slotData in ipairs(content) do
@@ -586,12 +538,7 @@ function containerProto:RedispatchAllItems()
 		end
 	end
 	self:SendMessage('AdiBags_PostFilter', self)
-
-	local dirtyLayout = UpdateSections(self)
-
-	self.inUpdate = nil
-	UpdateDirtyButtons(self)
-	return dirtyLayout
+	self.filtersChanged = nil
 end
 
 --------------------------------------------------------------------------------
@@ -623,8 +570,8 @@ local function GetBestSection(maxWidth, maxHeight, category)
 	local foundFittingSection
 	local bestIndex, leastWasted
 	for index, section in ipairs(sections) do
-		if category and section.category ~= category then 
-			break 
+		if category and section.category ~= category then
+			break
 		end
 		if SectionFitInSpace(section, maxWidth, maxHeight) then
 			foundFittingSection = true
@@ -655,9 +602,6 @@ local getNextSection = {
 }
 
 local function DoLayoutSections(self, rowWidth, maxHeight)
-	if not next(self.sections) then
-		return 0, 0, 0, 0
-	end
 	for name, section in pairs(self.sections) do
 		tinsert(sections, section)
 	end
@@ -683,7 +627,6 @@ local function DoLayoutSections(self, rowWidth, maxHeight)
 				category = section.category
 				num = num - 1
 				section:SetPoint("TOPLEFT", content, columnX + x, -y)
-				section:Show()
 				x = x + floor(section:GetWidth()) + SECTION_SPACING
 				rowHeight = math.max(rowHeight, floor(section:GetHeight()))
 			end
@@ -707,24 +650,43 @@ local function DoLayoutSections(self, rowWidth, maxHeight)
 	return contentWidth - SECTION_SPACING, contentHeight - ITEM_SPACING, numColumns, wasted
 end
 
-function containerProto:LayoutSections(forceLayout)
-	self:Debug('LayoutSections', forceLayout)
+function containerProto:LayoutSections(repack)
 
+	local num = 0
+	local changed = self.forceLayout
 	for name, section in pairs(self.sections) do
-		if not section:LayoutButtons(forceLayout) then
+		if section:IsEmpty() then
 			section:Release()
 			self.sections[name] = nil
+			changed = true
+		else
+			section:Show()
+			if section:Layout(repack, self.forceLayout) then
+				changed = true
+			end
+			num = num + 1
 		end
 	end
+	if not changed then
+		return
+	end
+	self.forceLayout = nil
+	if num == 0 then
+		self.Content:SetWidth(0.5)
+		self.Content:SetHeight(0.5)
+		return
+	end
+
+	self:Debug('LayoutSections')
 
 	local rowWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.rowWidth - ITEM_SPACING
 	local maxHeight = addon.db.profile.maxHeight * UIParent:GetHeight() * UIParent:GetEffectiveScale() / self:GetEffectiveScale()
+	self:Debug('- GetContentMinWidth:', self:GetContentMinWidth())
 
 	local contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight)
-	local step = ITEM_SIZE + ITEM_SPACING + addon.HEADER_SIZE
 	if numColumns > 1 and wastedHeight / contentHeight > 0.1 then
 		local totalHeight = contentHeight * numColumns - wastedHeight
-		maxHeight = totalHeight / numColumns
+		maxHeight = totalHeight / numColumns * 1.10
 		contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight)
 	elseif numColumns == 1 and contentWidth < self:GetContentMinWidth()  then
 		contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self:GetContentMinWidth(), maxHeight)

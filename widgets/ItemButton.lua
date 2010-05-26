@@ -38,16 +38,17 @@ function buttonProto:OnAcquire(container, bag, slot)
 	self.slot = slot
 	self:SetParent(addon.itemParentFrames[bag])
 	self:SetID(slot)
-	self.itemId = GetContainerItemID(bag, slot)
-	self.itemLink = GetContainerItemLink(bag, slot)
-	self.hasItem = not not self.itemId
-	self.texture = GetContainerItemInfo(bag, slot)
-	self.bagFamily = select(2, GetContainerNumFreeSlots(bag))
+	self:FullUpdate()
 end
 
 function buttonProto:OnRelease()
 	self:SetSection(nil)
 	self.container = nil
+	self.itemId = nil
+	self.itemLink = nil
+	self.hasItem = nil
+	self.texture = nil
+	self.bagFamily = nil
 end
 
 function buttonProto:ToString()
@@ -94,6 +95,10 @@ function buttonProto:SetSection(section)
 	end
 end
 
+function buttonProto:GetSection()
+	return self.section
+end
+
 function buttonProto:GetItemId()
 	return self.itemId
 end
@@ -132,8 +137,8 @@ function buttonProto:OnShow()
 	self:RegisterEvent('ITEM_LOCK_CHANGED', 'UpdateLock')
 	self:RegisterEvent('QUEST_ACCEPTED', 'UpdateBorder')
 	self:RegisterEvent('UNIT_QUEST_LOG_CHANGED')
-	self:RegisterMessage('AdiBags_UpdateAllButtons', 'FullUpdate')
-	self:FullUpdate()
+	self:RegisterMessage('AdiBags_UpdateAllButtons', 'Update')
+	self:Update()
 end
 
 function buttonProto:OnHide()
@@ -157,14 +162,22 @@ end
 function buttonProto:CanUpdate()
 	if not self:IsVisible() or addon.holdYourBreath then
 		return false
-	elseif self.container.inUpdate then
-		self.container.dirtyButtons[self] = true
-		return false
 	end
 	return true
 end
 
 function buttonProto:FullUpdate()
+	local bag, slot = self.bag, self.slot
+	self:Debug('FullUpdate')
+	self.itemId = GetContainerItemID(bag, slot)
+	self.itemLink = GetContainerItemLink(bag, slot)
+	self.hasItem = not not self.itemId
+	self.texture = GetContainerItemInfo(bag, slot)
+	self.bagFamily = select(2, GetContainerNumFreeSlots(bag))
+	self:Update()
+end
+
+function buttonProto:Update()
 	if not self:CanUpdate() then return end
 	local icon = self.IconTexture
 	if self.texture then
@@ -323,7 +336,7 @@ function stackProto:UpdateVisibleSlot()
 end
 
 function stackProto:ITEM_LOCK_CHANGED()
-	return self:FullUpdate()
+	return self:Update()
 end
 
 function stackProto:AddSlot(slotId)
@@ -331,7 +344,7 @@ function stackProto:AddSlot(slotId)
 	if not slots[slotId] then
 		slots[slotId] = true
 		self.dirtyCount = true
-		self:FullUpdate()
+		self:Update()
 	end
 end
 
@@ -340,7 +353,7 @@ function stackProto:RemoveSlot(slotId)
 	if slots[slotId] then
 		slots[slotId] = nil
 		self.dirtyCount = true
-		self:FullUpdate()
+		self:Update()
 	end
 end
 
@@ -349,10 +362,10 @@ function stackProto:IsEmpty()
 end
 
 function stackProto:OnShow()
-	self:RegisterMessage('AdiBags_UpdateAllButtons', 'FullUpdate')
+	self:RegisterMessage('AdiBags_UpdateAllButtons', 'Update')
 	self:RegisterMessage('AdiBags_PostContentUpdate')
 	self:RegisterEvent('ITEM_LOCK_CHANGED')
-	self:FullUpdate()
+	self:Update()
 end
 
 function stackProto:OnHide()
@@ -381,14 +394,16 @@ function stackProto:SetVisibleSlot(slotId)
 	return true
 end
 
-function stackProto:FullUpdate()
+function stackProto:Update()
 	if not self:CanUpdate() then return end
 	self:UpdateVisibleSlot()
 	self:UpdateCount()
 	if self.button then
-		self.button:FullUpdate()
+		self.button:Update()
 	end
 end
+
+stackProto.FullUpdate = stackProto.Update
 
 function stackProto:UpdateCount()
 	local count = 0
@@ -424,3 +439,4 @@ end
 -- Reuse button methods
 stackProto.CanUpdate = buttonProto.CanUpdate
 stackProto.SetSection = buttonProto.SetSection
+stackProto.GetSection = buttonProto.GetSection

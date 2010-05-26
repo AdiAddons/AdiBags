@@ -50,8 +50,6 @@ function sectionProto:OnCreate()
 	header:SetHeight(HEADER_SIZE)
 	self.Header = header
 	self:SendMessage('AdiBags_SectionCreated', self)
-
-	self:SetScript('OnShow', self.OnShow)
 end
 
 function sectionProto:ToString()
@@ -67,8 +65,7 @@ function sectionProto:OnAcquire(container, name, category)
 	self.height = 0
 	self.count = 0
 	self.total = 0
-	self.dirtyLayout = false
-	self.dirtyOrder = false
+	self.dirty = true
 	self.container = container
 	self:RegisterMessage('AdiBags_OrderChanged')
 end
@@ -82,15 +79,8 @@ function sectionProto:OnRelease()
 	self.container = nil
 end
 
-function sectionProto:OnShow()
-	self:ReorderButtons(true)
-end
-
 function sectionProto:AdiBags_OrderChanged()
-	self.dirtyOrder = true
-	if self:IsVisible() then
-		self:ReorderButtons(true)
-	end
+	self:ReorderButtons()
 end
 
 function sectionProto:GetOrder()
@@ -104,17 +94,19 @@ end
 function sectionProto:AddItemButton(slotId, button)
 	if not self.buttons[button] then
 		button:SetSection(self)
+		self.count = self.count + 1
 		self.buttons[button] = slotId
-		local freeSlots = self.freeSlots
-		for index = 1, self.total do
-			if freeSlots[index] then
-				self:Debug('AddItemButton: dirty order')
-				self.dirtyOrder = true
-				self:PutButtonAt(button, index)
-				return
+		self.dirty = true
+		if self:IsVisible() and self.count <= self.total then
+			local freeSlots = self.freeSlots
+			for index = 1, self.total do
+				if freeSlots[index] then
+					freeSlots[index] = nil
+					self:PutButtonAt(button, index)
+					break
+				end
 			end
 		end
-		self.dirtyLayout = true
 	end
 end
 
@@ -122,26 +114,74 @@ function sectionProto:RemoveItemButton(button)
 	if self.buttons[button] then
 		local index = self.slots[button]
 		if index and index <= self.total then
-			self:Debug('RemoveItemButton: dirty order')
-			self.dirtyOrder = true
 			self.freeSlots[index] = true
 		end
+		self.count = self.count - 1
+		self.dirty = true
 		self.slots[button] = nil
 		self.buttons[button] = nil
 	end
 end
 
-function sectionProto:DispatchDone()
-	local newCount = 0
+function sectionProto:IsEmpty()
+	return self.count == 0
+end
+--------------------------------------------------------------------------------
+-- Layout
+--------------------------------------------------------------------------------
+
+function sectionProto:PutButtonAt(button, index)
+	self.slots[button] = index
+	local row, col = math.floor((index-1) / self.width), (index-1) % self.width
+	button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
+	button:Show()
+end
+
+function sectionProto:Layout(clean, force)
+	if not self:IsVisible() then return end
+	if self.count > self.total or (self.dirty and clean) or force then
+		self:Debug('Layout', 'count=', self.count, 'total=', self.total, 'dirty=', self.dirty, 'clean=', clean, 'force=', force)
+		local width = math.min(self.count, addon.db.profile.rowWidth)
+		local height = math.ceil(self.count / math.max(width, 1))
+		local sizeChanged = self.width ~= width or self.height ~= height
+		if sizeChanged then
+			self:Debug('NewSize', width, height)
+			self.width = width
+			self.height = height
+			self.total = width * height
+			self:SetWidth(ITEM_SIZE * width + ITEM_SPACING * math.max(width - 1 ,0))
+			self:SetHeight(HEADER_SIZE + ITEM_SIZE * height + ITEM_SPACING * math.max(height - 1, 0))
+		end
+		self:ReorderButtons()
+		return sizeChanged
+	end
+end
+
+local CompareButtons
+local buttonOrder = {}
+function sectionProto:ReorderButtons()
+	if not self:IsVisible() then return end
+	self:Debug('ReorderButtons, count=', self.count)
+	self.dirty = nil
+
 	for button in pairs(self.buttons) do
-		newCount = newCount + 1
+		button:Show()
+		tinsert(buttonOrder, button)
 	end
-	if (newCount == 0 and self.count > 0) or newCount > self.total then
-		self.dirtyLayout = true
+	table.sort(buttonOrder, CompareButtons)
+
+	local slots, freeSlots = self.slots, self.freeSlots
+	wipe(freeSlots)
+	wipe(slots)
+	for index, button in ipairs(buttonOrder) do
+		slots[button] = index
+		self:PutButtonAt(button, index)
 	end
-	self.count = newCount
-	self:Debug(newCount, 'buttons')
-	return self.dirtyLayout
+	for index = self.count + 1, self.total do
+		freeSlots[index] = true
+	end
+
+	wipe(buttonOrder)
 end
 
 --------------------------------------------------------------------------------
@@ -240,7 +280,7 @@ end
 
 local strformat = string.format
 
-local function CompareButtons(a, b)
+function CompareButtons(a, b)
 	local idA, idB = a:GetItemId(), b:GetItemId()
 	if idA and idB then
 		if idA ~= idB then
@@ -256,88 +296,3 @@ local function CompareButtons(a, b)
 	end
 	return (idA and 1 or 0) > (idB and 1 or 0)
 end
-
---------------------------------------------------------------------------------
--- Layout
---------------------------------------------------------------------------------
-
-function sectionProto:PutButtonAt(button, index)
-	local oldIndex = self.slots[button]
-	if index == oldIndex then return end
-	self.slots[button] = index
-	if index then
-		if index <= self.total then
-			self.freeSlots[index] = nil
-			if not self.dirtyLayout then
-				local row, col = math.floor((index-1) / self.width), (index-1) % self.width
-				button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
-				button:Show()
-			end
-		else
-			self.dirtyLayout = true
-		end
-	end
-	if oldIndex and oldIndex <= self.total then
-		self.freeSlots[oldIndex] = true
-	end
-end
-
-function sectionProto:SetSize(width, height)
-	if self.width == width and self.height == height then return end
-	self:Debug('Setting size to ', width, height)
-	self.width = width
-	self.height = height
-	self.total = width * height
-
-	self:SetWidth(ITEM_SIZE * width + ITEM_SPACING * math.max(width - 1 ,0))
-	self:SetHeight(HEADER_SIZE + ITEM_SIZE * height + ITEM_SPACING * math.max(height - 1, 0))
-	self.dirtyLayout = true
-	self.dirtyOrder = true
-end
-
-function sectionProto:LayoutButtons(forceLayout)
-	if self.count == 0 then
-		self.dirtyLayout = false
-		return false
-	elseif not forceLayout and not self.dirtyLayout then
-		return true
-	end
-	self:Debug('LayoutButtons', forceLayout)
-
-	local width = math.min(self.count, addon.db.profile.rowWidth)
-	local height = math.ceil(self.count / math.max(width, 1))
-	self:SetSize(width, height)
-	self.dirtyLayout = false
-
-	self:ReorderButtons()
-
-	return true
-end
-
-local buttonOrder = {}
-function sectionProto:ReorderButtons(forceReorder)
-	if self.count == 0 then
-		self.dirtyOrder = false
-		return
-	elseif not self.dirtyOrder and not forceReorder then
-		return
-	end
-	self:Debug('ReorderButtons', forceReorder)
-
-	wipe(self.freeSlots)
-	wipe(self.slots)
-	for index = 1, self.total do
-		self.freeSlots[index] = true
-	end
-	for button in pairs(self.buttons) do
-		tinsert(buttonOrder, button)
-	end
-	table.sort(buttonOrder, CompareButtons)
-	for index, button in ipairs(buttonOrder) do
-		self:PutButtonAt(button, index)
-	end
-	wipe(buttonOrder)
-
-	self.dirtyOrder = false
-end
-

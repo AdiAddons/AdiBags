@@ -35,7 +35,7 @@ function layeredRegionProto:OnShow()
 	if not self.isShown then
 		self:Debug('OnShow')
 		self.isShown = true
-		self:RequestLayout()
+		self:RequestLayout(true)
 	end
 end
 
@@ -88,27 +88,37 @@ end
 
 function layeredRegionProto:Layout()
 	if not self.dirtyLayout then return end
-	self:Debug('Layout')
-	for i, data in pairs(self.widgets) do
-		if data.layered then
-			data.widget:Layout()
+--@debug@
+	if self.widgets[1] then
+		self:Debug('Laying out children')
+--@end-debug@
+		for i, data in pairs(self.widgets) do
+			if data.layered then
+				data.widget:Layout()
+			end
 		end
+--@debug@
 	end
-	safecall(self, "OnLayout")
+	if self.OnLayout then
+		self:Debug('OnLayout')
+--@end-debug@
+		safecall(self, "OnLayout")
+--@debug@
+	end
+--@end-debug@
 	self.dirtyLayout = nil
 	self:SetScript('OnUpdate', nil)
 end
 
-function layeredRegionProto:RequestLayout()
-	if not self.dirtyLayout then
-		self.dirtyLayout = true
-		if self.container then
-			self.container:RequestLayout()
-		elseif self:IsVisible() then
-			self:Layout()
-		else
-			self:SetScript('OnUpdate', self.Layout)
-		end
+function layeredRegionProto:RequestLayout(immediate)
+	if self.dirtyLayout and not immediate then return end
+	self.dirtyLayout = true
+	if self.container then
+		self.container:RequestLayout()
+	elseif self:IsVisible() then
+		self:Layout()
+	else
+		self:SetScript('OnUpdate', self.Layout)
 	end
 end
 
@@ -201,4 +211,3 @@ function simpleLayeredRegionProto:OnLayout()
 		self:Hide()
 	end
 end
-
