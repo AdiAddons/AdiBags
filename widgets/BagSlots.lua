@@ -72,6 +72,8 @@ local function BankBagPanel_OnEvent(self, event, ...)
 		for i, button in pairs(self.buttons) do
 			BankFrameItemButton_UpdateLocked(button)
 		end
+	elseif event == "PLAYERBANKBAGSLOTS_CHANGED" then
+		BankBagPanel_UpdateStatus(self)
 	elseif event == 'PLAYERBANKSLOTS_CHANGED' then
 		local slot = ...
 		if slot <= NUM_BANKGENERIC_SLOTS then
@@ -96,6 +98,7 @@ local function BankBagPanel_OnShow(self)
 	BagPanel_OnShow(self)
 	self:RegisterEvent("ITEM_LOCK_CHANGED")
 	self:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
+	self:RegisterEvent("PLAYERBANKBAGSLOTS_CHANGED")
 	BankBagPanel_UpdateStatus(self)
 	for i, button in pairs(self.buttons) do
 		BankFrameItemButton_Update(button)
