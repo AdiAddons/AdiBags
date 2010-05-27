@@ -108,7 +108,7 @@ function buttonProto:GetItemLink()
 end
 
 function buttonProto:GetCount()
-	return select(2, GetContainerItemInfo(self.bag, self.slot))
+	return select(2, GetContainerItemInfo(self.bag, self.slot)) or 0
 end
 
 function buttonProto:GetBagFamily()
