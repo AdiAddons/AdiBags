@@ -126,6 +126,7 @@ end
 function sectionProto:IsEmpty()
 	return self.count == 0
 end
+
 --------------------------------------------------------------------------------
 -- Layout
 --------------------------------------------------------------------------------
@@ -137,23 +138,48 @@ function sectionProto:PutButtonAt(button, index)
 	button:Show()
 end
 
-function sectionProto:Layout(clean, force)
-	if not self:IsVisible() then return end
-	if self.count > self.total or (self.dirty and clean) or force then
-		self:Debug('Layout', 'count=', self.count, 'total=', self.total, 'dirty=', self.dirty, 'clean=', clean, 'force=', force)
-		local width = math.min(self.count, addon.db.profile.rowWidth)
-		local height = math.ceil(self.count / math.max(width, 1))
-		local sizeChanged = self.width ~= width or self.height ~= height
-		if sizeChanged then
-			self:Debug('NewSize', width, height)
-			self.width = width
-			self.height = height
-			self.total = width * height
-			self:SetWidth(ITEM_SIZE * width + ITEM_SPACING * math.max(width - 1 ,0))
-			self:SetHeight(HEADER_SIZE + ITEM_SIZE * height + ITEM_SPACING * math.max(height - 1, 0))
-		end
+function sectionProto:NeedLayout(clean)
+	return self.count > self.total or (self.dirty and clean)
+end
+
+local floor, ceil, max = math.floor, math.ceil, math.max
+
+function sectionProto:FitInSpace(maxWidth, maxHeight, xOffset, rowHeight)
+	local maxColumns = floor((ceil(maxWidth) + ITEM_SPACING) / SLOT_OFFSET)
+	local maxRows = floor((ceil(maxHeight) - HEADER_SIZE + ITEM_SPACING) / SLOT_OFFSET)
+	if maxColumns * maxRows < self.count then
+		return false
+	end
+	local numColumns, numRows
+	if maxColumns >= self.count then
+		numColumns, numRows = self.count, 1
+	else
+		numColumns, numRows = maxColumns, ceil(self.count / maxColumns)
+	end
+	local height = HEADER_SIZE + ITEM_SIZE * numRows + ITEM_SPACING * max(numRows - 1, 0)	
+	local available = maxWidth * maxHeight
+	local gap = max(0, height - rowHeight) * xOffset
+	local occupation = self.count * SLOT_OFFSET * SLOT_OFFSET + numColumns * SLOT_OFFSET * HEADER_SIZE
+	
+	local wasted = available + gap - occupation 
+	if gap < occupation / 2 then
+		return true, numColumns, numRows, wasted
+	end
+end
+
+function sectionProto:Layout(width, height, clean, force)
+	local sizeChanged = self.width ~= width or self.height ~= height
+	local needReorder = sizeChanged or force or self:NeedLayout(clean)
+	if sizeChanged then
+		self:Debug('NewSize', width, height)
+		self.width = width
+		self.height = height
+		self.total = width * height
+		self:SetWidth(ITEM_SIZE * width + ITEM_SPACING * max(width - 1 ,0))
+		self:SetHeight(HEADER_SIZE + ITEM_SIZE * height + ITEM_SPACING * max(height - 1, 0))
+	end
+	if needReorder then
 		self:ReorderButtons()
-		return sizeChanged
 	end
 end
 

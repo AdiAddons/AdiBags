@@ -561,51 +561,48 @@ end
 local sections = {}
 local max, floor = math.max, math.floor
 
-local function SectionFitInSpace(section, maxWidth, maxHeight)
-	return floor(section:GetWidth()) <= maxWidth and floor(section:GetHeight()) <= maxHeight
-end
-
-local function GetBestSection(maxWidth, maxHeight, category)
-	local availableSpace = maxWidth * maxHeight
-	local foundFittingSection
-	local bestIndex, leastWasted
+local function GetBestSection(maxWidth, maxHeight, xOffset, rowHeight, category)
+	local bestIndex, leastWasted, bestWidth, bestHeight
 	for index, section in ipairs(sections) do
 		if category and section.category ~= category then
 			break
 		end
-		if SectionFitInSpace(section, maxWidth, maxHeight) then
-			foundFittingSection = true
-			local wasted = availableSpace - (section:GetWidth() * section:GetHeight())
+		local fit, width, height, wasted = section:FitInSpace(maxWidth, maxHeight, xOffset, rowHeight)
+		if fit then			
 			if not leastWasted or wasted < leastWasted then
-				bestIndex, leastWasted = index, wasted
+				bestIndex, bestWidth, bestHeight, leastWasted = index, width, height, wasted
 			end
 		end
 	end
-	return bestIndex
+	return bestIndex, bestWidth, bestHeight
 end
 
 local getNextSection = {
 	-- 0: keep section of the same category together and in the right order
-	[0] = function(maxWidth, maxHeight)
-		if SectionFitInSpace(sections[1], maxWidth, maxHeight) then
-			return 1
+	[0] = function(maxWidth, maxHeight, xOffset, rowHeight)
+		local fit, width, height = sections[1]:FitInSpace(maxWidth, maxHeight, xOffset, rowHeight)
+		if fit then
+			return 1, width, height
 		end
 	end,
 	-- 1: keep categories together
-	[1] = function(maxWidth, maxHeight)
-		return GetBestSection(maxWidth, maxHeight, sections[1].category)
+	[1] = function(maxWidth, maxHeight, xOffset, rowHeight)
+		return GetBestSection(maxWidth, maxHeight, xOffset, rowHeight, sections[1].category)
 	end,
 	-- 2: do not care about ordering
-	[2] = function(maxWidth, maxHeight)
-		return GetBestSection(maxWidth, maxHeight)
+	[2] = function(maxWidth, maxHeight, xOffset, rowHeight)
+		return GetBestSection(maxWidth, maxHeight, xOffset, rowHeight)
 	end
 }
 
-local function DoLayoutSections(self, rowWidth, maxHeight)
+local function DoLayoutSections(self, rowWidth, maxHeight, clean, force)
 	for name, section in pairs(self.sections) do
 		tinsert(sections, section)
 	end
 	table.sort(sections, CompareSections)
+	
+	-- Allow to overflow a bit
+	rowWidth = rowWidth + ITEM_SIZE - SECTION_SPACING
 
 	local content = self.Content
 	local getNext = getNextSection[addon.db.profile.laxOrdering]
@@ -619,7 +616,7 @@ local function DoLayoutSections(self, rowWidth, maxHeight)
 		while num > 0 and y < maxHeight do
 			local rowHeight, x = 0, 0
 			while num > 0 and x < rowWidth do
-				local index = getNext(rowWidth - x, maxHeight - y)
+				local index, width, height = getNext(rowWidth - x, maxHeight - y, x, rowHeight)
 				if not index then
 					break
 				end
@@ -627,13 +624,14 @@ local function DoLayoutSections(self, rowWidth, maxHeight)
 				category = section.category
 				num = num - 1
 				section:SetPoint("TOPLEFT", content, columnX + x, -y)
-				x = x + floor(section:GetWidth()) + SECTION_SPACING
-				rowHeight = math.max(rowHeight, floor(section:GetHeight()))
+				section:Layout(width, height, clean, force)
+				x = x + section:GetWidth() + SECTION_SPACING
+				rowHeight = max(rowHeight, section:GetHeight())
 			end
 			if x > 0 then
 				y = y + rowHeight + ITEM_SPACING
-				columnWidth = math.max(columnWidth, x)
-				contentHeight = math.max(contentHeight, y)
+				columnWidth = max(columnWidth, x)
+				contentHeight = max(contentHeight, y)
 			else
 				break
 			end
@@ -641,7 +639,7 @@ local function DoLayoutSections(self, rowWidth, maxHeight)
 		if y > 0 then
 			numColumns = numColumns + 1
 			columnX = columnX + columnWidth
-			contentWidth = math.max(contentWidth, columnX)
+			contentWidth = max(contentWidth, columnX)
 			wasted = maxHeight - y
 		else
 			break
@@ -661,7 +659,7 @@ function containerProto:LayoutSections(repack)
 			changed = true
 		else
 			section:Show()
-			if section:Layout(repack, self.forceLayout) then
+			if not self.forceLayout and section:NeedLayout(repack) then
 				changed = true
 			end
 			num = num + 1
@@ -670,10 +668,10 @@ function containerProto:LayoutSections(repack)
 	if not changed then
 		return
 	end
-	self.forceLayout = nil
 	if num == 0 then
 		self.Content:SetWidth(0.5)
 		self.Content:SetHeight(0.5)
+		self.forceLayout = nil
 		return
 	end
 
@@ -683,14 +681,17 @@ function containerProto:LayoutSections(repack)
 	local maxHeight = addon.db.profile.maxHeight * UIParent:GetHeight() * UIParent:GetEffectiveScale() / self:GetEffectiveScale()
 	self:Debug('- GetContentMinWidth:', self:GetContentMinWidth())
 
-	local contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight)
+	local contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight, repack, self.forceLayout)
 	if numColumns > 1 and wastedHeight / contentHeight > 0.1 then
 		local totalHeight = contentHeight * numColumns - wastedHeight
 		maxHeight = totalHeight / numColumns * 1.10
-		contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight)
+		contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight, repack, self.forceLayout)
 	elseif numColumns == 1 and contentWidth < self:GetContentMinWidth()  then
-		contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self:GetContentMinWidth(), maxHeight)
+		contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self:GetContentMinWidth(), maxHeight, repack, self.forceLayout)
 	end
+	
 	self.Content:SetWidth(contentWidth)
 	self.Content:SetHeight(contentHeight)
+	
+	self.forceLayout = nil
 end
