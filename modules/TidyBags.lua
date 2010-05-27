@@ -109,7 +109,11 @@ local function FindNextMove(container)
 						local existingStack = incompleteStacks[slotData.itemId]
 						if existingStack then
 							-- Anoter incomplete stack exist for this item, try to merge both
-							return bag, slot, existingStack.bag, existingStack.slot
+							if select(2, GetContainerItemInfo(bag, slot)) < select(2, GetContainerItemInfo(existingStack.bag, existingStack.slot)) then
+								return bag, slot, existingStack.bag, existingStack.slot
+							else
+								return existingStack.bag, existingStack.slot, bag, slot
+							end
 						else
 							-- First incomplete stack of this item
 							incompleteStacks[slotData.itemId] = slotData
