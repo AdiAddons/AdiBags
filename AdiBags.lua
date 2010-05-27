@@ -183,6 +183,7 @@ function addon:OnEnable()
 	self:RawHook('CloseSpecialWindows', true)
 
 	self:RegisterEvent('MAIL_CLOSED', 'CloseAllBags')
+	self:RegisterEvent('MERCHANT_CLOSED', 'CloseAllBags')
 
 	self:SetSortingOrder(self.db.profile.sortingOrder)
 	
