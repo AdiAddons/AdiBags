@@ -180,7 +180,7 @@ function containerProto:FiltersChanged()
 	self.filtersChanged = true
 	if self:CanUpdate() then
 		self:RedispatchAllItems()
-		self:LayoutSections(true)
+		self:LayoutSections()
 	end
 end
 
