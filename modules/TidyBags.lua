@@ -152,6 +152,7 @@ function mod:Process(container)
 	end
 	container[self].running = nil
 	self:UpdateButton(container)
+	self:SendMessage('AdiBags_FiltersChanged')
 end
 
 function mod:UpdateButton(container)
