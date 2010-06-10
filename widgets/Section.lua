@@ -163,7 +163,7 @@ function sectionProto:FitInSpace(maxWidth, maxHeight, xOffset, rowHeight)
 	
 	local wasted = available + gap - occupation 
 	if gap < occupation / 2 then
-		return true, numColumns, numRows, wasted
+		return true, numColumns, numRows, wasted, height
 	end
 end
 

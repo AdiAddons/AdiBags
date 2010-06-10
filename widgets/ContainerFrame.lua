@@ -596,14 +596,21 @@ local getNextSection = {
 }
 
 local function DoLayoutSections(self, rowWidth, maxHeight, clean, force)
+	rowWidth = rowWidth + ITEM_SIZE - SECTION_SPACING
+
+	local minHeight = 0
 	for name, section in pairs(self.sections) do
+		local fit, _, _, _, height = section:FitInSpace(rowWidth, 10000, 0, 0)
+		if fit and height > minHeight then
+			minHeight = height
+		end
 		tinsert(sections, section)
 	end
 	table.sort(sections, CompareSections)
+	if minHeight > maxHeight then
+		maxHeight = minHeight
+	end
 	
-	-- Allow to overflow a bit
-	rowWidth = rowWidth + ITEM_SIZE - SECTION_SPACING
-
 	local content = self.Content
 	local getNext = getNextSection[addon.db.profile.laxOrdering]
 
@@ -623,6 +630,7 @@ local function DoLayoutSections(self, rowWidth, maxHeight, clean, force)
 				local section = tremove(sections, index)
 				category = section.category
 				num = num - 1
+				--section:Show()
 				section:SetPoint("TOPLEFT", content, columnX + x, -y)
 				section:Layout(width, height, clean, force)
 				x = x + section:GetWidth() + SECTION_SPACING
@@ -645,7 +653,7 @@ local function DoLayoutSections(self, rowWidth, maxHeight, clean, force)
 			break
 		end
 	end
-	return contentWidth - SECTION_SPACING, contentHeight - ITEM_SPACING, numColumns, wasted
+	return contentWidth - SECTION_SPACING, contentHeight - ITEM_SPACING, numColumns, wasted, minHeight
 end
 
 function containerProto:LayoutSections(repack)
@@ -681,9 +689,12 @@ function containerProto:LayoutSections(repack)
 	local maxHeight = addon.db.profile.maxHeight * UIParent:GetHeight() * UIParent:GetEffectiveScale() / self:GetEffectiveScale()
 	self:Debug('- GetContentMinWidth:', self:GetContentMinWidth())
 
-	local contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight, repack, self.forceLayout)
+	local contentWidth, contentHeight, numColumns, wastedHeight, minHeight = DoLayoutSections(self, rowWidth, maxHeight, repack, self.forceLayout)
 	if numColumns > 1 and wastedHeight / contentHeight > 0.1 then
 		local totalHeight = contentHeight * numColumns - wastedHeight
+		if totalHeight / numColumns < minHeight then
+			numColumns = numColumns - 1
+		end
 		maxHeight = totalHeight / numColumns * 1.10
 		contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight, repack, self.forceLayout)
 	elseif numColumns == 1 and contentWidth < self:GetContentMinWidth()  then
