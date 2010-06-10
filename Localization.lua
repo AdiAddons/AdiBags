@@ -84,7 +84,9 @@ L["Consider gems as a subcategory of trade goods"] = true
 L["Consider glyphs as a subcategory of trade goods"] = true
 L["Consumable"] = true
 L["Core"] = true
+L["Currency"] = true
 L["Dim junk"] = true
+L["Display character currency at bottom left of the backpack."] = true
 L["Display character money at bottom right of the backpack."] = true
 L["Drop your item there to add it to this section."] = true
 L["Enabled"] = true
@@ -173,7 +175,6 @@ L["Use this to adjust the quality-based border opacity. 100% means fully opaque.
 L["Virtual stacks"] = true
 L["Virtual stacks display in one place items that actually spread over several bag slots."] = true
 
-
 -- Replace true with the key
 for k, v in pairs(L) do if v == true then L[k] = k end end
 
@@ -231,18 +232,20 @@ L["Consider gems as a subcategory of trade goods"] = "Considère les gemmes comm
 L["Consider glyphs as a subcategory of trade goods"] = "Considère les glyphes comme une sous-catégorie d'artisanat."
 L["Consumable"] = "Consommable"
 L["Core"] = "Noyau"
+L["Currency"] = "Insignes"
 L["Dim junk"] = "Assombrir la camelote"
+L["Display character currency at bottom left of the backpack."] = "Affiche les insignes du personnage en bas à gauche du sac à dos."
 L["Display character money at bottom right of the backpack."] = "Affiche l'or du personnage en bas à droite du sac à dos."
 L["Drop your item there to add it to this section."] = "Déposez votre objet ici pour l'ajouter à cette section."
 L["Enabled"] = "Activé"
 L["ENCHANTING_BAG_TAG"] = "En"
 L["ENGINEERING_BAG_TAG"] = "In"
-L["Enter a text to search in item names."] = "Saisissez un texte pour faire une recherche sur lesnboms d'objets."
+L["Enter a text to search in item names."] = "Saisissez un texte pour faire une recherche sur les noms d'objets."
 L["Equipment"] = "Equipement"
 L["Equipped bags"] = "Sacs équipés"
 L["Fill lines at most"] = "Remplir les lignes au maximum"
 L["Filters"] = "Filtres"
-L["Filters are used to dispatch items in bag sections. One item can only appear in one section. If the same item is selected by several filters, the one with the highest priority wins."] = "Les filtres sont utilisés pour répartir les objets en section de sac. un objet ne peut apparaître que dans une seule section. Si un objet correspond à plusieurs filtres, celui avec la meilleur priorité l'emporte."
+L["Filters are used to dispatch items in bag sections. One item can only appear in one section. If the same item is selected by several filters, the one with the highest priority wins."] = "Les filtres sont utilisés pour répartir les objets en section de sac. Un objet ne peut apparaître que dans une seule section. Si un objet correspond à plusieurs filtres, celui avec la meilleur priorité l'emporte."
 L["Free space"] = "Espace libre"
 L["Free space / total space"] = "Espace libre / espace total"
 L["Gear manager item sets"] = "Ensembles d'objets du gestionnaire d'équipement"
@@ -301,7 +304,7 @@ L["Reset position"] = "R.à.z. position"
 L["Scale"] = "Echelle"
 L["Search:"] = "Recherche :"
 L["Select how bag usage should be formatted in the plugin."] = "Choisissez comment l'occupation d'un sac doit être formaté."
-L["Select how items should be sorted within each section."] = "Choisissez comme les objets doivent triés à l'intérieur de chaque section."
+L["Select how items should be sorted within each section."] = "Choisissez comment les objets doivent être triés à l'intérieur de chaque section."
 L["Select which first-level categories should be split by sub-categories."] = "Sélectionnez quelles catégories doivent être séparée en sous-catégories."
 L["Sets"] = "Ensembles"
 L["Set: %s"] = "Ens.: %s"
@@ -585,6 +588,7 @@ elseif locale == "zhTW" then
 L["AdiBags anchor"] = "AdiBags 錨點"
 L["Ammunition"] = "彈藥"
 L["Ammunition and soul shards"] = "彈藥和靈魂裂片"
+L["Are you sure you want to remove this association ?"] = "你確定要刪除此關聯?"
 L["Backpack"] = "背包"
 L["Backpack background color"] = "背包背景顏色"
 L["Bags"] = "背包"
@@ -698,6 +702,18 @@ L["New item highlight"] = "新的物品高亮"
 L["Other items"] = "其他物品"
 L["Plugins"] = "组件"
 L["Priority"] = "优先级"
+L["Quality highlight"] = "品质高亮"
+L["Quality opacity"] = "品质透明度"
+L["Quest"] = "任务"
+L["Quest indicator"] = "任务指示器"
+L["Quest Items"] = "任务物品"
+L["Reset new items"] = "重置新物品"
+L["Reset position"] = "重置位置"
+L["Scale"] = "缩放"
+L["Search:"] = "搜索:"
+L["Show bag type icons"] = "显示背包类型图标"
+L["Show bag type tags"] = "显示背包类型标签"
+L["Sorting order"] = "分类顺序"
 elseif locale == "koKR" then
 L["AdiBags anchor"] = "AdiBags 앵커"
 L["Adjust the maximum height of the bags, relative to screen size."] = "화면 크기를 고려해, 가방의 최대 높이를 조절합니다."
