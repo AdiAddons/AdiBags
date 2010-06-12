@@ -286,9 +286,14 @@ function addon:GetOptions()
 								get = function()
 									return addon.db.profile.anchor.scale
 								end,
-								set = function(info, value)
-									addon.db.profile.anchor.scale = value
+								set = function(info, newScale)
+									local db = self.db.profile.anchor
+									db.xOffset = db.xOffset / newScale * db.scale
+									db.yOffset = db.yOffset / newScale * db.scale
+									db.scale = newScale
 									self:UpdateMovableLayout()
+									self:LayoutBags()
+									self:SendMessage('AdiBags_LayoutChanged')
 								end,
 							},
 							rowWidth = {

@@ -122,12 +122,8 @@ addon.BACKDROP = {
 	insets = { left = 3, right = 3, top = 3, bottom = 3 },
 }
 
---------------------------------------------------------------------------------
--- Addon initialization and enabling
---------------------------------------------------------------------------------
-
-function addon:OnInitialize()
-	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", {profile = {
+local DEFAULT_SETTINGS = {
+	profile = {
 		anchor = { scale = 0.8 },
 		rowWidth = 9,
 		maxHeight = 0.60,
@@ -150,7 +146,15 @@ function addon:OnInitialize()
 			freeSpace = true,
 			ammunition = true,	
 		},
-	}}, true)
+	}
+}
+
+--------------------------------------------------------------------------------
+-- Addon initialization and enabling
+--------------------------------------------------------------------------------
+
+function addon:OnInitialize()
+	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", DEFAULT_SETTINGS, true)
 	self.db.RegisterCallback(self, "OnProfileChanged", "Reconfigure")
 	self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")
 	self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
@@ -250,7 +254,7 @@ function addon:ConfigChanged(vars)
 			return self:SendMessage('AdiBags_FiltersChanged')
 		elseif name == 'sortingOrder' then
 			return self:SetSortingOrder(self.db.profile.sortingOrder)
-		elseif name == "bagScale" or name == "rowWidth" or name == "maxHeight" or name == 'laxOrdering' then
+		elseif name == "rowWidth" or name == "maxHeight" or name == 'laxOrdering' then
 			return self:SendMessage('AdiBags_LayoutChanged')
 		end
 	end
@@ -604,7 +608,9 @@ end
 
 function addon:CreateBagAnchor()
 	local anchor = CreateFrame("Frame", addonName.."Anchor", UIParent)
-	anchor:SetPoint("BOTTOMRIGHT", -32, 200)
+	local scale = DEFAULT_SETTINGS.profile.anchor.scale or 1
+	anchor:SetScale(scale)
+	anchor:SetPoint("BOTTOMRIGHT", -32 / scale, 200 / scale)
 	anchor:SetWidth(200)
 	anchor:SetHeight(20)
 	anchor.openBags = {}
