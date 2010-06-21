@@ -30,6 +30,7 @@ h2. Features
 * name-based search,
 * equipped bag panel,
 * display character money in the backpack,
+* display character tokens in the backpack,
 * LDB data source displaying free space,
 * ConfigMode support.
 
@@ -39,5 +40,5 @@ h2. Things that likely will not be implemented
 * guild bank,
 * alt bags and bank,
 * bag skinning,
-* complete in-game filter/section editor.
+* complete in-game filter/section editor; though the built-in filters have some options.
 
