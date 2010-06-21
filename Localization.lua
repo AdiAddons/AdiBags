@@ -375,6 +375,7 @@ L["Consider gems as a subcategory of trade goods"] = "Edelsteine als Unterkatego
 L["Consider glyphs as a subcategory of trade goods"] = "Glyphen als Unterkategorie von handelbaren Gegenständen betrachten"
 L["Consumable"] = "Verbrauchbar"
 L["Core"] = "Kern"
+L["Currency"] = "Währung"
 L["Dim junk"] = "GimpItems (Greys) verblassen."
 L["Display character money at bottom right of the backpack."] = "Zeigt das Gold des Charakters rechts unten beim Rucksack an"
 L["Drop your item there to add it to this section."] = "item hier hin ziehen um es dieser Sektion hinzuzufügen"
