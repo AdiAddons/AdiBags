@@ -143,7 +143,7 @@ function addon:SetupDefaultFilters()
 
 	-- [60] Equipment
 	do
-		local WEAPON, ARMOR, JEWELRY, MISC = L["Weapon"], L["Armor"], L["Jewerlry"], L["Miscellaneous"]
+		local WEAPON, ARMOR, JEWELRY, MISC = L["Weapon"], L["Armor"], L["Jewelry"], L["Miscellaneous"]
 		local equipCategories = {
 			INVTYPE_2HWEAPON = WEAPON,
 			INVTYPE_AMMO = MISC,
