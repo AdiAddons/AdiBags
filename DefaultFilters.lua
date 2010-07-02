@@ -114,10 +114,9 @@ function addon:SetupDefaultFilters()
 
 	-- [70] Low quality items
 	do
-		local lowQualityPattern = string.format('%s|Hitem:%%d+:0:0:0:0', ITEM_QUALITY_COLORS[ITEM_QUALITY_POOR].hex)
 		--@noloc[[
 		local junkFilter = addon:RegisterFilter('Junk', 70, function(self, slotData)
-			if slotData.class == L['Junk'] or slotData.subclass == L['Junk'] or slotData.link:match(lowQualityPattern) then
+			if (slotData.class == L['Junk'] or slotData.subclass == L['Junk']) and slotData.quality < ITEM_QUALITY_UNCOMMON or  slotData.quality == ITEM_QUALITY_POOR then
 				return L['Junk']
 			end
 		end)
@@ -144,11 +143,46 @@ function addon:SetupDefaultFilters()
 
 	-- [60] Equipment
 	do
+		local WEAPON, ARMOR, JEWELRY, MISC = L["Weapon"], L["Armor"], L["Jewerlry"], L["Miscellaneous"]
+		local equipCategories = {
+			INVTYPE_2HWEAPON = WEAPON,
+			INVTYPE_AMMO = MISC,
+			INVTYPE_BAG = MISC,
+			INVTYPE_BODY = MISC,
+			INVTYPE_CHEST = ARMOR,
+			INVTYPE_CLOAK = ARMOR,
+			INVTYPE_FEET = ARMOR,
+			INVTYPE_FINGER = JEWELRY,
+			INVTYPE_HAND = ARMOR,
+			INVTYPE_HEAD = ARMOR,
+			INVTYPE_HOLDABLE = WEAPON,
+			INVTYPE_LEGS = ARMOR,
+			INVTYPE_NECK = JEWELRY,
+			INVTYPE_QUIVER = MISC,
+			INVTYPE_RANGED = WEAPON,
+			INVTYPE_RANGEDRIGHT = WEAPON,
+			INVTYPE_RELIC = JEWELRY,
+			INVTYPE_ROBE = ARMOR,
+			INVTYPE_SHIELD = WEAPON,
+			INVTYPE_SHOULDER = ARMOR,
+			INVTYPE_TABARD = MISC,
+			INVTYPE_THROWN = WEAPON,
+			INVTYPE_TRINKET = JEWELRY,
+			INVTYPE_WAIST = ARMOR,
+			INVTYPE_WEAPON = WEAPON,
+			INVTYPE_WEAPONMAINHAND = WEAPON,
+			INVTYPE_WEAPONMAINHAND_PET = WEAPON,
+			INVTYPE_WEAPONOFFHAND = WEAPON,
+			INVTYPE_WRIST = ARMOR,
+		}
+	
 		local equipmentFilter = addon:RegisterFilter('Equipment', 60, function(self, slotData)
 			local equipSlot = slotData.equipSlot
 			if equipSlot and equipSlot ~= "" then
-				self:Debug('splitBySlot', slotData.link, equipSlot, _G[equipSlot])
-				if self.db.profile.splitBySlot then
+				local rule = self.db.profile.dispatchRule
+				if rule == 'category' then				
+					return equipCategories[equipSlot] or _G[equipSlot], L['Equipment']
+				elseif rule == 'slot' then
 					return _G[equipSlot], L['Equipment']
 				else
 					return L['Equipment']
@@ -159,17 +193,22 @@ function addon:SetupDefaultFilters()
 		equipmentFilter.uiDesc = L['Put any item that can be equipped (including bags) into the "Equipment" section.']
 		
 		function equipmentFilter:OnInitialize()
-			self.db = addon.db:RegisterNamespace('Equipment', { profile = { splitBySlot = false } })
+			self.db = addon.db:RegisterNamespace('Equipment', { profile = { dispatchRule = 'category' } })
 		end
 		
 		function equipmentFilter:GetFilterOptions()
 			return {
-				splitBySlot = {
-					name = L['Split by inventory slot'],
-					desc = L['Check this to display one section per inventory slot.'],
-					type = 'toggle',
+				dispatchRule = {
+					name = L['Section setup'],
+					desc = L['Select the sections in which the items should be dispatched.'],
+					type = 'select',
 					order = 10,
-				}
+					values = {
+						one = L['Only one section.'],
+						category = L['Four general sections.'],
+						slot = L['One section per item slot.'],
+					},
+				},
 			}, addon:GetOptionHandler(self, true)
 		end
 	end
