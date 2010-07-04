@@ -31,164 +31,181 @@ L["KEYRING_TAG"] = "Ke"
 L["GEM_BAG_TAG"] = "Ge"
 L["MINING_BAG_TAG"] = "Mi"
 
--- AH (sub)categories
-L['Recipe'] = true
-L["Consumable"] = true
-L["Miscellaneous"] = true
-L["Trade Goods"] = true
-L["Gem"] = true
-L['Glyph'] = true
-L["Quest"] = true
-L["Junk"] = true
--- End of AH (sub)categories
+--------------------------------------------------------------------------------
+-- Locales from localization system (not yet)
+--------------------------------------------------------------------------------
 
+-- %Localization: adibags
+-- THE END OF THE FILE IS UPDATED BY A SCRIPT
+-- ANY CHANGE BELOW THESES LINES WILL BE LOST
+-- CHANGES SHOULD BE MADE USING http://www.wowace.com/addons/adibags/localization/
+
+-- @noloc[[
+
+------------------------ enUS ------------------------
+
+-- AdiBags.lua
 L["AdiBags anchor"] = true
-L["Adjust the maximum height of the bags, relative to screen size."] = true
-L["Adjust the maximum number of items per row."] = true
-L["Allow you manually redefine the section in which an item should be put. Simply drag an item on the section title."] = true
-L["Ammunition"] = true
-L["Ammunition and soul shards"] = true
-L["Are you sure you want to remove this association ?"] = true
 L["Backpack"] = true
-L["Backpack background color"] = true
-L["Bag type"] = true
-L["Bag usage format"] = true
-L["Bags"] = true
 L["Bank"] = true
-L["Bank background color"] = true
-L["Basic AdiBags configuration"] = true
-L["By category, subcategory, quality and item level (default)"] = true
-L["By name"] = true
-L["By quality and item level"] = true
+
+-- DefaultFilters.lua
+L["Ammunition and soul shards"] = true
+L["Ammunition"] = true
 L["Check sets that should be merged into a unique \"Sets\" section. This is obviously a per-character setting."] = true
-L["Check this to display a bag type tag in the top left corner of items."] = true
-L["Check this to display a colored border around items, based on item quality."] = true
-L["Check this to display an icon after usage of each type of bags."] = true
-L["Check this to display an indicator on quest items."] = true
-L["Check this to display an textual tag before usage of each type of bags."] = true
 L["Check this to display one individual section per set. If this is disabled, there will be one big \"Sets\" section."] = true
-L["Check this to display one section per inventory slot."] = true
-L["Check this to display only one value counting all equipped bags, ignoring their type."] = true
-L["Check this to have poor quality items dimmed."] = true
-L["Check this to show space at your bank in the plugin."] = true
-L["Check to enable this module."] = true
-L["Click there to reset the bag positions and sizes."] = true
-L["Click to purchase"] = true
-L["Click to reset item status."] = true
-L["Click to tidy bags."] = true
-L["Click to toggle the bag anchor."] = true
-L["Click to toggle the equipped bag panel, so you can change them."] = true
-L["Close"] = true
-L["Configure"] = true
 L["Consider gems as a subcategory of trade goods"] = true
 L["Consider glyphs as a subcategory of trade goods"] = true
 L["Consumable"] = true
-L["Core"] = true
-L["Currency"] = true
-L["Dim junk"] = true
-L["Display character currency at bottom left of the backpack."] = true
-L["Display character money at bottom right of the backpack."] = true
-L["Drop your item there to add it to this section."] = true
-L["Enabled"] = true
-L["Enter a text to search in item names."] = true
 L["Equipment"] = true
-L["Equipped bags"] = true
-L["Fill lines at most"] = true
-L["Filters"] = true
-L["Filters are used to dispatch items in bag sections. One item can only appear in one section. If the same item is selected by several filters, the one with the highest priority wins."] = true
-L["Free space"] = true
-L["Free space / total space"] = true
+L["Four general sections."] = true
 L["Gear manager item sets"] = true
 L["Gem"] = true
 L["Gems are trade goods"] = true
 L["Glyph"] = true
 L["Glyphs are trade goods"] = true
-L["Group sections of same category"] = true
-L["Highlight color"] = true
-L["Highlight scale"] = true
-L["Incomplete stacks"] = true
 L["Item category"] = true
-L["Item search"] = true
-L["Items"] = true
 L["Junk"] = true
-L["Layout priority"] = true
-L["LDB Plugin"] = true
-L["Lock anchor"] = true
-L["Manual filtering"] = true
-L["Maximum bag height"] = true
-L["Maximum row width"] = true
-L["Merge bag types"] = true
 L["Merged sets"] = true
 L["Miscellaneous"] = true
-L["Money"] = true
-L["New"] = true
-L["New item highlight"] = true
+L["One section per item slot."] = true
 L["One section per set"] = true
-L["Other items"] = true
+L["Only one section."] = true
 L["Please note this filter matchs every item. Any filter with lower priority than this one will have no effect."] = true
-L["Plugins"] = true
-L["Priority"] = true
-L["Provides a LDB data source to be displayed by LDB display addons."] = true
-L["Provides a text widget at top of the backpack where you can type (part of) an item name to locate it in your bags."] = true
 L["Put ammunition and soul shards in their own sections."] = true
 L["Put any item that can be equipped (including bags) into the \"Equipment\" section."] = true
 L["Put items belonging to one or more sets of the built-in gear manager in specific sections."] = true
 L["Put items in sections depending on their first-level category at the Auction House."] = true
 L["Put items of poor quality or labeled as junk in the \"Junk\" section."] = true
 L["Put quest-related items in their own section."] = true
-L["Quality highlight"] = true
-L["Quality opacity"] = true
-L["Quest"] = true
-L["Quest indicator"] = true
 L["Quest Items"] = true
+L["Quest"] = true
 L["Recipe"] = true
-L["Reset new items"] = true
-L["Reset position"] = true
-L["Scale"] = true
-L["Search:"] = true
-L["Select how bag usage should be formatted in the plugin."] = true
-L["Select how items should be sorted within each section."] = true
+L["Section setup"] = true
+L["Select the sections in which the items should be dispatched."] = true
 L["Select which first-level categories should be split by sub-categories."] = true
 L["Set: %s"] = true
 L["Sets"] = true
-L["Show bag type icons"] = true
-L["Show bag type tags"] = true
-L["Show bank usage"] = true
-L["Sorting order"] = true
 L["Soul shards"] = true
-L["Space in use"] = true
-L["Space in use / total space"] = true
-L["Split by inventory slot"] = true
 L["Split by subcategories"] = true
+L["Trade Goods"] = true
+L["Weapon"] = true
+
+-- Options.lua
+L["Adjust the maximum height of the bags, relative to screen size."] = true
+L["Adjust the maximum number of items per row."] = true
+L["Backpack background color"] = true
+L["Bag type"] = true
+L["Bags"] = true
+L["Bank background color"] = true
+L["Basic AdiBags configuration"] = true
+L["By category, subcategory, quality and item level (default)"] = true
+L["By name"] = true
+L["By quality and item level"] = true
+L["Check this to display a bag type tag in the top left corner of items."] = true
+L["Check this to display a colored border around items, based on item quality."] = true
+L["Check this to display an indicator on quest items."] = true
+L["Check this to have poor quality items dimmed."] = true
+L["Check to enable this module."] = true
+L["Click there to reset the bag positions and sizes."] = true
+L["Click to toggle the bag anchor."] = true
+L["Configure"] = true
+L["Core"] = true
+L["Dim junk"] = true
+L["Enabled"] = true
+L["Fill lines at most"] = true
+L["Filters are used to dispatch items in bag sections. One item can only appear in one section. If the same item is selected by several filters, the one with the highest priority wins."] = true
+L["Filters"] = true
+L["Free space"] = true
+L["Group sections of same category"] = true
+L["Incomplete stacks"] = true
+L["Items"] = true
+L["Layout priority"] = true
+L["Maximum bag height"] = true
+L["Maximum row width"] = true
+L["Other items"] = true
+L["Plugins"] = true
+L["Priority"] = true
+L["Quality highlight"] = true
+L["Quality opacity"] = true
+L["Quest indicator"] = true
+L["Reset position"] = true
+L["Scale"] = true
+L["Select how items should be sorted within each section."] = true
+L["Sorting order"] = true
 L["Stackable items"] = true
 L["Strictly keep ordering"] = true
-L["Tidy bags"] = true
-L["Tidy your bags by clicking on the small \"T\" button at the top left of bags. Special bags with free slots will be filled with macthing items and stackable items will be stacked to save space."] = true
 L["Toggle and configure item filters."] = true
 L["Toggle and configure plugins."] = true
-L["Track new items"] = true
-L["Track new items in each bag, displaying a glowing aura over them and putting them in a special section. \"New\" status can be reset by clicking on the small \"N\" button at top left of bags."] = true
-L["Trade Goods"] = true
 L["Unlock anchor"] = true
 L["Use this to adjust the bag scale."] = true
 L["Use this to adjust the quality-based border opacity. 100% means fully opaque."] = true
-L["Virtual stacks"] = true
 L["Virtual stacks display in one place items that actually spread over several bag slots."] = true
+L["Virtual stacks"] = true
 
--- Replace true with the key
-for k, v in pairs(L) do if v == true then L[k] = k end end
+-- modules/CurrencyFrame.lua
+L["Currency"] = true
+L["Display character currency at bottom left of the backpack."] = true
 
---------------------------------------------------------------------------------
--- Locales from localization system (not yet)
---------------------------------------------------------------------------------
+-- modules/DataSource.lua
+L["Bag usage format"] = true
+L["Check this to display an icon after usage of each type of bags."] = true
+L["Check this to display an textual tag before usage of each type of bags."] = true
+L["Check this to display only one value counting all equipped bags, ignoring their type."] = true
+L["Check this to show space at your bank in the plugin."] = true
+L["Free space / total space"] = true
+L["LDB Plugin"] = true
+L["Merge bag types"] = true
+L["Provides a LDB data source to be displayed by LDB display addons."] = true
+L["Select how bag usage should be formatted in the plugin."] = true
+L["Show bag type icons"] = true
+L["Show bag type tags"] = true
+L["Show bank usage"] = true
+L["Space in use / total space"] = true
+L["Space in use"] = true
 
--- %Localization: adibags
--- AUTOMATICALLY GENERATED BY UpdateLocalization.lua
--- ANY CHANGE BELOW THIS LINE WILL BE LOST ON NEXT UPDATE
--- CHANGES SHOULD BE MADE USING http://www.wowace.com/addons/adibags/localization/
+-- modules/FilterOverride.lua
+L["Allow you manually redefine the section in which an item should be put. Simply drag an item on the section title."] = true
+L["Are you sure you want to remove this association ?"] = true
+L["Drop your item there to add it to this section."] = true
+L["Manual filtering"] = true
 
+-- modules/MoneyFrame.lua
+L["Display character money at bottom right of the backpack."] = true
+L["Money"] = true
+
+-- modules/NewItemTracking.lua
+L["Click to reset item status."] = true
+L["Highlight color"] = true
+L["Highlight scale"] = true
+L["New item highlight"] = true
+L["New"] = true
+L["Reset new items"] = true
+L["Track new items in each bag, displaying a glowing aura over them and putting them in a special section. \"New\" status can be reset by clicking on the small \"N\" button at top left of bags."] = true
+L["Track new items"] = true
+
+-- modules/SearchHighlight.lua
+L["Enter a text to search in item names."] = true
+L["Item search"] = true
+L["Provides a text widget at top of the backpack where you can type (part of) an item name to locate it in your bags."] = true
+L["Search:"] = true
+
+-- modules/TidyBags.lua
+L["Click to tidy bags."] = true
+L["Tidy bags"] = true
+L["Tidy your bags by clicking on the small \"T\" button at the top left of bags. Special bags with free slots will be filled with macthing items and stackable items will be stacked to save space."] = true
+
+-- widgets/BagSlots.lua
+L["Click to purchase"] = true
+L["Equipped bags"] = true
+
+-- widgets/ContainerFrame.lua
+L["Click to toggle the equipped bag panel, so you can change them."] = true
+L["Close"] = true
+
+------------------------ frFR ------------------------
 local locale = GetLocale()
-if locale == "frFR" then
+if locale == 'frFR' then
 L["AdiBags anchor"] = "Ancre AdiBags"
 L["Adjust the maximum height of the bags, relative to screen size."] = "Ajustez la taille maximale des sacs, par rapport à la taille de l'écran."
 L["Adjust the maximum number of items per row."] = "Ajustez le nombre maximale d'objets par ligne."
@@ -215,7 +232,6 @@ L["Check this to display an icon after usage of each type of bags."] = "Cochez c
 L["Check this to display an indicator on quest items."] = "Cochez ceci pour afficher un indicateur sur les objets de quête."
 L["Check this to display an textual tag before usage of each type of bags."] = "Cochez ceci pour afficher le type de sac avant l'usage."
 L["Check this to display one individual section per set. If this is disabled, there will be one big \"Sets\" section."] = "Cochez ceci pour afficher une section individuel par ensemble d'équipement. Sinon, il n'y aura qu'une seule section \"Ensembles\"."
-L["Check this to display one section per inventory slot."] = "Cochez ceci pour répartir les objets selon l'emplacement d'inventaire."
 L["Check this to display only one value counting all equipped bags, ignoring their type."] = "Cochez ceci pour n'afficher qu'une seule valeur pour tous les sacs, quelque soit leur type."
 L["Check this to have poor quality items dimmed."] = "Ciochez ceci pour assombrir les objets de mauvaise qualité."
 L["Check this to show space at your bank in the plugin."] = "Cochez ceci pour afficher l'espace libre de votre banque."
@@ -268,7 +284,6 @@ L["KEYRING_TAG"] = "Cl"
 L["Layout priority"] = "Priorité de disposition"
 L["LDB Plugin"] = "Plugin LDB"
 L["LEATHERWORKING_BAG_TAG"] = "Cu"
-L["Lock anchor"] = "Verrouiller l'ancre"
 L["Manual filtering"] = "Filtrage manuel"
 L["Maximum bag height"] = "Hauteur maximale des sacs"
 L["Maximum row width"] = "Largeur maximale des lignes"
@@ -316,7 +331,6 @@ L["SOUL_BAG_TAG"] = "Âm"
 L["Soul shards"] = "Fragments d'âme"
 L["Space in use"] = "Espace utilisé"
 L["Space in use / total space"] = "Espace utilisé / espace total"
-L["Split by inventory slot"] = "Séparer par emplacement"
 L["Split by subcategories"] = "Répartir par sous-catégorie"
 L["Stackable items"] = "Objets empilables"
 L["Strictly keep ordering"] = "Conserver strictement l'ordre"
@@ -332,7 +346,9 @@ L["Use this to adjust the bag scale."] = "Ajustez la taille des sacs."
 L["Use this to adjust the quality-based border opacity. 100% means fully opaque."] = "Ajustez l'opacité de la bordure de qualité. 100% signifie complétement opaque."
 L["Virtual stacks"] = "Piles virtuelles"
 L["Virtual stacks display in one place items that actually spread over several bag slots."] = "Les piles virtuelles affichent en un seul endroit plusieurs piles d'objets."
-elseif locale == "deDE" then
+
+------------------------ deDE ------------------------
+elseif locale == 'deDE' then
 L["AdiBags anchor"] = "AdiBags Anker"
 L["Adjust the maximum height of the bags, relative to screen size."] = "Passt die maximale Höhe der Taschen in Relation zur Monitorauflösung an."
 L["Adjust the maximum number of items per row."] = "Passt die maximale Anzahl von Gegenständen pro Reihe an"
@@ -358,7 +374,6 @@ L["Check this to display a colored border around items, based on item quality."]
 L["Check this to display an icon after usage of each type of bags."] = "Aktivieren um ein icon nach der Benutzung jeglicher Art von Taschen anzuzeigen"
 L["Check this to display an indicator on quest items."] = "Aktivieren um Questgegenstände mit einem farblichen Rahmen hervorzuheben."
 L["Check this to display one individual section per set. If this is disabled, there will be one big \"Sets\" section."] = "Aktivieren um eine individuelle Abteilung pro Set anzuzeigen. Wenn das hier nicht aktiviert ist wird nur eine große \"Set\" Abteilung angezeigt."
-L["Check this to display one section per inventory slot."] = "Aktivieren um eine Sektion pro Inventarplatz anzuzeigen"
 L["Check this to display only one value counting all equipped bags, ignoring their type."] = "Aktivieren um nur einen Wert anzuzeigen der alle belegten Taschenplätze zählt. Die Art der Tasche wird ignoriert."
 L["Check this to have poor quality items dimmed."] = "Aktivieren um Gegenstände mit geringer Qualität dunkler darzustellen"
 L["Check this to show space at your bank in the plugin."] = "Aktivieren um den freien Platz der Bank im Plugin anzuzeigen."
@@ -410,7 +425,6 @@ L["KEYRING_TAG"] = "Schl" -- Needs review
 L["Layout priority"] = "Darstellung Vorrang"
 L["LDB Plugin"] = "LBD Plugin"
 L["LEATHERWORKING_BAG_TAG"] = "Le" -- Needs review
-L["Lock anchor"] = "Anker abschließen"
 L["Manual filtering"] = "Selbst einstellbare Filter"
 L["Maximum bag height"] = "maximale Taschenhöhe"
 L["Maximum row width"] = "maximale Breite für die Reihe"
@@ -458,7 +472,6 @@ L["SOUL_BAG_TAG"] = "Se" -- Needs review
 L["Soul shards"] = "Seelensplitter"
 L["Space in use"] = "Belegte Plätze"
 L["Space in use / total space"] = "Belegte Plätze / alle Plätze"
-L["Split by inventory slot"] = "Aufteilen nach Inventarplatz"
 L["Split by subcategories"] = "Aufteilen nach Unterkategorieen"
 L["Stackable items"] = "stapelbare Gegenstände"
 L["Strictly keep ordering"] = "Genaue Reihenfolge einhalten"
@@ -473,7 +486,12 @@ L["Unlock anchor"] = "Anker aufschliessen"
 L["Use this to adjust the bag scale."] = "Skalierung der Taschen anpassen"
 L["Use this to adjust the quality-based border opacity. 100% means fully opaque."] = "Deckkraft der Umrandung für die Qualität der Gegenstände anpassen. 100% bedeutet volle Deckkraft"
 L["Virtual stacks"] = "virtuelle Stapel" -- Needs review
-elseif locale == "ruRU" then
+
+------------------------ esMX ------------------------
+-- no translation
+
+------------------------ ruRU ------------------------
+elseif locale == 'ruRU' then
 L["AdiBags anchor"] = "Якорь AdiBags"
 L["Adjust the maximum height of the bags, relative to screen size."] = "Регулировка максимальной высоты сумок, относительно размеру экрана."
 L["Adjust the maximum number of items per row."] = "регулировка максимально количества предметов в ряду."
@@ -539,7 +557,6 @@ L["KEYRING_TAG"] = "Клч"
 L["Layout priority"] = "Приоритет слоя"
 L["LDB Plugin"] = "Плагин LDB"
 L["LEATHERWORKING_BAG_TAG"] = "Кж"
-L["Lock anchor"] = "Блокировать якорь"
 L["Manual filtering"] = "Ручная фильтрация"
 L["Maximum bag height"] = "Максимальная высота сумки"
 L["Maximum row width"] = "Максимальная ширина ряда"
@@ -585,7 +602,12 @@ L["Track new items"] = "Следить за новыми предметами"
 L["Trade Goods"] = "Хозяйственные товары"
 L["Unlock anchor"] = "Разблок. якорь"
 L["Use this to adjust the bag scale."] = "Регулировка масштаба сумок."
-elseif locale == "zhTW" then
+
+------------------------ esES ------------------------
+-- no translation
+
+------------------------ zhTW ------------------------
+elseif locale == 'zhTW' then
 L["AdiBags anchor"] = "AdiBags 錨點"
 L["Ammunition"] = "彈藥"
 L["Ammunition and soul shards"] = "彈藥和靈魂裂片"
@@ -633,7 +655,6 @@ L["Items"] = "物品"
 L["Item search"] = "物品搜索"
 L["Junk"] = "垃圾"
 L["LDB Plugin"] = "LDB 組件"
-L["Lock anchor"] = "鎖定錨點"
 L["Manual filtering"] = "手動過濾"
 L["Merge bag types"] = "合併背包類型"
 L["Miscellaneous"] = "雜項"
@@ -647,7 +668,9 @@ L["Search:"] = "搜尋:"
 L["Set: %s"] = "換裝設定: %s"
 L["Soul shards"] = "靈魂裂片"
 L["Trade Goods"] = "交易品"
-elseif locale == "zhCN" then
+
+------------------------ zhCN ------------------------
+elseif locale == 'zhCN' then
 L["AdiBags anchor"] = "AdiBags 锚点"
 L["Ammunition"] = "弹药"
 L["Ammunition and soul shards"] = "弹药和灵魂碎片"
@@ -693,7 +716,6 @@ L["Items"] = "物品"
 L["Item search"] = "物品搜索"
 L["Junk"] = "垃圾"
 L["LDB Plugin"] = "LDB 组件"
-L["Lock anchor"] = "锁定锚点"
 L["Manual filtering"] = "手动过滤"
 L["Merge bag types"] = "合并背包类型"
 L["Miscellaneous"] = "杂项"
@@ -715,7 +737,9 @@ L["Search:"] = "搜索:"
 L["Show bag type icons"] = "显示背包类型图标"
 L["Show bag type tags"] = "显示背包类型标签"
 L["Sorting order"] = "分类顺序"
-elseif locale == "koKR" then
+
+------------------------ koKR ------------------------
+elseif locale == 'koKR' then
 L["AdiBags anchor"] = "AdiBags 앵커"
 L["Adjust the maximum height of the bags, relative to screen size."] = "화면 크기를 고려해, 가방의 최대 높이를 조절합니다."
 L["Adjust the maximum number of items per row."] = "열당 아이템의 최대 갯수를 조절합니다."
@@ -742,7 +766,6 @@ L["Check this to display an icon after usage of each type of bags."] = "각 유�
 L["Check this to display an indicator on quest items."] = "퀘스트 아이템에 지시기를 표시하려면 이것에 체크하세요."
 L["Check this to display an textual tag before usage of each type of bags."] = "각 유형의 가방 사용칸수 앞에 문자 태그를 표시하려면 이것에 체크하세요."
 L["Check this to display one individual section per set. If this is disabled, there will be one big \"Sets\" section."] = "세트당 개별적인 하나의 항목을 표시하려면 이것에 체크하세요. 비활성화 한다면, 커다란 하나의 \"세트\" 항목이 될 것입니다."
-L["Check this to display one section per inventory slot."] = "소지품 칸당 하나의 항목을 표시하려면 이것에 체크하세요."
 L["Check this to display only one value counting all equipped bags, ignoring their type."] = "착용된 모든 가방을 그것의 유형을 무시한 체로, 단지 하나의 값으로 셈해 표시하려면 이것에 체크하세요. "
 L["Check this to show space at your bank in the plugin."] = "플러그인 안에 은행에서의 칸수를 보여주려면 이것에 체크하세요."
 L["Check to enable this module."] = "이 모듈을 사용하려면 체크하세요."
@@ -790,7 +813,6 @@ L["KEYRING_TAG"] = "열" -- Needs review
 L["Layout priority"] = "레이아웃 우선순위"
 L["LDB Plugin"] = "LDB 플러그인"
 L["LEATHERWORKING_BAG_TAG"] = "가세" -- Needs review
-L["Lock anchor"] = "앵커 잠그기"
 L["Manual filtering"] = "수동 필터링"
 L["Maximum bag height"] = "최대 가방 높이"
 L["Maximum row width"] = "최대 열 너비"
@@ -835,7 +857,6 @@ L["SOUL_BAG_TAG"] = "조각" -- Needs review
 L["Soul shards"] = "영혼의 조각"
 L["Space in use"] = "사용된 칸수"
 L["Space in use / total space"] = "사용된 칸수/전체 칸수"
-L["Split by inventory slot"] = "소지품에 칸에 의해 분리"
 L["Split by subcategories"] = "하위분류에 따라 분리"
 L["Stackable items"] = "중첩이 가능한 아이템"
 L["Tidy bags"] = "가방 정리"
@@ -851,3 +872,8 @@ L["Use this to adjust the quality-based border opacity. 100% means fully opaque.
 L["Virtual stacks"] = "가상 스택"
 L["Virtual stacks display in one place items that actually spread over several bag slots."] = "실제로 가방의 여러 공간을 차지하는 아이템을 가상 스택을 사용해서 한칸으로 표시합니다."
 end
+
+-- @noloc]]
+
+-- Replace remaining true values by their key
+for k,v in pairs(L) do if v == true then L[k] = k end end

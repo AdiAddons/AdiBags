@@ -43,6 +43,5 @@ externals:
   libs/LibMovable-1.0: git://github.com/Adirelle/LibMovable-1.0.git
 
 ignore:
-  - UpdateLocalization.lua
   - README.textile
 
