@@ -156,7 +156,7 @@ do
 				min = 0,
 				max = 100,
 				step = 1,
-				bigStep = 5,
+				bigStep = 1,
 				get = function(info) return module:GetPriority() end,
 				set = function(info, value) module:SetPriority(value) end,
 				disabled = function() return not module:IsEnabled() end,
@@ -208,7 +208,7 @@ end
 
 local function UpdateFilterOrder()
 	for index, filter in addon:IterateFilters() do
-		filterOptions[filter.filterName .. 'Basic'].order = 200 - filter:GetPriority()
+		filterOptions[filter.filterName .. 'Basic'].order = 100 + index
 	end
 end
 

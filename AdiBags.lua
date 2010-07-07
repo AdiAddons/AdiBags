@@ -699,23 +699,35 @@ function addon:InitializeFilters()
 end
 
 local function CompareFilters(a, b)
-	return a:GetPriority() > b:GetPriority() 
+	local prioA, prioB = a:GetPriority(), b:GetPriority() 
+	if prioA == prioB then
+		return a.filterName < b.filterName
+	else
+		return prioA > prioB
+	end
 end
 
-local filters = {}
+local activeFilters = {}
+local allFilters = {}
 function addon:UpdateFilters()
-	wipe(filters)
+	wipe(allFilters)
 	for name, filter in self:IterateModules() do
-		if filter.isFilter and filter:IsEnabled() then
-			tinsert(filters, filter)
+		if filter.isFilter then
+			tinsert(allFilters, filter)
 		end
 	end
-	table.sort(filters, CompareFilters)
+	table.sort(allFilters, CompareFilters)
+	wipe(activeFilters)
+	for i, filter in ipairs(allFilters) do
+		if filter:IsEnabled() then
+			tinsert(activeFilters, filter)
+		end
+	end
 	self:SendMessage('AdiBags_FiltersChanged')
 end
 
 function addon:IterateFilters()
-	return ipairs(filters)
+	return ipairs(allFilters)
 end
 
 function addon:RegisterFilter(name, priority, Filter, ...)
@@ -752,7 +764,7 @@ end
 --------------------------------------------------------------------------------
 
 function addon:Filter(slotData, defaultSection, defaultCategory)
-	for i, filter in ipairs(filters) do
+	for i, filter in ipairs(activeFilters) do
 		local sectionName, category = safecall(filter.Filter, filter, slotData)
 		if sectionName then
 			--@alpha@
