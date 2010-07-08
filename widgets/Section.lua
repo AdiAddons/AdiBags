@@ -32,6 +32,14 @@ function addon:SetCategoryOrders(t)
 	end
 end
 
+function addon:IterateCategories()
+	return pairs(categoryOrder)
+end
+
+function addon:GetCategoryOrder(name)
+	return categoryOrder[name] or 0
+end
+
 --------------------------------------------------------------------------------
 -- Initialization and release
 --------------------------------------------------------------------------------

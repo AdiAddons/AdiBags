@@ -25,7 +25,7 @@ function mod:OnEnable()
 	for button in pairs(buttons) do
 		button:Show()
 	end
-	self:UpdateOptions()	
+	self:UpdateOptions()
 end
 
 function mod:OnDisable()
@@ -38,16 +38,88 @@ function mod:OnDisable()
 	end
 end
 
-local seen = {}
-function mod:HookSection(event, section)
-	if seen[section] then return end
-	seen[section] = true
-	local button = self:NewHeaderButton(section)
-	button:Show()
-	buttons[button] = true
+function mod:Filter(slotData)
+	local override = self.db.profile.overrides[slotData.itemId]
+	if override then
+		return strsplit('#', override)
+	end
 end
 
-local overrideOptionList = {}
+--------------------------------------------------------------------------------
+-- Options
+--------------------------------------------------------------------------------
+
+local options
+function mod:GetOptions()
+	if not options then
+		local categoryValues = {}
+		for name in addon:IterateCategories() do
+			categoryValues[name] = name
+		end
+		local function GetItemId(str)
+			local link = str and select(2, GetItemInfo(str))
+			return link and tonumber(link:match("item:(%d+)"))
+		end
+		local newItemId, newSection, newCategory
+		options = {
+			newAssoc = {
+				type = 'group',
+				name = L["New Override"],
+				desc = L["Use this section to define any item-section association."],
+				order = -10,
+				inline = true,
+				args = {
+					item = {
+						type = 'input',
+						name = L['Item'],
+						desc = L["Enter the name, link or itemid of the item to associate with the section. You can also drop an item into this box."],
+						order = 10,
+						get = function() return newItemId and select(2, GetItemInfo(newItemId)) end,
+						set = function(_, value) newItemId = GetItemId(value) end,
+						validate = function(_, value) return not not GetItemId(value) end,
+					},
+					section = {
+						type = 'input',
+						name = L['Section'],
+						desc = L["Enter the name of the section to associate with the item."],
+						order = 20,
+						get = function() return newSection end,
+						set = function(_, value) newSection = value end,
+						validate = function(_, value) return value and value:trim() ~= "" end,
+					},
+					category = {
+						type = 'select',
+						name = L['Section category'],
+						desc = L["Select the category of the section to associate. This is used to group sections together."],
+						order = 30,
+						get = function() return newCategory end,
+						set = function(_, value) newCategory = value end,
+						values = categoryValues,
+					},
+					add = {
+						type = 'execute',
+						name = L['Add association'],
+						desc = L["Click on this button to create the new association."],
+						order = 40,
+						func = function()
+							mod.db.profile.overrides[newItemId] = strjoin('#', newSection, newCategory)
+							newItemId, newCategory, newSection = nil, nil, nil
+							mod:UpdateOptions()
+							mod:SendMessage('AdiBags_FiltersChanged')
+						end,
+						disabled = function()
+							return not newItemId or not newSection or not newCategory
+						end,
+					},
+				},
+			},
+		}
+		mod:UpdateOptions()
+	end
+
+	return options
+end
+
 do
 	local proto = {
 		type = 'multiselect',
@@ -66,41 +138,50 @@ do
 	local AceConfigRegistry = LibStub('AceConfigRegistry-3.0')
 	local ours = {}
 
+	local function CompareOptions(a, b)
+		return a.arg < b.arg
+	end
+
+	local tmp = {}
 	function mod:UpdateOptions()
+		if not options then return end
 		for option in pairs(ours) do
 			wipe(option.values)
 			option.hidden = true
 		end
+		wipe(tmp)
 		for itemId, override in pairs(self.db.profile.overrides) do
 			local section, category = strsplit('#', tostring(override))
 			local key = strjoin('_', section, category)
-			local option = overrideOptionList[key]
+			local option = options[key]
 			if not option then
-				option = setmetatable({ values = {} }, meta)
-				if category ~= section then
-					option.name = section.. ' ('..category..')'
-				else
-					option.name = section
-				end
+				option = setmetatable({
+					name = format("[%s] %s", category, section),
+					arg = format('%05d:%s', 1000+addon:GetCategoryOrder(category), section),
+					width = 'double',
+					values = {}
+				}, meta)
 				ours[option] = true
-				overrideOptionList[key] = option
+				options[key] = option
 			end
+			tinsert(tmp, option)
 			option.hidden = false
-			option.values[itemId] = GetItemInfo(itemId)
+			local name, _, quality, _, _, _, _,  _, _, icon = GetItemInfo(itemId)
+			if not name then
+				option.values[itemId] = format("#%d", itemId)
+			else
+				local color = ITEM_QUALITY_COLORS[quality or 1]
+				local hex = color and color.hex or ''
+				option.values[itemId] = format("|T%s:20:20|t %s%s|r", icon, (color and color.hex or ''), name)
+			end
 		end
-		AceConfigRegistry:NotifyChange(addonName)	
-	end
-end
-
-local strsplit, strformat = string.split, string.format
-function mod:GetOptions()
-	return overrideOptionList
-end
-
-function mod:Filter(slotData)
-	local override = self.db.profile.overrides[slotData.itemId]
-	if override then
-		return strsplit('#', override)
+		table.sort(tmp, CompareOptions)
+		local order = 100
+		for i, option in pairs(tmp) do
+			option.order = order
+			order = order + 1
+		end
+		AceConfigRegistry:NotifyChange(addonName)
 	end
 end
 
@@ -162,4 +243,13 @@ end
 
 function mod:NewHeaderButton(...)
 	return headerButtonClass:Create(...)
+end
+
+local seen = {}
+function mod:HookSection(event, section)
+	if seen[section] then return end
+	seen[section] = true
+	local button = self:NewHeaderButton(section)
+	button:Show()
+	buttons[button] = true
 end
