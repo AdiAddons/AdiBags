@@ -436,15 +436,15 @@ end
 
 local function FilterSlot(slotData)
 	if slotData.link then
-		local section, category = addon:Filter(slotData, L['Miscellaneous'])
-		return section, category, addon:ShouldStack(slotData)
+		local section, category, filterName = addon:Filter(slotData, L['Miscellaneous'])
+		return section, category, filterName, addon:ShouldStack(slotData)
 	else
-		return L["Free space"], nil, addon:ShouldStack(slotData)
+		return L["Free space"], nil, nil, addon:ShouldStack(slotData)
 	end
 end
 
 function containerProto:DispatchItem(slotData)
-	local sectionName, category, shouldStack, stackKey = FilterSlot(slotData)
+	local sectionName, category, filterName, shouldStack, stackKey = FilterSlot(slotData)
 	local slotId = slotData.slotId
 	local button = self.buttons[slotId]
 	if button and ((button:IsStack() and not shouldStack) or (not button:IsStack() and shouldStack)) then
@@ -462,6 +462,7 @@ function containerProto:DispatchItem(slotData)
 	if button:GetSection() ~= section then
 		section:AddItemButton(slotId, button)
 	end
+	button.filterName = filterName
 	button:FullUpdate()
 	self.buttons[slotId] = button
 end

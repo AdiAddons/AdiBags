@@ -44,6 +44,7 @@ modules\TidyBags.lua
 modules\MoneyFrame.lua
 modules\FilterOverride.lua
 modules\CurrencyFrame.lua
+modules\TooltipInfo.lua
 
 DefaultFilters.lua
 

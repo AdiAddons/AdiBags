@@ -771,7 +771,7 @@ function addon:Filter(slotData, defaultSection, defaultCategory)
 			assert(type(sectionName) == "string", "Filter "..filter.name.." returned "..type(sectionName).." as section name instead of a string")
 			assert(category == nil or type(category) == "string", "Filter "..filter.name.." returned "..type(category).." as category instead of a string")
 			--@end-alpha@
-			return sectionName, category
+			return sectionName, category, filter.uiName
 		end
 	end
 	return defaultSection, defaultCategory
