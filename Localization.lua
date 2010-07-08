@@ -44,6 +44,7 @@ L["MINING_BAG_TAG"] = "Mi"
 
 ------------------------ enUS ------------------------
 
+
 -- AdiBags.lua
 L["AdiBags anchor"] = true
 L["Backpack"] = true
@@ -165,10 +166,20 @@ L["Space in use / total space"] = true
 L["Space in use"] = true
 
 -- modules/FilterOverride.lua
+L["Add association"] = true
 L["Allow you manually redefine the section in which an item should be put. Simply drag an item on the section title."] = true
 L["Are you sure you want to remove this association ?"] = true
+L["Click on this button to create the new association."] = true
 L["Drop your item there to add it to this section."] = true
+L["Enter the name of the section to associate with the item."] = true
+L["Enter the name, link or itemid of the item to associate with the section. You can also drop an item into this box."] = true
+L["Item"] = true
 L["Manual filtering"] = true
+L["New Override"] = true
+L["Section category"] = true
+L["Section"] = true
+L["Select the category of the section to associate. This is used to group sections together."] = true
+L["Use this section to define any item-section association."] = true
 
 -- modules/MoneyFrame.lua
 L["Display character money at bottom right of the backpack."] = true
@@ -195,6 +206,28 @@ L["Click to tidy bags."] = true
 L["Tidy bags"] = true
 L["Tidy your bags by clicking on the small \"T\" button at the top left of bags. Special bags with free slots will be filled with macthing items and stackable items will be stacked to save space."] = true
 
+-- modules/TooltipInfo.lua
+L["AH category"] = true
+L["AH subcategory"] = true
+L["Add more information in tooltips related to items in your bags."] = true
+L["Always"] = true
+L["Bag number"] = true
+L["Category"] = true
+L["Container information"] = true
+L["Filter"] = true
+L["Filtering information"] = true
+L["Maximum stack size"] = true
+L["Never"] = true
+L["Show container information..."] = true
+L["Show filtering information..."] = true
+L["Show item information..."] = true
+L["Slot number"] = true
+L["Tooltip information"] = true
+L["When alt is held down"] = true
+L["When any modifier key is held down"] = true
+L["When ctrl is held down"] = true
+L["When shift is held down"] = true
+
 -- widgets/BagSlots.lua
 L["Click to purchase"] = true
 L["Equipped bags"] = true
@@ -202,6 +235,7 @@ L["Equipped bags"] = true
 -- widgets/ContainerFrame.lua
 L["Click to toggle the equipped bag panel, so you can change them."] = true
 L["Close"] = true
+
 
 ------------------------ frFR ------------------------
 local locale = GetLocale()
@@ -262,6 +296,7 @@ L["Equipped bags"] = "Sacs équipés"
 L["Fill lines at most"] = "Remplir les lignes au maximum"
 L["Filters"] = "Filtres"
 L["Filters are used to dispatch items in bag sections. One item can only appear in one section. If the same item is selected by several filters, the one with the highest priority wins."] = "Les filtres sont utilisés pour répartir les objets en section de sac. Un objet ne peut apparaître que dans une seule section. Si un objet correspond à plusieurs filtres, celui avec la meilleur priorité l'emporte."
+L["Four general sections."] = "Quatre sections générales."
 L["Free space"] = "Espace libre"
 L["Free space / total space"] = "Espace libre / espace total"
 L["Gear manager item sets"] = "Ensembles d'objets du gestionnaire d'équipement"
@@ -294,7 +329,9 @@ L["Miscellaneous"] = "Divers"
 L["Money"] = "Monnaie"
 L["New"] = "Nouveau"
 L["New item highlight"] = "Surlignage des nouveaux objets"
+L["One section per item slot."] = "Une section par emplacement d'équipement"
 L["One section per set"] = "Une section par ensemble"
+L["Only one section."] = "Seulement une section"
 L["Other items"] = "Autres objets"
 L["Please note this filter matchs every item. Any filter with lower priority than this one will have no effect."] = "Veuillez notez que ce filtre correspond à tous les objets. Tout filtre avec une priorité plus faible que celle de ce filtre n'aura aucun effet."
 L["Plugins"] = "Plugins"
@@ -318,8 +355,10 @@ L["Reset new items"] = "Remet à zéro les nouveaux objets."
 L["Reset position"] = "R.à.z. position"
 L["Scale"] = "Echelle"
 L["Search:"] = "Recherche :"
+L["Section setup"] = "Configuration de section"
 L["Select how bag usage should be formatted in the plugin."] = "Choisissez comment l'occupation d'un sac doit être formaté."
 L["Select how items should be sorted within each section."] = "Choisissez comment les objets doivent être triés à l'intérieur de chaque section."
+L["Select the sections in which the items should be dispatched."] = "Sélectionnez les sections parmi lesquelles l'objet devra être affiché"
 L["Select which first-level categories should be split by sub-categories."] = "Sélectionnez quelles catégories doivent être séparée en sous-catégories."
 L["Sets"] = "Ensembles"
 L["Set: %s"] = "Ens.: %s"
@@ -346,6 +385,7 @@ L["Use this to adjust the bag scale."] = "Ajustez la taille des sacs."
 L["Use this to adjust the quality-based border opacity. 100% means fully opaque."] = "Ajustez l'opacité de la bordure de qualité. 100% signifie complétement opaque."
 L["Virtual stacks"] = "Piles virtuelles"
 L["Virtual stacks display in one place items that actually spread over several bag slots."] = "Les piles virtuelles affichent en un seul endroit plusieurs piles d'objets."
+L["Weapon"] = "Arme"
 
 ------------------------ deDE ------------------------
 elseif locale == 'deDE' then
@@ -567,6 +607,7 @@ L["Money"] = "Валюта"
 L["New"] = "Новый"
 L["New item highlight"] = "Подсвечивать новые предметы"
 L["One section per set"] = "Одна секция на набор"
+L["Only one section."] = "Только одна секция"
 L["Other items"] = "Другие предметы"
 L["Plugins"] = "Плагины"
 L["Priority"] = "Приоритет"
@@ -585,6 +626,7 @@ L["Reset new items"] = "Сброс новых предметов"
 L["Reset position"] = "Сброс расположения"
 L["Scale"] = "Масштаб"
 L["Search:"] = "Поиск:"
+L["Section setup"] = "Настройки секции"
 L["Select how items should be sorted within each section."] = "Выберите как предметы должны сортироваться в пределах каждой секции."
 L["Sets"] = "Наборы"
 L["Set: %s"] = "Набор: %s"
@@ -602,6 +644,7 @@ L["Track new items"] = "Следить за новыми предметами"
 L["Trade Goods"] = "Хозяйственные товары"
 L["Unlock anchor"] = "Разблок. якорь"
 L["Use this to adjust the bag scale."] = "Регулировка масштаба сумок."
+L["Weapon"] = "Оружие"
 
 ------------------------ esES ------------------------
 -- no translation
