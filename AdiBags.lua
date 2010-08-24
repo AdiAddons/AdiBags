@@ -60,7 +60,7 @@ do
 	-- Bank bags
 	local BANK = { [BANK_CONTAINER] = BANK_CONTAINER }
 	for i = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do BANK[i] = i end
-	
+
 	-- All bags
 	local ALL = {}
 	for id in pairs(BAGS) do ALL[id] = id end
@@ -124,7 +124,11 @@ addon.BACKDROP = {
 
 local DEFAULT_SETTINGS = {
 	profile = {
-		anchor = { scale = 0.8 },
+		anchor = {
+			scale = 0.8,
+			xOffset = -32 / 0.8,
+			yOffset = 200 / 0.8,
+		},
 		rowWidth = 9,
 		maxHeight = 0.60,
 		laxOrdering = 1,
@@ -144,7 +148,7 @@ local DEFAULT_SETTINGS = {
 		virtualStacks = {
 			['*'] = false,
 			freeSpace = true,
-			ammunition = true,	
+			ammunition = true,
 		},
 	}
 }
@@ -158,11 +162,11 @@ function addon:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileChanged", "Reconfigure")
 	self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")
 	self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
-	
+
 	if self.db.profile.laxOrdering == true then
 		self.db.profile.laxOrdering = 1
 	end
-	
+
 	self.itemParentFrames = {}
 
 	self:InitializeFilters()
@@ -190,7 +194,7 @@ function addon:OnEnable()
 	self:RegisterEvent('MERCHANT_CLOSED', 'CloseAllBags')
 
 	self:SetSortingOrder(self.db.profile.sortingOrder)
-	
+
 	for name, module in self:IterateModules() do
 		if module.isFilter then
 			module:SetEnabledState(self.db.profile.filters[module.moduleName])
@@ -198,7 +202,7 @@ function addon:OnEnable()
 			module:SetEnabledState(self.db.profile.modules[module.moduleName])
 		end
 	end
-	
+
 	self:UpdateMovableLayout()
 end
 
@@ -699,7 +703,7 @@ function addon:InitializeFilters()
 end
 
 local function CompareFilters(a, b)
-	local prioA, prioB = a:GetPriority(), b:GetPriority() 
+	local prioA, prioB = a:GetPriority(), b:GetPriority()
 	if prioA == prioB then
 		return a.filterName < b.filterName
 	else
