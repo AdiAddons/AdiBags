@@ -30,6 +30,12 @@ function mod:OnDisable()
 end
 
 local function SearchEditBox_OnTextChanged(editBox)
+	local text = editBox:GetText()
+	if not text or text:trim() == "" then
+		editBox.clearButton:Hide()
+	else
+		editBox.clearButton:Show()
+	end
 	mod:SendMessage('AdiBags_UpdateAllButtons')
 end
 
@@ -48,26 +54,44 @@ function mod:OnBagFrameCreated(bag)
 	if bag.bagName ~= "Backpack" then return end
 	local frame = bag:GetFrame()
 
-	local searchEditBox = CreateFrame("EditBox", addonName.."SearchEditBox", frame, "InputBoxTemplate")
+	local searchBox = CreateFrame("Frame", addonName.."SearchFrame", frame)
+	searchBox:SetSize(100, 18)
+	self.widget = searchBox
+
+	local searchEditBox = CreateFrame("EditBox", nil, searchBox, "InputBoxTemplate")
 	searchEditBox:SetAutoFocus(false)
-	searchEditBox:SetWidth(100)
+	searchEditBox:SetPoint("TOPLEFT")
+	searchEditBox:SetPoint("TOPRIGHT")
 	searchEditBox:SetHeight(18)
 	searchEditBox:SetScript("OnEnterPressed", SearchEditBox_OnEnterPressed)
 	searchEditBox:SetScript("OnEscapePressed", SearchEditBox_OnEscapePressed)
 	searchEditBox:SetScript("OnTextChanged", SearchEditBox_OnTextChanged)
-	self.widget = searchEditBox
+
+	self.widget.editBox = searchEditBox
+	self.widget.GetText = function() return searchEditBox:GetText() end
 
 	local searchLabel = searchEditBox:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	searchLabel:SetPoint("TOPRIGHT", searchEditBox, "TOPLEFT", -4, 0)
 	searchLabel:SetText(L["Search:"].." ")
 	searchLabel:SetHeight(18)
 
+	local searchClearButton = CreateFrame("Button", nil, searchBox, "UIPanelButtonTemplate")
+	searchClearButton:SetPoint("TOPRIGHT", searchBox)
+	searchClearButton:SetSize(20, 20)
+	searchClearButton:SetText("X")
+	searchClearButton:Hide()
+	searchClearButton:SetScript('OnClick', function() SearchEditBox_OnEscapePressed(searchEditBox) end)
+	searchClearButton:SetScript('OnHide', function() searchEditBox:SetPoint("TOPRIGHT", searchBox, "TOPRIGHT", 0, 0) end)
+	searchClearButton:SetScript('OnShow', function() searchEditBox:SetPoint("TOPRIGHT", searchClearButton, "TOPLEFT", -4, 0) end)
+
+	searchEditBox.clearButton = searchClearButton
+
 	addon.SetupTooltip(searchEditBox, {
 		L["Item search"],
 		L["Enter a text to search in item names."]
 	}, "ANCHOR_TOPLEFT", 0, 8)
 
-	frame:AddHeaderWidget(searchEditBox, -10, 104 + searchLabel:GetStringWidth(), -1)
+	frame:AddHeaderWidget(searchBox, -10, 104 + searchLabel:GetStringWidth(), -1)
 end
 
 function mod:UpdateButton(event, button)
