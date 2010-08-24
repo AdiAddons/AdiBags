@@ -7,7 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
-local mod = addon:NewModule('SearchHighlight', 'AceEvent-3.0', 'AceBucket-3.0')
+local mod = addon:NewModule('SearchHighlight', 'AceEvent-3.0')
 mod.uiName = L['Item search']
 mod.uiDesc = L['Provides a text widget at top of the backpack where you can type (part of) an item name to locate it in your bags.']
 
