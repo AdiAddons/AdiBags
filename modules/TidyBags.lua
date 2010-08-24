@@ -10,15 +10,24 @@ local L = addon.L
 local GetSlotId = addon.GetSlotId
 local GetBagSlotFromId = addon.GetBagSlotFromId
 
-local mod = addon:NewModule('TidyBags', 'AceEvent-3.0')
+local mod = addon:NewModule('TidyBags', 'AceEvent-3.0', 'AceBucket-3.0')
 mod.uiName = L['Tidy bags']
 mod.uiDesc = L['Tidy your bags by clicking on the small "T" button at the top left of bags. Special bags with free slots will be filled with macthing items and stackable items will be stacked to save space.']
 
 local containers = {}
 
+function mod:OnInitialize()
+	self.db = addon.db:RegisterNamespace(self.moduleName, {
+		profile = {
+			autoTidy = false,
+		},
+	})
+end
+
 function mod:OnEnable()
 	addon:HookBagFrameCreation(self, 'OnBagFrameCreated')
 	self:RegisterMessage('AdiBags_PreContentUpdate')
+	self:RegisterBucketEvent({'AUCTION_HOUSE_CLOSED', 'BANKFRAME_CLOSED', 'GUILDBANKFRAME_CLOSED', 'LOOT_CLOSED', 'MAIL_CLOSED', 'MERCHANT_CLOSED', 'TRADE_CLOSED'}, 1, 'AutomaticTidy')
 	for container in pairs(containers) do
 		container[self].button:Show()
 		self:UpdateButton(container)
@@ -31,9 +40,29 @@ function mod:OnDisable()
 	end
 end
 
+function mod:GetOptions()
+	return {
+		autoTidy = {
+			name = L['Semi-automated tidy'],
+			desc = L['Check this so tidying is performed when you close the loot windows or you leave merchants, mailboxes, etc.'],
+			type = 'toggle',
+			order = 10,
+		},
+	}, addon:GetOptionHandler(self)
+end
+
 local function TidyButton_OnClick(button)
 	PlaySound("igMainMenuOptionCheckBoxOn")
 	mod:Start(button.container)
+end
+
+function mod:AutomaticTidy()
+	if not self.db.profile.autoTidy then return end
+	for container in pairs(containers) do
+		if not container.isBank then
+			mod:Start(container)
+		end
+	end
 end
 
 function mod:OnBagFrameCreated(bag)
