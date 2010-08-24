@@ -151,7 +151,7 @@ end
 
 function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)
 	if unit == "player" then
-		self:UpdateBorder()
+		self:UpdateBorder(event)
 	end
 end
 
@@ -212,15 +212,18 @@ function buttonProto:UpdateCount()
 	end
 end
 
-function buttonProto:UpdateLock()
+function buttonProto:UpdateLock(isolatedEvent)
 	SetItemButtonDesaturated(self, select(3, GetContainerItemInfo(self.bag, self.slot)) and true or false)
+	if isolatedEvent then
+		addon:SendMessage('AdiBags_UpdateLock', self)
+	end
 end
 
 function buttonProto:UpdateCooldown()
 	return ContainerFrame_UpdateCooldown(self.bag, self)
 end
 
-function buttonProto:UpdateBorder()
+function buttonProto:UpdateBorder(isolatedEvent)
 	if self.hasItem then
 		local texture, r, g, b, a, x1, x2, y1, y2, blendMode = nil, 1, 1, 1, 1, 0, 1, 0, 1, "BLEND"
 		local isQuestItem, questId, isActive = GetContainerItemQuestInfo(self.bag, self.slot)
@@ -251,10 +254,17 @@ function buttonProto:UpdateBorder()
 			end
 			border:SetTexCoord(x1, x2, y1, y2)
 			border:SetBlendMode(blendMode)
-			return border:Show()
+			border:Show()
+			if isolatedEvent then
+				addon:SendMessage('AdiBags_UpdateBorder', self)
+			end
+			return
 		end
 	end
 	self.IconQuestTexture:Hide()
+	if isolatedEvent then
+		addon:SendMessage('AdiBags_UpdateBorder', self)
+	end
 end
 
 --------------------------------------------------------------------------------

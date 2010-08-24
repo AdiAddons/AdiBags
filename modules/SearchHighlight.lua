@@ -7,7 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
-local mod = addon:NewModule('SearchHighlight', 'AceEvent-3.0')
+local mod = addon:NewModule('SearchHighlight', 'AceEvent-3.0', 'AceBucket-3.0')
 mod.uiName = L['Item search']
 mod.uiDesc = L['Provides a text widget at top of the backpack where you can type (part of) an item name to locate it in your bags.']
 
@@ -18,6 +18,8 @@ function mod:OnEnable()
 		self:SendMessage('AdiBags_UpdateAllButtons')
 	end
 	self:RegisterMessage('AdiBags_UpdateButton', 'UpdateButton')
+	self:RegisterMessage('AdiBags_UpdateLock', 'UpdateButton')
+	self:RegisterMessage('AdiBags_UpdateBorder', 'UpdateButton')
 end
 
 function mod:OnDisable()
@@ -71,14 +73,14 @@ end
 function mod:UpdateButton(event, button)
 	if not self.widget then return end
 	local text = self.widget:GetText()
-	if text and button.hasItem and text:trim() ~= "" then
-		local name = GetItemInfo(button.itemId)
-		if name and not name:lower():match(text:lower()) then
-			button.IconTexture:SetVertexColor(0.2, 0.2, 0.2)
-			button.IconQuestTexture:Hide()
-			button.Count:Hide()
-			button.Stock:Hide()
-		end
+	if not text or text:trim() == "" then return end
+	text = text:lower():trim()
+	local name = button.itemId and GetItemInfo(button.itemId)
+	if name and not name:lower():match(text) then
+		button.IconTexture:SetVertexColor(0.2, 0.2, 0.2)
+		button.IconQuestTexture:Hide()
+		button.Count:Hide()
+		button.Stock:Hide()
 	end
 end
 
