@@ -72,7 +72,7 @@ function addon:SetupDefaultFilters()
 				end
 			end
 		end
-		
+
 		function setFilter:GetFilterOptions()
 			return {
 				oneSectionPerSet = {
@@ -129,7 +129,7 @@ function addon:SetupDefaultFilters()
 	do
 		--@noloc[[
 		local questItemFilter = addon:RegisterFilter('Quest', 75, function(self, slotData)
-			if slotData.class == L['Quest'] or slotData.subclass == L['Quest'] then 
+			if slotData.class == L['Quest'] or slotData.subclass == L['Quest'] then
 				return L['Quest']
 			else
 				local isQuestItem, questId = GetContainerItemQuestInfo(slotData.bag, slotData.slot)
@@ -175,33 +175,37 @@ function addon:SetupDefaultFilters()
 			INVTYPE_WEAPONOFFHAND = WEAPON,
 			INVTYPE_WRIST = ARMOR,
 		}
-	
+
 		local equipmentFilter = addon:RegisterFilter('Equipment', 60, function(self, slotData)
 			local equipSlot = slotData.equipSlot
 			if equipSlot and equipSlot ~= "" then
 				local rule = self.db.profile.dispatchRule
-				if rule == 'category' then				
-					return equipCategories[equipSlot] or _G[equipSlot], L['Equipment']
+				local category = L['Equipment']
+				if rule == 'category' then
+					category = equipCategories[equipSlot] or _G[equipSlot]
 				elseif rule == 'slot' then
-					return _G[equipSlot], L['Equipment']
-				else
-					return L['Equipment']
+					category = _G[equipSlot]
 				end
+				if category == ARMOR and self.db.profile.armorTypes then
+					category = slotData.subclass
+				end
+				return category, L['Equipment']
 			end
 		end)
 		equipmentFilter.uiName = L['Equipment']
 		equipmentFilter.uiDesc = L['Put any item that can be equipped (including bags) into the "Equipment" section.']
-		
+
 		function equipmentFilter:OnInitialize()
-			self.db = addon.db:RegisterNamespace('Equipment', { profile = { dispatchRule = 'category' } })
+			self.db = addon.db:RegisterNamespace('Equipment', { profile = { dispatchRule = 'category', armorTypes = false } })
 		end
-		
+
 		function equipmentFilter:GetFilterOptions()
 			return {
 				dispatchRule = {
 					name = L['Section setup'],
 					desc = L['Select the sections in which the items should be dispatched.'],
 					type = 'select',
+					width = 'double',
 					order = 10,
 					values = {
 						one = L['Only one section.'],
@@ -209,10 +213,17 @@ function addon:SetupDefaultFilters()
 						slot = L['One section per item slot.'],
 					},
 				},
+				armorTypes = {
+					name = L['Split armors by types'],
+					desc = L['Check this so armors are dispatched in four sections by type.'],
+					type = 'toggle',
+					order = 20,
+					disabled = function() return self.db.profile.dispatchRule ~= 'category' end,
+				},
 			}, addon:GetOptionHandler(self, true)
 		end
 	end
-	
+
 	-- [10] Item classes
 	do
 		local itemCat = addon:RegisterFilter('ItemCategory', 10)
@@ -229,7 +240,7 @@ function addon:SetupDefaultFilters()
 				}
 			})
 		end
-		
+
 		function itemCat:GetFilterOptions()
 			return {
 				splitBySubclass = {
@@ -262,7 +273,7 @@ function addon:SetupDefaultFilters()
 				},
 			}, addon:GetOptionHandler(self, true)
 		end
-		
+
 		function itemCat:Filter(slotData)
 			local class, subclass = slotData.class, slotData.subclass
 			if class == L['Gem'] and self.db.profile.mergeGems then
@@ -276,7 +287,7 @@ function addon:SetupDefaultFilters()
 				return class
 			end
 		end
-		
+
 	end
 
 end
