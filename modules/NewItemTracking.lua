@@ -7,7 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
-local mod = addon:RegisterFilter('NewItem', 100, 'AceEvent-3.0', 'AceBucket-3.0')
+local mod = addon:RegisterFilter('NewItem', 100, 'AceEvent-3.0', 'AceBucket-3.0', 'AceTimer-3.0')
 mod.uiName = L['Track new items']
 mod.uiDesc = L['Track new items in each bag, displaying a glowing aura over them and putting them in a special section. "New" status can be reset by clicking on the small "N" button at top left of bags.']
 
@@ -75,8 +75,10 @@ function mod:OnEnable()
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING')
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED')
 	self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, 'UpdateBags')
+	
+	frozen = true
+	self:ScheduleTimer('FirstUpdate', 2)
 
-	frozen = false
 	inventoryScanned = false
 
 	addon.filterProto.OnEnable(self)
@@ -200,9 +202,16 @@ function mod:EQUIPMENT_SWAP_FINISHED(event)
 	self:UpdateBags(allBagIds, event)
 end
 
+function mod:FirstUpdate(event)
+	self:Debug('Force first update')
+	frozen = false
+	inventoryScanned = false
+	self:UpdateBags(allBagIds, event)
+end
+
 function mod:UpdateBags(bagIds, event)
 	if frozen then return end
-	self:Debug('UpdateBags', event or "BAG_UPDATED")
+	self:Debug('UpdateBags', event or "AdiBags_BagUpdated")
 	for name, bag in pairs(bags) do
 		if bag.available and (bag.first or (bag.container and bag.container:IsVisible())) then
 			local counts = bag.counts
@@ -227,7 +236,7 @@ function mod:UpdateBags(bagIds, event)
 
 				-- Update inventory if need be
 				if not inventoryScanned then
-					self:UpdateInventory(event)
+					self:UpdateInventory(event or "AdiBags_BagUpdated")
 				end
 
 				-- Merge items from inventory
