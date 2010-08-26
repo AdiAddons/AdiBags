@@ -168,7 +168,6 @@ end
 
 function buttonProto:FullUpdate()
 	local bag, slot = self.bag, self.slot
-	self:Debug('FullUpdate')
 	self.itemId = GetContainerItemID(bag, slot)
 	self.itemLink = GetContainerItemLink(bag, slot)
 	self.hasItem = not not self.itemId
