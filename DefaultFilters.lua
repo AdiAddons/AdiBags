@@ -180,16 +180,16 @@ function addon:SetupDefaultFilters()
 			local equipSlot = slotData.equipSlot
 			if equipSlot and equipSlot ~= "" then
 				local rule = self.db.profile.dispatchRule
-				local category = L['Equipment']
+				local category
 				if rule == 'category' then
 					category = equipCategories[equipSlot] or _G[equipSlot]
 				elseif rule == 'slot' then
 					category = _G[equipSlot]
 				end
-				if category == ARMOR and self.db.profile.armorTypes then
+				if category == ARMOR and self.db.profile.armorTypes and slotData.subclass then
 					category = slotData.subclass
 				end
-				return category, L['Equipment']
+				return category or L['Equipment'], L['Equipment']
 			end
 		end)
 		equipmentFilter.uiName = L['Equipment']
