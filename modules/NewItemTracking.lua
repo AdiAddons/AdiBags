@@ -224,7 +224,7 @@ function mod:UpdateBags(bagIds, event)
 					bagUpdated = true
 					for slot = 1, GetContainerNumSlots(bagId) do
 						local itemId = GetContainerItemID(bagId, slot)
-						if itemId and not counts[itemId] then
+						if itemId and not counts[itemId] and GetItemInfo(itemId) then
 							counts[itemId] = 0 -- Never seen before, assume we haven't any of it
 						end
 					end
@@ -253,7 +253,9 @@ function mod:UpdateBags(bagIds, event)
 					counts[itemId] = newCount
 					if oldCount ~= newCount then
 						if not bag.first and oldCount < newCount and not newItems[itemId] then
+							--@debug@
 							self:Debug(itemId, GetItemInfo(itemId), ':', oldCount, '=>', newCount, 'NEW!')
+							--@end-debug@
 							newItems[itemId] = true
 							bag.updated = true
 						end
