@@ -123,7 +123,7 @@ local function FindNextMove(container)
 			for slot, slotData in ipairs(slots) do
 
 				if slotData and slotData.link then
-					local itemFamily = GetItemFamily(slotData.itemId)
+					local itemFamily = GetItemFamily(slotData.itemId) or 0
 
 					if band(itemFamily, availableFamilies) ~= 0 and band(itemFamily, bagFamily) == 0 then
 						-- Not in the right bag, look for a better one
