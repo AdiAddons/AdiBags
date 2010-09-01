@@ -252,23 +252,11 @@ local EQUIP_LOCS = {
 	INVTYPE_BAG = 20,
 }
 
-local function CompareNILs(a, b)
-	if a ~= nil and b ~= nil then
-		return nil
-	else
-		return a == nil and b ~= nil
-	end
-end
-
 local sortingFuncs = {
 
-	default = function(idA, idB)
-		local nameA, _, qualityA, levelA, _, classA, subclassA, _, equipSlotA = GetItemInfo(idA)
-		local nameB, _, qualityB, levelB, _, classB, subclassB, _, equipSlotB = GetItemInfo(idB)
-		local nilCheck = CompareNILs(nameA, nameB)
-		if nilCheck ~= nil then
-			return nilCheck
-		end
+	default = function(idA, idB, nameA, nameB)
+		local _, _, qualityA, levelA, _, classA, subclassA, _, equipSlotA = GetItemInfo(idA)
+		local _, _, qualityB, levelB, _, classB, subclassB, _, equipSlotB = GetItemInfo(idB)
 		local equipLocA = EQUIP_LOCS[equipSlotA or ""]
 		local equipLocB = EQUIP_LOCS[equipSlotB or ""]
 		if equipLocA and equipLocB and equipLocA ~= equipLocB then
@@ -286,23 +274,14 @@ local sortingFuncs = {
 		end
 	end,
 
-	byName = function(idA, idB)
-		local nameA, nameB = GetItemInfo(idA), GetItemInfo(idB)
-		local nilCheck = CompareNILs(nameA, nameB)
-		if nilCheck ~= nil then
-			return nilCheck
-		else
-			return nameA < nameB
-		end
+	byName = function(idA, idB, nameA, nameB)
+		return nameA < nameB
 	end,
 
-	byQualityAndLevel = function(idA, idB)
-		local nameA, _, qualityA, levelA = GetItemInfo(idA)
-		local nameB, _, qualityB, levelB = GetItemInfo(idB)
-		local nilCheck = CompareNILs(nameA, nameB)
-		if nilCheck ~= nil then
-			return nilCheck
-		elseif qualityA ~= qualityB then
+	byQualityAndLevel = function(idA, idB, nameA, nameB)
+		local _, _, qualityA, levelA = GetItemInfo(idA)
+		local _, _, qualityB, levelB = GetItemInfo(idB)
+		if qualityA ~= qualityB then
 			return qualityA > qualityB
 		elseif levelA ~= levelB then
 			return levelA > levelB
@@ -317,9 +296,15 @@ local currentSortingFunc = sortingFuncs.default
 
 local itemCompareCache = setmetatable({}, {
 	__index = function(t, key)
-		local result = currentSortingFunc(strsplit(':', key, 2))
-		t[key] = result
-		return result
+		local idA, idB = strsplit(':', key, 2)
+		local nameA, nameB = GetItemInfo(idA), GetItemInfo(idB)
+		if nameA and nameB then
+			local result = currentSortingFunc(idA, idB, nameA, nameB)
+			t[key] = result
+			return result
+		else
+			return idA < idB
+		end
 	end
 })
 
