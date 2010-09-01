@@ -179,14 +179,16 @@ function addon:OnEnable()
 	end
 
 	-- Convert old anchor settings
-	if self.db.profile.anchor then
-		local data = self.db.profile.anchor
-		local scale = data.scale
-		self.db.profile.scale = scale
+	local oldData = self.db.profile.anchor
+	if oldData then
+		local scale = oldData.scale or 0.8
+		self.db.profile.scale = scale 
+		
 		local newData = self.db.profile.positions.anchor
-		newData.point = data.pointFrom
-		newData.xOffset = data.xOffset / scale
-		newData.yOffset = data.yOffset / scale
+		newData.point = oldData.pointFrom or "BOTTOMRIGHT"
+		newData.xOffset = (oldData.xOffset or -32) / scale
+		newData.yOffset = (oldData.yOffset or 200) / scale
+		
 		self.db.profile.anchor = nil
 	end
 
