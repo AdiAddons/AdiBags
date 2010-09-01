@@ -164,12 +164,12 @@ function sectionProto:FitInSpace(maxWidth, maxHeight, xOffset, rowHeight)
 	else
 		numColumns, numRows = maxColumns, ceil(self.count / maxColumns)
 	end
-	local height = HEADER_SIZE + ITEM_SIZE * numRows + ITEM_SPACING * max(numRows - 1, 0)	
+	local height = HEADER_SIZE + ITEM_SIZE * numRows + ITEM_SPACING * max(numRows - 1, 0)
 	local available = maxWidth * maxHeight
 	local gap = max(0, height - rowHeight) * xOffset
 	local occupation = self.count * SLOT_OFFSET * SLOT_OFFSET + numColumns * SLOT_OFFSET * HEADER_SIZE
-	
-	local wasted = available + gap - occupation 
+
+	local wasted = available + gap - occupation
 	if gap < occupation / 2 then
 		return true, numColumns, numRows, wasted, height
 	end
@@ -252,11 +252,23 @@ local EQUIP_LOCS = {
 	INVTYPE_BAG = 20,
 }
 
+local function CompareNILs(a, b)
+	if a ~= nil and b ~= nil then
+		return nil
+	else
+		return a == nil and b ~= nil
+	end
+end
+
 local sortingFuncs = {
 
 	default = function(idA, idB)
 		local nameA, _, qualityA, levelA, _, classA, subclassA, _, equipSlotA = GetItemInfo(idA)
 		local nameB, _, qualityB, levelB, _, classB, subclassB, _, equipSlotB = GetItemInfo(idB)
+		local nilCheck = CompareNILs(nameA, nameB)
+		if nilCheck ~= nil then
+			return nilCheck
+		end
 		local equipLocA = EQUIP_LOCS[equipSlotA or ""]
 		local equipLocB = EQUIP_LOCS[equipSlotB or ""]
 		if equipLocA and equipLocB and equipLocA ~= equipLocB then
@@ -275,13 +287,22 @@ local sortingFuncs = {
 	end,
 
 	byName = function(idA, idB)
-		return GetItemInfo(idA) < GetItemInfo(idB)
+		local nameA, nameB = GetItemInfo(idA), GetItemInfo(idB)
+		local nilCheck = CompareNILs(nameA, nameB)
+		if nilCheck ~= nil then
+			return nilCheck
+		else
+			return nameA < nameB
+		end
 	end,
 
 	byQualityAndLevel = function(idA, idB)
 		local nameA, _, qualityA, levelA = GetItemInfo(idA)
 		local nameB, _, qualityB, levelB = GetItemInfo(idB)
-		if qualityA ~= qualityB then
+		local nilCheck = CompareNILs(nameA, nameB)
+		if nilCheck ~= nil then
+			return nilCheck
+		elseif qualityA ~= qualityB then
 			return qualityA > qualityB
 		elseif levelA ~= levelB then
 			return levelA > levelB
