@@ -7,7 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
-LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'AceEvent-3.0', 'AceBucket-3.0', 'AceHook-3.0', 'LibMovable-1.0')
+LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'AceEvent-3.0', 'AceBucket-3.0', 'AceHook-3.0')
 --@debug@
 _G[addonName] = addon
 --@end-debug@
@@ -124,11 +124,13 @@ addon.BACKDROP = {
 
 local DEFAULT_SETTINGS = {
 	profile = {
-		anchor = {
-			scale = 0.8,
-			xOffset = -32 / 0.8,
-			yOffset = 200 / 0.8,
+		positionMode = "anchored",
+		positions = {
+			anchor = { point = "BOTTOMRIGHT", xOffset = -32, yOffset = 200 },
+			Backpack = { point = "BOTTOMRIGHT", xOffset = -32, yOffset = 200 },
+			Bank = { point = "TOPLEFT", xOffset = 32, yOffset = -104 },
 		},
+		scale = 0.8,
 		rowWidth = 9,
 		maxHeight = 0.60,
 		laxOrdering = 1,
@@ -163,10 +165,6 @@ function addon:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")
 	self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
 
-	if self.db.profile.laxOrdering == true then
-		self.db.profile.laxOrdering = 1
-	end
-
 	self.itemParentFrames = {}
 
 	self:InitializeFilters()
@@ -175,6 +173,23 @@ function addon:OnInitialize()
 end
 
 function addon:OnEnable()
+	-- Convert old ordering setting
+	if self.db.profile.laxOrdering == true then
+		self.db.profile.laxOrdering = 1
+	end
+
+	-- Convert old anchor settings
+	if self.db.profile.anchor then
+		local data = self.db.profile.anchor
+		local scale = data.scale
+		self.db.profile.scale = scale
+		local newData = self.db.profile.positions.anchor
+		newData.point = data.pointFrom
+		newData.xOffset = data.xOffset / scale
+		newData.yOffset = data.yOffset / scale
+		self.db.profile.anchor = nil
+	end
+
 	self:RegisterEvent('BANKFRAME_OPENED')
 	self:RegisterEvent('BANKFRAME_CLOSED')
 
@@ -203,7 +218,7 @@ function addon:OnEnable()
 		end
 	end
 
-	self:UpdateMovableLayout()
+	 self:UpdatePositionMode()
 end
 
 function addon:Reconfigure()
@@ -260,6 +275,10 @@ function addon:ConfigChanged(vars)
 			return self:SetSortingOrder(self.db.profile.sortingOrder)
 		elseif name == "rowWidth" or name == "maxHeight" or name == 'laxOrdering' then
 			return self:SendMessage('AdiBags_LayoutChanged')
+		elseif name == 'scale' then
+			return self:LayoutBags()
+		elseif name == 'positionMode' then
+			return self:UpdatePositionMode()
 		end
 	end
 	self:SendMessage('AdiBags_UpdateAllButtons')
@@ -400,7 +419,7 @@ function bagProto:GetFrame()
 end
 
 function bagProto:CreateFrame()
-	return addon:CreateContainerFrame(self.bagName, self.bagIds, self.isBank, addon.anchor)
+	return addon:CreateContainerFrame(self.bagName, self.bagIds, self.isBank)
 end
 
 --------------------------------------------------------------------------------
@@ -586,62 +605,47 @@ end
 -- Bag anchor and layout
 --------------------------------------------------------------------------------
 
-local function Anchor_OnStartedMovingg(anchor)
-	for _, bag in addon:IterateBags(true) do
-		anchor.openBags[bag] = true
-		bag:GetFrame():Hide()
-	end
-end
-
-local function Anchor_OnStoppedMoving(anchor)
-	for	bag in pairs(anchor.openBags) do
-		bag:GetFrame():Show()
-	end
-	wipe(anchor.openBags)
-end
-
-local function Anchor_GetDatabase(anchor)
-	return addon.db.profile.anchor
-end
-
-local AceConfigRegistry = LibStub('AceConfigRegistry-3.0')
-local function Anchor_OnDatabaseUpdated(anchor)
-	AceConfigRegistry:NotifyChange(addonName)
-	addon:LayoutBags()
-end
-
 function addon:CreateBagAnchor()
-	local anchor = CreateFrame("Frame", addonName.."Anchor", UIParent)
-	local scale = DEFAULT_SETTINGS.profile.anchor.scale or 1
-	anchor:SetScale(scale)
-	anchor:SetPoint("BOTTOMRIGHT", -32 / scale, 200 / scale)
-	anchor:SetWidth(200)
-	anchor:SetHeight(20)
-	anchor.openBags = {}
-	anchor.LM10_OnStartedMoving = Anchor_OnStartedMovingg
-	anchor.LM10_OnStoppedMoving = Anchor_OnStoppedMoving
-	anchor.LM10_OnDatabaseUpdated = Anchor_OnDatabaseUpdated
+	local anchor = self:CreateAnchorWidget(UIParent, "anchor", L["AdiBags Anchor"])
+	anchor:SetSize(80, 80)
+	anchor:SetFrameStrata("TOOLTIP")
+	anchor:SetBackdrop(self.ANCHOR_BACKDROP)
+	anchor:SetBackdropColor(0, 1, 0, 1)
+	anchor:SetBackdropBorderColor(0, 0, 0, 0)
+	anchor:EnableMouse(true)
+	anchor:SetClampedToScreen(true)
+	anchor:SetMovable(true)
+	anchor.OnMovingStopped = function() addon:LayoutBags() end
+	anchor:SetScript('OnMouseDown', anchor.StartMoving)
+	anchor:SetScript('OnMouseUp', anchor.StopMoving)
+	anchor:Hide()
+
+	local text = anchor:CreateFontString(nil, "ARTWORK", "GameFontWhite")
+	text:SetAllPoints(anchor)
+	text:SetText(L["AdiBags Anchor"])
+	text:SetJustifyH("CENTER")
+	text:SetJustifyV("MIDDLE")
+	text:SetShadowColor(0,0,0,1)
+	text:SetShadowOffset(1, -1)
+	anchor.text = text
+
 	self.anchor = anchor
-	self:RegisterMovable(anchor, Anchor_GetDatabase, L["AdiBags anchor"])
 end
 
-function addon:LayoutBags()
+local function AnchoredBagLayout(self)
+	self.anchor:ApplySettings()
+
 	local nextBag, data, index, bag = self:IterateBags(true)
 	index, bag = nextBag(data, index)
 	if not bag then return end
 
-	local w, h = UIParent:GetWidth(), UIParent:GetHeight()
-	local x, y = self.anchor:GetCenter()
-	local scale = self.anchor:GetScale()
-	x, y = x * scale, y * scale
-	local anchorPoint =
-		((y > 0.6 * h) and "TOP" or (y < 0.4 * h) and "BOTTOM" or "") ..
-		((x < 0.4 * w) and "LEFT" or (x > 0.6 * w) and "RIGHT" or "")
-	if anchorPoint == "" then anchorPoint = "CENTER" end
+	local anchor = self.anchor
+	local anchorPoint = anchor:GetPosition()
 
 	local frame = bag:GetFrame()
 	frame:ClearAllPoints()
-	frame:SetPoint(anchorPoint, 0, 0)
+	self:Debug('AnchoredBagLayout', anchorPoint)
+	frame:SetPoint(anchorPoint, anchor, anchorPoint, 0, 0)
 
 	local lastFrame = frame
 	index, bag = nextBag(data, index)
@@ -658,9 +662,75 @@ function addon:LayoutBags()
 	while bag do
 		local frame = bag:GetFrame()
 		frame:ClearAllPoints()
-		frame:SetPoint(fromPoint, lastFrame, toPoint, x, 0)
+		frame:SetPoint(fromPoint, lastFrame, toPoint, x / frame:GetScale(), 0)
 		lastFrame, index, bag = frame, nextBag(bag, index)
 	end
+end
+
+local function ManualBagLayout(self)
+	for index, bag in self:IterateBags(true) do
+		bag:GetFrame().Anchor:ApplySettings()
+	end
+end
+
+function addon:LayoutBags()
+	local scale = self.db.profile.scale
+	for index, bag in self:IterateBags() do
+		if bag:HasFrame() then
+			bag:GetFrame():SetScale(scale)
+		end
+	end
+	if self.db.profile.positionMode == 'anchored' then
+		AnchoredBagLayout(self)
+	else
+		ManualBagLayout(self)
+	end
+end
+
+function addon:ToggleAnchor()
+	if self.db.profile.positionMode == 'anchored' and not self.anchor:IsShown() then
+		self.anchor:Show()
+	else
+		self.anchor:Hide()
+	end
+end
+
+function addon:UpdatePositionMode()
+	if self.db.profile.positionMode == 'anchored' then
+		for index, bag in self:IterateBags() do
+			if bag:HasFrame() then
+				bag:GetFrame().Anchor:Hide()
+			end
+		end
+	else
+		for index, bag in self:IterateBags() do
+			if bag:HasFrame() then
+				bag:GetFrame().Anchor:Show()
+			end
+		end
+		self.anchor:Hide()
+	end
+	self:LayoutBags()
+end
+
+local function copytable(dst, src)
+	wipe(dst)
+	for k, v in pairs(src) do
+		if type(v) == "table" then
+			if type(dst[k]) ~= "table" then
+				dst[k] = {}
+			end
+			copytable(dst[k], v)
+		else
+			dst[k] = v
+		end
+	end
+end
+
+function addon:ResetBagPositions()
+	self.db.profile.scale = DEFAULT_SETTINGS.profile.scale
+	copytable(self.db.profile.positions, DEFAULT_SETTINGS.profile.positions)
+	self:LayoutBags()
 end
 
 --------------------------------------------------------------------------------

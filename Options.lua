@@ -218,18 +218,15 @@ end
 
 local lockOption = {
 	name = function()
-		return addon:AreMovablesLocked() and L["Unlock anchor"] or L["Lock anchor"]
+		return addon.anchor:IsShown() and L["Lock anchor"] or L["Unlock anchor"]
 	end,
 	desc = L["Click to toggle the bag anchor."],
 	type = 'execute',
 	order = 110,
 	func = function()
-		if addon:AreMovablesLocked() then
-			 addon:UnlockMovables()
-		else
-			addon:LockMovables()
-		end
+		addon:ToggleAnchor()
 	end,
+	disabled = function() return addon.db.profile.positionMode ~= 'anchored' end,
 }
 
 function addon:GetOptions()
@@ -266,15 +263,25 @@ function addon:GetOptions()
 						inline = true,
 						order = 100,
 						args = {
+							positionMode = {
+								name = L['Position mode'],
+								desc = L['Select how the bag are positionned.'],
+								type = 'select',
+								order = 100,
+								values = {
+									anchored = L['Anchored'],
+									manual = L['Manual'],
+								}
+							},
 							toggleAnchor = lockOption,
 							reset = {
 								name = L['Reset position'],
 								desc = L['Click there to reset the bag positions and sizes.'],
 								type = 'execute',
 								order = 120,
-								func = function() addon:ResetMovableLayout() end,
+								func = function() addon:ResetBagPositions() end,
 							},
-							bagScale = {
+							scale = {
 								name = L['Scale'],
 								desc = L['Use this to adjust the bag scale.'],
 								type = 'range',
@@ -283,15 +290,8 @@ function addon:GetOptions()
 								min = 0.1,
 								max = 3.0,
 								step = 0.1,
-								get = function()
-									return addon.db.profile.anchor.scale
-								end,
 								set = function(info, newScale)
-									local db = self.db.profile.anchor
-									db.xOffset = db.xOffset / newScale * db.scale
-									db.yOffset = db.yOffset / newScale * db.scale
-									db.scale = newScale
-									self:UpdateMovableLayout()
+									self.db.profile.scale = newScale
 									self:LayoutBags()
 									self:SendMessage('AdiBags_LayoutChanged')
 								end,

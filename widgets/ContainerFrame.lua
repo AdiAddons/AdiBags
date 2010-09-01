@@ -38,8 +38,9 @@ function addon:CreateContainerFrame(...) return containerClass:Create(...) end
 local SimpleLayeredRegion = addon:GetClass("SimpleLayeredRegion")
 
 local bagSlots = {}
-function containerProto:OnCreate(name, bagIds, isBank, anchor)
-	containerParentProto.OnCreate(self, anchor)
+function containerProto:OnCreate(name, bagIds, isBank)
+	self:SetParent(UIParent)
+	containerParentProto.OnCreate(self)
 
 	--self:EnableMouse(true)
 	self:SetFrameStrata("HIGH")
@@ -139,6 +140,17 @@ function containerProto:OnCreate(name, bagIds, isBank, anchor)
 	title:SetJustifyH("LEFT")
 	title:SetPoint("LEFT", headerLeftRegion, "RIGHT", 4, 0)
 	title:SetPoint("RIGHT", headerRightRegion, "LEFT", -4, 0)
+
+	local anchor = addon:CreateAnchorWidget(self, name, L[name], self)
+	anchor:SetAllPoints(title)
+	anchor:EnableMouse(true)
+	anchor:SetFrameLevel(self:GetFrameLevel() + 10)
+	anchor:SetScript('OnMouseDown', anchor.StartMoving)
+	anchor:SetScript('OnMouseUp', anchor.StopMoving)
+	if addon.db.profile.positionMode == 'manual' then
+		anchor:Show()
+	end
+	self.Anchor = anchor
 
 	local content = CreateFrame("Frame", nil, self)
 	content:SetPoint("TOPLEFT", BAG_INSET, -addon.TOP_PADDING)
