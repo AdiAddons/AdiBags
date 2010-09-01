@@ -46,7 +46,7 @@ L["MINING_BAG_TAG"] = "Mi"
 
 
 -- AdiBags.lua
-L["AdiBags anchor"] = true
+L["AdiBags Anchor"] = true
 L["Backpack"] = true
 L["Bank"] = true
 
@@ -99,6 +99,7 @@ L["Weapon"] = true
 -- Options.lua
 L["Adjust the maximum height of the bags, relative to screen size."] = true
 L["Adjust the maximum number of items per row."] = true
+L["Anchored"] = true
 L["Backpack background color"] = true
 L["Bag type"] = true
 L["Bags"] = true
@@ -127,10 +128,12 @@ L["Incomplete stacks"] = true
 L["Items"] = true
 L["Layout priority"] = true
 L["Lock anchor"] = true
+L["Manual"] = true
 L["Maximum bag height"] = true
 L["Maximum row width"] = true
 L["Other items"] = true
 L["Plugins"] = true
+L["Position mode"] = true
 L["Priority"] = true
 L["Quality highlight"] = true
 L["Quality opacity"] = true
@@ -138,6 +141,7 @@ L["Quest indicator"] = true
 L["Reset position"] = true
 L["Scale"] = true
 L["Select how items should be sorted within each section."] = true
+L["Select how the bag are positionned."] = true
 L["Sorting order"] = true
 L["Stackable items"] = true
 L["Strictly keep ordering"] = true
@@ -241,6 +245,7 @@ L["Click to purchase"] = true
 L["Equipped bags"] = true
 
 -- widgets/ContainerFrame.lua
+L["Buggy items"] = true
 L["Click to toggle the equipped bag panel, so you can change them."] = true
 L["Close"] = true
 
@@ -250,7 +255,7 @@ local locale = GetLocale()
 if locale == 'frFR' then
 L["Add association"] = "Ajouter l'association"
 L["Add more information in tooltips related to items in your bags."] = "Ajoute des informations additionnelles dans les bulles d'aides des objets de vos sacs."
-L["AdiBags anchor"] = "Ancre AdiBags"
+L["AdiBags Anchor"] = "Ancre d'AdiBags"
 L["Adjust the maximum height of the bags, relative to screen size."] = "Ajustez la taille maximale des sacs, par rapport à la taille de l'écran."
 L["Adjust the maximum number of items per row."] = "Ajustez le nombre maximale d'objets par ligne."
 L["AH category"] = "Catégorie HV"
@@ -260,6 +265,7 @@ L["Always"] = "Toujours"
 L["AMMO_TAG"] = "Ba"
 L["Ammunition"] = "Munitions"
 L["Ammunition and soul shards"] = "Munitions et fragments d'âme."
+L["Anchored"] = "Ancrée"
 L["Are you sure you want to remove this association ?"] = "Etes-vous sûr de vouloir supprimer cette association ?"
 L["Armor"] = "Armure"
 L["Backpack"] = "Sac à dos"
@@ -271,6 +277,7 @@ L["Bag usage format"] = "Format de l'usage des sacs"
 L["Bank"] = "Banque"
 L["Bank background color"] = "Couleur du fond de la banque"
 L["Basic AdiBags configuration"] = "Configuration basique d'AdiBags"
+L["Buggy items"] = "Objets buggés"
 L["By category, subcategory, quality and item level (default)"] = "Par catégorie, sous-catégorie, qualité et niveau d'objet (par défaut)"
 L["By name"] = "Par nom"
 L["By quality and item level"] = "Par qualité et niveau d'objet"
@@ -348,6 +355,7 @@ L["Layout priority"] = "Priorité de disposition"
 L["LDB Plugin"] = "Plugin LDB"
 L["LEATHERWORKING_BAG_TAG"] = "Cu"
 L["Lock anchor"] = "Verrouiller l'ancre"
+L["Manual"] = "Manuelle"
 L["Manual filtering"] = "Filtrage manuel"
 L["Maximum bag height"] = "Hauteur maximale des sacs"
 L["Maximum row width"] = "Largeur maximale des lignes"
@@ -367,6 +375,7 @@ L["Only one section."] = "Seulement une section"
 L["Other items"] = "Autres objets"
 L["Please note this filter matchs every item. Any filter with lower priority than this one will have no effect."] = "Veuillez notez que ce filtre correspond à tous les objets. Tout filtre avec une priorité plus faible que celle de ce filtre n'aura aucun effet."
 L["Plugins"] = "Plugins"
+L["Position mode"] = "Disposition"
 L["Priority"] = "Priorité"
 L["Provides a LDB data source to be displayed by LDB display addons."] = "Fournit une source LDB qui peut être affichée dans un addon d'affichage de LDB."
 L["Provides a text widget at top of the backpack where you can type (part of) an item name to locate it in your bags."] = "Ajoute une zone de texte en haut du sac à dos, dans laquelle vous pouvez taper le nom (même partiel) d'un objet pour le retrouver dans vos sacs."
@@ -392,6 +401,7 @@ L["Section category"] = "Catégorie de section"
 L["Section setup"] = "Configuration de section"
 L["Select how bag usage should be formatted in the plugin."] = "Choisissez comment l'occupation d'un sac doit être formaté."
 L["Select how items should be sorted within each section."] = "Choisissez comment les objets doivent être triés à l'intérieur de chaque section."
+L["Select how the bag are positionned."] = "Sélectionnez la façon dont les sacs sont disposés."
 L["Select the category of the section to associate. This is used to group sections together."] = "Sélectionnez la catégorie de la section à associer. Ceci est utilisé pour regrouper les sections."
 L["Select the sections in which the items should be dispatched."] = "Sélectionnez les sections parmi lesquelles l'objet devra être affiché"
 L["Select which first-level categories should be split by sub-categories."] = "Sélectionnez quelles catégories doivent être séparée en sous-catégories."
@@ -438,7 +448,6 @@ L["When shift is held down"] = "Quand MAJ est enfoncé"
 elseif locale == 'deDE' then
 L["Add association"] = "Füge Zuweisung hinzu"
 L["Add more information in tooltips related to items in your bags."] = "Füge mehr Informationen bezüglich der Items in deinen Taschen zum Tooltip hinzu"
-L["AdiBags anchor"] = "AdiBags Anker"
 L["Adjust the maximum height of the bags, relative to screen size."] = "Passt die maximale Höhe der Taschen in Relation zur Monitorauflösung an."
 L["Adjust the maximum number of items per row."] = "Passt die maximale Anzahl von Gegenständen pro Reihe an"
 L["AH category"] = "AH Kategorie"
@@ -622,7 +631,6 @@ L["When shift is held down"] = "Wenn Umschalt gedrückt ist"
 
 ------------------------ ruRU ------------------------
 elseif locale == 'ruRU' then
-L["AdiBags anchor"] = "Якорь AdiBags"
 L["Adjust the maximum height of the bags, relative to screen size."] = "Регулировка максимальной высоты сумок, относительно размеру экрана."
 L["Adjust the maximum number of items per row."] = "регулировка максимально количества предметов в ряду."
 L["Allow you manually redefine the section in which an item should be put. Simply drag an item on the section title."] = "Позволяет вручную изменять секцию в которую следует переместить предмет. Просто перетащите элемент за название раздела."
@@ -743,7 +751,6 @@ L["Weapon"] = "Оружие"
 ------------------------ zhTW ------------------------
 elseif locale == 'zhTW' then
 L["Add association"] = "新增聯想"
-L["AdiBags anchor"] = "AdiBags 錨點"
 L["AH category"] = "AH 種類"
 L["AH subcategory"] = "AH 子種類"
 L["Always"] = "一直"
@@ -869,7 +876,6 @@ L["When shift is held down"] = "當 shift 按住"
 
 ------------------------ zhCN ------------------------
 elseif locale == 'zhCN' then
-L["AdiBags anchor"] = "AdiBags 锚点"
 L["Ammunition"] = "弹药"
 L["Ammunition and soul shards"] = "弹药和灵魂碎片"
 L["Are you sure you want to remove this association ?"] = "你是否确定想要移除这个组合？" -- Needs review
@@ -945,7 +951,6 @@ L["Soul shards"] = "灵魂碎片"
 elseif locale == 'koKR' then
 L["Add association"] = "연계체 추가" -- Needs review
 L["Add more information in tooltips related to items in your bags."] = "가방안의 아이템과 관련된 툴팁에 더 많은 정보를 추가합니다."
-L["AdiBags anchor"] = "AdiBags 앵커"
 L["Adjust the maximum height of the bags, relative to screen size."] = "화면 크기를 고려해, 가방의 최대 높이를 조절합니다."
 L["Adjust the maximum number of items per row."] = "열당 아이템의 최대 갯수를 조절합니다."
 L["AH category"] = "경매장 분류"
