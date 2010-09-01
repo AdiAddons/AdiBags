@@ -163,11 +163,18 @@ function containerProto:ToString() return self.name or self:GetName() end
 --------------------------------------------------------------------------------
 
 function containerProto:BagsUpdated(bagIds)
+	local hadInconsistentItems = self.hasInconsistentItems
+	self.hasInconsistentItems = false
 	for bag in pairs(bagIds) do
-		if self.bagIds[bag] then
+		if hadInconsistentItems or self.bagIds[bag] then
 			self:UpdateContent(bag)
 		end
 	end
+--@alpha@
+	if hadInconsistentItems and not self.hasInconsistentItems then
+		self:Debug('Inconsistent items fixed')
+	end
+--@end-alpha@
 	self:UpdateButtons()
 	self:LayoutSections()
 end
@@ -219,9 +226,18 @@ function containerProto:ResumeUpdates()
 	self.paused = false
 	self.bagUpdateBucket = self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, "BagsUpdated")
 	self:Debug('ResumeUpdates')
+--@alpha@
+	local hadInconsistentItems = self.hasInconsistentItems
+--@end-alpha@
+	self.hasInconsistentItems = false
 	for bag in pairs(self.bagIds) do
 		self:UpdateContent(bag)
 	end
+--@alpha@
+	if hadInconsistentItems and not self.hasInconsistentItems then
+		self:Debug('Inconsistent items fixed')
+	end
+--@end-alpha@
 	self:UpdateButtons()
 	if self.filtersChanged  then
 		self:RedispatchAllItems()
@@ -351,6 +367,7 @@ function containerProto:UpdateContent(bag)
 	local newSize = GetContainerNumSlots(bag)
 	local _, bagFamily = GetContainerNumFreeSlots(bag)
 	content.family = bagFamily
+	local inconsistencyCount = 0
 	for slot = 1, newSize do
 		local slotData = content[slot]
 		if not slotData then
@@ -364,32 +381,25 @@ function containerProto:UpdateContent(bag)
 			}
 			content[slot] = slotData
 		end
-		local _, count, _, _, _, _, link = GetContainerItemInfo(bag, slot)
-		--@alpha@
-		-- Try to catch weird link values (see ticket #2)
-		if link ~= nil and type(link) ~= "string" then
-			local secure, tainter = issecurevariable("GetContainerItemInfo")
-			if tainter then
-				print(strjoin("\n",
-					"AdiBags: GetContainerItemInfo returned a weird link value where a string is expected.",
-					"It seems has been hooked by "..tainter..", please disable this addon to see if it fixes this error.",
-					"If it does, please report the bug to the author of "..tainter.."."
-				))
-				error("GetContainerItemInfo returned a "..type(link).." for the link, where a string is expected. Check your chat window for details.")
-			else
-				error("GetContainerItemInfo returned a "..type(link).." for the link, where a string is expected. No more information available.")
-			end
+		local itemId = GetContainerItemID(bag, slot)
+		local link = GetContainerItemLink(bag, slot)
+		local _, count, _, _, _, _, link2 = GetContainerItemInfo(bag, slot)
+		local name, _, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice = GetItemInfo(link or itemId or "")
+		local inconsistent = false
+		if (itemId or ((count or 0) > 0)) and (not name or not link or link ~= link2) then
+			self:Debug('Weird item information, bag,slot=', bag, slot, 'id=', itemId, 'count=', count, 'GetContainerItemLink=', link, 'GetContainerItemInfo link=', link2)
+			inconsistent = true
+			inconsistencyCount = inconsistencyCount + 1
 		end
-		--@end-alpha@
 		link, count = link or false, count or 0
 
-		if slotData.link ~= link then
+		if slotData.link ~= link or slotData.inconsistent ~= inconsistent then
 			removed[slotData.slotId] = slotData.link
+			slotData.inconsistent = inconsistent
 			slotData.count = count
 			slotData.link = link
-			slotData.itemId = link and tonumber(link:match("item:(%d+)"))
-			local maxStack
-			slotData.name, _, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass, maxStack, slotData.equipSlot, slotData.texture, slotData.vendorPrice = GetItemInfo(link or "")
+			slotData.itemId = itemId
+			slotData.name, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass,  slotData.equipSlot, slotData.texture, slotData.vendorPrice = name, quality, iLevel, reqLevel, class, subclass, equipSlot, texture, vendorPrice
 			slotData.maxStack = maxStack or (link and 1 or 0)
 			added[slotData.slotId] = slotData
 		elseif slotData.count ~= count then
@@ -403,6 +413,11 @@ function containerProto:UpdateContent(bag)
 			removed[slotData.slotId] = slotData.link
 			content[slot] = nil
 		end
+	end
+	content.hasInconsistentItems = inconsistencyCount > 0
+	if content.hasInconsistentItems and not self.hasInconsistentItems then
+		self:Debug('Container has inconsistent items')
+		self.hasInconsistentItems = true
 	end
 	content.size = newSize
 end
@@ -435,7 +450,9 @@ function containerProto:GetSection(name, category)
 end
 
 local function FilterSlot(slotData)
-	if slotData.link then
+	if slotData.inconsistent then
+		return L["Buggy items"], nil
+	elseif slotData.link then
 		local section, category, filterName = addon:Filter(slotData, L['Miscellaneous'])
 		return section, category, filterName, addon:ShouldStack(slotData)
 	else
@@ -572,7 +589,7 @@ local function GetBestSection(maxWidth, maxHeight, xOffset, rowHeight, category)
 			break
 		end
 		local fit, width, height, wasted = section:FitInSpace(maxWidth, maxHeight, xOffset, rowHeight)
-		if fit then			
+		if fit then
 			if not leastWasted or wasted < leastWasted then
 				bestIndex, bestWidth, bestHeight, leastWasted = index, width, height, wasted
 			end
@@ -614,7 +631,7 @@ local function DoLayoutSections(self, rowWidth, maxHeight, clean, force)
 	if minHeight > maxHeight then
 		maxHeight = minHeight
 	end
-	
+
 	local content = self.Content
 	local getNext = getNextSection[addon.db.profile.laxOrdering]
 
@@ -703,8 +720,8 @@ function containerProto:LayoutSections(repack)
 	elseif numColumns == 1 and contentWidth < self:GetContentMinWidth()  then
 		contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self:GetContentMinWidth(), maxHeight, repack, self.forceLayout)
 	end
-	
+
 	self.Content:SetSize(contentWidth, contentHeight)
-	
+
 	self.forceLayout = nil
 end
