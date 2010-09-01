@@ -108,11 +108,13 @@ local poolMeta = { __index = poolProto }
 function poolProto:Acquire(...)
 	local object = next(self.heap)
 	if object then
+		assert(not object.acquired, "Found an acquired object in the pool")
 		self.heap[object] = nil
 	else
 		object = self.class:Create()
 	end
 	self.actives[object] = true
+	object.acquired = true
 	for name, mixin in pairs(self.class.mixins) do
 		safecall(mixin, "OnEmbedEnable", object)
 	end
@@ -121,6 +123,7 @@ function poolProto:Acquire(...)
 end
 
 function poolProto:Release(object)
+	assert(object.acquired, "Trying to release an object that wasn't acquired")
 	object:Hide()
 	object:ClearAllPoints()
 	object:SetParent(nil)
@@ -128,6 +131,7 @@ function poolProto:Release(object)
 	for name, mixin in pairs(self.class.mixins) do
 		safecall(mixin, "OnEmbedDisable", object)
 	end
+	object.acquired = nil
 	self.actives[object] = nil
 	self.heap[object] = true
 end

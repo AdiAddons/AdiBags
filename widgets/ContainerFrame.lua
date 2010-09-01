@@ -445,6 +445,7 @@ end
 
 function containerProto:DispatchItem(slotData)
 	local sectionName, category, filterName, shouldStack, stackKey = FilterSlot(slotData)
+	assert(sectionName, "sectionName is nil, item: "..(slotData.link or "none"))
 	local slotId = slotData.slotId
 	local button = self.buttons[slotId]
 	if button and ((button:IsStack() and not shouldStack) or (not button:IsStack() and shouldStack)) then
@@ -680,8 +681,7 @@ function containerProto:LayoutSections(repack)
 		return
 	end
 	if num == 0 then
-		self.Content:SetWidth(0.5)
-		self.Content:SetHeight(0.5)
+		self.Content:SetSize(0.5, 0.5)
 		self.forceLayout = nil
 		return
 	end
@@ -704,8 +704,7 @@ function containerProto:LayoutSections(repack)
 		contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self:GetContentMinWidth(), maxHeight, repack, self.forceLayout)
 	end
 	
-	self.Content:SetWidth(contentWidth)
-	self.Content:SetHeight(contentHeight)
+	self.Content:SetSize(contentWidth, contentHeight)
 	
 	self.forceLayout = nil
 end
