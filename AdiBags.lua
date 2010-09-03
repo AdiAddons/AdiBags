@@ -124,6 +124,7 @@ addon.BACKDROP = {
 
 local DEFAULT_SETTINGS = {
 	profile = {
+		enabled = true,
 		positionMode = "anchored",
 		positions = {
 			anchor = { point = "BOTTOMRIGHT", xOffset = -32, yOffset = 200 },
@@ -170,6 +171,11 @@ function addon:OnInitialize()
 	self:InitializeFilters()
 	self:CreateBagAnchor()
 	addon:InitializeOptions()
+
+	self:SetEnabledState(self.db.profile.enabled)
+
+	-- Persistent handler
+	self.RegisterBucketMessage(addonName, 'AdiBags_ConfigChanged', 0.2, function(...) addon:ConfigChanged(...) end)
 end
 
 function addon:OnEnable()
@@ -196,8 +202,6 @@ function addon:OnEnable()
 	self:RegisterEvent('BAG_UPDATE')
 	self:RegisterBucketEvent('PLAYERBANKSLOTS_CHANGED', 0, 'BankUpdated')
 
-	self:RegisterBucketMessage('AdiBags_ConfigChanged', 0.2, 'ConfigChanged')
-
 	self:RegisterMessage('AdiBags_BagOpened', 'LayoutBags')
 	self:RegisterMessage('AdiBags_BagClosed', 'LayoutBags')
 
@@ -219,6 +223,11 @@ function addon:OnEnable()
 	end
 
 	 self:UpdatePositionMode()
+end
+
+function addon:OnDisable()
+	self.anchor:Hide()
+	self:CloseAllBags()
 end
 
 function addon:Reconfigure()
@@ -268,20 +277,35 @@ function addon:ConfigChanged(vars)
 	--@debug@
 	self:Debug('ConfigChanged', DebugTable(vars))
 	--@end-debug@
-	for name in pairs(vars) do
-		if name:match('virtualStacks') or name == 'filter' then
-			return self:SendMessage('AdiBags_FiltersChanged')
-		elseif name == 'sortingOrder' then
-			return self:SetSortingOrder(self.db.profile.sortingOrder)
-		elseif name == "rowWidth" or name == "maxHeight" or name == 'laxOrdering' then
-			return self:SendMessage('AdiBags_LayoutChanged')
-		elseif name == 'scale' then
-			return self:LayoutBags()
-		elseif name == 'positionMode' then
-			return self:UpdatePositionMode()
+	if vars.enabled then
+		if self.db.profile.enabled then
+			self:Enable()
+		else
+			self:Disable()
+		end
+		return
+	elseif not self.db.profile.enabled then
+		return
+	elseif vars.filter then
+		return self:SendMessage('AdiBags_FiltersChanged')
+	else
+		for name in pairs(vars) do
+			if name:match('virtualStacks') then
+				return self:SendMessage('AdiBags_FiltersChanged')
+			end
 		end
 	end
-	self:SendMessage('AdiBags_UpdateAllButtons')
+	if vars.sortingOrder then
+		return self:SetSortingOrder(self.db.profile.sortingOrder)
+	elseif vars.rowWidth or vars.maxHeight or vars.laxOrdering then
+		return self:SendMessage('AdiBags_LayoutChanged')
+	elseif vars.scale then
+		return self:LayoutBags()
+	elseif vars.positionMode then
+		return self:UpdatePositionMode()
+	else
+		self:SendMessage('AdiBags_UpdateAllButtons')
+	end
 end
 
 --------------------------------------------------------------------------------
