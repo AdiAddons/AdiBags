@@ -220,7 +220,7 @@ local lockOption = {
 	func = function()
 		addon:ToggleAnchor()
 	end,
-	disabled = function(info) return info.handler:IsDisabled(info) or addon.db.profile.positionMode ~= 'anchored' end,
+	disabled = function(info) return (info.handler and info.handler:IsDisabled(info)) or addon.db.profile.positionMode ~= 'anchored' end,
 }
 
 function addon:GetOptions()
