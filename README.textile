@@ -32,7 +32,9 @@ h2. Features
 * display character money in the backpack,
 * display character tokens in the backpack,
 * LDB data source displaying free space,
-* ConfigMode support.
+* two bag layout mode:
+** anchored: unlock and move the anchor,
+** manual: move the bags by dragging their title.
 
 h2. Things that likely will not be implemented
 
