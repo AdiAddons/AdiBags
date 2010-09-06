@@ -41,6 +41,3 @@ externals:
     url: http://github.com/tekkub/libdatabroker-1-1.git
     tag: latest
 
-ignore:
-  - README.textile
-
