@@ -178,6 +178,8 @@ function addon:OnInitialize()
 	self.RegisterBucketMessage(addonName, 'AdiBags_ConfigChanged', 0.2, function(...) addon:ConfigChanged(...) end)
 end
 
+local function NOOP() end
+
 function addon:OnEnable()
 	-- Convert old ordering setting
 	if self.db.profile.laxOrdering == true then
@@ -210,7 +212,7 @@ function addon:OnEnable()
 	self:RawHook("OpenAllBags", true)
 	self:RawHook("CloseAllBags", true)
 	self:RawHook('CloseSpecialWindows', true)
-
+	
 	self:RegisterEvent('MAIL_CLOSED', 'CloseAllBags')
 	self:RegisterEvent('MERCHANT_CLOSED', 'CloseAllBags')
 
@@ -568,6 +570,12 @@ do
 		self:RawHook('OpenBackpack', 'Open', true)
 		self:RawHook('CloseBackpack', 'Close', true)
 		self:RawHook('ToggleBackpack', true)
+
+		for i = 1, NUM_CONTAINER_FRAMES do
+			local container = _G['ContainerFrame'..i]
+			self:RawHook(container, "Show", 'Open', true)
+			container:Hide()
+		end
 	end
 
 	function backpack:ToggleBackpack()
@@ -591,6 +599,7 @@ do
 		self:RegisterEvent('BANKFRAME_CLOSED')
 
 		self:RawHookScript(BankFrame, "OnEvent", NOOP, true)
+		self:RawHook(BankFrame, "Show", "Open", true)
 		BankFrame:Hide()
 
 		if addon.atBank then
@@ -601,7 +610,7 @@ do
 	function bank:OnDisable()
 		bagProto.OnDisable(self)
 		if self.atBank then
-			BankFrame:Show()
+			self.hooks[BankFrame].Show(BankFrame)
 		end
 	end
 
