@@ -563,7 +563,7 @@ end
 do
 	-- L["Backpack"]
 	local backpack = addon:NewBag("Backpack", 10, addon.BAG_IDS.BAGS, false, 'AceHook-3.0')
-
+	
 	function backpack:OnEnable()
 		self:RegisterEvent('BANKFRAME_OPENED', 'Open')
 		self:RegisterEvent('BANKFRAME_CLOSED', 'Close')
@@ -573,8 +573,16 @@ do
 
 		for i = 1, NUM_CONTAINER_FRAMES do
 			local container = _G['ContainerFrame'..i]
-			self:RawHook(container, "Show", 'Open', true)
+			self:RawHook(container, "Show", 'ContainerShow', true)
 			container:Hide()
+		end
+	end
+	
+	function backpack:ContainerShow(container, ...)
+		if container:GetID() == KEYRING_CONTAINER then
+			return self.hooks[container].Show(container)
+		else
+			return self:Open()
 		end
 	end
 
