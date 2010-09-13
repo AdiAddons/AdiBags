@@ -44,3 +44,9 @@ h2. Things that likely will not be implemented
 * bag skinning,
 * complete in-game filter/section editor; though the built-in filters have some options.
 
+h2. Tips & tricks
+
+* you can create your own sections using the "manual filter" in filter configuration. You can then
+drag and drop items on section titles to reassign them ; this works for any section.
+* if you want to highlight new items without putting them into a specific section, edit the "new items"
+filter priority to put it at the end of the filter list.
