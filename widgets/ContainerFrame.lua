@@ -27,6 +27,90 @@ local function BagSlotButton_OnClick(button)
 	end
 end
 
+local CollapseButton_OnClick
+do
+	local function CollapseDropDownMenu_ToggleSection(button, key, container)
+		local section = container.sections[key]
+		if section then
+			section:SetCollapsed(not section:IsCollapsed())
+		else
+			addon.db.char.collapsedSections[key] = not addon.db.char.collapsedSections[key]
+		end
+	end
+
+	local info = {}
+	local entries = {}
+	local function CollapseDropDownMenu_Initialize(self, level)
+		if not level then return end
+
+		-- Title
+		wipe(info)
+		info.isTitle = true
+		info.text = L['Section visibility']
+		info.notCheckable = true
+		UIDropDownMenu_AddButton(info, level)
+
+		-- Now list all potential sections
+		wipe(entries)
+		for key, collapsed in pairs(addon.db.char.collapsedSections) do
+			if collapsed and not entries[key] then
+				entries[key] = true
+				tinsert(entries, key)
+			end
+		end
+		for key in pairs(self.container.sections) do
+			if not entries[key] then
+				entries[key] = true
+				tinsert(entries, key)
+			end
+		end
+		table.sort(entries)
+
+		-- Add an entry for each section
+		local currentCat = nil
+		wipe(info)
+		for i, key in ipairs(entries) do
+			local name, category = addon:SplitSectionKey(key)
+			if category ~= currentCat then
+				wipe(info)
+				info.text = category
+				info.disabled = true
+				info.notCheckable = true
+				UIDropDownMenu_AddButton(info, level)
+				currentCat = category
+				wipe(info)
+			end
+			local section = self.container.sections[key]
+			if section then
+				info.text = format("%s (%d)", name, section.count)
+			else
+				info.text = name
+			end
+			info.tooltipTitle = format(L['Show %s'], name)
+			info.tooltipText = L['Check this to show this section. Uncheck to hide it.']
+			info.checked = not addon.db.char.collapsedSections[key]
+			info.keepShownOnClick = true
+			info.arg1 = key
+			info.arg2 = self.container
+			info.func = CollapseDropDownMenu_ToggleSection
+			UIDropDownMenu_AddButton(info, level)
+		end
+	end
+
+	local frame
+	function CollapseButton_OnClick(button)
+		if not frame then
+			frame = CreateFrame("Frame", addonName.."CollapseDropDownMenu")
+			frame.displayMode = "MENU"
+			frame.initialize = CollapseDropDownMenu_Initialize
+			frame.point = "BOTTOMRIGHT"
+			frame.relativePoint = "BOTTOMLEFT"
+		end
+		frame.container = button.container
+		ToggleDropDownMenu(1, nil, frame, 'cursor')
+	end
+end
+
 --------------------------------------------------------------------------------
 -- Bag creation
 --------------------------------------------------------------------------------
@@ -151,6 +235,19 @@ function containerProto:OnCreate(name, bagIds, isBank)
 		anchor:Show()
 	end
 	self.Anchor = anchor
+
+	local collapseButton = CreateFrame("Button", nil, self, "UIPanelButtonTemplate")
+	collapseButton:SetText("V")
+	collapseButton:SetWidth(20)
+	collapseButton:SetHeight(20)
+	collapseButton:SetScript("OnClick", CollapseButton_OnClick)
+	collapseButton.container = self
+	self:AddHeaderWidget(collapseButton, 10)
+	self.CollapseButton = collapseButton
+	addon.SetupTooltip(collapseButton, {
+		L["Section visibility"],
+		L["Click to select which sections should be shown or hidden. Section visibility is common to all bags."]
+	}, "ANCHOR_TOPLEFT", 0, 8)
 
 	local content = CreateFrame("Frame", nil, self)
 	content:SetPoint("TOPLEFT", BAG_INSET, -addon.TOP_PADDING)
@@ -452,7 +549,7 @@ function containerProto:GetStackButton(key)
 end
 
 function containerProto:GetSection(name, category)
-	local key = strjoin('#', name, category)
+	local key = addon:BuildSectionKey(name, category)
 	local section = self.sections[key]
 	if not section then
 		section = addon:AcquireSection(self, name, category)
@@ -632,12 +729,16 @@ local function DoLayoutSections(self, rowWidth, maxHeight, clean, force)
 	rowWidth = rowWidth + ITEM_SIZE - SECTION_SPACING
 
 	local minHeight = 0
-	for name, section in pairs(self.sections) do
-		local fit, _, _, _, height = section:FitInSpace(rowWidth, 10000, 0, 0)
-		if fit and height > minHeight then
-			minHeight = height
+	for key, section in pairs(self.sections) do
+		if section:IsCollapsed() then
+			section:Hide()
+		else
+			local fit, _, _, _, height = section:FitInSpace(rowWidth, 10000, 0, 0)
+			if fit and height > minHeight then
+				minHeight = height
+			end
+			tinsert(sections, section)
 		end
-		tinsert(sections, section)
 	end
 	table.sort(sections, CompareSections)
 	if minHeight > maxHeight then
@@ -693,11 +794,13 @@ function containerProto:LayoutSections(repack)
 
 	local num = 0
 	local changed = self.forceLayout
-	for name, section in pairs(self.sections) do
+	for key, section in pairs(self.sections) do
 		if section:IsEmpty() then
 			section:Release()
-			self.sections[name] = nil
+			self.sections[key] = nil
 			changed = true
+		elseif section:IsCollapsed() then
+			section:Hide()
 		else
 			section:Show()
 			if not self.forceLayout and section:NeedLayout(repack) then

@@ -153,6 +153,11 @@ local DEFAULT_SETTINGS = {
 			freeSpace = true,
 			ammunition = true,
 		},
+	},
+	char = {
+		collapsedSections = {
+			['*'] = false,
+		},
 	}
 }
 

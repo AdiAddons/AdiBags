@@ -58,10 +58,34 @@ function sectionProto:OnCreate()
 	header:SetHeight(HEADER_SIZE)
 	self.Header = header
 	self:SendMessage('AdiBags_SectionCreated', self)
+
+	self:SetScript('OnShow', self.OnShow)
+	self:SetScript('OnHide', self.OnHide)
+end
+
+function sectionProto:OnShow()
+	for button in pairs(self.buttons) do
+		button:Show()
+	end
+end
+
+function sectionProto:OnHide()
+	for button in pairs(self.buttons) do
+		button:Hide()
+	end
 end
 
 function sectionProto:ToString()
 	return string.format("Section[%q,%q]", tostring(self.name), tostring(self.category))
+end
+
+function addon:BuildSectionKey(name, category)
+	return strjoin('#', category or name, name)
+end
+
+function addon:SplitSectionKey(key)
+	local category, name = strsplit('#', key)
+	return name, category
 end
 
 function sectionProto:OnAcquire(container, name, category)
@@ -69,6 +93,7 @@ function sectionProto:OnAcquire(container, name, category)
 	self.Header:SetText(name)
 	self.name = name
 	self.category = category or name
+	self.key = addon:BuildSectionKey(name, category)
 	self.width = 0
 	self.height = 0
 	self.count = 0
@@ -93,6 +118,28 @@ end
 
 function sectionProto:GetOrder()
 	return self.category and categoryOrder[self.category] or 0
+end
+
+function sectionProto:GetKey()
+	return self.key
+end
+
+function sectionProto:IsCollapsed()
+	return addon.db.char.collapsedSections[self.key]
+end
+
+function sectionProto:SetCollapsed(collapsed)
+	collapsed = not not collapsed
+	if addon.db.char.collapsedSections[self.key] ~= collapsed then
+		addon.db.char.collapsedSections[self.key] = collapsed
+		if collapsed then
+			self:Hide()
+		else
+			self:Show()
+			self.dirty = true
+		end
+		self:SendMessage('AdiBags_LayoutChanged')
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -143,7 +190,11 @@ function sectionProto:PutButtonAt(button, index)
 	self.slots[button] = index
 	local row, col = math.floor((index-1) / self.width), (index-1) % self.width
 	button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
-	button:Show()
+	if self:IsCollapsed() then
+		button:Hide()
+	else
+		button:Show()
+	end
 end
 
 function sectionProto:NeedLayout(clean)
@@ -197,6 +248,10 @@ function sectionProto:ReorderButtons()
 	if not self:IsVisible() then return end
 	self:Debug('ReorderButtons, count=', self.count)
 	self.dirty = nil
+
+	if self:IsCollapsed() then
+		return self:Hide()
+	end
 
 	for button in pairs(self.buttons) do
 		button:Show()
@@ -318,13 +373,11 @@ function addon:SetSortingOrder(order)
 	end
 end
 
-local strformat = string.format
-
 function CompareButtons(a, b)
 	local idA, idB = a:GetItemId(), b:GetItemId()
 	if idA and idB then
 		if idA ~= idB then
-			return itemCompareCache[strformat("%d:%d", idA, idB)]
+			return itemCompareCache[format("%d:%d", idA, idB)]
 		else
 			return a:GetCount() > b:GetCount()
 		end

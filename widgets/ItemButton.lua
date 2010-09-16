@@ -374,10 +374,16 @@ function stackProto:OnShow()
 	self:RegisterMessage('AdiBags_UpdateAllButtons', 'Update')
 	self:RegisterMessage('AdiBags_PostContentUpdate')
 	self:RegisterEvent('ITEM_LOCK_CHANGED')
+	if self.button then
+		self.button:Show()
+	end
 	self:Update()
 end
 
 function stackProto:OnHide()
+	if self.button then
+		self.button:Hide()
+	end
 	self:UnregisterAllEvents()
 	self:UnregisterAllMessages()
 end
