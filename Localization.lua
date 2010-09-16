@@ -244,8 +244,12 @@ L["Equipped bags"] = true
 
 -- widgets/ContainerFrame.lua
 L["Buggy items"] = true
+L["Check this to show this section. Uncheck to hide it."] = true
+L["Click to select which sections should be shown or hidden. Section visibility is common to all bags."] = true
 L["Click to toggle the equipped bag panel, so you can change them."] = true
 L["Close"] = true
+L["Section visibility"] = true
+L["Show %s"] = true
 
 
 ------------------------ frFR ------------------------
@@ -899,7 +903,7 @@ L["Always"] = "总是"
 L["Ammunition"] = "弹药"
 L["Ammunition and soul shards"] = "弹药和灵魂碎片"
 L["Anchored"] = "锚点"
-L["Are you sure you want to remove this association ?"] = "您确定想要移除这个组合？"
+L["Are you sure you want to remove this association ?"] = "您确定要移除这个组合？"
 L["Armor"] = "护甲"
 L["Background colors"] = "背景色"
 L["Backpack"] = "背包"
