@@ -61,7 +61,7 @@ local function TestModifier(name)
 	return (setting == "always")
 		or (setting == "any" and IsModifierKeyDown())
 		or (setting == "shift" and IsShiftKeyDown())
-		or (setting == "ctrl" and IsCtrlKeyDown())
+		or (setting == "ctrl" and IsControlKeyDown())
 		or (setting == "alt" and IsAltKeyDown())
 end
 
