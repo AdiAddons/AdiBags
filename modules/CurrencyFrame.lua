@@ -53,9 +53,7 @@ function mod:OnBagFrameCreated(bag)
 	self:Update()
 end
 
-local ICON_STRING = "\124T%s:16:16:0:0\124t"
-local HONOR_ICON_STRING
-local ARENA_ICON_STRING = ICON_STRING:format([[Interface\PVPFrame\PVP-ArenaPoints-Icon]])
+local ICON_STRING = "%d\124T%s:16:16:0:0\124t"
 
 local collapse = {}
 local values = {}
@@ -65,7 +63,7 @@ function mod:Update()
 	updating = true
 
 	for index = 1, GetCurrencyListSize() do
-		local name, isHeader, isExpanded, isUnused, isWatched, count, extraCurrencyType, icon = GetCurrencyListInfo(index)
+		local name, isHeader, isExpanded, isUnused, isWatched, count, icon = GetCurrencyListInfo(index)
 		if isHeader then
 			if not isExpanded then
 				tinsert(collapse, index)
@@ -73,25 +71,8 @@ function mod:Update()
 				self:Debug('Expanded', name)
 			end
 		elseif isWatched then
-			local iconString
-			if extraCurrencyType == 1 then
-				-- Arena points
-				iconString = ARENA_ICON_STRING
-			elseif extraCurrencyType == 2 then
-				-- Honor points
-				if HONOR_ICON_STRING == nil then
-					local factionGroup = UnitFactionGroup("player")
-					if factionGroup then
-						HONOR_ICON_STRING = ICON_STRING:format([[Interface\AddOns\Broker_SimpleCurrency\images\]]..factionGroup)
-					end
-				end
-				iconString = HONOR_ICON_STRING or " "..HONOR
-			else
-				-- "Standard" token
-				iconString = icon and ICON_STRING:format(icon) or ""
-			end
-			self:Debug('name', count, icon, iconString)
-			tinsert(values, ("%d%s"):format(count, iconString))
+			self:Debug('name', count, icon)
+			tinsert(values, format(ICON_STRING, count, icon))
 		end
 	end
 
