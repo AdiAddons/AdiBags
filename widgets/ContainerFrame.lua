@@ -86,6 +86,7 @@ do
 			else
 				info.text = name
 			end
+			info.isNotRadio = true
 			info.tooltipTitle = format(L['Show %s'], name)
 			info.tooltipText = L['Check this to show this section. Uncheck to hide it.']
 			info.checked = not addon.db.char.collapsedSections[key]
