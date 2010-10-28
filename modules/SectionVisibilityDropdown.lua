@@ -50,6 +50,7 @@ local function CollapseDropDownMenu_ToggleSection(button, key, container)
 		section:SetCollapsed(not section:IsCollapsed())
 	else
 		addon.db.char.collapsedSections[key] = not addon.db.char.collapsedSections[key]
+		mod:SendMessage('AdiBags_LayoutChanged')
 	end
 end
 
