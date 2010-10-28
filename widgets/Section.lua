@@ -152,6 +152,11 @@ function sectionProto:AddItemButton(slotId, button)
 		self.count = self.count + 1
 		self.buttons[button] = slotId
 		self.dirty = true
+		if self:IsCollapsed() then
+			button:Hide()
+		else
+			button:Show()
+		end
 		if self:IsVisible() and self.count <= self.total then
 			local freeSlots = self.freeSlots
 			for index = 1, self.total do
@@ -190,11 +195,6 @@ function sectionProto:PutButtonAt(button, index)
 	self.slots[button] = index
 	local row, col = math.floor((index-1) / self.width), (index-1) % self.width
 	button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
-	if self:IsCollapsed() then
-		button:Hide()
-	else
-		button:Show()
-	end
 end
 
 function sectionProto:NeedLayout(clean)
