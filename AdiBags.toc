@@ -45,6 +45,7 @@ modules\MoneyFrame.lua
 modules\FilterOverride.lua
 modules\CurrencyFrame.lua
 modules\TooltipInfo.lua
+modules\SectionVisibilityDropdown.lua
 
 DefaultFilters.lua
 
