@@ -66,7 +66,7 @@ function mod:GetOptions()
 				type = 'group',
 				name = L["New Override"],
 				desc = L["Use this section to define any item-section association."],
-				order = -10,
+				order = 10,
 				inline = true,
 				args = {
 					item = {
@@ -157,7 +157,7 @@ do
 			if not option then
 				option = setmetatable({
 					name = format("[%s] %s", category, section),
-					arg = format('%05d:%s', 1000+addon:GetCategoryOrder(category), section),
+					arg = format('%05d:%s', 1000+addon:GetCategoryOrder(category), section),					
 					width = 'double',
 					values = {}
 				}, meta)
