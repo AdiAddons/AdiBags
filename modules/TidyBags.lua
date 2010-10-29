@@ -27,7 +27,8 @@ end
 function mod:OnEnable()
 	addon:HookBagFrameCreation(self, 'OnBagFrameCreated')
 	self:RegisterMessage('AdiBags_PreContentUpdate')
-	self:RegisterBucketEvent({'AUCTION_HOUSE_CLOSED', 'BANKFRAME_CLOSED', 'GUILDBANKFRAME_CLOSED', 'LOOT_CLOSED', 'MAIL_CLOSED', 'MERCHANT_CLOSED', 'TRADE_CLOSED'}, 1, 'AutomaticTidy')
+	self:RegisterMessage('AdiBags_InteractingWindowChanged')
+	self:RegisterEvent('LOOT_CLOSED', 'AutomaticTidy')
 	for container in pairs(containers) do
 		container[self].button:Show()
 		self:UpdateButton(container)
@@ -51,9 +52,10 @@ function mod:GetOptions()
 	}, addon:GetOptionHandler(self)
 end
 
-local function TidyButton_OnClick(button)
-	PlaySound("igMainMenuOptionCheckBoxOn")
-	mod:Start(button.container)
+function mod:AdiBags_InteractingWindowChanged(_, new)
+	if not new then
+		return self:AutomaticTidy()
+	end
 end
 
 function mod:AutomaticTidy()
@@ -64,6 +66,12 @@ function mod:AutomaticTidy()
 		end
 	end
 end
+
+local function TidyButton_OnClick(button)
+	PlaySound("igMainMenuOptionCheckBoxOn")
+	mod:Start(button.container)
+end
+
 
 function mod:OnBagFrameCreated(bag)
 	local container = bag:GetFrame()

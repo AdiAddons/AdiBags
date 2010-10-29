@@ -412,15 +412,64 @@ function addon:GetOptions()
 					},
 					virtualStacks = {
 						name = L['Virtual stacks'],
-						desc = L['Virtual stacks display in one place items that actually spread over several bag slots.'],
-						type = 'multiselect',
+						type = 'group',
+						inline = true,
 						order = 300,
-						values = {
-							freeSpace = L['Free space'],
-							ammunition = L['Ammunition and soul shards'],
-							stackable = L['Stackable items'],
-							other = L['Other items'],
-							incomplete = L['Incomplete stacks'],
+						args = {
+							_desc = {
+								name = L['Virtual stacks display in one place items that actually spread over several bag slots.'],
+								type = 'description',
+								order = 1,
+							},
+							freeSpace = {
+								name = L['Free space'],
+								desc = L['Show only one free slot for each kind of bags.'],
+								order = 10,
+								type = 'toggle',
+								arg = {'virtualStacks', 'freeSpace'},
+							},
+							other = {
+								name = L['Unstackable items'],
+								desc = L['Show only one slot of items that cannot be stacked.'],
+								order = 26,
+								type = 'toggle',
+								arg = {'virtualStacks', 'other'},
+							},
+							_stackableHeader = {
+								type = 'header',
+								name = L['Stackable items'],
+								order = 19,
+							},
+							stackable = {
+								name = L['Merge stackable items'],
+								desc = L['Show only one slot of items that can be stacked.'],
+								order = 20,
+								width = 'full',
+								type = 'toggle',
+								arg = {'virtualStacks', 'stackable'},
+							},
+							incomplete = {
+								name = L['... including incomplete stacks'],
+								desc= L['Merge incomplete stacks with complete ones.'],
+								order = 30,
+								width = 'full',
+								type = 'toggle',
+								arg = {'virtualStacks', 'incomplete'},
+								disabled = function(info)
+									return info.handler:IsDisabled(info) or not addon.db.profile.virtualStacks.stackable
+								end
+							},
+							notWhenTrading = {
+								name = L['... but not when trading'],
+								desc = L["Do not merge incomplete stack at merchants', auction house, bank, mailboxes or when trading."],
+								order = 40,
+								width = 'full',
+								type = 'toggle',
+								arg = {'virtualStacks', 'notWhenTrading'},
+								disabled = function(info)
+									return info.handler:IsDisabled(info) or not addon.db.profile.virtualStacks.stackable or not addon.db.profile.virtualStacks.incomplete
+								end
+							},
 						}
 					},
 				},

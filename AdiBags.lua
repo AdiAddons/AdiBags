@@ -151,7 +151,6 @@ local DEFAULT_SETTINGS = {
 		virtualStacks = {
 			['*'] = false,
 			freeSpace = true,
-			ammunition = true,
 		},
 	},
 	char = {
@@ -205,9 +204,6 @@ function addon:OnEnable()
 		self.db.profile.anchor = nil
 	end
 
-	self:RegisterEvent('BANKFRAME_OPENED')
-	self:RegisterEvent('BANKFRAME_CLOSED')
-
 	self:RegisterEvent('BAG_UPDATE')
 	self:RegisterBucketEvent('PLAYERBANKSLOTS_CHANGED', 0, 'BankUpdated')
 
@@ -218,8 +214,19 @@ function addon:OnEnable()
 	self:RawHook("CloseAllBags", true)
 	self:RawHook('CloseSpecialWindows', true)
 	
-	self:RegisterEvent('MAIL_CLOSED', 'CloseAllBags')
-	self:RegisterEvent('MERCHANT_CLOSED', 'CloseAllBags')
+	-- Track most windows involving items
+	self:RegisterEvent('BANKFRAME_OPENED', 'UpdateInteractingWindow')
+	self:RegisterEvent('BANKFRAME_CLOSED', 'UpdateInteractingWindow')
+	self:RegisterEvent('MAIL_SHOW', 'UpdateInteractingWindow')
+	self:RegisterEvent('MAIL_CLOSED', 'UpdateInteractingWindow')
+	self:RegisterEvent('MERCHANT_SHOW', 'UpdateInteractingWindow')
+	self:RegisterEvent('MERCHANT_CLOSED', 'UpdateInteractingWindow')
+	self:RegisterEvent('AUCTION_HOUSE_SHOW', 'UpdateInteractingWindow')
+	self:RegisterEvent('AUCTION_HOUSE_CLOSED', 'UpdateInteractingWindow')
+	self:RegisterEvent('TRADE_SHOW', 'UpdateInteractingWindow')
+	self:RegisterEvent('TRADE_CLOSED', 'UpdateInteractingWindow')
+	self:RegisterEvent('GUILDBANKFRAME_OPENED', 'UpdateInteractingWindow')
+	self:RegisterEvent('GUILDBANKFRAME_CLOSED', 'UpdateInteractingWindow')
 
 	self:SetSortingOrder(self.db.profile.sortingOrder)
 
@@ -250,14 +257,6 @@ end
 --------------------------------------------------------------------------------
 -- Event handlers
 --------------------------------------------------------------------------------
-
-function addon:BANKFRAME_OPENED()
-	self.atBank = true
-end
-
-function addon:BANKFRAME_CLOSED()
-	self.atBank = false
-end
 
 function addon:BAG_UPDATE(event, bag)
 	self:SendMessage('AdiBags_BagUpdated', bag)
@@ -314,6 +313,35 @@ function addon:ConfigChanged(vars)
 		return self:UpdatePositionMode()
 	else
 		self:SendMessage('AdiBags_UpdateAllButtons')
+	end
+end
+
+--------------------------------------------------------------------------------
+-- Track windows related to item interaction (merchant, mail, bank, ...)
+--------------------------------------------------------------------------------
+
+do
+	local current
+	function addon:UpdateInteractingWindow(event, ...)
+		self:Debug('UpdateInteractingWindow', event, ...)
+		local new = strmatch(event, '^(%w+)_OPENED$') or strmatch(event, '^(%w+)_SHOW$')
+		self:Debug('UpdateInteractingWindow', event, current, '=>', new)
+		if new ~= current then
+			local old = current
+			current = new
+			self.atBank = (current == "BANKFRAME")
+			if not current then
+				self:CloseAllBags()
+			end
+			if self.db.profile.virtualStacks.notWhenTrading then
+				self:SendMessage('AdiBags_FiltersChanged')
+			end
+			self:SendMessage('AdiBags_InteractingWindowChanged', new, old)
+		end
+	end
+
+	function addon:GetInteractingWindow()
+		return current
 	end
 end
 
@@ -868,16 +896,22 @@ function addon:RegisterFilter(name, priority, Filter, ...)
 end
 
 function addon:ShouldStack(slotData)
+	local conf = self.db.profile.virtualStacks
 	if not slotData.link then
-		return self.db.profile.virtualStacks.freeSpace, "*Free*"
-	elseif not self.db.profile.virtualStacks.incomplete and (slotData.count or 1) < (slotData.maxStack or 1) then
-		return false
-	elseif slotData.itemId == 6265 or slotData.equipSlot == "INVTYPE_AMMO" then
-		return self.db.profile.virtualStacks.ammunition, slotData.itemId
-	elseif slotData.maxStack > 1 then
-		return self.db.profile.virtualStacks.stackable, slotData.itemId
-	elseif self.db.profile.virtualStacks.others then
-		return true, slotData.link:match("item:(%d+:%d+:%d+:%d+:%d+)")
+		return conf.freeSpace, "*Free*"
+	end
+	local maxStack = slotData.maxStack or 1
+	if maxStack > 1 then
+		if conf.stackable then
+			if (slotData.count or 1) == maxStack then
+				return true, slotData.itemId
+			elseif self:GetInteractingWindow() and conf.notWhenTrading then
+				return false
+			end
+			return conf.incomplete, slotData.itemId
+		end
+	elseif conf.others then
+		return true, slotData.link:match("item:(-?%d+:-?%d+:-?%d+:-?%d+:-?%d+)")
 	end
 end
 
