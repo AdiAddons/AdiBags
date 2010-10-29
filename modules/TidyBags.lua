@@ -91,6 +91,7 @@ local bor = bit.bor
 local band = bit.band
 local GetItemFamily = GetItemFamily
 local GetContainerFreeSlots = GetContainerFreeSlots
+local GetContainerItemInfo = GetContainerItemInfo
 
 local freeSlots = {}
 local function FindFreeSlot(container, family)
@@ -137,8 +138,8 @@ local function FindNextMove(container)
 
 						local existingStack = incompleteStacks[slotData.itemId]
 						if existingStack then
-							-- Anoter incomplete stack exist for this item, try to merge both
-							if select(2, GetContainerItemInfo(bag, slot)) < select(2, GetContainerItemInfo(existingStack.bag, existingStack.slot)) then
+							-- Another incomplete stack exists for this item, try to merge both
+							if slotData.count < existingStack.count then
 								return bag, slot, existingStack.bag, existingStack.slot
 							else
 								return existingStack.bag, existingStack.slot, bag, slot
