@@ -101,21 +101,10 @@ function addon:SetupDefaultFilters()
 
 	end
 
-	-- [80] Ammo and shards
-	local ammoFilter = addon:RegisterFilter('AmmoShards', 80, function(filter, slotData)
-		if slotData.itemId == 6265 then -- Soul Shard
-			return L['Soul shards'], L['Ammunition']
-		elseif slotData.equipSlot == 'INVTYPE_AMMO' then
-			return L['Ammunition']
-		end
-	end)
-	ammoFilter.uiName = L['Ammunition and soul shards']
-	ammoFilter.uiDesc = L['Put ammunition and soul shards in their own sections.']
-
-	-- [70] Low quality items
+	-- [85] Low quality items
 	do
 		--@noloc[[
-		local junkFilter = addon:RegisterFilter('Junk', 70, function(self, slotData)
+		local junkFilter = addon:RegisterFilter('Junk', 85, function(self, slotData)
 			if (slotData.class == L['Junk'] or slotData.subclass == L['Junk']) and slotData.quality < ITEM_QUALITY_UNCOMMON or  slotData.quality == ITEM_QUALITY_POOR then
 				return L['Junk']
 			end
