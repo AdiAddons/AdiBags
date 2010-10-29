@@ -30,7 +30,7 @@ function mod:OnInitialize()
 	})
 	addon:SetCategoryOrder(L['New'], 100)
 end
-m
+
 function mod:OnEnable()
 
 	for i, bag in addon:IterateBags() do
