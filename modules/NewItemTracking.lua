@@ -25,6 +25,7 @@ function mod:OnInitialize()
 			showGlow = true,
 			glowScale = 1.5,
 			glowColor = { 0.3, 1, 0.3, 0.7 },
+			ignoreJunk = false,
 		},
 	})
 	addon:SetCategoryOrder(L['New'], 100)
@@ -74,8 +75,8 @@ function mod:OnEnable()
 	self:RegisterEvent('BANKFRAME_CLOSED')
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING')
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED')
-	self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, 'UpdateBags')
-	
+	self:RegisterBucketMessage('AdiBags_BagUpdated', 0, "UpdateBags")
+
 	frozen = true
 	self:ScheduleTimer('FirstUpdate', 2)
 
@@ -156,6 +157,15 @@ function mod:GetOptions()
 			order = 30,
 			hasAlpha = true,
 		},
+		ignoreJunk = {
+			name = L['Ignore low quality items'],
+			type = 'toggle',
+			order = 40,
+			set = function(info, ...)
+				info.handler:Set(info, ...)
+				self:UpdateBags(allBagIds, event)
+			end
+		},
 	}, addon:GetOptionHandler(self)
 end
 
@@ -209,6 +219,27 @@ function mod:FirstUpdate(event)
 	self:UpdateBags(allBagIds, event)
 end
 
+local function GetComparableItemID(link)
+	local id = type(link) == "string" and tonumber(strmatch(link, 'item:(%d+)'))
+	if id then
+		local equipSlot = select(9, GetItemInfo(link))
+		if not equipSlot or equipSlot == "" then
+			return id
+		end
+	end
+	return link
+end
+
+local comparableIds = setmetatable({}, {__index = function(t, link)
+	local result = GetComparableItemID(link)
+	if result then
+		t[link] = result
+		return result
+	else
+		return link
+	end
+end})
+
 function mod:UpdateBags(bagIds, event)
 	if frozen then return end
 	self:Debug('UpdateBags', event or "AdiBags_BagUpdated")
@@ -223,7 +254,7 @@ function mod:UpdateBags(bagIds, event)
 				if first or bagIds[bagId] then
 					bagUpdated = true
 					for slot = 1, GetContainerNumSlots(bagId) do
-						local itemId = GetContainerItemID(bagId, slot)
+						local itemId = comparableIds[GetContainerItemLink(bagId, slot)]
 						if itemId and not counts[itemId] and GetItemInfo(itemId) then
 							counts[itemId] = 0 -- Never seen before, assume we haven't any of it
 						end
@@ -251,7 +282,12 @@ function mod:UpdateBags(bagIds, event)
 				for itemId, oldCount in pairs(counts) do
 					local newCount = GetCount(itemId)
 					counts[itemId] = newCount
-					if oldCount ~= newCount then
+					if self.db.profile.ignoreJunk and select(3, GetItemInfo(itemId)) == ITEM_QUALITY_POOR then
+						if newItems[itemId] then
+							newItems[itemId] = nil
+							bag.updated = true
+						end
+					elseif oldCount ~= newCount then
 						if not bag.first and oldCount < newCount and not newItems[itemId] then
 							--@debug@
 							self:Debug(itemId, GetItemInfo(itemId), ':', oldCount, '=>', newCount, 'NEW!')
@@ -293,11 +329,11 @@ function mod:UpdateInventory(event)
 
 	-- All equipped items and bags
 	for slot = 0, 20 do
-		inventory[slot] = GetInventoryItemID("player", slot) or nil
+		inventory[slot] = comparableIds[GetInventoryItemLink("player", slot)] or nil
 	end
 	-- Bank equipped bags
 	for slot = 68, 74 do
-		inventory[slot] = GetInventoryItemID("player", slot) or nil
+		inventory[slot] = comparableIds[GetInventoryItemLink("player", slot)] or nil
 	end
 
 	inventoryScanned = true
@@ -313,10 +349,10 @@ function mod:Reset(name)
 	self:UpdateBags(bag.bagIds, event)
 end
 
-function mod:IsNew(itemId, bagName)
-	if not itemId or not bagName then return false end
+function mod:IsNew(itemLink, bagName)
+	if not itemLink or not bagName then return false end
 	local bag = bags[bagName]
-	return not bag.first and bag.newItems[itemId]
+	return not bag.first and bag.newItems[comparableIds[itemLink]]
 end
 
 --------------------------------------------------------------------------------
@@ -331,7 +367,7 @@ do
 	end
 
 	function mod:Filter(slotData)
-		if self:IsNew(slotData.itemId, currentContainerName) then
+		if self:IsNew(slotData.link, currentContainerName) then
 			return L["New"]
 		end
 	end
