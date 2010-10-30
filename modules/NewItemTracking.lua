@@ -220,14 +220,13 @@ function mod:FirstUpdate(event)
 end
 
 local function GetComparableItemID(link)
+	if not link then return end
 	local id = type(link) == "string" and tonumber(strmatch(link, 'item:(%d+)'))
-	if id then
-		local equipSlot = select(9, GetItemInfo(link))
-		if not equipSlot or equipSlot == "" then
-			return id
-		end
+	local equipSlot = link and select(9, GetItemInfo(link))
+	if id and (not equipSlot or equipSlot == "") then
+		return id
 	end
-	return link
+	return strmatch(link, 'item:[-:%d]+') or link
 end
 
 local comparableIds = setmetatable({}, {__index = function(t, link)
@@ -240,65 +239,63 @@ local comparableIds = setmetatable({}, {__index = function(t, link)
 	end
 end})
 
+local newCounts = {}
 function mod:UpdateBags(bagIds, event)
 	if frozen then return end
 	self:Debug('UpdateBags', event or "AdiBags_BagUpdated")
 	for name, bag in pairs(bags) do
-		if bag.available and (bag.first or (bag.container and bag.container:IsVisible())) then
+		if bag.available then
 			local counts = bag.counts
-			local bagUpdated = false
-			local first = bag.first
+			wipe(newCounts)
 
-			-- Gather every item id of every updated bag (or all bags on first update)
+			-- Gather every item id of every bags
 			for bagId in pairs(bag.bagIds) do
-				if first or bagIds[bagId] then
-					bagUpdated = true
-					for slot = 1, GetContainerNumSlots(bagId) do
-						local itemId = comparableIds[GetContainerItemLink(bagId, slot)]
-						if itemId and not counts[itemId] and GetItemInfo(itemId) then
-							counts[itemId] = 0 -- Never seen before, assume we haven't any of it
+				for slot = 1, GetContainerNumSlots(bagId) do
+					local itemId = comparableIds[GetContainerItemLink(bagId, slot)]
+					if itemId then
+						newCounts[itemId] = (newCounts[itemId] or 0) + 1
+						if not counts[itemId] then
+							counts[itemId] = 0
 						end
 					end
 				end
 			end
 
-			if bagUpdated then
-				self:Debug(name, 'updated, checking items')
-
-				-- Update inventory if need be
-				if not inventoryScanned then
-					self:UpdateInventory(event or "AdiBags_BagUpdated")
-				end
-
-				-- Merge items from inventory
-				for slot, itemId in pairs(inventory) do
-					if not counts[itemId] then
-						counts[itemId] = 0 -- Never seen before, assume we haven't any of it
-					end
-				end
-
-				-- Update counts and new statuses
-				local newItems, GetCount = bag.newItems, bag.GetCount
-				for itemId, oldCount in pairs(counts) do
-					local newCount = GetCount(itemId)
-					counts[itemId] = newCount
-					if self.db.profile.ignoreJunk and select(3, GetItemInfo(itemId)) == ITEM_QUALITY_POOR then
-						if newItems[itemId] then
-							newItems[itemId] = nil
-							bag.updated = true
-						end
-					elseif oldCount ~= newCount then
-						if not bag.first and oldCount < newCount and not newItems[itemId] then
-							--@debug@
-							self:Debug(itemId, GetItemInfo(itemId), ':', oldCount, '=>', newCount, 'NEW!')
-							--@end-debug@
-							newItems[itemId] = true
-							bag.updated = true
-						end
-					end
-				end
-				bag.first = nil
+			-- Update inventory if need be
+			if not inventoryScanned then
+				self:UpdateInventory(event or "AdiBags_BagUpdated")
 			end
+
+			-- Merge items from inventory
+			for slot, itemId in pairs(inventory) do
+				newCounts[itemId] = (newCounts[itemId] or 0) + 1
+				if not counts[itemId] then
+					counts[itemId] = 0 -- Never seen before, assume we haven't any of it
+				end
+			end
+
+			-- Update counts and new statuses
+			local newItems, GetCount = bag.newItems, bag.GetCount
+			for itemId, oldCount in pairs(counts) do
+				local newCount = newCounts[itemId]
+				counts[itemId] = newCount
+				if self.db.profile.ignoreJunk and select(3, GetItemInfo(itemId)) == ITEM_QUALITY_POOR then
+					if newItems[itemId] then
+						newItems[itemId] = nil
+						bag.updated = true
+					end
+				elseif oldCount ~= newCount then
+					if not bag.first and oldCount < (newCount or 0) and not newItems[itemId] then
+						--@debug@
+						self:Debug(itemId, GetItemInfo(itemId), ':', oldCount, '=>', newCount, 'NEW!')
+						--@end-debug@
+						newItems[itemId] = true
+						bag.updated = true
+					end
+				end
+			end
+
+			bag.first = nil
 		end
 	end
 
@@ -414,7 +411,7 @@ end
 
 function mod:UpdateButton(event, button)
 	local glow = glows[button]
-	if mod.db.profile.showGlow and self:IsNew(button:GetItemId(), button.container.name) then
+	if mod.db.profile.showGlow and self:IsNew(button.itemLink, button.container.name) then
 		if not glow then
 			glow = CreateGlow(button)
 		end

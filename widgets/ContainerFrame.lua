@@ -411,7 +411,7 @@ function containerProto:UpdateContent(bag)
 			slotData.count = count
 			slotData.link = link
 			slotData.itemId = itemId
-			slotData.name, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass,  slotData.equipSlot, slotData.texture, slotData.vendorPrice = name, quality, iLevel, reqLevel, class, subclass, equipSlot, texture, vendorPrice
+			slotData.name, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass, slotData.equipSlot, slotData.texture, slotData.vendorPrice = name, quality, iLevel, reqLevel, class, subclass, equipSlot, texture, vendorPrice
 			slotData.maxStack = maxStack or (link and 1 or 0)
 			added[slotData.slotId] = slotData
 		elseif slotData.count ~= count then
