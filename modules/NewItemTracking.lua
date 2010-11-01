@@ -253,7 +253,7 @@ function mod:UpdateBags(bagIds, event)
 				for slot = 1, GetContainerNumSlots(bagId) do
 					local itemId = comparableIds[GetContainerItemLink(bagId, slot)]
 					if itemId then
-						newCounts[itemId] = (newCounts[itemId] or 0) + 1
+						newCounts[itemId] = (newCounts[itemId] or 0) + (select(2, GetContainerItemInfo(bagId, slot)) or 1)
 						if not counts[itemId] then
 							counts[itemId] = 0
 						end
