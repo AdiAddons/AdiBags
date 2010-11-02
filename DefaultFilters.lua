@@ -36,14 +36,16 @@ function addon:SetupDefaultFilters()
 		function setFilter:OnEnable()
 			self:RegisterEvent('EQUIPMENT_SETS_CHANGED')
 			self:RegisterEvent('BANKFRAME_OPENED', 'EQUIPMENT_SETS_CHANGED')
-			self:UpdateSets()
+			self:RegisterMessage("AdiBags_PreFilter", "UpdateSets")
 			addon:UpdateFilters()
 		end
 
+		local haveSets = false
 		local sets = {}
 		local setNames = {}
 
 		function setFilter:UpdateSets()
+			if haveSets then return end
 			wipe(sets)
 			wipe(setNames)
 			for i = 1, GetNumEquipmentSets() do
@@ -58,10 +60,11 @@ function addon:SetupDefaultFilters()
 					end
 				end
 			end
+			haveSets = true
 		end
 
 		function setFilter:EQUIPMENT_SETS_CHANGED()
-			self:UpdateSets()
+			haveSets = false
 			self:SendMessage('AdiBags_FiltersChanged')
 		end
 
@@ -89,7 +92,10 @@ function addon:SetupDefaultFilters()
 					desc = L['Check sets that should be merged into a unique "Sets" section. This is obviously a per-character setting.'],
 					type = 'multiselect',
 					order = 20,
-					values = setNames,
+					values = function()
+						self:UpdateSets()
+						return setNames
+					end,
 					get = function(info, name)
 						return self.db.char.mergedSets[name]
 					end,
