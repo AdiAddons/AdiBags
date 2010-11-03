@@ -16,7 +16,7 @@ local TOP_PADDING = addon.TOP_PADDING
 -- Swaping process
 --------------------------------------------------------------------------------
 
---local EmptyBag
+local EmptyBag
 do
 	local swapFrame = CreateFrame("Frame")
 	local otherBags = {}
@@ -29,7 +29,7 @@ do
 		wipe(locked)
 	end
 
-	local function Process()
+	local function ProcessInner()
 		if not CursorHasItem() then
 			while currentSlot < numSlots do
 				currentSlot = currentSlot + 1
@@ -67,15 +67,19 @@ do
 		Done()
 	end
 
+	local function Process()
+		local ok, msg = pcall(ProcessInner)
+		if not ok then
+			Done()
+			geterrorhandler()(msg)
+		end
+	end
+
 	swapFrame:SetScript('OnEvent', function(_, event, bag)
 		addon:Debug(event, bag)
 		locked[bag] = nil
 		if not next(locked) then
-			local ok, msg = pcall(Process)
-			if not ok then
-				Done()
-				geterrorhandler()(msg)
-			end
+			Process()
 		end
 	end)
 
@@ -85,7 +89,7 @@ do
 		local bags = addon.BAG_IDS.BANK[bag] and addon.BAG_IDS.BANK or addon.BAG_IDS.BAGS
 		for otherBag in pairs(bags) do
 			if otherBag ~= bag and GetContainerNumSlots(otherBag) > 0 and GetContainerNumFreeSlots(otherBag) > 0 then
-				otherBags[otherBag] = ContainerIDToInventoryID(otherBag)
+				otherBags[otherBag] = true
 			end
 		end
 		if next(otherBags) then
