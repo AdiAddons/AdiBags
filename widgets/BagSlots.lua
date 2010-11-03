@@ -13,24 +13,114 @@ local BAG_INSET = addon.BAG_INSET
 local TOP_PADDING = addon.TOP_PADDING
 
 --------------------------------------------------------------------------------
--- Widget scripts
+-- Swaping process
 --------------------------------------------------------------------------------
 
-local function BagSlotButton_OnClick(self)
-	if not PutItemInBag(self:GetID()) then
-		PickupBagFromSlot(self:GetID())
+--local EmptyBag
+do
+	local swapFrame = CreateFrame("Frame")
+	local otherBags = {}
+	local locked = {}
+	local currentBag, currentSlot, numSlots
+
+	local function Done()
+		swapFrame:UnregisterAllEvents()
+		currentBag = nil
+		wipe(locked)
+	end
+
+	local function Process()
+		if not CursorHasItem() then
+			while currentSlot < numSlots do
+				currentSlot = currentSlot + 1
+				if GetContainerItemID(currentBag, currentSlot) then
+					PickupContainerItem(currentBag, currentSlot)
+					if CursorHasItem() then
+						locked[currentBag] = true
+						break
+					end
+				end
+			end
+		end
+		if CursorHasItem() then
+			local item = select(3, GetCursorInfo())
+			local itemFamily = GetItemFamily(item)
+			if select(9, GetItemInfo(item)) == 'INVTYPE_BAG' then
+				itemFamily = 0
+			end
+			for destBag in pairs(otherBags) do
+				local freeSlots, bagFamily = GetContainerNumFreeSlots(destBag)
+				if freeSlots > 0 and (bagFamily == 0 or bit.band(bagFamily, itemFamily) ~= 0) then
+					for destSlot = 1, GetContainerNumSlots(destBag) do
+						if not GetContainerItemID(destBag, destSlot) then
+							PickupContainerItem(destBag, destSlot)
+							if not CursorHasItem() then
+								locked[destBag] = true
+								return
+							end
+						end
+					end
+				end
+			end
+			ClearCursor()
+		end
+		Done()
+	end
+
+	swapFrame:SetScript('OnEvent', function(_, event, bag)
+		addon:Debug(event, bag)
+		locked[bag] = nil
+		if not next(locked) then
+			local ok, msg = pcall(Process)
+			if not ok then
+				Done()
+				geterrorhandler()(msg)
+			end
+		end
+	end)
+
+	function EmptyBag(bag)
+		ClearCursor()
+		wipe(otherBags)
+		local bags = addon.BAG_IDS.BANK[bag] and addon.BAG_IDS.BANK or addon.BAG_IDS.BAGS
+		for otherBag in pairs(bags) do
+			if otherBag ~= bag and GetContainerNumSlots(otherBag) > 0 and GetContainerNumFreeSlots(otherBag) > 0 then
+				otherBags[otherBag] = ContainerIDToInventoryID(otherBag)
+			end
+		end
+		if next(otherBags) then
+			currentBag, currentSlot, numSlots = bag, 0, GetContainerNumSlots(bag)
+			swapFrame:RegisterEvent('BAG_UPDATE')
+			Process()
+		end
 	end
 end
 
-local function BankBagButton_OnClick(self)
+--------------------------------------------------------------------------------
+-- Widget scripts
+--------------------------------------------------------------------------------
+
+local function Button_OnClick(self, id, button)
+	addon:Debug("Button_OnClick", id, self.bag, button)
+	if button == "RightButton" then
+		if GetContainerNumSlots(self.bag) > 0 then
+			return EmptyBag(self.bag)
+		end
+	elseif not PutItemInBag(id) then
+		return PickupBagFromSlot(id)
+	end
+end
+
+local function BagSlotButton_OnClick(self, button)
+	return Button_OnClick(self, self:GetID(), button)
+end
+
+local function BankBagButton_OnClick(self, button)
 	if self.toPurchase then
 		PlaySound("igMainMenuOption")
 		StaticPopup_Show("CONFIRM_BUY_BANK_SLOT")
 	else
-		local id = self:GetInventorySlot()
-		if not PutItemInBag(id) then
-			PickupBagFromSlot(id)
-		end
+		return Button_OnClick(self, self:GetInventorySlot(), button)
 	end
 end
 
@@ -190,4 +280,3 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 
 	return self
 end
-
