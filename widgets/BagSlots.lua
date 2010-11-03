@@ -61,6 +61,19 @@ local function BankBagPanel_UpdateStatus(self)
 	end
 end
 
+local function RefreshCount(self, onShow)
+	if not self:IsVisible() and not onShow then return end
+	for i, button in pairs(self.buttons) do
+		local total, free = GetContainerNumSlots(button.bag), GetContainerNumFreeSlots(button.bag)
+		if total > 0 then
+			button.CountText:SetFormattedText("%d", total-free)
+			button.CountText:Show()
+		else
+			button.CountText:Hide()
+		end
+	end
+end
+
 local function BankBagPanel_OnEvent(self, event, ...)
 	if not self:IsVisible() then return end
 
@@ -82,15 +95,20 @@ local function BankBagPanel_OnEvent(self, event, ...)
 		for i, button in pairs(self.buttons) do
 			BankFrameItemButton_Update(button)
 		end
+	else
+		RefreshCount(self)
 	end
 end
 
 local function BagPanel_OnShow(self)
 	PlaySound("igBackPackOpen")
+	self:RegisterEvent('BAG_UPDATE')
+	RefreshCount(self, true)
 end
 
 local function BagPanel_OnHide(self)
 	PlaySound("igBackPackClose")
+	self:UnregisterAllEvents()
 end
 
 local function BankBagPanel_OnShow(self)
@@ -126,6 +144,7 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	else
 		self:SetScript('OnShow', BagPanel_OnShow)
 		self:SetScript('OnHide', BagPanel_OnHide)
+		self:SetScript('OnEvent', RefreshCount)
 	end
 
 	local title = self:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
@@ -147,12 +166,17 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 				button:SetID(bag)
 				button:SetScript('OnClick', BankBagButton_OnClick)
 			else
-				button = CreateFrame("CheckButton", string.format("AdiBag___Bag%dSlot", bag - 1), self, "BagSlotButtonTemplate")
+				button = CreateFrame("Button", string.format("AdiBag___Bag%dSlot", bag - 1), self, "BagSlotButtonTemplate")
+				button.isBag = true
 				button:SetScript('OnClick', BagSlotButton_OnClick)
 				local normalTexture = button:GetNormalTexture()
 				normalTexture:SetWidth(64 * 37 / ITEM_SIZE)
 				normalTexture:SetHeight(64 * 37 / ITEM_SIZE)
 			end
+			button:RegisterForClicks("AnyUp")
+			button.bag = bag
+			button.isBank = isBank
+			button.CountText = _G[button:GetName().."Count"]
 			button:SetWidth(ITEM_SIZE)
 			button:SetHeight(ITEM_SIZE)
 			button:SetPoint("TOPLEFT", x, -TOP_PADDING)
