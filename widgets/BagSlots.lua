@@ -181,9 +181,7 @@ function bagButtonProto:Update()
 end
 
 function bagButtonProto:OnShow()
-	self:RegisterEvent("UNIT_INVENTORY_CHANGED")
 	self:RegisterEvent("BAG_UPDATE")
-	self:RegisterEvent("UPDATE_INVENTORY_ALERTS", "Update")
 	self:RegisterEvent("ITEM_LOCK_CHANGED")
 	self:RegisterMessage("AdiBags_GlobalLockChanged", "Update")
 	self:Update()
@@ -231,20 +229,14 @@ function bagButtonProto:OnDragStart()
 	end
 end
 
-function bagButtonProto:UNIT_INVENTORY_CHANGED(_, unit)
-	if unit == "player" then
+function bagButtonProto:BAG_UPDATE(event, bag, ...)
+	if bag == self.bag  then
 		return self:Update()
 	end
 end
 
-function bagButtonProto:BAG_UPDATE(_, bag)
-	if bag == self.bag then
-		return self:Update()
-	end
-end
-
-function bagButtonProto:ITEM_LOCK_CHANGED(_, bag, slot)
-	if bag == self.bag and not slot then
+function bagButtonProto:ITEM_LOCK_CHANGED(event, invSlot, containerSlot)
+	if not containerSlot and invSlot == self.invSlot then
 		return self:UpdateLock()
 	end
 end
@@ -293,7 +285,14 @@ function bankButtonProto:Update()
 	self:UpdateStatus()
 end
 
+function bankButtonProto:PLAYERBANKSLOTS_CHANGED(event, bankSlot)
+	if bankSlot - NUM_BANKGENERIC_SLOTS == self.bag - NUM_BAG_SLOTS then
+		self:Update()
+	end
+end
+
 function bankButtonProto:OnShow()
+	self:RegisterEvent("PLAYERBANKSLOTS_CHANGED")
 	self:RegisterEvent("PLAYERBANKBAGSLOTS_CHANGED", "UpdateStatus")
 	self:RegisterEvent("PLAYER_MONEY", "UpdateStatus")
 	bagButtonProto.OnShow(self)
