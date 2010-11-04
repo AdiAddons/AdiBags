@@ -316,6 +316,13 @@ function addon:ConfigChanged(vars)
 	end
 end
 
+function addon:SetGlobalLock(locked)
+	if locked ~= self.globalLock then
+		self.globalLock = locked
+		self:SendMessage('AdiBags_GlobalLockChanged', locked)
+	end
+end
+
 --------------------------------------------------------------------------------
 -- Track windows related to item interaction (merchant, mail, bank, ...)
 --------------------------------------------------------------------------------

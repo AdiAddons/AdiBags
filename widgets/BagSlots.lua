@@ -27,6 +27,7 @@ do
 		swapFrame:UnregisterAllEvents()
 		currentBag = nil
 		wipe(locked)
+		addon:SetGlobalLock(false)		
 	end
 
 	local function ProcessInner()
@@ -95,6 +96,7 @@ do
 		if next(otherBags) then
 			currentBag, currentSlot, numSlots = bag, 0, GetContainerNumSlots(bag)
 			swapFrame:RegisterEvent('BAG_UPDATE')
+			addon:SetGlobalLock(true)
 			Process()
 		end
 	end

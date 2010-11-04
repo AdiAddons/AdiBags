@@ -55,6 +55,10 @@ function buttonProto:ToString()
 	return string.format("Button-%s-%s", tostring(self.bag), tostring(self.slot))
 end
 
+function buttonProto:IsLocked()
+	return select(3, GetContainerItemInfo(self.bag, self.slot))
+end
+
 --------------------------------------------------------------------------------
 -- Generic bank button sub-type
 --------------------------------------------------------------------------------
@@ -62,8 +66,9 @@ end
 local bankButtonClass, bankButtonProto = addon:NewClass("BankItemButton", "ItemButton")
 bankButtonClass.frameTemplate = "BankItemButtonGenericTemplate"
 
--- Override buttonProto.UpdateLock
-bankButtonProto.UpdateLock = BankFrameItemButton_UpdateLocked
+function bankButtonProto:IsLocked()
+	return IsInventoryItemLocked(BankButtonIDToInvSlotID(self.slot))
+end
 
 --------------------------------------------------------------------------------
 -- Pools and acquistion
@@ -138,6 +143,7 @@ function buttonProto:OnShow()
 	self:RegisterEvent('QUEST_ACCEPTED', 'UpdateBorder')
 	self:RegisterEvent('UNIT_QUEST_LOG_CHANGED')
 	self:RegisterMessage('AdiBags_UpdateAllButtons', 'Update')
+	self:RegisterMessage('AdiBags_GlobalLockChanged', 'UpdateLock')
 	self:Update()
 end
 
@@ -212,7 +218,13 @@ function buttonProto:UpdateCount()
 end
 
 function buttonProto:UpdateLock(isolatedEvent)
-	SetItemButtonDesaturated(self, select(3, GetContainerItemInfo(self.bag, self.slot)) and true or false)
+	if addon.globalLock then
+		SetItemButtonDesaturated(self, true)
+		self:Disable()
+	else
+		self:Enable()
+		SetItemButtonDesaturated(self, self:IsLocked())
+	end
 	if isolatedEvent then
 		addon:SendMessage('AdiBags_UpdateLock', self)
 	end
