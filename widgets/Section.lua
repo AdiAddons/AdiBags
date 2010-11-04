@@ -230,7 +230,7 @@ function sectionProto:Layout(width, height, clean, force)
 	local sizeChanged = self.width ~= width or self.height ~= height
 	local needReorder = sizeChanged or force or self:NeedLayout(clean)
 	if sizeChanged then
-		self:Debug('NewSize', width, height)
+		--self:Debug('NewSize', width, height)
 		self.width = width
 		self.height = height
 		self.total = width * height
@@ -246,7 +246,7 @@ local CompareButtons
 local buttonOrder = {}
 function sectionProto:ReorderButtons()
 	if not self:IsVisible() then return end
-	self:Debug('ReorderButtons, count=', self.count)
+	--self:Debug('ReorderButtons, count=', self.count)
 	self.dirty = nil
 
 	if self:IsCollapsed() then

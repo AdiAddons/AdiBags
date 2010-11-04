@@ -402,7 +402,6 @@ end
 
 function stackProto:SetVisibleSlot(slotId)
 	if slotId == self.slotId then return end
-	self:Debug('SetVisibleSlot', self.slotId, '=>', slotId)
 	self.slotId = slotId
 	local button = self.button
 	if button then
