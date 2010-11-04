@@ -21,16 +21,18 @@ do
 	local swapFrame = CreateFrame("Frame")
 	local otherBags = {}
 	local locked = {}
+	local timeout = 0
 	local currentBag, currentSlot, numSlots
 
-	local function Done()
-		swapFrame:UnregisterAllEvents()
+	function swapFrame:Done()
+		self:UnregisterAllEvents()
+		self:Hide()
 		currentBag = nil
 		wipe(locked)
 		addon:SetGlobalLock(false)
 	end
 
-	local function ProcessInner()
+	function swapFrame:ProcessInner()
 		if not CursorHasItem() then
 			while currentSlot < numSlots do
 				currentSlot = currentSlot + 1
@@ -65,22 +67,34 @@ do
 			end
 			ClearCursor()
 		end
-		Done()
+		self:Done()
 	end
 
-	local function Process()
-		local ok, msg = pcall(ProcessInner)
+	function swapFrame:Process()
+		local ok, msg = pcall(self.ProcessInner, self)
 		if not ok then
-			Done()
+			self:Done()
 			geterrorhandler()(msg)
+		else
+			timeout = 2
+			self:Show()
 		end
 	end
 
-	swapFrame:SetScript('OnEvent', function(_, event, bag)
+	swapFrame:Hide()
+	swapFrame:SetScript('OnUpdate', function(self, elapsed)
+		if elapsed > timeout then
+			self:Done()
+		else
+			timeout = timeout - elapsed
+		end
+	end)
+
+	swapFrame:SetScript('OnEvent', function(self, event, bag)
 		addon:Debug(event, bag)
 		locked[bag] = nil
 		if not next(locked) then
-			Process()
+			self:Process()
 		end
 	end)
 
@@ -95,9 +109,9 @@ do
 		end
 		if next(otherBags) then
 			currentBag, currentSlot, numSlots = bag, 0, GetContainerNumSlots(bag)
-			swapFrame:RegisterEvent('BAG_UPDATE')
 			addon:SetGlobalLock(true)
-			Process()
+			swapFrame:RegisterEvent('BAG_UPDATE')
+			swapFrame:Process()
 		end
 	end
 end
