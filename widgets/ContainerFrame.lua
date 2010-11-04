@@ -175,18 +175,11 @@ function containerProto:ToString() return self.name or self:GetName() end
 --------------------------------------------------------------------------------
 
 function containerProto:BagsUpdated(bagIds)
-	local hadInconsistentItems = self.hasInconsistentItems
-	self.hasInconsistentItems = false
 	for bag in pairs(bagIds) do
-		if hadInconsistentItems or self.bagIds[bag] then
+		if self.bagIds[bag] then
 			self:UpdateContent(bag)
 		end
 	end
---@alpha@
-	if hadInconsistentItems and not self.hasInconsistentItems then
-		self:Debug('Inconsistent items fixed')
-	end
---@end-alpha@
 	self:UpdateButtons()
 	self:LayoutSections()
 end
@@ -238,18 +231,9 @@ function containerProto:ResumeUpdates()
 	self.paused = false
 	self.bagUpdateBucket = self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, "BagsUpdated")
 	self:Debug('ResumeUpdates')
---@alpha@
-	local hadInconsistentItems = self.hasInconsistentItems
---@end-alpha@
-	self.hasInconsistentItems = false
 	for bag in pairs(self.bagIds) do
 		self:UpdateContent(bag)
 	end
---@alpha@
-	if hadInconsistentItems and not self.hasInconsistentItems then
-		self:Debug('Inconsistent items fixed')
-	end
---@end-alpha@
 	self:UpdateButtons()
 	if self.filtersChanged  then
 		self:RedispatchAllItems()
@@ -379,44 +363,43 @@ function containerProto:UpdateContent(bag)
 	local newSize = GetContainerNumSlots(bag)
 	local _, bagFamily = GetContainerNumFreeSlots(bag)
 	content.family = bagFamily
-	local inconsistencyCount = 0
 	for slot = 1, newSize do
-		local slotData = content[slot]
-		if not slotData then
-			slotData = {
-				bag = bag,
-				slot = slot,
-				slotId = GetSlotId(bag, slot),
-				bagFamily = bagFamily,
-				count = 0,
-				isBank = self.isBank,
-			}
-			content[slot] = slotData
-		end
 		local itemId = GetContainerItemID(bag, slot)
 		local link = GetContainerItemLink(bag, slot)
-		local _, count, _, _, _, _, link2 = GetContainerItemInfo(bag, slot)
-		local name, _, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice = GetItemInfo(link or itemId or "")
-		local inconsistent = false
-		if (itemId or ((count or 0) > 0)) and (not name or not link or link ~= link2) then
-			self:Debug('Weird item information, bag,slot=', bag, slot, 'id=', itemId, 'count=', count, 'GetContainerItemLink=', link, 'GetContainerItemInfo link=', link2)
-			inconsistent = true
-			inconsistencyCount = inconsistencyCount + 1
-		end
-		link, count = link or false, count or 0
+		if not itemId or link then
+			local slotData = content[slot]
+			if not slotData then
+				slotData = {
+					bag = bag,
+					slot = slot,
+					slotId = GetSlotId(bag, slot),
+					bagFamily = bagFamily,
+					count = 0,
+					isBank = self.isBank,
+				}
+				content[slot] = slotData
+			end
 
-		if slotData.link ~= link or slotData.inconsistent ~= inconsistent then
-			removed[slotData.slotId] = slotData.link
-			slotData.inconsistent = inconsistent
-			slotData.count = count
-			slotData.link = link
-			slotData.itemId = itemId
-			slotData.name, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass, slotData.equipSlot, slotData.texture, slotData.vendorPrice = name, quality, iLevel, reqLevel, class, subclass, equipSlot, texture, vendorPrice
-			slotData.maxStack = maxStack or (link and 1 or 0)
-			added[slotData.slotId] = slotData
-		elseif slotData.count ~= count then
-			slotData.count = count
-			changed[slotData.slotId] = slotData
+			local name, _, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice
+			if link then
+				name, _, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice = GetItemInfo(link)
+				count = select(2, GetContainerItemInfo(bag, slot)) or 0
+			else
+				link, count = false, 0
+			end
+
+			if slotData.link ~= link then
+				removed[slotData.slotId] = slotData.link
+				slotData.count = count
+				slotData.link = link
+				slotData.itemId = itemId
+				slotData.name, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass, slotData.equipSlot, slotData.texture, slotData.vendorPrice = name, quality, iLevel, reqLevel, class, subclass, equipSlot, texture, vendorPrice
+				slotData.maxStack = maxStack or (link and 1 or 0)
+				added[slotData.slotId] = slotData
+			elseif slotData.count ~= count then
+				slotData.count = count
+				changed[slotData.slotId] = slotData
+			end
 		end
 	end
 	for slot = content.size, newSize + 1, -1 do
@@ -425,11 +408,6 @@ function containerProto:UpdateContent(bag)
 			removed[slotData.slotId] = slotData.link
 			content[slot] = nil
 		end
-	end
-	content.hasInconsistentItems = inconsistencyCount > 0
-	if content.hasInconsistentItems and not self.hasInconsistentItems then
-		self:Debug('Container has inconsistent items')
-		self.hasInconsistentItems = true
 	end
 	content.size = newSize
 end
@@ -462,9 +440,7 @@ function containerProto:GetSection(name, category)
 end
 
 local function FilterSlot(slotData)
-	if slotData.inconsistent then
-		return L["Buggy items"], nil
-	elseif slotData.link then
+	if slotData.link then
 		local section, category, filterName = addon:Filter(slotData, L['Miscellaneous'])
 		return section, category, filterName, addon:ShouldStack(slotData)
 	else

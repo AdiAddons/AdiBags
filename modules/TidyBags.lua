@@ -166,7 +166,6 @@ local function FindNextMove(container)
 end
 
 function mod:GetNextMove(container)
-	if container.hasInconsistentItems then return end
 	local data = container[self]
 	if not data.cached then
 		data.cached, data[1], data[2], data[3], data[4] = true, FindNextMove(container)
