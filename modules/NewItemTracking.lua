@@ -226,7 +226,7 @@ local comparableIds = setmetatable({}, {__index = function(t, link)
 end})
 
 local function IsIgnored(itemId)
-	return self.db.profile.ignoreJunk and select(3, GetItemInfo(itemId)) == ITEM_QUALITY_POOR
+	return mod.db.profile.ignoreJunk and select(3, GetItemInfo(itemId)) == ITEM_QUALITY_POOR
 end
 
 local newCounts = {}
