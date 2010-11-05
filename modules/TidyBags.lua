@@ -191,7 +191,6 @@ function mod:Process(container)
 	container[self].running = nil
 	addon:SetGlobalLock(false)	
 	self:UpdateButton(container)
-	self:SendMessage('AdiBags_FiltersChanged')
 end
 
 function mod:UpdateButton(container)
