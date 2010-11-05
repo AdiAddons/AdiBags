@@ -205,25 +205,7 @@ function mod:EQUIPMENT_SWAP_FINISHED(event)
 	end
 end
 
-local function GetComparableItemID(link)
-	if not link then return end
-	local id = type(link) == "string" and tonumber(strmatch(link, 'item:(%d+)'))
-	local equipSlot = id and select(9, GetItemInfo(id))
-	if id and (not equipSlot or equipSlot == "") then
-		return id
-	end
-	return strmatch(link, 'item:[-:%d]+') or link
-end
-
-local comparableIds = setmetatable({}, {__index = function(t, link)
-	local result = GetComparableItemID(link)
-	if result then
-		t[link] = result
-		return result
-	else
-		return link
-	end
-end})
+local GetDistinctItemID = addon.GetDistinctItemID
 
 local function IsIgnored(itemId)
 	return mod.db.profile.ignoreJunk and select(3, GetItemInfo(itemId)) == ITEM_QUALITY_POOR
@@ -239,7 +221,7 @@ function mod:UpdateBag(bag)
 	for bagId in pairs(bag.bagIds) do
 		for slot = 1, GetContainerNumSlots(bagId) do
 			local texture, count, _, _, _, _, link = GetContainerItemInfo(bagId, slot)
-			local itemId = link and comparableIds[link]
+			local itemId = GetDistinctItemID(link)
 			if itemId then
 				newCounts[itemId] = (newCounts[itemId] or 0) + count
 			end
@@ -248,7 +230,7 @@ function mod:UpdateBag(bag)
 
 	-- Merge items from inventory
 	for slot, link in pairs(inventory) do
-		local itemId = comparableIds[link]
+		local itemId = GetDistinctItemID(link)
 		if itemId then
 			newCounts[itemId] = (newCounts[itemId] or 0) + 1
 		end
@@ -381,7 +363,7 @@ end
 function mod:IsNew(itemLink, bagName)
 	if not itemLink or not bagName then return false end
 	local bag = bags[bagName]
-	return not bag.first and bag.newItems[comparableIds[itemLink]]
+	return not bag.first and bag.newItems[GetDistinctItemID(itemLink)]
 end
 
 --------------------------------------------------------------------------------

@@ -850,6 +850,56 @@ function filterProto:SetPriority(value)
 end
 
 --------------------------------------------------------------------------------
+-- Virtual stacks
+--------------------------------------------------------------------------------
+
+do
+	local function GetDistinctItemID(link)
+		if not link then return end
+		local id = type(link) == "string" and tonumber(strmatch(link, 'item:(%d+)'))
+		local equipSlot = id and select(9, GetItemInfo(id))
+		if id and (not equipSlot or equipSlot == "") then
+			return id
+		end
+		return strmatch(link, 'item:[-:%d]+') or link
+	end
+
+	local distinctIDs = setmetatable({}, {__index = function(t, link)
+		local result = GetDistinctItemID(link)
+		if result then
+			t[link] = result
+			return result
+		else
+			return link
+		end
+	end})
+
+	function addon.GetDistinctItemID(link)
+		return link and distinctIDs[link]
+	end
+
+	function addon:ShouldStack(slotData)
+		local conf = self.db.profile.virtualStacks
+		if not slotData.link then
+			return conf.freeSpace, "*Free*"
+		end
+		local maxStack = slotData.maxStack or 1
+		if maxStack > 1 then
+			if conf.stackable then
+				if (slotData.count or 1) == maxStack then
+					return true, slotData.itemId
+				elseif self:GetInteractingWindow() and conf.notWhenTrading then
+					return false
+				end
+				return conf.incomplete, slotData.itemId
+			end
+		elseif conf.others then
+			return true, distinctIDs[slotData.link]
+		end
+	end
+end
+
+--------------------------------------------------------------------------------
 -- Filter handling
 --------------------------------------------------------------------------------
 
@@ -903,26 +953,6 @@ function addon:RegisterFilter(name, priority, Filter, ...)
 	filter.filterName = name
 	filter.priority = priority
 	return filter
-end
-
-function addon:ShouldStack(slotData)
-	local conf = self.db.profile.virtualStacks
-	if not slotData.link then
-		return conf.freeSpace, "*Free*"
-	end
-	local maxStack = slotData.maxStack or 1
-	if maxStack > 1 then
-		if conf.stackable then
-			if (slotData.count or 1) == maxStack then
-				return true, slotData.itemId
-			elseif self:GetInteractingWindow() and conf.notWhenTrading then
-				return false
-			end
-			return conf.incomplete, slotData.itemId
-		end
-	elseif conf.others then
-		return true, slotData.link:match("item:(-?%d+:-?%d+:-?%d+:-?%d+:-?%d+)")
-	end
 end
 
 --------------------------------------------------------------------------------
