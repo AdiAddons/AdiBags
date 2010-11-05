@@ -18,6 +18,8 @@ local inventory = {}
 local glows = {}
 local frozen = false
 local inventoryScanned = false
+local initialized = false
+local bagUpdateBucket
 
 function mod:OnInitialize()
 	self.db = addon.db:RegisterNamespace(self.moduleName, {
@@ -29,6 +31,7 @@ function mod:OnInitialize()
 		},
 	})
 	addon:SetCategoryOrder(L['New'], 100)
+	initialized = false
 end
 
 function mod:OnEnable()
@@ -42,19 +45,10 @@ function mod:OnEnable()
 				counts = {},
 				newItems = {},
 				first = true,
+				available = not bag.isBank,
 			}
 			for id in pairs(bag.bagIds) do
 				allBagIds[id] = id
-			end
-			if data.isBank then
-				data.GetCount = function(item)
-					return item and (GetItemCount(item, true) or 0) - (GetItemCount(item) or 0) or 0
-				end
-			else
-				data.GetCount = function(item)
-					return item and GetItemCount(item) or 0
-				end
-				data.available = true
 			end
 			bags[bag.bagName] = data
 		end
@@ -70,17 +64,13 @@ function mod:OnEnable()
 	self:RegisterMessage('AdiBags_PreFilter')
 	self:RegisterMessage('AdiBags_UpdateButton', 'UpdateButton')
 
-	self:RegisterEvent('UNIT_INVENTORY_CHANGED')
 	self:RegisterEvent('BANKFRAME_OPENED')
 	self:RegisterEvent('BANKFRAME_CLOSED')
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING')
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED')
-	self:RegisterBucketMessage('AdiBags_BagUpdated', 0, "UpdateBags")
+	self:RegisterEvent('UNIT_INVENTORY_CHANGED')
 
-	frozen = true
-	self:ScheduleTimer('FirstUpdate', 2)
-
-	inventoryScanned = false
+	bagUpdateBucket = self:RegisterBucketEvent('BAG_UPDATE', initialized and 0.1 or 10, "UpdateBags")
 
 	addon.filterProto.OnEnable(self)
 end
@@ -123,7 +113,7 @@ function mod:OnBagFrameCreated(bag)
 	end
 
 	container:HookScript('OnShow', function()
-		mod:UpdateBags(bag.bagIds, 'OnShow')
+		mod:UpdateBags(bag.bagIds)
 	end)
 
 	bags[bag.bagName].button = button
@@ -163,7 +153,7 @@ function mod:GetOptions()
 			order = 40,
 			set = function(info, ...)
 				info.handler:Set(info, ...)
-				self:UpdateBags(allBagIds, event)
+				self:UpdateBags(allBagIds)
 			end
 		},
 	}, addon:GetOptionHandler(self)
@@ -175,18 +165,19 @@ end
 
 function mod:UNIT_INVENTORY_CHANGED(event, unit)
 	if unit == "player" then
-		self:Debug(event, unit)
 		inventoryScanned = false
 	end
 end
 
 function mod:BANKFRAME_OPENED(event)
 	self:Debug(event)
-	self:UpdateInventory(event)
+	self:UpdateInventory()
 	for name, bag in pairs(bags) do
 		if bag.isBank then
 			bag.available = true
-			self:UpdateBags(bag.bagIds, event)
+			if initialized then
+				self:UpdateBags(bag.bagIds)
+			end
 		end
 	end
 end
@@ -209,20 +200,15 @@ function mod:EQUIPMENT_SWAP_FINISHED(event)
 	self:Debug(event)
 	frozen = false
 	inventoryScanned = false
-	self:UpdateBags(allBagIds, event)
-end
-
-function mod:FirstUpdate(event)
-	self:Debug('Force first update')
-	frozen = false
-	inventoryScanned = false
-	self:UpdateBags(allBagIds, event)
+	if initialized then
+		self:UpdateBags(allBagIds)
+	end
 end
 
 local function GetComparableItemID(link)
 	if not link then return end
 	local id = type(link) == "string" and tonumber(strmatch(link, 'item:(%d+)'))
-	local equipSlot = link and select(9, GetItemInfo(link))
+	local equipSlot = id and select(9, GetItemInfo(id))
 	if id and (not equipSlot or equipSlot == "") then
 		return id
 	end
@@ -240,63 +226,81 @@ local comparableIds = setmetatable({}, {__index = function(t, link)
 end})
 
 local newCounts = {}
-function mod:UpdateBags(bagIds, event)
-	if frozen then return end
-	self:Debug('UpdateBags', event or "AdiBags_BagUpdated")
-	for name, bag in pairs(bags) do
-		if bag.available then
-			local counts = bag.counts
-			wipe(newCounts)
+function mod:UpdateBag(bag)
+	if not bag.available then return end
 
-			-- Gather every item id of every bags
-			for bagId in pairs(bag.bagIds) do
-				for slot = 1, GetContainerNumSlots(bagId) do
-					local itemId = comparableIds[GetContainerItemLink(bagId, slot)]
-					if itemId then
-						newCounts[itemId] = (newCounts[itemId] or 0) + (select(2, GetContainerItemInfo(bagId, slot)) or 1)
-						if not counts[itemId] then
-							counts[itemId] = 0
-						end
-					end
-				end
+	wipe(newCounts)
+
+	-- Gather every item id of every bags
+	for bagId in pairs(bag.bagIds) do
+		for slot = 1, GetContainerNumSlots(bagId) do
+			local link = GetContainerItemLink(bagId, slot)
+			if link then
+				local itemId = comparableIds[link]
+				local count = select(2, GetContainerItemInfo(bagId, slot)) or 1
+				newCounts[itemId] = (newCounts[itemId] or 0) + count
 			end
-
-			-- Update inventory if need be
-			if not inventoryScanned then
-				self:UpdateInventory(event or "AdiBags_BagUpdated")
-			end
-
-			-- Merge items from inventory
-			for slot, itemId in pairs(inventory) do
-				newCounts[itemId] = (newCounts[itemId] or 0) + 1
-				if not counts[itemId] then
-					counts[itemId] = 0 -- Never seen before, assume we haven't any of it
-				end
-			end
-
-			-- Update counts and new statuses
-			local newItems, GetCount = bag.newItems, bag.GetCount
-			for itemId, oldCount in pairs(counts) do
-				local newCount = newCounts[itemId]
-				counts[itemId] = newCount
-				if self.db.profile.ignoreJunk and select(3, GetItemInfo(itemId)) == ITEM_QUALITY_POOR then
-					if newItems[itemId] then
-						newItems[itemId] = nil
-						bag.updated = true
-					end
-				elseif oldCount ~= newCount then
-					if not bag.first and oldCount < (newCount or 0) and not newItems[itemId] then
-						--@debug@
-						self:Debug(itemId, GetItemInfo(itemId), ':', oldCount, '=>', newCount, 'NEW!')
-						--@end-debug@
-						newItems[itemId] = true
-						bag.updated = true
-					end
-				end
-			end
-
-			bag.first = nil
 		end
+	end
+
+	-- Merge items from inventory
+	for slot, link in pairs(inventory) do
+		local itemId = comparableIds[link]
+		newCounts[itemId] = (newCounts[itemId] or 0) + 1
+	end
+
+	local counts = bag.counts
+
+	-- Find new item ids
+	for itemId in pairs(newCounts) do
+		if not counts[itemId] then
+			counts[itemId] = 0 -- Never seen before, assume we haven't any of it
+		end
+	end
+
+	-- Update counts and new statuses
+	local newItems = bag.newItems
+	for itemId, oldCount in pairs(counts) do
+		local newCount = newCounts[itemId]
+		counts[itemId] = newCount
+		if self.db.profile.ignoreJunk and select(3, GetItemInfo(itemId)) == ITEM_QUALITY_POOR then
+			if newItems[itemId] then
+				newItems[itemId] = nil
+				bag.updated = true
+			end
+		elseif oldCount ~= newCount then
+			if not bag.first and oldCount < (newCount or 0) and not newItems[itemId] then
+				--@debug@
+				self:Debug(itemId, GetItemInfo(itemId), ':', oldCount, '=>', newCount, 'NEW!')
+				--@end-debug@
+				newItems[itemId] = true
+				bag.updated = true
+			end
+		end
+	end
+
+	bag.first = nil
+end
+
+function mod:UpdateBags(bagIds)
+	self:Debug('UpdateBags')
+
+	if GetContainerNumSlots(BACKPACK_CONTAINER) == 0 then
+		-- No bag data at all
+		self:Debug('Aborting, no bag data')
+		return
+	end
+
+	-- Update inventory if need be
+	if not self:UpdateInventory() then
+		self:Debug('Aborting, incomplete inventory')
+		-- Missing links in inventory
+		return
+	end
+
+	-- Update all bags
+	for name, bag in pairs(bags) do
+		self:UpdateBag(bag)
 	end
 
 	local filterChanged = false
@@ -311,29 +315,56 @@ function mod:UpdateBags(bagIds, event)
 		if bag.updated and bag.available then
 			self:Debug(name, 'contains new new items')
 			bag.updated = nil
-			filterChanged  = true
+			filterChanged = true
 		end
 	end
 	if filterChanged then
 		self:Debug('Need to filter bags again')
 		self:SendMessage('AdiBags_FiltersChanged')
 	end
+
+	if not initialized then
+		self:Debug('Initialization done')
+		self:UnregisterBucket(bagUpdateBucket)
+		bagUpdateBucket = self:RegisterBucketEvent('BAG_UPDATE', 0.1, "UpdateBags")
+		initialized = true
+	end
 end
 
-function mod:UpdateInventory(event)
-	if frozen then return end
-	self:Debug('UpdateInventory', event)
+do
+	local incomplete
 
-	-- All equipped items and bags
-	for slot = 0, 20 do
-		inventory[slot] = comparableIds[GetInventoryItemLink("player", slot)] or nil
-	end
-	-- Bank equipped bags
-	for slot = 68, 74 do
-		inventory[slot] = comparableIds[GetInventoryItemLink("player", slot)] or nil
+	local function ScanInventorySlot(slot)
+		local id = GetInventoryItemID("player", slot)
+		if id then
+			local link = GetInventoryItemLink("player", slot)
+			inventory[slot] = link
+			if not link then
+				incomplete = true
+			end
+		else
+			inventory[slot] = nil
+		end
 	end
 
-	inventoryScanned = true
+	function mod:UpdateInventory()
+		if not inventoryScanned then
+			self:Debug('UpdateInventory')
+			incomplete = false
+
+			-- All equipped items and bags
+			for slot = 0, 20 do
+				ScanInventorySlot(slot)
+			end
+			-- Bank equipped bags
+			for slot = 68, 74 do
+				ScanInventorySlot(slot)
+			end
+
+			inventoryScanned = not incomplete
+		end
+		return inventoryScanned
+	end
 end
 
 function mod:Reset(name)
@@ -343,7 +374,7 @@ function mod:Reset(name)
 	wipe(bag.newItems)
 	bag.first = true
 	bag.updated = true
-	self:UpdateBags(bag.bagIds, event)
+	self:UpdateBags(bag.bagIds)
 end
 
 function mod:IsNew(itemLink, bagName)
