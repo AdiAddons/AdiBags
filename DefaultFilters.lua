@@ -54,8 +54,15 @@ function addon:SetupDefaultFilters()
 				local locations = GetEquipmentSetLocations(name)
 				for invId, location in pairs(locations) do
 					local player, bank, bags, slot, container = EquipmentManager_UnpackLocation(location)
-					local link = (bags and GetContainerItemLink(container, slot)) or ((player or bank) and GetInventoryItemLink("player", slot))
-					if link and not sets[link] then
+					local id, link
+					if bags then
+						id, link = GetContainerItemID(container, slot), GetContainerItemLink(container, slot)
+					elseif player or bank then
+						id, link = GetInventoryItemID("player", slot), GetInventoryItemLink("player", slot)
+					end
+					if id and not link then
+						return
+					elseif link and not sets[link] then
 						sets[link] = name
 					end
 				end
@@ -69,7 +76,7 @@ function addon:SetupDefaultFilters()
 		end
 
 		function setFilter:Filter(slotData)
-			local name = sets[slotData.link]
+			local name = haveSets and sets[slotData.link]
 			if name then
 				if not self.db.profile.oneSectionPerSet or self.db.char.mergedSets[name] then
 					return L['Sets'], L["Equipment"]
