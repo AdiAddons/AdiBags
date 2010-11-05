@@ -453,7 +453,7 @@ function containerProto:DispatchItem(slotData)
 	assert(sectionName, "sectionName is nil, item: "..(slotData.link or "none"))
 	local slotId = slotData.slotId
 	local button = self.buttons[slotId]
-	if button and ((button:IsStack() and not shouldStack) or (not button:IsStack() and shouldStack)) then
+	if button and ((button:IsStack() and (not shouldStack or button:GetKey() ~= stackKey)) or (not button:IsStack() and shouldStack)) then
 		self:RemoveSlot(slotId)
 		button = nil
 	end
