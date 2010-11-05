@@ -439,8 +439,29 @@ function containerProto:GetSection(name, category)
 	return section
 end
 
-local function FilterSlot(slotData)
+local function FilterByBag(slotData)
+	local bag = slotData.bag
+	local name
+	if bag == BACKPACK_CONTAINER then
+		name = L['Backpack']
+	elseif bag == BANK_CONTAINER then
+		name = L['Bank']
+	elseif bag <= NUM_BAG_SLOTS then
+		name = format(L["Bag #%d"], bag)
+	else
+		name = format(L["Bank bag #%d"], bag - NUM_BAG_SLOTS)
+	end
 	if slotData.link then
+		return name, nil, nil, addon:ShouldStack(slotData)
+	else
+		return name, nil, nil, addon.db.profile.virtualStacks.freeSpace, name
+	end
+end
+
+function containerProto:FilterSlot(slotData)
+	if self.BagSlotPanel:IsShown() then
+		return FilterByBag(slotData)
+	elseif slotData.link then
 		local section, category, filterName = addon:Filter(slotData, L['Miscellaneous'])
 		return section, category, filterName, addon:ShouldStack(slotData)
 	else
@@ -449,7 +470,7 @@ local function FilterSlot(slotData)
 end
 
 function containerProto:DispatchItem(slotData)
-	local sectionName, category, filterName, shouldStack, stackKey = FilterSlot(slotData)
+	local sectionName, category, filterName, shouldStack, stackKey = self:FilterSlot(slotData)
 	assert(sectionName, "sectionName is nil, item: "..(slotData.link or "none"))
 	local slotId = slotData.slotId
 	local button = self.buttons[slotId]
