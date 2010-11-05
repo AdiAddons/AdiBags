@@ -225,6 +225,10 @@ local comparableIds = setmetatable({}, {__index = function(t, link)
 	end
 end})
 
+local function IsIgnored(itemId)
+	return self.db.profile.ignoreJunk and select(3, GetItemInfo(itemId)) == ITEM_QUALITY_POOR
+end
+
 local newCounts = {}
 function mod:UpdateBag(bag)
 	if not bag.available then return end
@@ -234,10 +238,9 @@ function mod:UpdateBag(bag)
 	-- Gather every item id of every bags
 	for bagId in pairs(bag.bagIds) do
 		for slot = 1, GetContainerNumSlots(bagId) do
-			local link = GetContainerItemLink(bagId, slot)
-			if link then
-				local itemId = comparableIds[link]
-				local count = select(2, GetContainerItemInfo(bagId, slot)) or 1
+			local texture, count, _, _, _, _, link = GetContainerItemInfo(bagId, slot)
+			local itemId = link and comparableIds[link]
+			if itemId then
 				newCounts[itemId] = (newCounts[itemId] or 0) + count
 			end
 		end
@@ -246,37 +249,35 @@ function mod:UpdateBag(bag)
 	-- Merge items from inventory
 	for slot, link in pairs(inventory) do
 		local itemId = comparableIds[link]
-		newCounts[itemId] = (newCounts[itemId] or 0) + 1
-	end
-
-	local counts = bag.counts
-
-	-- Find new item ids
-	for itemId in pairs(newCounts) do
-		if not counts[itemId] then
-			counts[itemId] = 0 -- Never seen before, assume we haven't any of it
+		if itemId then
+			newCounts[itemId] = (newCounts[itemId] or 0) + 1
 		end
 	end
 
-	-- Update counts and new statuses
-	local newItems = bag.newItems
-	for itemId, oldCount in pairs(counts) do
-		local newCount = newCounts[itemId]
+	local counts, newItems = bag.counts, bag.newItems
+
+	-- Forget items that aren't in the bags anymore
+	for itemId in pairs(counts) do
+		if not newCounts[itemId] then
+			counts[itemId] = nil
+		end
+	end
+
+	-- Forget "new items" that aren't in the bags anymore
+	for itemId in pairs(newItems) do
+		if not newCounts[itemId] or IsIgnored(itemId) then
+			newItems[itemId] = nil
+			bag.updated = true
+		end
+	end
+
+	-- Items that are in the bags now
+	for itemId, newCount in pairs(newCounts) do
+		if not bag.first and newCount > (counts[itemId] or 0) and not IsIgnored(itemId) then
+			newItems[itemId] = true
+			bag.updated = true
+		end
 		counts[itemId] = newCount
-		if self.db.profile.ignoreJunk and select(3, GetItemInfo(itemId)) == ITEM_QUALITY_POOR then
-			if newItems[itemId] then
-				newItems[itemId] = nil
-				bag.updated = true
-			end
-		elseif oldCount ~= newCount then
-			if not bag.first and oldCount < (newCount or 0) and not newItems[itemId] then
-				--@debug@
-				self:Debug(itemId, GetItemInfo(itemId), ':', oldCount, '=>', newCount, 'NEW!')
-				--@end-debug@
-				newItems[itemId] = true
-				bag.updated = true
-			end
-		end
 	end
 
 	bag.first = nil
