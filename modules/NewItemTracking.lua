@@ -220,10 +220,10 @@ function mod:UpdateBag(bag)
 	-- Gather every item id of every bags
 	for bagId in pairs(bag.bagIds) do
 		for slot = 1, GetContainerNumSlots(bagId) do
-			local texture, count, _, _, _, _, link = GetContainerItemInfo(bagId, slot)
+			local _, count, _, _, _, _, link = GetContainerItemInfo(bagId, slot)
 			local itemId = GetDistinctItemID(link)
 			if itemId then
-				newCounts[itemId] = (newCounts[itemId] or 0) + count
+				newCounts[itemId] = (newCounts[itemId] or 0) + (count or 1)
 			end
 		end
 	end
@@ -238,28 +238,28 @@ function mod:UpdateBag(bag)
 
 	local counts, newItems = bag.counts, bag.newItems
 
-	-- Forget items that aren't in the bags anymore
-	for itemId in pairs(counts) do
-		if not newCounts[itemId] then
-			counts[itemId] = nil
-		end
-	end
-
-	-- Forget "new items" that aren't in the bags anymore
-	for itemId in pairs(newItems) do
-		if not newCounts[itemId] or IsIgnored(itemId) then
-			newItems[itemId] = nil
-			bag.updated = true
-		end
-	end
-
-	-- Items that are in the bags now
-	for itemId, newCount in pairs(newCounts) do
-		if not bag.first and newCount > (counts[itemId] or 0) and not IsIgnored(itemId) then
+	-- Items that were in the bags
+	for itemId, oldCount in pairs(counts) do
+		local newCount = newCounts[itemId]
+		counts[itemId], newCounts[itemId] = newCount, nil
+		if not newCount or newCount < oldCount or IsIgnored(itemId) then
+			if newItems[itemId] then
+				newItems[itemId] = nil
+				bag.updated = true
+			end
+		elseif not bag.first and newCount > oldCount and not newItems[itemId] then
 			newItems[itemId] = true
 			bag.updated = true
 		end
+	end
+
+	-- Brand new items
+	for itemId, newCount in pairs(newCounts) do
 		counts[itemId] = newCount
+		if not bag.first and not newItems[itemId] then
+			newItems[itemId] = true
+			bag.updated = true
+		end
 	end
 
 	bag.first = nil
