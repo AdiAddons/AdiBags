@@ -428,12 +428,12 @@ function addon:GetOptions()
 								type = 'toggle',
 								arg = {'virtualStacks', 'freeSpace'},
 							},
-							other = {
+							others = {
 								name = L['Unstackable items'],
 								desc = L['Show only one slot of items that cannot be stacked.'],
 								order = 26,
 								type = 'toggle',
-								arg = {'virtualStacks', 'other'},
+								arg = {'virtualStacks', 'others'},
 							},
 							_stackableHeader = {
 								type = 'header',
