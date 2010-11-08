@@ -211,11 +211,12 @@ local function IsIgnored(itemId)
 	return mod.db.profile.ignoreJunk and select(3, GetItemInfo(itemId)) == ITEM_QUALITY_POOR
 end
 
-local newCounts = {}
+local newCounts, equipped = {}, {}
 function mod:UpdateBag(bag)
 	if not bag.available then return end
 
 	wipe(newCounts)
+	wipe(equipped)
 
 	-- Gather every item id of every bags
 	for bagId in pairs(bag.bagIds) do
@@ -233,6 +234,7 @@ function mod:UpdateBag(bag)
 		local itemId = GetDistinctItemID(link)
 		if itemId then
 			newCounts[itemId] = (newCounts[itemId] or 0) + 1
+			equipped[itemId] = (equipped[itemId] or 0) + 1
 		end
 	end
 
@@ -242,6 +244,9 @@ function mod:UpdateBag(bag)
 	for itemId, oldCount in pairs(counts) do
 		local newCount = newCounts[itemId]
 		counts[itemId], newCounts[itemId] = newCount, nil
+		if newCount and equipped[itemId] then -- Ignore equipped item count
+			newCount = newCount - equipped[itemId]
+		end
 		if not newCount or newCount < oldCount or IsIgnored(itemId) then
 			if newItems[itemId] then
 				newItems[itemId] = nil
@@ -256,7 +261,7 @@ function mod:UpdateBag(bag)
 	-- Brand new items
 	for itemId, newCount in pairs(newCounts) do
 		counts[itemId] = newCount
-		if not bag.first and not newItems[itemId] then
+		if not bag.first and not equipped[itemId] and not newItems[itemId] then
 			newItems[itemId] = true
 			bag.updated = true
 		end
