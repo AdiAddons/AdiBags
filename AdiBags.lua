@@ -204,6 +204,8 @@ function addon:OnEnable()
 		self.db.profile.anchor = nil
 	end
 
+	self.globalLock = false
+
 	self:RegisterEvent('BAG_UPDATE')
 	self:RegisterBucketEvent('PLAYERBANKSLOTS_CHANGED', 0, 'BankUpdated')
 
@@ -317,6 +319,7 @@ function addon:ConfigChanged(vars)
 end
 
 function addon:SetGlobalLock(locked)
+	locked = not not locked
 	if locked ~= self.globalLock then
 		self.globalLock = locked
 		self:SendMessage('AdiBags_GlobalLockChanged', locked)
