@@ -629,10 +629,9 @@ end
 do
 	-- L["Backpack"]
 	local backpack = addon:NewBag("Backpack", 10, addon.BAG_IDS.BAGS, false, 'AceHook-3.0')
-	
+
 	function backpack:OnEnable()
-		self:RegisterEvent('BANKFRAME_OPENED', 'Open')
-		self:RegisterEvent('BANKFRAME_CLOSED', 'Close')
+		self:RegisterMessage('AdiBags_InteractingWindowChanged')
 		self:RawHook('OpenBackpack', 'Open', true)
 		self:RawHook('CloseBackpack', 'Close', true)
 		self:RawHook('ToggleBackpack', true)
@@ -643,7 +642,15 @@ do
 			container:Hide()
 		end
 	end
-	
+
+	function backpack:AdiBags_InteractingWindowChanged(event, window)
+		if window then
+			self:Open()
+		else
+			self:Close()
+		end
+	end
+
 	function backpack:ContainerShow(container, ...)
 		if container:GetID() == KEYRING_CONTAINER then
 			return self.hooks[container].Show(container)
@@ -669,41 +676,38 @@ do
 	local function NOOP() end
 
 	function bank:OnEnable()
-		self:RegisterEvent('BANKFRAME_OPENED')
-		self:RegisterEvent('BANKFRAME_CLOSED')
+		self:RegisterMessage('AdiBags_InteractingWindowChanged')
 
 		self:RawHookScript(BankFrame, "OnEvent", NOOP, true)
 		self:RawHook(BankFrame, "Show", "Open", true)
 		BankFrame:Hide()
 
-		if addon.atBank then
-			self:BANKFRAME_OPENED()
+		if addon:GetInteractingWindow() == "BANKFRAME" then
+			self:Open()
 		end
 	end
 
 	function bank:OnDisable()
-		bagProto.OnDisable(self)
-		if self.atBank then
+		if addon:GetInteractingWindow() == "BANKFRAME" then
 			self.hooks[BankFrame].Show(BankFrame)
+		end
+		bagProto.OnDisable(self)
+	end
+
+	function bank:AdiBags_InteractingWindowChanged(event, new, old)
+		if new == 'BANKFRAME' then
+			self:Open()
+		elseif old == 'BANKFRAME' then
+			self:Close()
 		end
 	end
 
-	function bank:BANKFRAME_OPENED()
-		self.atBank = true
-		self:Open()
-	end
-
-	function bank:BANKFRAME_CLOSED()
-		self.atBank = false
-		self:Close()
-	end
-
 	function bank:CanOpen()
-		return self:IsEnabled() and self.atBank
+		return self:IsEnabled() and addon:GetInteractingWindow() == "BANKFRAME"
 	end
 
 	function bank:Close()
-		if bagProto.Close(self) and self.atBank then
+		if bagProto.Close(self) then
 			CloseBankFrame()
 		end
 	end
