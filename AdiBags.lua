@@ -281,7 +281,12 @@ end
 
 function addon:BankUpdated(slots)
 	-- Wrap several PLAYERBANKSLOTS_CHANGED into one AdiBags_BagUpdated message
-	self:SendMessage('AdiBags_BagUpdated', BANK_CONTAINER)
+	for slot in pairs(slots) do
+		if slot > 0 and slot <= NUM_BANKGENERIC_SLOTS then
+			self:SendMessage('AdiBags_BagUpdated', BANK_CONTAINER)
+			return
+		end
+	end
 end
 
 function addon:CloseSpecialWindows()
