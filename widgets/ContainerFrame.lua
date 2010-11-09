@@ -474,13 +474,13 @@ function containerProto:DispatchItem(slotData)
 	assert(sectionName, "sectionName is nil, item: "..(slotData.link or "none"))
 	local slotId = slotData.slotId
 	local button = self.buttons[slotId]
-	if button and ((button:IsStack() and (not shouldStack or button:GetKey() ~= stackKey)) or (not button:IsStack() and shouldStack)) then
+	local fullStackKey = shouldStack and strjoin('#', stackKey, tostring(slotData.bagFamily)) or nil
+	if button and ((button:IsStack() and (not shouldStack or button:GetKey() ~= fullStackKey)) or (not button:IsStack() and shouldStack)) then
 		self:RemoveSlot(slotId)
 		button = nil
 	end
 	if shouldStack then
-		local fullKey = strjoin('#', stackKey, tostring(slotData.bagFamily))
-		button = self:GetStackButton(fullKey)
+		button = self:GetStackButton(fullStackKey)
 		button:AddSlot(slotId)
 	elseif not button then
 		button = addon:AcquireItemButton(self, slotData.bag, slotData.slot)
