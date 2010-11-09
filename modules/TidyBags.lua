@@ -27,6 +27,7 @@ end
 function mod:OnEnable()
 	addon:HookBagFrameCreation(self, 'OnBagFrameCreated')
 	self:RegisterMessage('AdiBags_PreContentUpdate')
+	self:RegisterMessage('AdiBags_ContainerLayoutDirty')
 	self:RegisterMessage('AdiBags_InteractingWindowChanged')
 	self:RegisterEvent('LOOT_CLOSED', 'AutomaticTidy')
 	for container in pairs(containers) do
@@ -195,7 +196,7 @@ end
 
 function mod:UpdateButton(container)
 	local data = container[self]
-	if not data.running and self:GetNextMove(container) then
+	if not data.running and (container.dirtyLayout or self:GetNextMove(container)) then
 		data.button:Enable()
 	else
 		data.button:Disable()
@@ -218,4 +219,6 @@ function mod:AdiBags_PreContentUpdate(event, container)
 	end
 end
 
-
+function mod:AdiBags_ContainerLayoutDirty(event, container)
+	self:UpdateButton(container)
+end

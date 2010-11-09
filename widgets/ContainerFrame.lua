@@ -693,50 +693,64 @@ end
 function containerProto:LayoutSections(repack)
 
 	local num = 0
-	local changed = self.forceLayout
+	local dirtyLayout, mustLayout = self.dirtyLayout, false
 	for key, section in pairs(self.sections) do
 		if section:IsEmpty() then
 			section:Release()
 			self.sections[key] = nil
-			changed = true
+			dirtyLayout = true
 		elseif section:IsCollapsed() then
-			section:Hide()
+			if section:IsShown() then
+				section:Hide()
+				dirtyLayout = true
+			end
 		else
 			section:Show()
-			if not self.forceLayout and section:NeedLayout(repack) then
-				changed = true
+			if section:NeedLayout(repack) then
+				mustLayout = true
+				dirtyLayout = true
+			end
+			if section.dirty then
+				dirtyLayout = true
 			end
 			num = num + 1
 		end
 	end
-	if not changed then
+	self:Debug('LayoutSections repack=', repack, 'force=', self.forceLayout, 'dirty=', dirtyLayout, 'mustLayout=', mustLayout)
+	if not mustLayout and not self.forceLayout then
+		if dirtyLayout and not self.dirtyLayout then
+			self.dirtyLayout = true
+			self:SendMessage('AdiBags_ContainerLayoutDirty', self, true)
+		end
 		return
 	end
+	
 	if num == 0 then
 		self.Content:SetSize(0.5, 0.5)
-		self.forceLayout = nil
-		return
-	end
+	else
+		self:Debug('LayoutSections')
 
-	self:Debug('LayoutSections')
+		local rowWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.rowWidth - ITEM_SPACING
+		local maxHeight = addon.db.profile.maxHeight * UIParent:GetHeight() * UIParent:GetEffectiveScale() / self:GetEffectiveScale()
 
-	local rowWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.rowWidth - ITEM_SPACING
-	local maxHeight = addon.db.profile.maxHeight * UIParent:GetHeight() * UIParent:GetEffectiveScale() / self:GetEffectiveScale()
-	self:Debug('- GetContentMinWidth:', self:GetContentMinWidth())
-
-	local contentWidth, contentHeight, numColumns, wastedHeight, minHeight = DoLayoutSections(self, rowWidth, maxHeight, repack, self.forceLayout)
-	if numColumns > 1 and wastedHeight / contentHeight > 0.1 then
-		local totalHeight = contentHeight * numColumns - wastedHeight
-		if totalHeight / numColumns < minHeight then
-			numColumns = numColumns - 1
+		local contentWidth, contentHeight, numColumns, wastedHeight, minHeight = DoLayoutSections(self, rowWidth, maxHeight, repack, self.forceLayout)
+		if numColumns > 1 and wastedHeight / contentHeight > 0.1 then
+			local totalHeight = contentHeight * numColumns - wastedHeight
+			if totalHeight / numColumns < minHeight then
+				numColumns = numColumns - 1
+			end
+			maxHeight = totalHeight / numColumns * 1.10
+			contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight, repack, self.forceLayout)
+		elseif numColumns == 1 and contentWidth < self:GetContentMinWidth()  then
+			contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self:GetContentMinWidth(), maxHeight, repack, self.forceLayout)
 		end
-		maxHeight = totalHeight / numColumns * 1.10
-		contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight, repack, self.forceLayout)
-	elseif numColumns == 1 and contentWidth < self:GetContentMinWidth()  then
-		contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self:GetContentMinWidth(), maxHeight, repack, self.forceLayout)
-	end
 
-	self.Content:SetSize(contentWidth, contentHeight)
+		self.Content:SetSize(contentWidth, contentHeight)
+	end
 
 	self.forceLayout = nil
+	if self.dirtyLayout then
+		self.dirtyLayout = nil
+		self:SendMessage('AdiBags_ContainerLayoutDirty', self, false)
+	end
 end
