@@ -164,6 +164,8 @@ local DEFAULT_SETTINGS = {
 -- Addon initialization and enabling
 --------------------------------------------------------------------------------
 
+addon:SetDefaultModuleState(false)
+
 function addon:OnInitialize()
 	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", DEFAULT_SETTINGS, true)
 	self.db.RegisterCallback(self, "OnProfileChanged", "Reconfigure")
@@ -176,15 +178,8 @@ function addon:OnInitialize()
 	self:CreateBagAnchor()
 	addon:InitializeOptions()
 
-	self:SetEnabledState(self.db.profile.enabled)
+	self:SetEnabledState(false)
 
-	-- Persistent handler
-	self.RegisterBucketMessage(addonName, 'AdiBags_ConfigChanged', 0.2, function(...) addon:ConfigChanged(...) end)
-end
-
-local function NOOP() end
-
-function addon:OnEnable()
 	-- Convert old ordering setting
 	if self.db.profile.laxOrdering == true then
 		self.db.profile.laxOrdering = 1
@@ -194,15 +189,33 @@ function addon:OnEnable()
 	local oldData = self.db.profile.anchor
 	if oldData then
 		local scale = oldData.scale or 0.8
-		self.db.profile.scale = scale 
-		
+		self.db.profile.scale = scale
+
 		local newData = self.db.profile.positions.anchor
 		newData.point = oldData.pointFrom or "BOTTOMRIGHT"
 		newData.xOffset = (oldData.xOffset or -32) / scale
 		newData.yOffset = (oldData.yOffset or 200) / scale
-		
+
 		self.db.profile.anchor = nil
 	end
+
+	-- Do not enable until first PEW
+	self.RegisterEvent(addonName, 'PLAYER_ENTERING_WORLD', function()
+		self.UnregisterEvent(addonName, 'PLAYER_ENTERING_WORLD')
+		self:Debug('PLAYER_ENTERING_WORLD')
+
+		-- Persistent handler
+		self.RegisterBucketMessage(addonName, 'AdiBags_ConfigChanged', 0.2, function(...) addon:ConfigChanged(...) end)
+
+		-- Enable if configured so
+		if self.db.profile.enabled then
+			self:Enable()
+		end
+	end)
+
+end
+
+function addon:OnEnable()
 
 	self.globalLock = false
 
@@ -215,7 +228,7 @@ function addon:OnEnable()
 	self:RawHook("OpenAllBags", true)
 	self:RawHook("CloseAllBags", true)
 	self:RawHook('CloseSpecialWindows', true)
-	
+
 	-- Track most windows involving items
 	self:RegisterEvent('BANKFRAME_OPENED', 'UpdateInteractingWindow')
 	self:RegisterEvent('BANKFRAME_CLOSED', 'UpdateInteractingWindow')
@@ -235,12 +248,14 @@ function addon:OnEnable()
 	for name, module in self:IterateModules() do
 		if module.isFilter then
 			module:SetEnabledState(self.db.profile.filters[module.moduleName])
+		elseif module.isBag then
+			module:SetEnabledState(true)
 		else
 			module:SetEnabledState(self.db.profile.modules[module.moduleName])
 		end
 	end
 
-	 self:UpdatePositionMode()
+	self:UpdatePositionMode()
 end
 
 function addon:OnDisable()
