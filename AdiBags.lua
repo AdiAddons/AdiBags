@@ -390,6 +390,11 @@ function addon.GetBagSlotFromId(slotId)
 	end
 end
 
+local function IsValidItemLink(link)
+	return type(link) == "string" and strmatch(link, 'item:[-:%d]+') and not strmatch(link, 'item:%d+:0:0:0:0:0:0:0:0:0')
+end
+addon.IsValidItemLink = IsValidItemLink
+
 local function safecall_return(success, ...)
 	if success then
 		return ...
@@ -879,7 +884,7 @@ end
 do
 	local function GetDistinctItemID(link)
 		if not link then return end
-		local id = type(link) == "string" and tonumber(strmatch(link, 'item:(%d+)'))
+		local id = IsValidItemLink(link) and tonumber(strmatch(link, 'item:(%d+)'))
 		local equipSlot = id and select(9, GetItemInfo(id))
 		if id and (not equipSlot or equipSlot == "") then
 			return id

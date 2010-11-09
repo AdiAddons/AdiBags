@@ -44,6 +44,8 @@ function addon:SetupDefaultFilters()
 		local sets = {}
 		local setNames = {}
 
+		local IsValidItemLink = addon.IsValidItemLink
+
 		function setFilter:UpdateSets()
 			if haveSets then return end
 			wipe(sets)
@@ -60,10 +62,12 @@ function addon:SetupDefaultFilters()
 					elseif player or bank then
 						id, link = GetInventoryItemID("player", slot), GetInventoryItemLink("player", slot)
 					end
-					if id and not link then
-						return
-					elseif link and not sets[link] then
-						sets[link] = name
+					if id then
+						if not IsValidItemLink(link) then
+							return
+						elseif not sets[link] then
+							sets[link] = name
+						end
 					end
 				end
 			end
