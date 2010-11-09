@@ -200,7 +200,7 @@ function addon:OnInitialize()
 	end
 
 	-- Persistant handlers
-	self.RegisterBucketMessage(addonName, 'AdiBags_ConfigChanged', 0.2, self.ConfigChanged, self)
+	self.RegisterBucketMessage(addonName, 'AdiBags_ConfigChanged', 0.2, function(...) addon:ConfigChanged(...) end)
 	self.RegisterEvent(addonName, 'PLAYER_ENTERING_WORLD', function() if self.db.profile.enabled then self:Enable() end end)
 
 	self:Debug('Initialized')
@@ -696,9 +696,9 @@ do
 	end
 
 	function bank:AdiBags_InteractingWindowChanged(event, new, old)
-		if new == 'BANKFRAME' then
+		if new == 'BANKFRAME' and not self:IsOpen() then
 			self:Open()
-		elseif old == 'BANKFRAME' then
+		elseif old == 'BANKFRAME' and self:IsOpen() then
 			self:Close()
 		end
 	end
