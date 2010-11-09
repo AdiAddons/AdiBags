@@ -199,20 +199,11 @@ function addon:OnInitialize()
 		self.db.profile.anchor = nil
 	end
 
-	-- Do not enable until first PEW
-	self.RegisterEvent(addonName, 'PLAYER_ENTERING_WORLD', function()
-		self.UnregisterEvent(addonName, 'PLAYER_ENTERING_WORLD')
-		self:Debug('PLAYER_ENTERING_WORLD')
+	-- Persistant handlers
+	self.RegisterBucketMessage(addonName, 'AdiBags_ConfigChanged', 0.2, self.ConfigChanged, self)
+	self.RegisterEvent(addonName, 'PLAYER_ENTERING_WORLD', function() if self.db.profile.enabled then self:Enable() end end)
 
-		-- Persistent handler
-		self.RegisterBucketMessage(addonName, 'AdiBags_ConfigChanged', 0.2, function(...) addon:ConfigChanged(...) end)
-
-		-- Enable if configured so
-		if self.db.profile.enabled then
-			self:Enable()
-		end
-	end)
-
+	self:Debug('Initialized')
 end
 
 function addon:OnEnable()
@@ -221,6 +212,8 @@ function addon:OnEnable()
 
 	self:RegisterEvent('BAG_UPDATE')
 	self:RegisterBucketEvent('PLAYERBANKSLOTS_CHANGED', 0, 'BankUpdated')
+
+	self:RegisterEvent('PLAYER_LEAVING_WORLD', 'Disable')
 
 	self:RegisterMessage('AdiBags_BagOpened', 'LayoutBags')
 	self:RegisterMessage('AdiBags_BagClosed', 'LayoutBags')
@@ -256,11 +249,14 @@ function addon:OnEnable()
 	end
 
 	self:UpdatePositionMode()
+
+	self:Debug('Enabled')
 end
 
 function addon:OnDisable()
 	self.anchor:Hide()
 	self:CloseAllBags()
+	self:Debug('Disabled')
 end
 
 function addon:Reconfigure()
@@ -314,7 +310,7 @@ function addon:ConfigChanged(vars)
 			self:Disable()
 		end
 		return
-	elseif not self.db.profile.enabled then
+	elseif not self:IsEnabled() then
 		return
 	elseif vars.filter then
 		return self:SendMessage('AdiBags_FiltersChanged')
