@@ -22,7 +22,7 @@ function addon:SetupDefaultFilters()
 
 	-- [90] Parts of an equipment set
 	do
-		local setFilter = addon:RegisterFilter("ItemSets", 90, "AceEvent-3.0")
+		local setFilter = addon:RegisterFilter("ItemSets", 90, "AceEvent-3.0", "AceBucket-3.0")
 		setFilter.uiName = L['Gear manager item sets']
 		setFilter.uiDesc = L['Put items belonging to one or more sets of the built-in gear manager in specific sections.']
 
@@ -33,9 +33,11 @@ function addon:SetupDefaultFilters()
 			})
 		end
 
+		local ITEM_LINKS_UPDATED = {"BAG_UPDATE", "UNIT_INVENTORY_CHANGED"}
 		function setFilter:OnEnable()
 			self:RegisterEvent('EQUIPMENT_SETS_CHANGED')
 			self:RegisterEvent('BANKFRAME_OPENED', 'EQUIPMENT_SETS_CHANGED')
+			self:RegisterBucketEvent(ITEM_LINKS_UPDATED, 10, "ItemLinksUpdated")
 			self:RegisterMessage("AdiBags_PreFilter", "UpdateSets")
 			addon:UpdateFilters()
 		end
@@ -46,7 +48,8 @@ function addon:SetupDefaultFilters()
 
 		local IsValidItemLink = addon.IsValidItemLink
 
-		function setFilter:UpdateSets()
+		function setFilter:UpdateSets(event)
+			self:Debug('UpdateSets on', event, 'have sets=', haveSets)
 			if haveSets then return end
 			wipe(sets)
 			wipe(setNames)
@@ -64,6 +67,13 @@ function addon:SetupDefaultFilters()
 					end
 					if id then
 						if not IsValidItemLink(link) then
+							--@alpha@
+							if bags then
+								self:Debug('Invalid item link found in bag', bag, 'slot', slot, 'for id', id)
+							else
+								self:Debug('Invalid item link found in inventory slot', slot, 'for id', id)
+							end
+							--@end-alpha@
 							return
 						elseif not sets[link] then
 							sets[link] = name
@@ -71,12 +81,22 @@ function addon:SetupDefaultFilters()
 					end
 				end
 			end
+			self:Debug('Sets succesfully scanned !')
 			haveSets = true
+			return true
 		end
 
-		function setFilter:EQUIPMENT_SETS_CHANGED()
+		function setFilter:EQUIPMENT_SETS_CHANGED(event)
+			self:Debug("Forgetting sets because of", event)
 			haveSets = false
 			self:SendMessage('AdiBags_FiltersChanged')
+		end
+
+		function setFilter:ItemLinksUpdated()
+			self:Debug("ItemLinksUpdated")
+			if self:UpdateSets("ItemLinksUpdated") then
+				self:SendMessage('AdiBags_FiltersChanged')
+			end
 		end
 
 		function setFilter:Filter(slotData)
