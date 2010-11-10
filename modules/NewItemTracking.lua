@@ -263,7 +263,8 @@ function mod:UpdateBag(bag)
 	-- Brand new items
 	for itemId, newCount in pairs(newCounts) do
 		counts[itemId] = newCount
-		if not bag.first and not equipped[itemId] and not newItems[itemId] then
+		if not bag.first and not equipped[itemId] and not newItems[itemId] and not IsIgnored(itemId) then
+			self:Debug('Brand new item:', itemId)
 			newItems[itemId] = true
 			bag.updated = true
 		end
