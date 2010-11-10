@@ -16,6 +16,7 @@ _G[addonName] = addon
 -- Debug stuff
 --------------------------------------------------------------------------------
 
+--@alpha@
 if tekDebug then
 	local type, tostring, select, unpack, strjoin = type, tostring, select, unpack, string.join
 	local function TableToString(t)
@@ -43,8 +44,11 @@ if tekDebug then
 		frame:AddMessage(strjoin(" ", "|cffff7700["..TableToString(self).."]|r", MyToStringAll(...)))
 	end
 else
+--@end-alpha@
 	function addon.Debug() end
+--@alpha@
 end
+--@end-alpha@
 
 addon:SetDefaultModulePrototype{Debug = addon.Debug}
 
