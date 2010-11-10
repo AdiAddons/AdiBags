@@ -20,8 +20,14 @@ function mod:OnInitialize()
 end
 
 function mod:OnEnable()
-	self:SecureHook('ContainerFrameItemButton_OnEnter')
-	self:SecureHook('BankFrameItemButton_OnEnter', 'ContainerFrameItemButton_OnEnter')
+	if not self.hooked then
+		GameTooltip:HookScript('OnTooltipSetItem', function(...)
+			if self:IsEnabled() then
+				return self:OnTooltipSetItem(...)
+			end
+		end)
+		self.hooked = true
+	end
 end
 
 function mod:GetOptions()
@@ -53,23 +59,37 @@ function mod:GetOptions()
 	}, addon:GetOptionHandler(self)
 end
 
+local modifierTests = {
+	never = function() end,
+	always = function() return true end,
+	any = IsModifierKeyDown,
+	shift = IsShiftKeyDown,
+	ctrl = IsControlKeyDown,
+	alt = IsAltKeyDown,
+}
+
+
 local function TestModifier(name)
-	local setting = mod.db.profile[name]
-	if setting == "never" then
-		return false
-	end
-	return (setting == "always")
-		or (setting == "any" and IsModifierKeyDown())
-		or (setting == "shift" and IsShiftKeyDown())
-		or (setting == "ctrl" and IsControlKeyDown())
-		or (setting == "alt" and IsAltKeyDown())
+	return modifierTests[mod.db.profile[name] or "never"]()
 end
 
-function mod:ContainerFrameItemButton_OnEnter(button)
+local t = {}
+local GetBagSlotFromId = addon.GetBagSlotFromId
+
+function mod:OnTooltipSetItem(tt)
+	local button = tt:GetOwner()
+	if not button then end
 	local bag, slot, container = button.bag, button.slot, button.container
 	if not (bag and slot and container) then return end
+
 	local slotData = container.content[bag][slot]
-	local tt = GameTooltip
+
+	local stack = button:GetStack()
+	if stack then
+		button = stack
+	end
+
+	local numLines = tt:NumLines()
 
 	if slotData.link and TestModifier("item") then
 		tt:AddLine(" ")
@@ -82,8 +102,22 @@ function mod:ContainerFrameItemButton_OnEnter(button)
 	if TestModifier("container") then
 		tt:AddLine(" ")
 		tt:AddLine(L["Container information"], 1, 1, 1)
-		tt:AddDoubleLine(L["Bag number"], bag)
-		tt:AddDoubleLine(L["Slot number"], slot)
+		local vBag, vSlot = bag, slot
+		if stack then
+			wipe(t)
+			for slotId in pairs(stack.slots) do
+				tinsert(t, format("(%d,%d)", GetBagSlotFromId(slotId)))
+			end
+			if #t > 1 then
+				table.sort(t)
+				tt:AddDoubleLine(L["Virtual stack slots"], table.concat(t, ", "))
+				vBag, vSlot = nil, nil
+			end
+		end
+		if vBag and vSlot then
+			tt:AddDoubleLine(L["Bag number"], vBag)
+			tt:AddDoubleLine(L["Slot number"], vSlot)
+		end
 	end
 
 	if TestModifier("filter") then
@@ -91,9 +125,11 @@ function mod:ContainerFrameItemButton_OnEnter(button)
 		tt:AddLine(L["Filtering information"], 1, 1, 1)
 		tt:AddDoubleLine(L["Filter"], button.filterName or "-")
 		local section = button:GetSection()
-		tt:AddDoubleLine(L["Section"], section and section.name or "-")
-		tt:AddDoubleLine(L["Category"], section and section.category or "-")
+		tt:AddDoubleLine(L["Section"], section.name or "-")
+		tt:AddDoubleLine(L["Category"], section.category or "-")
 	end
 
-	tt:Show()
+	if tt:NumLines() > numLines then
+		tt:Show()
+	end
 end
