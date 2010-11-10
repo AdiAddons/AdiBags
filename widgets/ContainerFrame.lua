@@ -356,6 +356,9 @@ end
 -- Bag content scanning
 --------------------------------------------------------------------------------
 
+local GetDistinctItemID = addon.GetDistinctItemID
+local IsValidItemLink = addon.IsValidItemLink
+
 function containerProto:UpdateContent(bag)
 	self:Debug('UpdateContent', bag)
 	local added, removed, changed = self.added, self.removed, self.changed
@@ -366,7 +369,7 @@ function containerProto:UpdateContent(bag)
 	for slot = 1, newSize do
 		local itemId = GetContainerItemID(bag, slot)
 		local link = GetContainerItemLink(bag, slot)
-		if not itemId or link then
+		if not itemId or (link and IsValidItemLink(link)) then
 			local slotData = content[slot]
 			if not slotData then
 				slotData = {
@@ -388,7 +391,7 @@ function containerProto:UpdateContent(bag)
 				link, count = false, 0
 			end
 
-			if slotData.link ~= link then
+			if GetDistinctItemID(slotData.link) ~= GetDistinctItemID(link) then
 				removed[slotData.slotId] = slotData.link
 				slotData.count = count
 				slotData.link = link
