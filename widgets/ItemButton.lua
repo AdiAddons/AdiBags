@@ -36,6 +36,7 @@ function buttonProto:OnAcquire(container, bag, slot)
 	self.container = container
 	self.bag = bag
 	self.slot = slot
+	self.stack = nil
 	self:SetParent(addon.itemParentFrames[bag])
 	self:SetID(slot)
 	self:FullUpdate()
@@ -49,6 +50,7 @@ function buttonProto:OnRelease()
 	self.hasItem = nil
 	self.texture = nil
 	self.bagFamily = nil
+	self.stack = nil
 end
 
 function buttonProto:ToString()
@@ -131,6 +133,14 @@ end
 
 function buttonProto:GetRealButton()
 	return self
+end
+
+function buttonProto:SetStack(stack)
+	self.stack = stack
+end
+
+function buttonProto:GetStack()
+	return self.stack
 end
 
 --------------------------------------------------------------------------------
@@ -412,6 +422,7 @@ function stackProto:SetVisibleSlot(slotId)
 		button = addon:AcquireItemButton(self.container, GetBagSlotFromId(slotId))
 		button.GetCount = self.GetCountHook
 		button:SetAllPoints(self)
+		button:SetStack(self)
 		button:Show()
 	else
 		button = nil
