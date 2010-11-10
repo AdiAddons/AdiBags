@@ -18,7 +18,7 @@ local inventory = {}
 local glows = {}
 local frozen = false
 local inventoryScanned = false
-local initialized = false
+local initializing = false
 local bagUpdateBucket
 
 function mod:OnInitialize()
@@ -31,7 +31,6 @@ function mod:OnInitialize()
 		},
 	})
 	addon:SetCategoryOrder(L['New'], 100)
-	initialized = false
 end
 
 function mod:OnEnable()
@@ -70,7 +69,8 @@ function mod:OnEnable()
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED')
 	self:RegisterEvent('UNIT_INVENTORY_CHANGED')
 
-	bagUpdateBucket = self:RegisterBucketEvent('BAG_UPDATE', initialized and 0.1 or 10, "UpdateBags")
+	initializing = true
+	bagUpdateBucket = self:RegisterBucketEvent('BAG_UPDATE', 10, "UpdateBags")
 
 	addon.filterProto.OnEnable(self)
 end
@@ -291,6 +291,15 @@ function mod:UpdateBags(bagIds)
 		self:UpdateBag(bag)
 	end
 
+	if initializing then
+		-- Do not go further if we're still initializing
+		self:UnregisterBucket(bagUpdateBucket)
+		bagUpdateBucket = self:RegisterBucketEvent('BAG_UPDATE', 0.1, "UpdateBags")
+		initializing = false
+		return
+	end
+
+	-- Update feedback
 	local filterChanged = false
 	for name, bag in pairs(bags) do
 		if bag.button then
@@ -311,12 +320,6 @@ function mod:UpdateBags(bagIds)
 		self:SendMessage('AdiBags_FiltersChanged')
 	end
 
-	if not initialized then
-		self:Debug('Initialization done')
-		self:UnregisterBucket(bagUpdateBucket)
-		bagUpdateBucket = self:RegisterBucketEvent('BAG_UPDATE', 0.1, "UpdateBags")
-		initialized = true
-	end
 end
 
 do
