@@ -893,13 +893,16 @@ end
 
 do
 	local function GetDistinctItemID(link)
-		if not link then return end
-		local id = IsValidItemLink(link) and tonumber(strmatch(link, 'item:(%d+)'))
-		local equipSlot = id and select(9, GetItemInfo(id))
-		if id and (not equipSlot or equipSlot == "") then
-			return id
+		if not link or not IsValidItemLink(link) then return end
+		local itemString, id, enchant, gem1, gem2, gem3, gem4, suffix, reforge = strmatch(link, '(item:(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):%-?%d+:%-?%d+:(%-?%d+))')
+		id = tonumber(id)
+		local equipSlot = select(9, GetItemInfo(id))
+		if equipSlot and equipSlot ~= "" and equipslot ~= "INVTYPE_BAG" then
+			-- Rebuild an item link without noise
+			id = strjoin(':', 'item', id, enchant, gem1, gem2, gem3, gem4, suffix, "0", "0", reforge)
 		end
-		return strmatch(link, 'item:[-:%d]+') or link
+		--addon:Debug('GetDistinctItemID', link, itemString, '=>', id)
+		return id
 	end
 
 	local distinctIDs = setmetatable({}, {__index = function(t, link)
