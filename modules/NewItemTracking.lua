@@ -247,12 +247,14 @@ function mod:UpdateBag(bag)
 		if newCount and equipped[itemId] then -- Ignore equipped item count
 			newCount = newCount - equipped[itemId]
 		end
-		if not newCount or newCount < oldCount or IsIgnored(itemId) then
+		if not newCount or IsIgnored(itemId) then
 			if newItems[itemId] then
+				self:Debug('Not new anymore', itemId)
 				newItems[itemId] = nil
 				bag.updated = true
 			end
 		elseif not bag.first and newCount > oldCount and not newItems[itemId] then
+			self:Debug('Got more of', itemId)
 			newItems[itemId] = true
 			bag.updated = true
 		end
