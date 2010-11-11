@@ -135,8 +135,8 @@ function sectionProto:SetCollapsed(collapsed)
 		if collapsed then
 			self:Hide()
 		else
-			self:Show()
 			self.dirty = true
+			self:Show()
 		end
 		self:SendMessage('AdiBags_LayoutChanged')
 	end

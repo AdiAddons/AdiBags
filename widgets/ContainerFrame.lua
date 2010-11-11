@@ -159,6 +159,7 @@ function containerProto:OnCreate(name, bagIds, isBank)
 
 	self:UpdateBackgroundColor()
 	self.paused = true
+	self.forceLayout = true
 
 	-- Register persitent listeners
 	local name = self:GetName()
@@ -234,9 +235,10 @@ function containerProto:ResumeUpdates()
 	for bag in pairs(self.bagIds) do
 		self:UpdateContent(bag)
 	end
-	self:UpdateButtons()
 	if self.filtersChanged  then
 		self:RedispatchAllItems()
+	else
+		self:UpdateButtons()
 	end
 	self:LayoutSections(true)
 end
@@ -424,7 +426,7 @@ end
 --------------------------------------------------------------------------------
 
 function containerProto:GetStackButton(key)
-	local stack, isNew = self.stacks[key]
+	local stack = self.stacks[key]
 	if not stack then
 		stack = addon:AcquireStackButton(self, key)
 		self.stacks[key] = stack
@@ -564,6 +566,10 @@ end
 
 function containerProto:RedispatchAllItems()
 	self:Debug('RedispatchAllItems')
+	local added, removed, changed = self.added, self.removed, self.changed
+	if next(added) or next(removed) or next(changed) then
+		self:SendMessage('AdiBags_PreContentUpdate', self, added, removed, changed)
+	end
 	self:SendMessage('AdiBags_PreFilter', self)
 	for bag, content in pairs(self.content) do
 		for slotId, slotData in ipairs(content) do
@@ -572,6 +578,12 @@ function containerProto:RedispatchAllItems()
 	end
 	self:SendMessage('AdiBags_PostFilter', self)
 	self.filtersChanged = nil
+	if next(added) or next(removed) or next(changed) then
+		self:SendMessage('AdiBags_PostContentUpdate', self, added, removed, changed)
+	end
+	wipe(added)
+	wipe(removed)
+	wipe(changed)
 end
 
 --------------------------------------------------------------------------------
@@ -708,15 +720,14 @@ function containerProto:LayoutSections(repack)
 				dirtyLayout = true
 			end
 		else
+			num = num + 1
 			section:Show()
 			if section:NeedLayout(repack) then
 				mustLayout = true
 				dirtyLayout = true
-			end
-			if section.dirty then
+			elseif section.dirty then
 				dirtyLayout = true
 			end
-			num = num + 1
 		end
 	end
 	self:Debug('LayoutSections repack=', repack, 'force=', self.forceLayout, 'dirty=', dirtyLayout, 'mustLayout=', mustLayout)
@@ -727,7 +738,7 @@ function containerProto:LayoutSections(repack)
 		end
 		return
 	end
-	
+
 	if num == 0 then
 		self.Content:SetSize(0.5, 0.5)
 	else
