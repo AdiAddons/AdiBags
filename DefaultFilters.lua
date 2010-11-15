@@ -46,7 +46,7 @@ function addon:SetupDefaultFilters()
 		local sets = {}
 		local setNames = {}
 
-		local IsValidItemLink = addon.IsValidItemLink
+		local IsValidItemLink, GetDistinctItemID = addon.IsValidItemLink, addon.GetDistinctItemID
 
 		function setFilter:UpdateSets(event)
 			self:Debug('UpdateSets on', event, 'have sets=', haveSets)
@@ -75,8 +75,11 @@ function addon:SetupDefaultFilters()
 							end
 							--@end-alpha@
 							return
-						elseif not sets[link] then
-							sets[link] = name
+						else
+							link = GetDistinctItemID(link)
+							if not sets[link] then
+								sets[link] = name
+							end
 						end
 					end
 				end
@@ -100,7 +103,7 @@ function addon:SetupDefaultFilters()
 		end
 
 		function setFilter:Filter(slotData)
-			local name = haveSets and sets[slotData.link]
+			local name = haveSets and sets[GetDistinctItemID(slotData.link)]
 			if name then
 				if not self.db.profile.oneSectionPerSet or self.db.char.mergedSets[name] then
 					return L['Sets'], L["Equipment"]
