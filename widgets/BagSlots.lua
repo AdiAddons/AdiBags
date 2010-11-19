@@ -212,33 +212,37 @@ function bagButtonProto:OnLeave()
 	end
 end
 
+local pendingUpdate = {}
+
 function bagButtonProto:OnClick(button)
-	if self.hasItem then
-		if button == "RightButton" then
-			if not self.isEmpty then
-				EmptyBag(self.bag)
-			end
-		elseif not PutItemInBag(self.invSlot) then
+	if self.hasItem and button == "RightButton" then
+		if not self.isEmpty then
+			EmptyBag(self.bag)
+		end
+	else
+		if not PutItemInBag(self.invSlot) then
 			PickupBagFromSlot(self.invSlot)
 		end
+		pendingUpdate[self.invSlot] = true
 	end
 end
 
 function bagButtonProto:OnDragStart()
 	if self.hasItem then
 		PickupBagFromSlot(self.invSlot)
+		pendingUpdate[self.invSlot] = true
 	end
 end
 
 function bagButtonProto:BAG_UPDATE(event, bag, ...)
-	if bag == self.bag  then
+	if bag == self.bag then
 		return self:Update()
 	end
 end
 
 function bagButtonProto:ITEM_LOCK_CHANGED(event, invSlot, containerSlot)
-	if not containerSlot and invSlot == self.invSlot then
-		return self:UpdateLock()
+	if not (containerSlot and invSlot == self.invSlot) or pendingUpdates[self.invSlot] then
+		return self:Update()
 	end
 end
 
