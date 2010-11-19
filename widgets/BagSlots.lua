@@ -51,7 +51,7 @@ do
 			if select(9, GetItemInfo(item)) == 'INVTYPE_BAG' then
 				itemFamily = 0
 			end
-			for destBag in pairs(otherBags) do
+			for i, destBag in ipairs(otherBags) do
 				local freeSlots, bagFamily = GetContainerNumFreeSlots(destBag)
 				if freeSlots > 0 and (bagFamily == 0 or bit.band(bagFamily, itemFamily) ~= 0) then
 					for destSlot = 1, GetContainerNumSlots(destBag) do
@@ -104,10 +104,11 @@ do
 		local bags = addon.BAG_IDS.BANK[bag] and addon.BAG_IDS.BANK or addon.BAG_IDS.BAGS
 		for otherBag in pairs(bags) do
 			if otherBag ~= bag and GetContainerNumSlots(otherBag) > 0 and GetContainerNumFreeSlots(otherBag) > 0 then
-				otherBags[otherBag] = true
+				tinsert(otherBags, otherBag)
 			end
 		end
-		if next(otherBags) then
+		if #otherBags > 0 then
+			table.sort(otherBags)
 			currentBag, currentSlot, numSlots = bag, 0, GetContainerNumSlots(bag)
 			addon:SetGlobalLock(true)
 			swapFrame:RegisterEvent('BAG_UPDATE')
