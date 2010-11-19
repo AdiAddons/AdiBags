@@ -11,8 +11,6 @@ local mod = addon:RegisterFilter('NewItem', 80, 'AceEvent-3.0', 'AceBucket-3.0',
 mod.uiName = L['Track new items']
 mod.uiDesc = L['Track new items in each bag, displaying a glowing aura over them and putting them in a special section. "New" status can be reset by clicking on the small "N" button at top left of bags.']
 
-local allBagIds = {}
-
 local bags = {}
 local inventory = {}
 local glows = {}
@@ -35,20 +33,17 @@ end
 
 function mod:OnEnable()
 
-	for i, bag in addon:IterateBags() do
+	for i, bag in addon:IterateDefinedBags() do
 		if not bags[bag.bagName] then
-			self:Debug('Adding bag', bag, bag.bagIds)
+			self:Debug('Adding bag', bag, bag.bagName, bag.bagIds)
 			local data = {
 				bagIds = bag.bagIds,
 				isBank = bag.isBank,
+				obj = bag,
 				counts = {},
 				newItems = {},
 				first = true,
-				available = not bag.isBank,
 			}
-			for id in pairs(bag.bagIds) do
-				allBagIds[id] = id
-			end
 			bags[bag.bagName] = data
 		end
 	end
@@ -64,7 +59,6 @@ function mod:OnEnable()
 	self:RegisterMessage('AdiBags_UpdateButton', 'UpdateButton')
 
 	self:RegisterEvent('BANKFRAME_OPENED')
-	self:RegisterEvent('BANKFRAME_CLOSED')
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING')
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED')
 	self:RegisterEvent('UNIT_INVENTORY_CHANGED')
@@ -113,7 +107,7 @@ function mod:OnBagFrameCreated(bag)
 	end
 
 	container:HookScript('OnShow', function()
-		mod:UpdateBags(bag.bagIds)
+		mod:UpdateBags()
 	end)
 
 	bags[bag.bagName].button = button
@@ -153,7 +147,7 @@ function mod:GetOptions()
 			order = 40,
 			set = function(info, ...)
 				info.handler:Set(info, ...)
-				self:UpdateBags(allBagIds)
+				self:UpdateBags()
 			end
 		},
 	}, addon:GetOptionHandler(self)
@@ -172,21 +166,9 @@ end
 function mod:BANKFRAME_OPENED(event)
 	self:Debug(event)
 	self:UpdateInventory()
-	for name, bag in pairs(bags) do
-		if bag.isBank then
-			bag.available = true
-			if initialized then
-				self:UpdateBags(bag.bagIds)
-			end
-		end
-	end
-end
-
-function mod:BANKFRAME_CLOSED(event)
-	self:Debug(event)
-	for name, bag in pairs(bags) do
-		if bag.isBank then
-			bag.available = false
+	if initialized then
+		for name, bag in pairs(bags) do
+			self:UpdateBags()
 		end
 	end
 end
@@ -201,7 +183,7 @@ function mod:EQUIPMENT_SWAP_FINISHED(event)
 	frozen = false
 	inventoryScanned = false
 	if initialized then
-		self:UpdateBags(allBagIds)
+		self:UpdateBags()
 	end
 end
 
@@ -213,7 +195,7 @@ end
 
 local newCounts, equipped = {}, {}
 function mod:UpdateBag(bag)
-	if not bag.available then return end
+	if not bag.obj:CanOpen() then return end
 
 	wipe(newCounts)
 	wipe(equipped)
@@ -276,7 +258,7 @@ function mod:UpdateBag(bag)
 	bag.first = nil
 end
 
-function mod:UpdateBags(bagIds)
+function mod:UpdateBags()
 	self:Debug('UpdateBags')
 
 	if GetContainerNumSlots(BACKPACK_CONTAINER) == 0 then
@@ -315,7 +297,7 @@ function mod:UpdateBags(bagIds)
 				bag.button:Disable()
 			end
 		end
-		if bag.updated and bag.available then
+		if bag.updated and bag.obj:CanOpen() then
 			self:Debug(name, 'contains new new items')
 			bag.updated = nil
 			filterChanged = true
@@ -371,7 +353,7 @@ function mod:Reset(name)
 	wipe(bag.newItems)
 	bag.first = true
 	bag.updated = true
-	self:UpdateBags(bag.bagIds)
+	self:UpdateBags()
 end
 
 function mod:IsNew(itemLink, bagName)

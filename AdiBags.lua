@@ -129,6 +129,9 @@ addon.BACKDROP = {
 local DEFAULT_SETTINGS = {
 	profile = {
 		enabled = true,
+		bags = {
+			["*"] = true,
+		},
 		positionMode = "anchored",
 		positions = {
 			anchor = { point = "BOTTOMRIGHT", xOffset = -32, yOffset = 200 },
@@ -224,6 +227,10 @@ function addon:OnEnable()
 
 	self:RawHook("OpenAllBags", true)
 	self:RawHook("CloseAllBags", true)
+	self:RawHook("ToggleBackpack", true)
+	self:RawHook("ToggleBag", true)
+	self:RawHook("OpenBackpack", true)
+	self:RawHook("CloseBackpack", true)
 	self:RawHook('CloseSpecialWindows', true)
 
 	-- Track most windows involving items
@@ -246,7 +253,7 @@ function addon:OnEnable()
 		if module.isFilter then
 			module:SetEnabledState(self.db.profile.filters[module.moduleName])
 		elseif module.isBag then
-			module:SetEnabledState(true)
+			module:SetEnabledState(self.db.profile.bags[module.bagName])
 		else
 			module:SetEnabledState(self.db.profile.modules[module.moduleName])
 		end
@@ -322,6 +329,15 @@ function addon:ConfigChanged(vars)
 		for name in pairs(vars) do
 			if name:match('virtualStacks') then
 				return self:SendMessage('AdiBags_FiltersChanged')
+			elseif name:match('bags%.') then
+				local _, bagName = strsplit('.', name)
+				local bag = self:GetModule(bagName)
+				local enabled = self.db.profile.bags[bagName]
+				if enabled and not bag:IsEnabled() then
+					bag:Enable()
+				elseif not enabled and bag:IsEnabled() then
+					bag:Disable()
+				end
 			end
 		end
 	end
@@ -349,6 +365,146 @@ function addon:SetGlobalLock(locked)
 	end
 end
 
+--------------------------------------------------------------------------------
+-- Bag-related function hooks
+--------------------------------------------------------------------------------
+
+local hookedBags = {}
+local containersFrames = {}
+do
+	for i = 1, NUM_CONTAINER_FRAMES, 1 do
+		containersFrames[i] = _G["ContainerFrame"..i]
+	end
+end
+
+local IterateBuiltInContainers
+do
+	local GetContainerNumSlots = GetContainerNumSlots
+	local function iter(maxContainer, id)
+		while id < maxContainer do
+			id = id + 1
+			if not hookedBags[id] and GetContainerNumSlots(id) > 0 then
+				return id
+			end
+		end
+	end
+	
+	function IterateBuiltInContainers()
+		if addon:GetInteractingWindow() == "BANKFRAME" then
+			return iter, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS, -1
+		else
+			return iter, NUM_BAG_SLOTS, -1
+		end
+	end
+end
+
+local function GetContainerFrame(id, spawn)
+	for _, frame in pairs(containersFrames) do
+		if frame:IsShown() and frame:GetID() == id then	
+			return frame
+		end
+	end
+	if spawn then
+		local size = GetContainerNumSlots(id)
+		if size > 0 then
+			local frame = ContainerFrame_GetOpenFrame()
+			ContainerFrame_GenerateFrame(frame, size, id)
+		end
+	end
+end
+
+function addon:OpenAllBags(forceOpen)
+	local total, open = 0, 0
+	for i, bag in self:IterateBags() do
+		if bag:CanOpen() then
+			total = total + 1
+			if bag:IsOpen() then
+				open = open + 1
+			end
+		end
+	end
+	for id in IterateBuiltInContainers() do
+		total = total + 1
+		if GetContainerFrame(id) then
+			open = open + 1
+		end
+	end
+	if open == total and not forceOpen then
+		return self:CloseAllBags()
+	end
+	for _, bag in self:IterateBags() do
+		bag:Open()
+	end	
+	for id in IterateBuiltInContainers() do
+		GetContainerFrame(id, true)
+	end
+end
+
+function addon:CloseAllBags()
+	for i, bag in self:IterateBags() do
+		bag:Close()
+	end	
+	for id in IterateBuiltInContainers() do
+		local frame = GetContainerFrame(id)
+		if frame then
+			frame:Hide()
+		end
+	end
+end
+
+function addon:ToggleBag(id)
+	local ourBag = hookedBags[id]
+	if ourBag then
+		return ourBag:Toggle()
+	else
+		local frame = GetContainerFrame(id, true)
+		if frame then
+			frame:Hide()
+		end
+	end
+end
+
+function addon:OpenBackpack()
+	local ourBackpack = hookedBags[BACKPACK_CONTAINER]
+	if ourBackpack then
+		self.backpackWasOpen = ourBackpack:IsOpen()
+		ourBackpack:Open()
+	else
+		local frame = GetContainerFrame(BACKPACK_CONTAINER, true)
+		self.backpackWasOpen = not not frame
+	end
+	return self.backpackWasOpen
+end
+
+function addon:CloseBackpack()
+	if self.backpackWasOpen then
+		return
+	end
+	local ourBackpack = hookedBags[BACKPACK_CONTAINER]
+	if ourBackpack then
+		return ourBackpack:Close()
+	else
+		local frame = GetContainerFrame(BACKPACK_CONTAINER)
+		if frame then
+			frame:Hide()
+		end
+	end
+end
+
+function addon:ToggleBackpack()
+	local ourBackpack = hookedBags[BACKPACK_CONTAINER]
+	if ourBackpack then
+		return ourBackpack:Toggle()
+	end
+	local frame = GetContainerFrame(BACKPACK_CONTAINER)
+	if frame then
+		self:CloseAllBags()
+	else
+		
+	end	
+end
+
+	
 --------------------------------------------------------------------------------
 -- Track windows related to item interaction (merchant, mail, bank, ...)
 --------------------------------------------------------------------------------
@@ -478,8 +634,38 @@ local bagProto = {
 }
 addon.bagProto = bagProto
 
+function bagProto:OnEnable()
+	local open = false
+	for id in pairs(self.bagIds) do
+		local frame = GetContainerFrame(id)
+		if frame then
+			open = true
+			frame:Hide()
+		end
+		hookedBags[id] = self
+	end
+	if self.PostEnable then
+		self:PostEnable()
+	end
+	self:Debug('Enabled')
+	if open then
+		self:Open()
+	end
+end			
+
 function bagProto:OnDisable()
+	local open = self:IsOpen()
 	self:Close()
+	for id in pairs(self.bagIds) do
+		hookedBags[id] = nil
+		if open then
+			GetContainerFrame(id, true)
+		end
+	end
+	if self.PostDisable then
+		self:PostDisable()
+	end
+	self:Debug('Disabled')
 end
 
 function bagProto:Open()
@@ -498,6 +684,9 @@ function bagProto:Close()
 		self:Debug('Close')
 		self.frame:Hide()
 		addon:SendMessage('AdiBags_BagClosed', name, self)
+		if self.PostClose then
+			self:PostClose()
+		end
 		return true
 	end
 end
@@ -508,6 +697,14 @@ end
 
 function bagProto:CanOpen()
 	return self:IsEnabled()
+end
+
+function bagProto:Toggle()
+	if self:IsOpen() then
+		self:Close()
+	elseif self:CanOpen() then
+		self:Open()
+	end
 end
 
 function bagProto:HasFrame()
@@ -549,25 +746,37 @@ function addon:NewBag(name, order, bagIds, isBank, ...)
 	return bag
 end
 
-local function IterateOpenBags(bags, index)
-	local bag
-	repeat
-		index = index + 1
-		bag = bags[index]
-	until not bag or bag:IsOpen()
-	if bag then
-		return index, bag
+do
+	local function iterateOpenBags(numBags, index)
+		while index < numBags do
+			index = index + 1
+			local bag = bags[index]
+			if bag:IsEnabled() and bag:IsOpen() then
+				return index, bag
+			end
+		end
+	end
+
+	local function iterateBags(numBags, index)
+		while index < numBags do
+			index = index + 1
+			local bag = bags[index]
+			if bag:IsEnabled() then
+				return index, bag
+			end
+		end
+	end
+
+	function addon:IterateBags(onlyOpen)
+		return onlyOpen and iterateOpenBags or iterateBags, #bags, 0
 	end
 end
 
-function addon:IterateBags(onlyOpen)
-	if onlyOpen then
-		return IterateOpenBags, bags, 0
-	else
-		return ipairs(bags)
-	end
+function addon:IterateDefinedBags()
+	return ipairs(bags)
 end
 
+--[=[
 function addon:AreAllBagsOpen()
 	for i, bag in ipairs(bags) do
 		if bag:CanOpen() and not bag:IsOpen() then
@@ -580,20 +789,25 @@ end
 function addon:OpenAllBags(forceOpen)
 	if not forceOpen and self:AreAllBagsOpen() then
 		self:CloseAllBags()
-		return
-	end
-	for i, bag in ipairs(bags) do
-		bag:Open()
+	else
+		for i, bag in ipairs(bags) do
+			bag:Open()
+		end
+		self.hooks.OpenAllBags(forceOpen)
 	end
 end
 
 function addon:CloseAllBags()
 	local closed = false
 	for i, bag in ipairs(bags) do
-		closed = bag:Close() or closed
+		if bag:IsOpen() then
+			bag:Close()
+			closed = true
+		end
 	end
-	return closed
+	return self.hooks.CloseAllBags() or closed
 end
+--]=]
 
 --------------------------------------------------------------------------------
 -- Helper for modules
@@ -641,17 +855,18 @@ do
 	-- L["Backpack"]
 	local backpack = addon:NewBag("Backpack", 10, addon.BAG_IDS.BAGS, false, 'AceHook-3.0')
 
-	function backpack:OnEnable()
+	--[==[
+	function backpack:PostEnable()
 		self:RegisterMessage('AdiBags_InteractingWindowChanged')
-		self:RawHook('OpenBackpack', 'Open', true)
-		self:RawHook('CloseBackpack', 'Close', true)
-		self:RawHook('ToggleBackpack', true)
+		--self:RawHook('OpenBackpack', 'Open', true)
+		--self:RawHook('CloseBackpack', 'Close', true)
+		--self:RawHook('ToggleBackpack', true)
 
-		for i = 1, NUM_CONTAINER_FRAMES do
-			local container = _G['ContainerFrame'..i]
-			self:RawHook(container, "Show", 'ContainerShow', true)
-			container:Hide()
-		end
+		--for i = 1, NUM_CONTAINER_FRAMES do
+		--	local container = _G['ContainerFrame'..i]
+		--	self:RawHook(container, "Show", 'ContainerShow', true)
+		--	container:Hide()
+		--end
 	end
 
 	function backpack:AdiBags_InteractingWindowChanged(event, window)
@@ -662,6 +877,7 @@ do
 		end
 	end
 
+	--[[
 	function backpack:ContainerShow(container, ...)
 		if container:GetID() == KEYRING_CONTAINER then
 			return self.hooks[container].Show(container)
@@ -673,6 +889,8 @@ do
 	function backpack:ToggleBackpack()
 		if self:IsOpen() then self:Close() else self:Open() end
 	end
+	--]]
+	--]==]
 
 end
 
@@ -686,23 +904,24 @@ do
 
 	local function NOOP() end
 
-	function bank:OnEnable()
+	function bank:PostEnable()
 		self:RegisterMessage('AdiBags_InteractingWindowChanged')
 
-		self:RawHookScript(BankFrame, "OnEvent", NOOP, true)
-		self:RawHook(BankFrame, "Show", "Open", true)
 		BankFrame:Hide()
+		self:RawHookScript(BankFrame, "OnEvent", NOOP, true)
+		self:RawHook(BankFrame, "Show", "Open", true)		
+		self:RawHook(BankFrame, "Hide", "Close", true)
+		self:RawHook(BankFrame, "IsShown", "IsOpen", true)
 
 		if addon:GetInteractingWindow() == "BANKFRAME" then
 			self:Open()
 		end
 	end
 
-	function bank:OnDisable()
+	function bank:PostDisable()
 		if addon:GetInteractingWindow() == "BANKFRAME" then
 			self.hooks[BankFrame].Show(BankFrame)
 		end
-		bagProto.OnDisable(self)
 	end
 
 	function bank:AdiBags_InteractingWindowChanged(event, new, old)
@@ -717,10 +936,8 @@ do
 		return self:IsEnabled() and addon:GetInteractingWindow() == "BANKFRAME"
 	end
 
-	function bank:Close()
-		if bagProto.Close(self) then
-			CloseBankFrame()
-		end
+	function bank:PostClose()
+		CloseBankFrame()
 	end
 
 end

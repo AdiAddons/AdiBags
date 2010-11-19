@@ -233,6 +233,12 @@ function addon:GetOptions()
 	local profiles = LibStub('AceDBOptions-3.0'):GetOptionsTable(self.db)
 	profiles.order = 600
 	profiles.disabled = false
+	local bagList = {}	
+	for name, module in self:IterateModules() do
+		if module.isBag then
+			bagList[module.bagName] = L[module.bagName]
+		end
+	end
 	options = {
 		--@debug@
 		name = addonName..' DEV',
@@ -258,6 +264,13 @@ function addon:GetOptions()
 				type = 'group',
 				order = 100,
 				args = {
+					bags = {
+						name = L[''],
+						desc = L[''],
+						type = 'multiselect',
+						order = 90,
+						values = bagList,
+					},
 					positionMode = {
 						name = L['Position mode'],
 						desc = L['Select how the bag are positionned.'],
