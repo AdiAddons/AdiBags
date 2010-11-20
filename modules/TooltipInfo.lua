@@ -78,7 +78,7 @@ local GetBagSlotFromId = addon.GetBagSlotFromId
 
 function mod:OnTooltipSetItem(tt)
 	local button = tt:GetOwner()
-	if not button then end
+	if not button then return end
 	local bag, slot, container = button.bag, button.slot, button.container
 	if not (bag and slot and container) then return end
 
