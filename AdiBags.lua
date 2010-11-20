@@ -17,32 +17,8 @@ _G[addonName] = addon
 --------------------------------------------------------------------------------
 
 --@alpha@
-if tekDebug then
-	local type, tostring, select, unpack, strjoin = type, tostring, select, unpack, string.join
-	local function TableToString(t)
-		return (t == addon and 'Core')
-			or (type(t.ToString) == "function" and t:ToString())
-			or (type(t.GetName) == "function" and t:GetName())
-			or t.moduleName
-			or t.name
-			or tostring(t)
-	end
-	local t = {}
-	local function MyToStringAll(...)
-		local n = select('#', ...)
-		if n > 0 then
-			for i = 1, n do
-				local value = select(i, ...)
-				t[i] = type(value) == "table" and TableToString(value) or tostring(value)
-			end
-			return unpack(t, 1, n)
-		end
-	end
-
-	local frame = tekDebug:GetFrame(addonName)
-	function addon:Debug(...)
-		frame:AddMessage(strjoin(" ", "|cffff7700["..TableToString(self).."]|r", MyToStringAll(...)))
-	end
+if AdiDebug then
+	AdiDebug:Embed(addon, addonName)
 else
 --@end-alpha@
 	function addon.Debug() end
