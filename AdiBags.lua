@@ -952,8 +952,8 @@ end
 local function AnchoredBagLayout(self)
 	self.anchor:ApplySettings()
 
-	local nextBag, data, index, bag = self:IterateBags(true)
-	index, bag = nextBag(data, index)
+	local nextBag, data, firstIndex = self:IterateBags(true)
+	local index, bag = nextBag(data, firstIndex)
 	if not bag then return end
 
 	local anchor = self.anchor
@@ -980,7 +980,7 @@ local function AnchoredBagLayout(self)
 		local frame = bag:GetFrame()
 		frame:ClearAllPoints()
 		frame:SetPoint(fromPoint, lastFrame, toPoint, x / frame:GetScale(), 0)
-		lastFrame, index, bag = frame, nextBag(bag, index)
+		lastFrame, index, bag = frame, nextBag(data, index)
 	end
 end
 
