@@ -498,6 +498,8 @@ function containerProto:DispatchItem(slotData)
 		else
 			button = addon:AcquireItemButton(self, slotData.bag, slotData.slot)
 		end
+	else
+		button:FullUpdate()
 	end
 	local section = self:GetSection(sectionName, category or sectionName)
 	if button:GetSection() ~= section then
