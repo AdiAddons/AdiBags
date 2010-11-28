@@ -32,6 +32,8 @@ do
 		addon:SetGlobalLock(false)
 	end
 
+	local CanPutItemInContainer = addon.CanPutItemInContainer
+
 	function swapFrame:ProcessInner()
 		if not CursorHasItem() then
 			while currentSlot < numSlots do
@@ -52,8 +54,7 @@ do
 				itemFamily = 0
 			end
 			for i, destBag in ipairs(otherBags) do
-				local freeSlots, bagFamily = GetContainerNumFreeSlots(destBag)
-				if freeSlots > 0 and (bagFamily == 0 or bit.band(bagFamily, itemFamily) ~= 0) then
+				if CanPutItemInContainer(item, destBag) then
 					for destSlot = 1, GetContainerNumSlots(destBag) do
 						if not GetContainerItemID(destBag, destSlot) then
 							PickupContainerItem(destBag, destSlot)

@@ -116,6 +116,8 @@ local function FindFreeSlot(container, family)
 	end
 end
 
+local GetItemFamily = addon.GetItemFamily
+
 local incompleteStacks = {}
 local function FindNextMove(container)
 	wipe(incompleteStacks)
@@ -133,9 +135,9 @@ local function FindNextMove(container)
 			for slot, slotData in ipairs(slots) do
 
 				if slotData and slotData.link then
-					local itemFamily = GetItemFamily(slotData.itemId) or 0
+					local itemFamily = GetItemFamily(slotData.itemId)
 
-					if band(itemFamily, availableFamilies) ~= 0 and band(itemFamily, bagFamily) == 0 then
+					if band(itemFamily, availableFamilies) ~= 0 and bagFamily == 0 then
 						-- Not in the right bag, look for a better one
 						local toBag, toSlot = FindFreeSlot(container, itemFamily)
 						if toBag then

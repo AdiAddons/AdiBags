@@ -146,7 +146,7 @@ function addon.GetItemFamily(item)
 end
 
 function addon.CanPutItemInContainer(item, container)
-	local _, containerFamily = GetContainerNumFreeSlots(container)
-	if containerFamily == 0 then return true end
-	return bit.band(addon.GetItemFamily(item), containerFamily) ~= 0
+	local freeSlots, containerFamily = GetContainerNumFreeSlots(container)
+	local itemFamily = addon.GetItemFamily(item)
+	return freeSlots > 0 and (containerFamily == 0 or bit.band(itemFamily, containerFamily) ~= 0), freeSlots, itemFamily, containerFamily
 end
