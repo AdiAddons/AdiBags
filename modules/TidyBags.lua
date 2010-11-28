@@ -137,14 +137,7 @@ local function FindNextMove(container)
 				if slotData and slotData.link then
 					local itemFamily = GetItemFamily(slotData.itemId)
 
-					if band(itemFamily, availableFamilies) ~= 0 and bagFamily == 0 then
-						-- Not in the right bag, look for a better one
-						local toBag, toSlot = FindFreeSlot(container, itemFamily)
-						if toBag then
-							return bag, slot, toBag, toSlot
-						end
-
-					elseif slotData.count < slotData.maxStack then
+					if slotData.count < slotData.maxStack then
 						-- Incomplete stack
 
 						local existingStack = incompleteStacks[slotData.itemId]
@@ -159,6 +152,14 @@ local function FindNextMove(container)
 							-- First incomplete stack of this item
 							incompleteStacks[slotData.itemId] = slotData
 						end
+
+					elseif band(itemFamily, availableFamilies) ~= 0 and bagFamily == 0 then
+						-- Not in the right bag, look for a better one
+						local toBag, toSlot = FindFreeSlot(container, itemFamily)
+						if toBag then
+							return bag, slot, toBag, toSlot
+						end
+
 					end
 
 				end
@@ -192,7 +193,7 @@ function mod:Process(container)
 		end
 	end
 	container[self].running = nil
-	addon:SetGlobalLock(false)	
+	addon:SetGlobalLock(false)
 	self:UpdateButton(container)
 end
 
