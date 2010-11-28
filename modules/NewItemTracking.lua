@@ -233,7 +233,9 @@ function mod:UpdateBag(bag)
 			if newItems[itemId] then
 				self:Debug('Not new anymore', itemId)
 				newItems[itemId] = nil
-				bag.updated = true
+				if newCount and newCount > 0 then
+					bag.updated = true
+				end
 			end
 		elseif not bag.first and newCount > oldCount and not newItems[itemId] then
 			self:Debug('Got more of', itemId)
