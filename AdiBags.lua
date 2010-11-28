@@ -507,96 +507,6 @@ do
 end
 
 --------------------------------------------------------------------------------
--- Miscellaneous helpers
---------------------------------------------------------------------------------
-
-function addon.GetSlotId(bag, slot)
-	if bag and slot then
-		return bag * 100 + slot
-	end
-end
-
-function addon.GetBagSlotFromId(slotId)
-	if slotId then
-		return math.floor(slotId / 100), slotId % 100
-	end
-end
-
-local function IsValidItemLink(link)
-	if type(link) == "string" and strmatch(link, 'item:[-:%d]+') and not strmatch(link, 'item:%d+:0:0:0:0:0:0:0:0:0') then
-		return true
-	--@alpha@
-	elseif link then
-		addon:Debug('invalid link:', link)
-	--@end-alpha@
-	end
-end
-addon.IsValidItemLink = IsValidItemLink
-
-local function safecall_return(success, ...)
-	if success then
-		return ...
-	else
-		geterrorhandler()((...))
-	end
-end
-
-local function safecall(funcOrSelf, argOrMethod, ...)
-	local func, arg
-	if type(funcOrSelf) == "table" and type(argOrMethod) == "string" then
-		func, arg = funcOrSelf[argOrMethod], funcOrSelf
-	else
-		func, arg = funcOrSelf, argOrMethod
-	end
-	if type(func) == "function" then
-		return safecall_return(pcall(func, arg, ...))
-	end
-end
-addon.safecall = safecall
-
-local function WidgetTooltip_OnEnter(self)
-	GameTooltip:SetOwner(self, self.tooltipAnchor, self.tootlipAnchorXOffset, self.tootlipAnchorYOffset)
-	self:UpdateTooltip(self)
-end
-
-local function WidgetTooltip_OnLeave(self)
-	if GameTooltip:GetOwner() == self then
-		GameTooltip:Hide()
-	end
-end
-
-local function WidgetTooltip_Update(self)
-	GameTooltip:ClearLines()
-	safecall(self, "tooltipCallback", GameTooltip)
-	GameTooltip:Show()
-end
-
-function addon.SetupTooltip(widget, content, anchor, xOffset, yOffset)
-	if type(content) == "string" then
-		widget.tooltipCallback = function(self, tooltip)
-			tooltip:AddLine(content)
-		end
-	elseif type(content) == "table" then
-		widget.tooltipCallback = function(self, tooltip)
-			tooltip:AddLine(tostring(content[1]), 1, 1, 1)
-			for i = 2, #content do
-				tooltip:AddLine(tostring(content[i]))
-			end
-		end
-	elseif type(content) == "function" then
-		widget.tooltipCallback = content
-	else
-		return
-	end
-	widget.tooltipAnchor = anchor or "ANCHOR_TOPLEFT"
-	widget.tootlipAnchorXOffset = xOffset or 0
-	widget.tootlipAnchorYOffset = yOffset or 0
-	widget.UpdateTooltip = WidgetTooltip_Update
-	widget:HookScript('OnEnter', WidgetTooltip_OnEnter)
-	widget:HookScript('OnLeave', WidgetTooltip_OnLeave)
-end
-
---------------------------------------------------------------------------------
 -- Bag prototype
 --------------------------------------------------------------------------------
 
@@ -1025,52 +935,23 @@ end
 -- Virtual stacks
 --------------------------------------------------------------------------------
 
-do
-	local function GetDistinctItemID(link)
-		if not link or not IsValidItemLink(link) then return end
-		local itemString, id, enchant, gem1, gem2, gem3, gem4, suffix, reforge = strmatch(link, '(item:(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):%-?%d+:%-?%d+:(%-?%d+))')
-		id = tonumber(id)
-		local equipSlot = select(9, GetItemInfo(id))
-		if equipSlot and equipSlot ~= "" and equipslot ~= "INVTYPE_BAG" then
-			-- Rebuild an item link without noise
-			id = strjoin(':', 'item', id, enchant, gem1, gem2, gem3, gem4, suffix, "0", "0", reforge)
-		end
-		--addon:Debug('GetDistinctItemID', link, itemString, '=>', id)
-		return id
+function addon:ShouldStack(slotData)
+	local conf = self.db.profile.virtualStacks
+	if not slotData.link then
+		return conf.freeSpace, "*Free*"
 	end
-
-	local distinctIDs = setmetatable({}, {__index = function(t, link)
-		local result = GetDistinctItemID(link)
-		if result then
-			t[link] = result
-			return result
-		else
-			return link
-		end
-	end})
-
-	function addon.GetDistinctItemID(link)
-		return link and distinctIDs[link]
-	end
-
-	function addon:ShouldStack(slotData)
-		local conf = self.db.profile.virtualStacks
-		if not slotData.link then
-			return conf.freeSpace, "*Free*"
-		end
-		local maxStack = slotData.maxStack or 1
-		if maxStack > 1 then
-			if conf.stackable then
-				if (slotData.count or 1) == maxStack then
-					return true, slotData.itemId
-				elseif self:GetInteractingWindow() and conf.notWhenTrading then
-					return false
-				end
-				return conf.incomplete, slotData.itemId
+	local maxStack = slotData.maxStack or 1
+	if maxStack > 1 then
+		if conf.stackable then
+			if (slotData.count or 1) == maxStack then
+				return true, slotData.itemId
+			elseif self:GetInteractingWindow() and conf.notWhenTrading then
+				return false
 			end
-		elseif conf.others then
-			return true, distinctIDs[slotData.link]
+			return conf.incomplete, slotData.itemId
 		end
+	elseif conf.others then
+		return true, self.GetDistinctItemID(link)
 	end
 end
 
@@ -1134,6 +1015,7 @@ end
 -- Filtering process
 --------------------------------------------------------------------------------
 
+local safecall = addon.safecall
 function addon:Filter(slotData, defaultSection, defaultCategory)
 	for i, filter in ipairs(activeFilters) do
 		local sectionName, category = safecall(filter.Filter, filter, slotData)
