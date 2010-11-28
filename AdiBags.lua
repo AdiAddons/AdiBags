@@ -951,7 +951,7 @@ function addon:ShouldStack(slotData)
 			return conf.incomplete, slotData.itemId
 		end
 	elseif conf.others then
-		return true, self.GetDistinctItemID(link)
+		return true, self.GetDistinctItemID(slotData.link)
 	end
 end
 
