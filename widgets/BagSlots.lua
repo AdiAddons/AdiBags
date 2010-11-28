@@ -49,10 +49,6 @@ do
 		end
 		if CursorHasItem() then
 			local item = select(3, GetCursorInfo())
-			local itemFamily = GetItemFamily(item)
-			if select(9, GetItemInfo(item)) == 'INVTYPE_BAG' then
-				itemFamily = 0
-			end
 			for i, destBag in ipairs(otherBags) do
 				if CanPutItemInContainer(item, destBag) then
 					for destSlot = 1, GetContainerNumSlots(destBag) do
