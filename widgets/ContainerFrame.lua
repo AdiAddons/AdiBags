@@ -186,7 +186,7 @@ function containerProto:BagsUpdated(bagIds)
 end
 
 function containerProto:CanUpdate()
-	return not addon.holdYourBreath and not self.paused and self:IsVisible()
+	return not addon.holdYourBreath and not addon.globalLock and not self.paused and self:IsVisible()
 end
 
 function containerProto:FiltersChanged()
@@ -475,27 +475,35 @@ function containerProto:FilterSlot(slotData)
 end
 
 function containerProto:DispatchItem(slotData)
-	local sectionName, category, filterName, shouldStack, stackKey = self:FilterSlot(slotData)
-	assert(sectionName, "sectionName is nil, item: "..(slotData.link or "none"))
 	local slotId = slotData.slotId
+	local sectionName, category, filterName, shouldStack, stackHint = self:FilterSlot(slotData)
+	assert(sectionName, "sectionName is nil, item: "..(slotData.link or "none"))
+	local stackKey = shouldStack and strjoin('#', stackHint, tostring(slotData.bagFamily)) or nil
 	local button = self.buttons[slotId]
-	local fullStackKey = shouldStack and strjoin('#', stackKey, tostring(slotData.bagFamily)) or nil
-	if button and ((button:IsStack() and (not shouldStack or button:GetKey() ~= fullStackKey)) or (not button:IsStack() and shouldStack)) then
-		self:RemoveSlot(slotId)
-		button = nil
+	if button then
+		if shouldStack then
+			if not button:IsStack() or button:GetKey() ~= stackKey then
+				self:RemoveSlot(slotId)
+				button = nil
+			end
+		elseif button:IsStack() then
+			self:RemoveSlot(slotId)
+			button = nil
+		end
 	end
-	if shouldStack then
-		button = self:GetStackButton(fullStackKey)
-		button:AddSlot(slotId)
-	elseif not button then
-		button = addon:AcquireItemButton(self, slotData.bag, slotData.slot)
+	if not button then
+		if shouldStack then
+			button = self:GetStackButton(stackKey)
+			button:AddSlot(slotId)
+		else
+			button = addon:AcquireItemButton(self, slotData.bag, slotData.slot)
+		end
 	end
 	local section = self:GetSection(sectionName, category or sectionName)
 	if button:GetSection() ~= section then
 		section:AddItemButton(slotId, button)
 	end
 	button.filterName = filterName
-	button:FullUpdate()
 	self.buttons[slotId] = button
 end
 
@@ -559,17 +567,18 @@ function containerProto:UpdateButtons()
 	self:Debug(numRemoved, 'slot(s) removed', numAdded, 'slot(s) added and', numChanged, 'slot(s) changed')
 	--@end-debug@
 
+	self.filtersChanged = nil
 	wipe(added)
 	wipe(removed)
 	wipe(changed)
 end
 
 function containerProto:RedispatchAllItems()
-	self:Debug('RedispatchAllItems')
-	local added, removed, changed = self.added, self.removed, self.changed
-	if next(added) or next(removed) or next(changed) then
-		self:SendMessage('AdiBags_PreContentUpdate', self, added, removed, changed)
+	if self:HasContentChanged() then
+		self:Debug('RedispatchAllItems => UpdateButtons')
+		return self:UpdateButtons()
 	end
+	self:Debug('RedispatchAllItems')
 	self:SendMessage('AdiBags_PreFilter', self)
 	for bag, content in pairs(self.content) do
 		for slotId, slotData in ipairs(content) do
@@ -578,12 +587,6 @@ function containerProto:RedispatchAllItems()
 	end
 	self:SendMessage('AdiBags_PostFilter', self)
 	self.filtersChanged = nil
-	if next(added) or next(removed) or next(changed) then
-		self:SendMessage('AdiBags_PostContentUpdate', self, added, removed, changed)
-	end
-	wipe(added)
-	wipe(removed)
-	wipe(changed)
 end
 
 --------------------------------------------------------------------------------
@@ -640,14 +643,12 @@ local getNextSection = {
 	end
 }
 
-local function DoLayoutSections(self, rowWidth, maxHeight, clean, force)
+local function DoLayoutSections(self, rowWidth, maxHeight, cleanLevel)
 	rowWidth = rowWidth + ITEM_SIZE - SECTION_SPACING
 
 	local minHeight = 0
 	for key, section in pairs(self.sections) do
-		if section:IsCollapsed() then
-			section:Hide()
-		else
+		if not section:IsCollapsed() then
 			local fit, _, _, _, height = section:FitInSpace(rowWidth, 10000, 0, 0)
 			if fit and height > minHeight then
 				minHeight = height
@@ -681,7 +682,7 @@ local function DoLayoutSections(self, rowWidth, maxHeight, clean, force)
 				num = num - 1
 				--section:Show()
 				section:SetPoint("TOPLEFT", content, columnX + x, -y)
-				section:Layout(width, height, clean, force)
+				section:Layout(width, height, cleanLevel)
 				x = x + section:GetWidth() + SECTION_SPACING
 				rowHeight = max(rowHeight, section:GetHeight())
 			end
@@ -705,36 +706,46 @@ local function DoLayoutSections(self, rowWidth, maxHeight, clean, force)
 	return contentWidth - SECTION_SPACING, contentHeight - ITEM_SPACING, numColumns, wasted, minHeight
 end
 
-function containerProto:LayoutSections(repack)
+function containerProto:LayoutSections(clean)
 
 	local num = 0
-	local dirtyLayout, mustLayout = self.dirtyLayout, false
+	local dirtyLevel = self.dirtyLayout and 1 or 0
 	for key, section in pairs(self.sections) do
+		--@debug@
+		local oldLevel = dirtyLevel
+		--@end-debug@
 		if section:IsEmpty() then
 			section:Release()
 			self.sections[key] = nil
-			dirtyLayout = true
+			dirtyLevel = max(dirtyLevel, 1)
 		elseif section:IsCollapsed() then
 			if section:IsShown() then
 				section:Hide()
-				dirtyLayout = true
+				dirtyLevel = max(dirtyLevel, 1)
 			end
 		else
 			num = num + 1
-			section:Show()
-			if section:NeedLayout(repack) then
-				mustLayout = true
-				dirtyLayout = true
-			elseif section.dirty then
-				dirtyLayout = true
+			if not section:IsShown() then
+				section:Show()
+				dirtyLevel = max(dirtyLevel, 1, section:GetDirtyLevel())
+			else
+				dirtyLevel = max(dirtyLevel, section:GetDirtyLevel())
 			end
 		end
+		--@debug@
+		if dirtyLevel > oldLevel then
+			self:Debug(section, 'isShown=', section:IsShown(), 'dirtyLevel=', dirtyLevel)
+		end
+		--@end-debug@
 	end
-	self:Debug('LayoutSections repack=', repack, 'force=', self.forceLayout, 'dirty=', dirtyLayout, 'mustLayout=', mustLayout)
-	if not mustLayout and not self.forceLayout then
-		if dirtyLayout and not self.dirtyLayout then
-			self.dirtyLayout = true
-			self:SendMessage('AdiBags_ContainerLayoutDirty', self, true)
+
+	local cleanLevel = (self.forceLayout and 0) or (clean and 1) or 2
+	self:Debug('LayoutSections num=', num, 'cleanLevel=', cleanLevel, 'dirtyLevel=', dirtyLevel)
+	if dirtyLevel < cleanLevel then
+		local dirtyLayout = dirtyLevel > 0
+		if self.dirtyLayout ~= dirtyLayout then
+			self.dirtyLayout = dirtyLayout
+			self:SendMessage('AdiBags_ContainerLayoutDirty', self, dirtyLayout)
 		end
 		return
 	end
