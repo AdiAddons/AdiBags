@@ -32,38 +32,63 @@ do
 		addon:SetGlobalLock(false)
 	end
 
-	local CanPutItemInContainer = addon.CanPutItemInContainer
+	local function FindSlotForItem(bags, itemId, itemCount)
+		local itemFamily = addon.GetItemFamily(itemId)
+		local maxStack = select(8, GetItemInfo(itemId)) or 1
+		addon:Debug('FindSlotForItem', itemId, GetItemInfo(itemId), 'count=', itemCount, 'maxStack=', maxStack, 'family=', itemFamily, 'bags:', unpack(bags))
+		local bestBag, bestSlot, bestScore
+		for i, bag in pairs(bags) do
+			local scoreBonus = bit.band(select(2, GetContainerNumFreeSlots(bag)), itemFamily) ~= 0 and maxStack or 0
+			for slot = 1, GetContainerNumSlots(bag) do
+				local texture, slotCount, locked = GetContainerItemInfo(bag, slot)
+				if not locked and (not texture or GetContainerItemID(bag, slot) == itemId) then
+					slotCount = slotCount or 0
+					if slotCount + itemCount <= maxStack then
+						local slotScore = slotCount + scoreBonus
+						if not bestScore or slotScore > bestScore then
+							addon:Debug('FindSlotForItem', bag, slot, 'slotCount=', slotCount, 'score=', slotScore, 'NEW BEST SLOT')
+							bestBag, bestSlot, bestScore = bag, slot, slotScore
+						--@debug@
+						else
+							addon:Debug('FindSlotForItem', bag, slot, 'slotCount=', slotCount, 'score=', slotScore, '<', bestScore)
+						--@end-debug@
+						end
+					--@debug@
+					else
+						addon:Debug('FindSlotForItem', bag, slot, 'slotCount=', slotCount, ': not enough space')
+					--@end-debug@
+					end
+				end
+			end
+		end
+		addon:Debug('FindSlotForItem =>', bestBag, bestSlot)
+		return bestBag, bestSlot
+	end
 
 	function swapFrame:ProcessInner()
 		if not CursorHasItem() then
 			while currentSlot < numSlots do
 				currentSlot = currentSlot + 1
-				if GetContainerItemID(currentBag, currentSlot) then
+				local itemId = GetContainerItemID(currentBag, currentSlot)
+				if itemId then
+					local _, count = select(2, GetContainerItemInfo(currentBag, currentSlot))
 					PickupContainerItem(currentBag, currentSlot)
 					if CursorHasItem() then
 						locked[currentBag] = true
-						break
-					end
-				end
-			end
-		end
-		if CursorHasItem() then
-			local item = select(3, GetCursorInfo())
-			for i, destBag in ipairs(otherBags) do
-				if CanPutItemInContainer(item, destBag) then
-					for destSlot = 1, GetContainerNumSlots(destBag) do
-						if not GetContainerItemID(destBag, destSlot) then
+						local destBag, destSlot = FindSlotForItem(otherBags, itemId, count or 1)
+						if destBag and destSlot then
 							PickupContainerItem(destBag, destSlot)
 							if not CursorHasItem() then
 								locked[destBag] = true
 								return
 							end
 						end
+						break
 					end
 				end
 			end
-			ClearCursor()
 		end
+		ClearCursor()
 		self:Done()
 	end
 
@@ -100,7 +125,7 @@ do
 		wipe(otherBags)
 		local bags = addon.BAG_IDS.BANK[bag] and addon.BAG_IDS.BANK or addon.BAG_IDS.BAGS
 		for otherBag in pairs(bags) do
-			if otherBag ~= bag and GetContainerNumSlots(otherBag) > 0 and GetContainerNumFreeSlots(otherBag) > 0 then
+			if otherBag ~= bag then
 				tinsert(otherBags, otherBag)
 			end
 		end
