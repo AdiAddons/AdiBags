@@ -457,7 +457,8 @@ local function FilterByBag(slotData)
 		name = format(L["Bank bag #%d"], bag - NUM_BAG_SLOTS)
 	end
 	if slotData.link then
-		return name, nil, nil, addon:ShouldStack(slotData)
+		local shouldStack, stackHint = addon:ShouldStack(slotData)
+		return name, nil, nil, shouldStack, stackHint and strjoin('#', tostring(stackHint), name)
 	else
 		return name, nil, nil, addon.db.profile.virtualStacks.freeSpace, name
 	end
