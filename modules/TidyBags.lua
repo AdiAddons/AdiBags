@@ -139,7 +139,6 @@ local function FindNextMove(container)
 
 					if slotData.count < slotData.maxStack then
 						-- Incomplete stack
-
 						local existingStack = incompleteStacks[slotData.itemId]
 						if existingStack then
 							-- Another incomplete stack exists for this item, try to merge both
@@ -152,14 +151,14 @@ local function FindNextMove(container)
 							-- First incomplete stack of this item
 							incompleteStacks[slotData.itemId] = slotData
 						end
+					end
 
-					elseif band(itemFamily, availableFamilies) ~= 0 and bagFamily == 0 then
+					if band(itemFamily, availableFamilies) ~= 0 and bagFamily == 0 then
 						-- Not in the right bag, look for a better one
 						local toBag, toSlot = FindFreeSlot(container, itemFamily)
 						if toBag then
 							return bag, slot, toBag, toSlot
 						end
-
 					end
 
 				end
