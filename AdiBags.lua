@@ -476,7 +476,7 @@ function addon:ToggleBackpack()
 	if frame then
 		self:CloseAllBags()
 	else
-
+		self:OpenBackpack()
 	end
 end
 
