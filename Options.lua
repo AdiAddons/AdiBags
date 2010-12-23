@@ -473,14 +473,20 @@ function addon:GetOptions()
 								end
 							},
 							notWhenTrading = {
-								name = L['... but not when trading'],
-								desc = L["Do not merge incomplete stack at merchants', auction house, bank, mailboxes or when trading."],
+								name = L['When trading:'],
+								desc = L["Change stacking at merchants', auction house, bank, mailboxes or when trading."],
 								order = 40,
 								width = 'full',
-								type = 'toggle',
+								type = 'select',
 								arg = {'virtualStacks', 'notWhenTrading'},
+								values = {
+									L['Keep all stacks together.'],
+									L['Separate unstackable items.'],
+									L['Separate incomplete stacks.'],
+									L['Show every distinct item stacks.'],
+								},
 								disabled = function(info)
-									return info.handler:IsDisabled(info) or not addon.db.profile.virtualStacks.stackable or not addon.db.profile.virtualStacks.incomplete
+									return info.handler:IsDisabled(info) or not (addon.db.profile.virtualStacks.stackable or addon.db.profile.virtualStacks.others)
 								end
 							},
 						}

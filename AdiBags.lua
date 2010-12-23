@@ -134,6 +134,7 @@ local DEFAULT_SETTINGS = {
 		virtualStacks = {
 			['*'] = false,
 			freeSpace = true,
+			notWhenTrading = 1,
 		},
 	},
 	char = {
@@ -262,6 +263,11 @@ function addon:UpgradeProfile()
 		newData.yOffset = (oldData.yOffset or 200) / scale
 
 		profile.anchor = nil
+	end
+	
+	-- Convert old "notWhenTrading" setting
+	if profile.virtualStacks.notWhenTrading == true then
+		profile.virtualStacks.notWhenTrading = 3
 	end
 end
 
@@ -950,22 +956,24 @@ function addon:ShouldStack(slotData)
 	if not slotData.link then
 		return conf.freeSpace, "*Free*"
 	end
+	local window, unstack = self:GetInteractingWindow(), 0
+	if window then
+		unstack = conf.notWhenTrading
+		if unstack >= 4 and window ~= "BANK" then
+			return
+		end
+	end
 	local maxStack = slotData.maxStack or 1
 	if maxStack > 1 then
 		if conf.stackable then
 			if (slotData.count or 1) == maxStack then
 				return true, slotData.itemId
-			elseif conf.notWhenTrading and self:GetInteractingWindow() then
-				return false
+			elseif unstack < 3 then
+				return conf.incomplete, slotData.itemId
 			end
-			return conf.incomplete, slotData.itemId
 		end
-	elseif conf.others then
-		if conf.notWhenTrading and self:GetInteractingWindow() then
-			return false
-		else
-			return true, self.GetDistinctItemID(slotData.link)
-		end
+	elseif conf.others and unstack < 2 then
+		return true, self.GetDistinctItemID(slotData.link)
 	end
 end
 
