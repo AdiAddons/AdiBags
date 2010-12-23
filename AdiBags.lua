@@ -959,7 +959,7 @@ function addon:ShouldStack(slotData)
 	local window, unstack = self:GetInteractingWindow(), 0
 	if window then
 		unstack = conf.notWhenTrading
-		if unstack >= 4 and window ~= "BANK" then
+		if unstack >= 4 and window ~= "BANKFRAME" then
 			return
 		end
 	end
