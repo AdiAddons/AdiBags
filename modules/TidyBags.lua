@@ -73,7 +73,6 @@ local function TidyButton_OnClick(button)
 	mod:Start(button.container)
 end
 
-
 function mod:OnBagFrameCreated(bag)
 	local container = bag:GetFrame()
 
@@ -135,7 +134,7 @@ local function FindNextMove(container)
 			for slot, slotData in ipairs(slots) do
 
 				if slotData and slotData.link then
-					local itemFamily = GetItemFamily(slotData.itemId)
+					local itemFamily = GetItemFamily(slotData.itemId) or 0
 
 					if slotData.count < slotData.maxStack then
 						-- Incomplete stack
