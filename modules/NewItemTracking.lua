@@ -77,7 +77,7 @@ function mod:OnDisable()
 	end
 	addon.filterProto.OnDisable(self)
 end
-
+	
 --------------------------------------------------------------------------------
 -- Widget creation
 --------------------------------------------------------------------------------
@@ -106,9 +106,11 @@ function mod:OnBagFrameCreated(bag)
 		button:Disable()
 	end
 
+	--[[
 	container:HookScript('OnShow', function()
 		mod:UpdateBags()
 	end)
+	--]]
 
 	bags[bag.bagName].button = button
 	bags[bag.bagName].container = container
@@ -290,7 +292,7 @@ function mod:UpdateBags()
 	end
 
 	-- Update feedback
-	local filterChanged = false
+	local filterChanged, reset = false, false
 	for name, bag in pairs(bags) do
 		if bag.button then
 			if next(bag.newItems) then
@@ -303,11 +305,15 @@ function mod:UpdateBags()
 			self:Debug(name, 'contains new new items')
 			bag.updated = nil
 			filterChanged = true
+			if bag.reset then
+				reset = true
+			end
 		end
+		bag.reset = nil
 	end
 	if filterChanged then
 		self:Debug('Need to filter bags again')
-		self:SendMessage('AdiBags_FiltersChanged')
+		self:SendMessage('AdiBags_FiltersChanged', reset)
 	end
 
 end
@@ -355,6 +361,7 @@ function mod:Reset(name)
 	wipe(bag.newItems)
 	bag.first = true
 	bag.updated = true
+	bag.reset = true
 	self:UpdateBags()
 end
 

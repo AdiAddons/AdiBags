@@ -189,11 +189,14 @@ function containerProto:CanUpdate()
 	return not addon.holdYourBreath and not addon.globalLock and not self.paused and self:IsVisible()
 end
 
-function containerProto:FiltersChanged()
+function containerProto:FiltersChanged(_, forceLayout)
 	self.filtersChanged = true
+	if forceLayout then
+		self.forceLayout = true
+	end
 	if self:CanUpdate() then
 		self:RedispatchAllItems()
-		self:LayoutSections()
+		self:LayoutSections(forceLayout)
 	end
 end
 
