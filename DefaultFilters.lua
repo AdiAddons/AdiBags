@@ -31,79 +31,68 @@ function addon:SetupDefaultFilters()
 				profile = { oneSectionPerSet = true },
 				char = { mergedSets = { ['*'] = false } },
 			})
+			self.names = {}
+			self.slots = {}
 		end
 
-		local ITEM_LINKS_UPDATED = {"BAG_UPDATE", "UNIT_INVENTORY_CHANGED"}
 		function setFilter:OnEnable()
 			self:RegisterEvent('EQUIPMENT_SETS_CHANGED')
-			self:RegisterEvent('BANKFRAME_OPENED', 'EQUIPMENT_SETS_CHANGED')
-			self:RegisterBucketEvent(ITEM_LINKS_UPDATED, 10, "ItemLinksUpdated")
-			self:RegisterMessage("AdiBags_PreFilter", "UpdateSets")
-			addon:UpdateFilters()
+			self:RegisterMessage("AdiBags_PreFilter")
+			self:RegisterMessage("AdiBags_PreContentUpdate")
+			self:UpdateNames()
 		end
 
-		local haveSets = false
-		local sets = {}
-		local setNames = {}
+		local GetSlotId = addon.GetSlotId
 
-		local IsValidItemLink, GetDistinctItemID = addon.IsValidItemLink, addon.GetDistinctItemID
-
-		function setFilter:UpdateSets(event)
-			self:Debug('UpdateSets on', event, 'have sets=', haveSets)
-			if haveSets then return end
-			wipe(sets)
-			wipe(setNames)
+		function setFilter:UpdateNames()
+			self:Debug('Updating names')
+			wipe(self.names)
 			for i = 1, GetNumEquipmentSets() do
 				local name = GetEquipmentSetInfo(i)
-				setNames[name] = name
+				self.names[name] = name
+			end
+			self.dirty = true
+		end
+
+		function setFilter:UpdateSlots()
+			self:Debug('Updating slots')
+			wipe(self.slots)
+			for i = 1, GetNumEquipmentSets() do
+				local name = GetEquipmentSetInfo(i)
 				local locations = GetEquipmentSetLocations(name)
 				for invId, location in pairs(locations) do
 					local player, bank, bags, slot, container = EquipmentManager_UnpackLocation(location)
-					local id, link
+					local slotId
 					if bags then
-						id, link = GetContainerItemID(container, slot), GetContainerItemLink(container, slot)
-					elseif player or bank then
-						id, link = GetInventoryItemID("player", slot), GetInventoryItemLink("player", slot)
+						slotId = GetSlotId(container, slot)
+					elseif bank then
+						slotId = GetSlotId(BANK_CONTAINER, slot - BANK_CONTAINER_INVENTORY_OFFSET)
 					end
-					if id then
-						if not IsValidItemLink(link) then
-							--@alpha@
-							if bags then
-								self:Debug('Invalid item link found in bag', bag, 'slot', slot, 'for id', id)
-							else
-								self:Debug('Invalid item link found in inventory slot', slot, 'for id', id)
-							end
-							--@end-alpha@
-							return
-						else
-							link = GetDistinctItemID(link)
-							if not sets[link] then
-								sets[link] = name
-							end
-						end
+					if slotId and not self.slots[slotId] then
+						self.slots[slotId] = name
 					end
 				end
 			end
-			self:Debug('Sets succesfully scanned !')
-			haveSets = true
-			return true
-		end
-
+			self.dirty = false
+		end		
+		
 		function setFilter:EQUIPMENT_SETS_CHANGED(event)
-			self:Debug("Forgetting sets because of", event)
-			haveSets = false
-			self:SendMessage('AdiBags_FiltersChanged')
+			self:UpdateNames()
+			self:SendMessage('AdiBags_FiltersChanged', true)
 		end
 
-		function setFilter:ItemLinksUpdated()
-			self:Debug("ItemLinksUpdated")
-			if self:UpdateSets("ItemLinksUpdated") then
-				self:SendMessage('AdiBags_FiltersChanged')
-			end
+		function setFilter:AdiBags_PreContentUpdate(event)
+			self.dirty = true
 		end
+
+		function setFilter:AdiBags_PreFilter(event)
+			if self.dirty then
+				self:UpdateSlots()
+			end
+		end		
 
 		function setFilter:Filter(slotData)
-			local name = haveSets and sets[GetDistinctItemID(slotData.link)]
+			local name = self.slots[slotData.slotId]
 			if name then
 				if not self.db.profile.oneSectionPerSet or self.db.char.mergedSets[name] then
 					return L['Sets'], L["Equipment"]
@@ -126,10 +115,7 @@ function addon:SetupDefaultFilters()
 					desc = L['Check sets that should be merged into a unique "Sets" section. This is obviously a per-character setting.'],
 					type = 'multiselect',
 					order = 20,
-					values = function()
-						self:UpdateSets()
-						return setNames
-					end,
+					values = self.names,
 					get = function(info, name)
 						return self.db.char.mergedSets[name]
 					end,
