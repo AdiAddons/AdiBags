@@ -151,8 +151,8 @@ addon:SetDefaultModuleState(false)
 
 function addon:OnInitialize()
 	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", DEFAULT_SETTINGS, true)
-	self.db.RegisterCallback(self, "OnProfileChanged", "Reconfigure")
-	self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")
+	self.db.RegisterCallback(self, "OnProfileChanged")
+	self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
 	self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
 
 	self.itemParentFrames = {}
@@ -163,28 +163,11 @@ function addon:OnInitialize()
 
 	self:SetEnabledState(false)
 
-	-- Convert old ordering setting
-	if self.db.profile.laxOrdering == true then
-		self.db.profile.laxOrdering = 1
-	end
-
-	-- Convert old anchor settings
-	local oldData = self.db.profile.anchor
-	if oldData then
-		local scale = oldData.scale or 0.8
-		self.db.profile.scale = scale
-
-		local newData = self.db.profile.positions.anchor
-		newData.point = oldData.pointFrom or "BOTTOMRIGHT"
-		newData.xOffset = (oldData.xOffset or -32) / scale
-		newData.yOffset = (oldData.yOffset or 200) / scale
-
-		self.db.profile.anchor = nil
-	end
-
 	-- Persistant handlers
 	self.RegisterBucketMessage(addonName, 'AdiBags_ConfigChanged', 0.2, function(...) addon:ConfigChanged(...) end)
 	self.RegisterEvent(addonName, 'PLAYER_ENTERING_WORLD', function() if self.db.profile.enabled then self:Enable() end end)
+	
+	self:UpgradeProfile()
 
 	self:Debug('Initialized')
 end
@@ -252,6 +235,34 @@ function addon:Reconfigure()
 	self:Enable()
 	self.holdYourBreath = nil
 	self:UpdateFilters()
+end
+
+function addon:OnProfileChanged()
+	self:UpgradeProfile()
+	return self:Reconfigure()
+end
+
+function addon:UpgradeProfile()
+	local profile = self.db.profile
+	
+	-- Convert old ordering setting
+	if profile.laxOrdering == true then
+		profile.laxOrdering = 1
+	end
+
+	-- Convert old anchor settings
+	local oldData = profile.anchor
+	if oldData then
+		local scale = oldData.scale or 0.8
+		profile.scale = scale
+
+		local newData = profile.positions.anchor
+		newData.point = oldData.pointFrom or "BOTTOMRIGHT"
+		newData.xOffset = (oldData.xOffset or -32) / scale
+		newData.yOffset = (oldData.yOffset or 200) / scale
+
+		profile.anchor = nil
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -479,7 +490,6 @@ function addon:ToggleBackpack()
 		self:OpenBackpack()
 	end
 end
-
 
 --------------------------------------------------------------------------------
 -- Track windows related to item interaction (merchant, mail, bank, ...)
