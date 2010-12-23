@@ -945,13 +945,17 @@ function addon:ShouldStack(slotData)
 		if conf.stackable then
 			if (slotData.count or 1) == maxStack then
 				return true, slotData.itemId
-			elseif self:GetInteractingWindow() and conf.notWhenTrading then
+			elseif conf.notWhenTrading and self:GetInteractingWindow() then
 				return false
 			end
 			return conf.incomplete, slotData.itemId
 		end
 	elseif conf.others then
-		return true, self.GetDistinctItemID(slotData.link)
+		if conf.notWhenTrading and self:GetInteractingWindow() then
+			return false
+		else
+			return true, self.GetDistinctItemID(slotData.link)
+		end
 	end
 end
 
