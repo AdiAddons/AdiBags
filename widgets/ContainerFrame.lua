@@ -388,7 +388,7 @@ function containerProto:UpdateContent(bag)
 				content[slot] = slotData
 			end
 
-			local name, _, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice
+			local name, count, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice
 			if link then
 				name, _, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice = GetItemInfo(link)
 				count = select(2, GetContainerItemInfo(bag, slot)) or 0
@@ -684,7 +684,6 @@ local function DoLayoutSections(self, rowWidth, maxHeight, cleanLevel)
 					break
 				end
 				local section = tremove(sections, index)
-				category = section.category
 				num = num - 1
 				--section:Show()
 				section:SetPoint("TOPLEFT", content, columnX + x, -y)
@@ -764,16 +763,16 @@ function containerProto:LayoutSections(clean)
 		local rowWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.rowWidth - ITEM_SPACING
 		local maxHeight = addon.db.profile.maxHeight * UIParent:GetHeight() * UIParent:GetEffectiveScale() / self:GetEffectiveScale()
 
-		local contentWidth, contentHeight, numColumns, wastedHeight, minHeight = DoLayoutSections(self, rowWidth, maxHeight, repack, self.forceLayout)
+		local contentWidth, contentHeight, numColumns, wastedHeight, minHeight = DoLayoutSections(self, rowWidth, maxHeight, cleanLevel, self.forceLayout)
 		if numColumns > 1 and wastedHeight / contentHeight > 0.1 then
 			local totalHeight = contentHeight * numColumns - wastedHeight
 			if totalHeight / numColumns < minHeight then
 				numColumns = numColumns - 1
 			end
 			maxHeight = totalHeight / numColumns * 1.10
-			contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight, repack, self.forceLayout)
+			contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight, cleanLevel, self.forceLayout)
 		elseif numColumns == 1 and contentWidth < self:GetContentMinWidth()  then
-			contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self:GetContentMinWidth(), maxHeight, repack, self.forceLayout)
+			contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self:GetContentMinWidth(), maxHeight, cleanLevel, self.forceLayout)
 		end
 
 		self.Content:SetSize(contentWidth, contentHeight)

@@ -161,7 +161,7 @@ function simpleLayeredRegionProto:OnWidgetAdded(data, order, size, xOffset, yOff
 	data.order = order or 0
 	data.size = size or nil
 	data.xOffset = xOffset or 0
-	data.yOffset = yOffser or 0
+	data.yOffset = yOffset or 0
 	table.sort(self.widgets, CompareWidgets)
 end
 
