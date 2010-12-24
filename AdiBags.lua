@@ -355,6 +355,7 @@ function addon:SetGlobalLock(locked)
 		if not locked then
 			self:SendMessage('AdiBags_LayoutChanged')
 		end
+		return true
 	end
 end
 

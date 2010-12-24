@@ -181,22 +181,33 @@ function mod:Process(container)
 	if not GetCursorInfo() then
 		local fromBag, fromSlot, toBag, toSlot = self:GetNextMove(container)
 		if fromBag then
+			if addon:SetGlobalLock(true) then
+				self:Debug('Locked all items')
+			end
 			PickupItem(fromBag, fromSlot)
 			if GetCursorInfo() == "item" then
 				PickupItem(toBag, toSlot)
 				if not GetCursorInfo() then
+					self:Debug('Moved', fromBag, fromSlot, 'to', toBag, toSlot)
 					return
 				end
 			end
 		end
 	end
-	container[self].running = nil
-	addon:SetGlobalLock(false)
-	self:UpdateButton(container)
+	if addon:SetGlobalLock(false) then
+		self:Debug('Unlocked all items')
+	elseif container.dirtyLayout then
+		self:Debug('Cleaning up layout')
+		container:LayoutSections(true)
+	else
+		self:Debug('Done')
+		container[self].running = nil
+	end
 end
 
 function mod:UpdateButton(container)
 	local data = container[self]
+	self:Debug('UpdateButton', container, '|', container.dirtyLayout, '|', self:GetNextMove(container))
 	if not data.running and (container.dirtyLayout or self:GetNextMove(container)) then
 		data.button:Enable()
 	else
@@ -205,15 +216,17 @@ function mod:UpdateButton(container)
 end
 
 function mod:Start(container)
-	container[self].running = true
-	addon:SetGlobalLock(true)
-	self:UpdateButton(container)
-	self:Process(container)
+	local data = container[self]
+	data.running = true
+	data.button:Disable()
+	self:Debug('Starting on', container)
+	return self:Process(container)
 end
 
 function mod:AdiBags_PreContentUpdate(event, container)
-	container[self].cached = nil
-	if container[self].running then
+	local data = container[self]
+	data.cached = nil
+	if data.running then
 		self:Process(container)
 	else
 		self:UpdateButton(container)
@@ -221,5 +234,11 @@ function mod:AdiBags_PreContentUpdate(event, container)
 end
 
 function mod:AdiBags_ContainerLayoutDirty(event, container)
-	self:UpdateButton(container)
+	local data = container[self]
+	if data.running then
+		self:Process(container)
+	else
+		self:UpdateButton(container)
+	end
 end
+
