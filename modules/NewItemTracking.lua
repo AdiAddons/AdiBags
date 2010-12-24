@@ -108,6 +108,8 @@ function mod:OnBagFrameCreated(bag)
 
 	bags[bag.bagName].button = button
 	bags[bag.bagName].container = container
+
+	mod:UpdateBags()
 end
 
 --------------------------------------------------------------------------------
@@ -230,13 +232,13 @@ function mod:UpdateBag(bag)
 				self:Debug('Not new anymore', itemId)
 				newItems[itemId] = nil
 				if newCount and newCount > 0 then
-					bag.updated = true
+					bag.removed = true
 				end
 			end
 		elseif not bag.first and newCount > oldCount and not newItems[itemId] then
 			self:Debug('Got more of', itemId)
 			newItems[itemId] = true
-			bag.updated = true
+			bag.added = true
 		end
 	end
 
@@ -249,7 +251,7 @@ function mod:UpdateBag(bag)
 		if not bag.first and not newItems[itemId] and (newCount > 0) and not IsIgnored(itemId) then
 			self:Debug('Brand new item:', itemId)
 			newItems[itemId] = true
-			bag.updated = true
+			bag.added = true
 		end
 	end
 
@@ -286,7 +288,6 @@ function mod:UpdateBags()
 	end
 
 	-- Update feedback
-	local filterChanged = false
 	for name, bag in pairs(bags) do
 		if bag.button then
 			if next(bag.newItems) then
@@ -295,15 +296,11 @@ function mod:UpdateBags()
 				bag.button:Disable()
 			end
 		end
-		if bag.updated and bag.obj:CanOpen() then
+		if (bag.added or bag.removed) and bag.obj:IsOpen() then
 			self:Debug(name, 'contains new new items')
-			bag.updated = nil
-			filterChanged = true
+			bag.container:FiltersChanged("OnNewItems", bag.added)
+			bag.added, bag.removed = nil, nil
 		end
-	end
-	if filterChanged then
-		self:Debug('Need to filter bags again')
-		self:SendMessage('AdiBags_FiltersChanged')
 	end
 
 end
@@ -350,7 +347,8 @@ function mod:Reset(name)
 	wipe(bag.counts)
 	wipe(bag.newItems)
 	bag.first = true
-	bag.updated = true
+	bag.added = nil
+	bag.removed = true
 	self:UpdateBags()
 	bag.container:LayoutSections(true)
 end
