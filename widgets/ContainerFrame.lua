@@ -762,17 +762,16 @@ function containerProto:LayoutSections(clean)
 
 		local rowWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.rowWidth - ITEM_SPACING
 		local maxHeight = addon.db.profile.maxHeight * UIParent:GetHeight() * UIParent:GetEffectiveScale() / self:GetEffectiveScale()
-
-		local contentWidth, contentHeight, numColumns, wastedHeight, minHeight = DoLayoutSections(self, rowWidth, maxHeight, cleanLevel, self.forceLayout)
+		local contentWidth, contentHeight, numColumns, wastedHeight, minHeight = DoLayoutSections(self, rowWidth, maxHeight, cleanLevel)
 		if numColumns > 1 and wastedHeight / contentHeight > 0.1 then
 			local totalHeight = contentHeight * numColumns - wastedHeight
 			if totalHeight / numColumns < minHeight then
 				numColumns = numColumns - 1
 			end
 			maxHeight = totalHeight / numColumns * 1.10
-			contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight, cleanLevel, self.forceLayout)
+			contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight, cleanLevel)
 		elseif numColumns == 1 and contentWidth < self:GetContentMinWidth()  then
-			contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self:GetContentMinWidth(), maxHeight, cleanLevel, self.forceLayout)
+			contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self:GetContentMinWidth(), maxHeight, cleanLevel)
 		end
 
 		self.Content:SetSize(contentWidth, contentHeight)

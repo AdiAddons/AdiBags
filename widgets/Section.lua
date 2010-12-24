@@ -245,7 +245,7 @@ function sectionProto:Layout(width, height, cleanLevel)
 		self:SetHeight(HEADER_SIZE + ITEM_SIZE * height + ITEM_SPACING * max(height - 1, 0))
 		self:SetDirtyLevel(2)
 	end
-	if self.dirtyLevel > (cleanLevel or 0) then
+	if self.dirtyLevel >= (cleanLevel or 0) then
 		self:ReorderButtons()
 	end
 end
