@@ -115,7 +115,7 @@ local DEFAULT_SETTINGS = {
 			Bank = { point = "TOPLEFT", xOffset = 32, yOffset = -104 },
 		},
 		scale = 0.8,
-		rowWidth = 9,
+		rowWidth = { ['*'] = 9 },
 		maxHeight = 0.60,
 		laxOrdering = 1,
 		qualityHighlight = true,
@@ -167,7 +167,7 @@ function addon:OnInitialize()
 	-- Persistant handlers
 	self.RegisterBucketMessage(addonName, 'AdiBags_ConfigChanged', 0.2, function(...) addon:ConfigChanged(...) end)
 	self.RegisterEvent(addonName, 'PLAYER_ENTERING_WORLD', function() if self.db.profile.enabled then self:Enable() end end)
-	
+
 	self:UpgradeProfile()
 
 	self:Debug('Initialized')
@@ -245,7 +245,7 @@ end
 
 function addon:UpgradeProfile()
 	local profile = self.db.profile
-	
+
 	-- Convert old ordering setting
 	if profile.laxOrdering == true then
 		profile.laxOrdering = 1
@@ -264,10 +264,16 @@ function addon:UpgradeProfile()
 
 		profile.anchor = nil
 	end
-	
+
 	-- Convert old "notWhenTrading" setting
 	if profile.virtualStacks.notWhenTrading == true then
 		profile.virtualStacks.notWhenTrading = 3
+	end
+
+	-- Convert old "rowWidth"
+	if type(profile.rowWidth) == "number" then
+		local rowWidth = profile.rowWidth
+		profile.rowWidth = { Bank = rowWidth, Backpack = rowWidth }
 	end
 end
 
@@ -320,9 +326,9 @@ function addon:ConfigChanged(vars)
 		return self:SendMessage('AdiBags_FiltersChanged')
 	else
 		for name in pairs(vars) do
-			if name:match('virtualStacks') then
+			if strmatch(name, 'virtualStacks') then
 				return self:SendMessage('AdiBags_FiltersChanged')
-			elseif name:match('bags%.') then
+			elseif strmatch(name, 'bags%.') then
 				local _, bagName = strsplit('.', name)
 				local bag = self:GetModule(bagName)
 				local enabled = self.db.profile.bags[bagName]
@@ -331,12 +337,14 @@ function addon:ConfigChanged(vars)
 				elseif not enabled and bag:IsEnabled() then
 					bag:Disable()
 				end
+			elseif strmatch(name, 'rowWidth') then
+				return self:SendMessage('AdiBags_LayoutChanged')
 			end
 		end
 	end
 	if vars.sortingOrder then
 		return self:SetSortingOrder(self.db.profile.sortingOrder)
-	elseif vars.rowWidth or vars.maxHeight or vars.laxOrdering then
+	elseif vars.maxHeight or vars.laxOrdering then
 		return self:SendMessage('AdiBags_LayoutChanged')
 	elseif vars.scale then
 		return self:LayoutBags()

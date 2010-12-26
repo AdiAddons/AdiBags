@@ -307,11 +307,27 @@ function addon:GetOptions()
 					rowWidth = {
 						name = L['Maximum row width'],
 						desc = L['Adjust the maximum number of items per row.'],
-						type = 'range',
+						type = 'group',
+						inline = true,
 						order = 145,
-						min = 4,
-						max = 16,
-						step = 1,
+						args = {
+							Backpack = {
+								name = L['Backpack'],
+								type = 'range',
+								min = 4,
+								max = 16,
+								step = 1,
+								arg = { "rowWidth", "Backpack" },
+							},
+							Bank = {
+								name = L['Bank'],
+								type = 'range',
+								min = 4,
+								max = 16,
+								step = 1,
+								arg = { "rowWidth", "Bank" },
+							},
+						},
 					},
 					maxHeight = {
 						name = L['Maximum bag height'],
