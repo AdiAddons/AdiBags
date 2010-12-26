@@ -236,7 +236,7 @@ function sectionProto:FitInSpace(maxWidth, maxHeight, xOffset, rowHeight)
 	end
 end
 
-function sectionProto:Layout(width, height, cleanLevel)
+function sectionProto:SetSizeInSlots(width, height)
 	if self.width ~= width or self.height ~= height then
 		self.width = width
 		self.height = height
@@ -245,7 +245,11 @@ function sectionProto:Layout(width, height, cleanLevel)
 		self:SetHeight(HEADER_SIZE + ITEM_SIZE * height + ITEM_SPACING * max(height - 1, 0))
 		self:SetDirtyLevel(2)
 	end
-	if self.dirtyLevel >= (cleanLevel or 0) then
+end
+
+function sectionProto:Layout(cleanLevel)
+	if self.dirtyLevel > cleanLevel  then
+		self:Debug('Layout, cleanLevel=', cleanLevel, 'dirtyLevel=', self.dirtyLevel, '=> reordering buttons')
 		self:ReorderButtons()
 	end
 end

@@ -189,21 +189,20 @@ function containerProto:CanUpdate()
 	return not addon.holdYourBreath and not addon.globalLock and not self.paused and self:IsVisible()
 end
 
-function containerProto:FiltersChanged(_, forceLayout)
+function containerProto:FiltersChanged(_, cleanLayout)
 	self.filtersChanged = true
-	if forceLayout then
-		self.forceLayout = true
-	end
 	if self:CanUpdate() then
 		self:RedispatchAllItems()
-		self:LayoutSections(forceLayout)
+		self:LayoutSections(cleanLayout)
+	elseif cleanLayout then
+		self.forceLayout = true
 	end
 end
 
 function containerProto:LayoutChanged()
 	self.forceLayout = true
 	if self:CanUpdate() then
-		self:LayoutSections(true)
+		self:LayoutSections()
 	end
 end
 
@@ -243,7 +242,7 @@ function containerProto:ResumeUpdates()
 	else
 		self:UpdateButtons()
 	end
-	self:LayoutSections(true)
+	self:LayoutSections(0)
 end
 
 function containerProto:PauseUpdates()
@@ -649,7 +648,7 @@ local getNextSection = {
 	end
 }
 
-local function DoLayoutSections(self, rowWidth, maxHeight, cleanLevel)
+local function DoLayoutSections(self, rowWidth, maxHeight)
 	rowWidth = rowWidth + ITEM_SIZE - SECTION_SPACING
 
 	local minHeight = 0
@@ -687,7 +686,7 @@ local function DoLayoutSections(self, rowWidth, maxHeight, cleanLevel)
 				num = num - 1
 				--section:Show()
 				section:SetPoint("TOPLEFT", content, columnX + x, -y)
-				section:Layout(width, height, cleanLevel)
+				section:SetSizeInSlots(width, height)
 				x = x + section:GetWidth() + SECTION_SPACING
 				rowHeight = max(rowHeight, section:GetHeight())
 			end
@@ -711,14 +710,12 @@ local function DoLayoutSections(self, rowWidth, maxHeight, cleanLevel)
 	return contentWidth - SECTION_SPACING, contentHeight - ITEM_SPACING, numColumns, wasted, minHeight
 end
 
-function containerProto:LayoutSections(clean)
+function containerProto:LayoutSections(cleanLevel)
 
 	local num = 0
-	local dirtyLevel = self.dirtyLayout and 1 or 0
+	local dirtyLevel = self.dirtyLevel or 0
+	local stickyDirty = 0
 	for key, section in pairs(self.sections) do
-		--@debug@
-		local oldLevel = dirtyLevel
-		--@end-debug@
 		if section:IsEmpty() then
 			section:Release()
 			self.sections[key] = nil
@@ -732,56 +729,62 @@ function containerProto:LayoutSections(clean)
 			num = num + 1
 			if not section:IsShown() then
 				section:Show()
-				dirtyLevel = max(dirtyLevel, 1, section:GetDirtyLevel())
+				dirtyLevel = max(dirtyLevel, 2, section:GetDirtyLevel())
 			else
 				dirtyLevel = max(dirtyLevel, section:GetDirtyLevel())
 			end
 		end
-		--@debug@
-		if dirtyLevel > oldLevel then
-			self:Debug(section, 'isShown=', section:IsShown(), 'dirtyLevel=', dirtyLevel)
-		end
-		--@end-debug@
 	end
 
-	local cleanLevel = (self.forceLayout and 0) or (clean and 1) or 2
-	self:Debug('LayoutSections: #sections=', num, 'cleanLevel=', cleanLevel, 'dirtyLevel=', dirtyLevel)
-	if dirtyLevel < cleanLevel then
-		local dirtyLayout = dirtyLevel > 0
-		if self.dirtyLayout ~= dirtyLayout then
-			self.dirtyLayout = dirtyLayout
-			self:SendMessage('AdiBags_ContainerLayoutDirty', self, dirtyLayout)
-		end
-		self:Debug('LayoutSections: bailing out, layout is', dirtyLayout and "dirty" or "clean")
-		return
+	if self.forceLayout then
+		cleanLevel = -1
+		self.forceLayout = nil
+	elseif cleanLevel == true then
+		cleanLevel = 0
+	elseif not cleanLevel then
+		cleanLevel = 1
 	end
 
-	self:Debug('LayoutSections: really laying out sections')
+	self:Debug('LayoutSections: #sections=', num, 'cleanLevel=', cleanLevel, 'dirtyLevel=', dirtyLevel, '=>', (dirtyLevel > cleanLevel) and "cleanup required" or "NO-OP")
 
-	if num == 0 then
-		self.Content:SetSize(0.5, 0.5)
-	else
-		local rowWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.rowWidth[self.name] - ITEM_SPACING
-		local maxHeight = addon.db.profile.maxHeight * UIParent:GetHeight() * UIParent:GetEffectiveScale() / self:GetEffectiveScale()
-		local contentWidth, contentHeight, numColumns, wastedHeight, minHeight = DoLayoutSections(self, rowWidth, maxHeight, cleanLevel)
-		if numColumns > 1 and wastedHeight / contentHeight > 0.1 then
-			local totalHeight = contentHeight * numColumns - wastedHeight
-			if totalHeight / numColumns < minHeight then
-				numColumns = numColumns - 1
+	if dirtyLevel > cleanLevel then
+
+		if num == 0 then
+			self.Content:SetSize(0.5, 0.5)
+
+		else
+			local rowWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.rowWidth[self.name] - ITEM_SPACING
+			local maxHeight = addon.db.profile.maxHeight * UIParent:GetHeight() * UIParent:GetEffectiveScale() / self:GetEffectiveScale()
+			local contentWidth, contentHeight, numColumns, wastedHeight, minHeight = DoLayoutSections(self, rowWidth, maxHeight)
+			if numColumns > 1 and wastedHeight / contentHeight > 0.1 then
+				local totalHeight = contentHeight * numColumns - wastedHeight
+				if totalHeight / numColumns < minHeight then
+					numColumns = numColumns - 1
+				end
+				maxHeight = totalHeight / numColumns * 1.10
+				contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight)
+			elseif numColumns == 1 and contentWidth < self:GetContentMinWidth()  then
+				contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self:GetContentMinWidth(), maxHeight)
 			end
-			maxHeight = totalHeight / numColumns * 1.10
-			contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight, cleanLevel)
-		elseif numColumns == 1 and contentWidth < self:GetContentMinWidth()  then
-			contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self:GetContentMinWidth(), maxHeight, cleanLevel)
+
+			self.Content:SetSize(contentWidth, contentHeight)
 		end
 
-		self.Content:SetSize(contentWidth, contentHeight)
+		dirtyLevel = 0
 	end
 
-	self.forceLayout = nil
-	if self.dirtyLayout then
-		self.dirtyLayout = nil
-		self:Debug('LayoutSections: layout is clean')
-		self:SendMessage('AdiBags_ContainerLayoutDirty', self, false)
+	for key, section in pairs(self.sections) do
+		if section:IsShown() then
+			section:Layout(cleanLevel)
+			dirtyLevel = max(dirtyLevel, section:GetDirtyLevel())
+		end
+	end
+
+	self.dirtyLevel = dirtyLevel
+	local dirtyLayout = dirtyLevel > 0
+	self:Debug('LayoutSections: done, layout is', dirtyLayout and "dirty" or "clean")
+	if self.dirtyLayout ~= dirtyLayout then
+		self.dirtyLayout = dirtyLayout
+		self:SendMessage('AdiBags_ContainerLayoutDirty', self, dirtyLayout)
 	end
 end

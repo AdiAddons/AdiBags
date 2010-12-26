@@ -298,7 +298,7 @@ function mod:UpdateBags()
 		end
 		if (bag.added or bag.removed) and bag.obj:IsOpen() then
 			self:Debug(name, 'contains new new items')
-			bag.container:FiltersChanged("OnNewItems", bag.added)
+			bag.container:FiltersChanged("OnNewItems", 1)
 			bag.added, bag.removed = nil, nil
 		end
 	end
@@ -350,7 +350,7 @@ function mod:Reset(name)
 	bag.added = nil
 	bag.removed = true
 	self:UpdateBags()
-	bag.container:LayoutSections(true)
+	bag.container:LayoutSections(0)
 end
 
 function mod:IsNew(itemLink, bagName)
