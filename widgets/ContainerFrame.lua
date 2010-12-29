@@ -189,13 +189,14 @@ function containerProto:CanUpdate()
 	return not addon.holdYourBreath and not addon.globalLock and not self.paused and self:IsVisible()
 end
 
-function containerProto:FiltersChanged(_, cleanLayout)
+function containerProto:FiltersChanged(event, forceLayout)
+	if forceLayout then
+		self.forceLayout = true
+	end
 	self.filtersChanged = true
 	if self:CanUpdate() then
 		self:RedispatchAllItems()
-		self:LayoutSections(cleanLayout)
-	elseif cleanLayout then
-		self.forceLayout = true
+		self:LayoutSections(1)
 	end
 end
 
@@ -572,26 +573,24 @@ function containerProto:UpdateButtons()
 	self:Debug(numRemoved, 'slot(s) removed', numAdded, 'slot(s) added and', numChanged, 'slot(s) changed')
 	--@end-debug@
 
-	self.filtersChanged = nil
 	wipe(added)
 	wipe(removed)
 	wipe(changed)
 end
 
 function containerProto:RedispatchAllItems()
-	if self:HasContentChanged() then
-		self:Debug('RedispatchAllItems => UpdateButtons')
-		return self:UpdateButtons()
-	end
-	self:Debug('RedispatchAllItems')
-	self:SendMessage('AdiBags_PreFilter', self)
-	for bag, content in pairs(self.content) do
-		for slotId, slotData in ipairs(content) do
-			self:DispatchItem(slotData)
+	self:UpdateButtons()
+	if self.filtersChanged then
+		self:Debug('RedispatchAllItems')
+		self:SendMessage('AdiBags_PreFilter', self)
+		for bag, content in pairs(self.content) do
+			for slotId, slotData in ipairs(content) do
+				self:DispatchItem(slotData)
+			end
 		end
+		self:SendMessage('AdiBags_PostFilter', self)
+		self.filtersChanged = nil
 	end
-	self:SendMessage('AdiBags_PostFilter', self)
-	self.filtersChanged = nil
 end
 
 --------------------------------------------------------------------------------

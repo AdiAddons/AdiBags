@@ -238,7 +238,7 @@ function mod:UpdateBag(bag)
 		elseif not bag.first and newCount > oldCount and not newItems[itemId] then
 			self:Debug('Got more of', itemId)
 			newItems[itemId] = true
-			bag.added = true
+			bag.updated = true
 		end
 	end
 
@@ -251,7 +251,7 @@ function mod:UpdateBag(bag)
 		if not bag.first and not newItems[itemId] and (newCount > 0) and not IsIgnored(itemId) then
 			self:Debug('Brand new item:', itemId)
 			newItems[itemId] = true
-			bag.added = true
+			bag.updated = true
 		end
 	end
 
@@ -296,10 +296,10 @@ function mod:UpdateBags()
 				bag.button:Disable()
 			end
 		end
-		if (bag.added or bag.removed) and bag.obj:IsOpen() then
+		if bag.updated and bag.obj:CanOpen() then
 			self:Debug(name, 'contains new new items')
-			bag.container:FiltersChanged("OnNewItems", 1)
-			bag.added, bag.removed = nil, nil
+			bag.updated = nil
+			bag.container:FiltersChanged("OnNewItems", true)
 		end
 	end
 
@@ -347,8 +347,7 @@ function mod:Reset(name)
 	wipe(bag.counts)
 	wipe(bag.newItems)
 	bag.first = true
-	bag.added = nil
-	bag.removed = true
+	bag.updated = true
 	self:UpdateBags()
 	bag.container:LayoutSections(0)
 end
