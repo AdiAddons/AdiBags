@@ -296,7 +296,7 @@ function mod:UpdateBags()
 				bag.button:Disable()
 			end
 		end
-		if bag.updated and bag.obj:CanOpen() then
+		if bag.updated and bag.container and bag.obj:CanOpen() then
 			self:Debug(name, 'contains new new items')
 			bag.updated = nil
 			bag.container:FiltersChanged("OnNewItems", true)

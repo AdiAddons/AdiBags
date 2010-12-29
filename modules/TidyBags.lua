@@ -198,7 +198,7 @@ function mod:Process(container)
 		self:Debug('Unlocked all items')
 	elseif container.dirtyLayout then
 		self:Debug('Cleaning up layout')
-		container:LayoutSections(true)
+		container:LayoutSections(0)
 	else
 		self:Debug('Done')
 		container[self].running = nil
