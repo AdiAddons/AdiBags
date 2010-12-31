@@ -11,6 +11,14 @@ local mod = addon:NewModule('CurrencyFrame', 'AceEvent-3.0')
 mod.uiName = L['Currency']
 mod.uiDesc = L['Display character currency at bottom left of the backpack.']
 
+function mod:OnInitialize()
+	self.db = addon.db:RegisterNamespace(self.moduleName, {
+		profile = {
+			shown = { ['*'] = true },
+		},
+	})
+end
+
 function mod:OnEnable()
 	addon:HookBagFrameCreation(self, 'OnBagFrameCreated')
 	if self.widget then
@@ -53,33 +61,47 @@ function mod:OnBagFrameCreated(bag)
 	self:Update()
 end
 
+local IterateCurrencies
+do
+	local function iterator(collapse, index)
+		repeat
+			index = index + 1
+			local name, isHeader, isExpanded, isUnused, isWatched, count, icon = GetCurrencyListInfo(index)
+			if name then
+				if isHeader then
+					if not isExpanded then
+						tinsert(collapse, 1, index)
+						ExpandCurrencyList(index, true)
+					end
+				else
+					return index, name, isHeader, isExpanded, isUnused, isWatched, count, icon
+				end
+			end
+		until index > GetCurrencyListSize()
+		for i, index in ipairs(collapse) do
+			ExpandCurrencyList(index, false)
+		end
+	end
+
+	local collapse = {}
+	function IterateCurrencies()
+		wipe(collapse)
+		return iterator, collapse, 0
+	end
+end
+
 local ICON_STRING = "%d\124T%s:16:16:0:0\124t"
 
-local collapse = {}
 local values = {}
 local updating
 function mod:Update()
 	if not self.widget or updating then return end
 	updating = true
 
-	for index = 1, GetCurrencyListSize() do
-		local name, isHeader, isExpanded, isUnused, isWatched, count, icon = GetCurrencyListInfo(index)
-		if isHeader then
-			if not isExpanded then
-				tinsert(collapse, index)
-				ExpandCurrencyList(index, true)
-				self:Debug('Expanded', name)
-			end
-		elseif isWatched then
-			self:Debug('name', count, icon)
+	for i, name, _, _, _, _, count, icon in IterateCurrencies() do
+		if self.db.profile.shown[name] then
 			tinsert(values, format(ICON_STRING, count, icon))
 		end
-	end
-
-	for i = #collapse, 1, -1 do
-		ExpandCurrencyList(collapse[i], false)
-		collapse[i] = nil
-		self:Debug('Collapsed', collapse[i])
 	end
 
 	local widget, fs = self.widget, self.fontstring
@@ -95,3 +117,28 @@ function mod:Update()
 
 	updating = false
 end
+
+function mod:GetOptions()
+	local values = {}
+	local function GetValueList()
+		wipe(values)
+		for i, name in IterateCurrencies() do
+			values[name] = name
+		end
+		return values
+	end
+
+	return {
+		shown = {
+			name = L['Currencies to show'],
+			type = 'multiselect',
+			order = 10,
+			values = GetValueList,
+			set = function(info, ...)
+				info.handler:Set(info, ...)
+				mod:Update()
+			end
+		},
+	}, addon:GetOptionHandler(self)
+end
+
