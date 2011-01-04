@@ -29,6 +29,8 @@ function mod:OnEnable()
 	self:RegisterMessage('AdiBags_PreContentUpdate')
 	self:RegisterMessage('AdiBags_ContainerLayoutDirty')
 	self:RegisterMessage('AdiBags_InteractingWindowChanged')
+	self:RegisterEvent('PLAYER_REGEN_DISABLED', 'RefreshAllBags')
+	self:RegisterEvent('PLAYER_REGEN_ENABLED', 'RefreshAllBags')
 	self:RegisterEvent('LOOT_CLOSED', 'AutomaticTidy')
 	for container in pairs(containers) do
 		container[self].button:Show()
@@ -60,7 +62,7 @@ function mod:AdiBags_InteractingWindowChanged(_, new)
 end
 
 function mod:AutomaticTidy()
-	if not self.db.profile.autoTidy then return end
+	if not self.db.profile.autoTidy or self.inCombat then return end
 	for container in pairs(containers) do
 		if not container.isBank then
 			mod:Start(container)
@@ -119,6 +121,7 @@ local GetItemFamily = addon.GetItemFamily
 
 local incompleteStacks = {}
 local function FindNextMove(container)
+	if InCombatLockdown() then return end
 	wipe(incompleteStacks)
 
 	local availableFamilies = 0
@@ -208,7 +211,7 @@ end
 function mod:UpdateButton(container)
 	local data = container[self]
 	self:Debug('UpdateButton', container, '|', container.dirtyLayout, '|', self:GetNextMove(container))
-	if not data.running and (container.dirtyLayout or self:GetNextMove(container)) then
+	if not data.running and (container.dirtyLayout or (not UnitAffectingCombat("player") and self:GetNextMove(container))) then
 		data.button:Enable()
 	else
 		data.button:Disable()
@@ -238,6 +241,13 @@ function mod:AdiBags_ContainerLayoutDirty(event, container)
 	if data.running then
 		self:Process(container)
 	else
+		self:UpdateButton(container)
+	end
+end
+
+function mod:RefreshAllBags(event)
+	for container in pairs(containers) do
+		container[self].cached = nil
 		self:UpdateButton(container)
 	end
 end
