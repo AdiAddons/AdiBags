@@ -26,15 +26,15 @@ end
 
 function mod:OnEnable()
 	addon:HookBagFrameCreation(self, 'OnBagFrameCreated')
-	self:RegisterMessage('AdiBags_PreContentUpdate')
 	self:RegisterMessage('AdiBags_ContainerLayoutDirty')
 	self:RegisterMessage('AdiBags_InteractingWindowChanged')
+	self:RegisterEvent('BAG_UPDATE')
 	self:RegisterEvent('PLAYER_REGEN_DISABLED', 'RefreshAllBags')
 	self:RegisterEvent('PLAYER_REGEN_ENABLED', 'RefreshAllBags')
 	self:RegisterEvent('LOOT_CLOSED', 'AutomaticTidy')
 	for container in pairs(containers) do
 		container[self].button:Show()
-		self:UpdateButton(container)
+		self:UpdateButton('OnEnable', container)
 	end
 end
 
@@ -62,9 +62,10 @@ function mod:AdiBags_InteractingWindowChanged(_, new)
 end
 
 function mod:AutomaticTidy()
-	if not self.db.profile.autoTidy or self.inCombat then return end
+	if not self.db.profile.autoTidy then return end
 	for container in pairs(containers) do
-		if not container.isBank then
+		local data = container[self]
+		if not data.running and data.bag:CanOpen() then
 			mod:Start(container)
 		end
 	end
@@ -91,7 +92,9 @@ function mod:OnBagFrameCreated(bag)
 	container:AddHeaderWidget(button, 0)
 
 	container[self] = {
-		button = button
+		button = button,
+		bag = bag,
+		locked = {}
 	}
 
 	containers[container] = true
@@ -102,67 +105,63 @@ local band = bit.band
 local GetItemFamily = GetItemFamily
 local GetContainerFreeSlots = GetContainerFreeSlots
 local GetContainerItemInfo = GetContainerItemInfo
-
-local freeSlots = {}
-local function FindFreeSlot(container, family)
-	for bag, slots in pairs(container.content) do
-		if slots.size > 0 and slots.family ~= 0 and band(family, slots.family) ~= 0 then
-			GetContainerFreeSlots(bag, freeSlots)
-			local slot = freeSlots[1]
-			wipe(freeSlots)
-			if slot then
-				return bag, slot
-			end
-		end
-	end
-end
-
+local CanPutItemInContainer = addon.CanPutItemInContainer
 local GetItemFamily = addon.GetItemFamily
 
 local incompleteStacks = {}
-local function FindNextMove(container)
+local bagList = {}
+local freeSlots = {}
+function mod:FindNextMove(container)
 	if InCombatLockdown() then return end
+	self:Debug('FindNextMove', container)
 	wipe(incompleteStacks)
+	wipe(bagList)
 
 	local availableFamilies = 0
-	for bag, slots in pairs(container.content) do
-		if slots.size > 0 and slots.family then
-			availableFamilies = bor(availableFamilies, slots.family)
+	for bag in pairs(container.bagIds) do
+		local size, _, family = GetContainerNumSlots(bag), GetContainerNumFreeSlots(bag)
+		if size > 0 and family then
+			tinsert(bagList, bag)
+			availableFamilies = bor(availableFamilies, family)
 		end
 	end
+	table.sort(bagList)
+	self:Debug('FindNextMove, bags:', unpack(bagList))
 
-	for bag, slots in pairs(container.content) do
-		if slots.size > 0 then
-			local bagFamily = slots.family
-			for slot, slotData in ipairs(slots) do
+	for i, bag in ipairs(bagList) do
+		local _, bagFamily = GetContainerNumFreeSlots(bag)
+		for slot = 1, GetContainerNumSlots(bag) do
+			local _, count, locked, _, _, _, link = GetContainerItemInfo(bag, slot)
+			if link and not locked then
+				count = count or 1
 
-				if slotData and slotData.link then
-					local itemFamily = GetItemFamily(slotData.itemId) or 0
-
-					if slotData.count < slotData.maxStack then
-						-- Incomplete stack
-						local existingStack = incompleteStacks[slotData.itemId]
-						if existingStack then
-							-- Another incomplete stack exists for this item, try to merge both
-							if slotData.count < existingStack.count then
-								return bag, slot, existingStack.bag, existingStack.slot
-							else
-								return existingStack.bag, existingStack.slot, bag, slot
-							end
+				-- Merge incomplete stacks
+				if count < (select(8, GetItemInfo(link)) or 1) then
+					local existingStack = incompleteStacks[link]
+					if existingStack then
+						local existingCount, toBag, toSlot = strsplit(':', existingStack)
+						-- Another incomplete stack exists for this item, try to merge both
+						if count < tonumber(existingCount) then
+							return bag, slot, tonumber(toBag), tonumber(toSlot)
 						else
-							-- First incomplete stack of this item
-							incompleteStacks[slotData.itemId] = slotData
+							return tonumber(toBag), tonumber(toSlot), bag, slot
+						end
+					else
+						-- First incomplete stack of this item
+						incompleteStacks[link] = strjoin(':', tostringall(count, bag, slot))
+					end
+				end
+
+				-- Move items into appropriate profession bags
+				local itemFamily = GetItemFamily(link) or 0
+				if band(itemFamily, availableFamilies) ~= 0 and bagFamily == 0 then
+					for j, toBag in ipairs(bagList) do
+						if CanPutItemInContainer(link, toBag) then
+							wipe(freeSlots)
+							GetContainerFreeSlots(toBag, freeSlots)
+							return bag, slot, toBag, freeSlots[1]
 						end
 					end
-
-					if band(itemFamily, availableFamilies) ~= 0 and bagFamily == 0 then
-						-- Not in the right bag, look for a better one
-						local toBag, toSlot = FindFreeSlot(container, itemFamily)
-						if toBag then
-							return bag, slot, toBag, toSlot
-						end
-					end
-
 				end
 
 			end
@@ -173,45 +172,82 @@ end
 function mod:GetNextMove(container)
 	local data = container[self]
 	if not data.cached then
-		data.cached, data[1], data[2], data[3], data[4] = true, FindNextMove(container)
+		data.cached, data[1], data[2], data[3], data[4] = true, self:FindNextMove(container)
 	end
 	return unpack(data, 1, 4)
 end
 
-local PickupItem = PickupContainerItem -- Might require something more sophisticated for bank
-
-function mod:Process(container)
-	if not GetCursorInfo() then
-		local fromBag, fromSlot, toBag, toSlot = self:GetNextMove(container)
-		if fromBag then
-			if addon:SetGlobalLock(true) then
-				self:Debug('Locked all items')
-			end
-			PickupItem(fromBag, fromSlot)
-			if GetCursorInfo() == "item" then
-				PickupItem(toBag, toSlot)
-				if not GetCursorInfo() then
-					self:Debug('Moved', fromBag, fromSlot, 'to', toBag, toSlot)
-					return
-				end
-			end
+function mod:PickupItem(container, bag, slot, expectedCursorInfo)
+	PickupContainerItem(bag, slot)
+	if GetCursorInfo() == expectedCursorInfo then
+		if addon:SetGlobalLock(true) then
+			self:Debug('Locked all items')
 		end
-	end
-	if addon:SetGlobalLock(false) then
-		self:Debug('Unlocked all items')
-	elseif container.dirtyLayout then
-		self:Debug('Cleaning up layout')
-		container:LayoutSections(0)
-	else
-		self:Debug('Done')
-		container[self].running = nil
+		if not container[self].locked[bag] then
+			self:Debug('Bag', bag, 'locked, waiting for update')
+			container[self].locked[bag] = true
+		end
+		return true
 	end
 end
 
-function mod:UpdateButton(container)
+function mod:Process(container)
+	local phase = container[self].running
+	self:Debug('Processing', container, phase)
+	if phase == 1 then
+		if not GetCursorInfo() then
+			local fromBag, fromSlot, toBag, toSlot = self:GetNextMove(container)
+			if fromBag then
+				self:Debug('Trying to move from', fromBag, fromSlot, 'to', toBag, toSlot)
+				if self:PickupItem(container, fromBag, fromSlot, "item") then
+					if self:PickupItem(container, toBag, toSlot, nil) then
+						self:Debug('Moved', fromBag, fromSlot, 'to', toBag, toSlot)
+						return
+					else
+						self:Debug('Something failed !')
+						ClearCursor()
+					end
+				end
+			end
+		end
+		if addon:SetGlobalLock(false) then
+			self:Debug('Unlocked all items')
+			container[self].running = 2
+			return
+		end
+	end
+	if container.dirtyLayout then
+		self:Debug('Cleaning up layout')
+		container:LayoutSections(0)
+		return
+	end
+	self:Debug('Done')
+	container[self].running = nil
+	self:UpdateButton('Process', container)
+end
+
+function mod:BAG_UPDATE(event, bag)
+	for container in pairs(containers) do
+		if container.bagIds[bag] then
+			local data = container[self]
+			data.cached = nil
+			if data.locked[bag] then
+				self:Debug('Bag', bag, 'unlocked')
+				data.locked[bag] = nil
+				if data.running and not next(data.locked) then
+					self:Debug('All bags unlocked for', container)
+					return self:Process(container)
+				end
+			end
+			self:UpdateButton('BAG_UPDATE', container)
+		end
+	end
+end
+
+function mod:UpdateButton(event, container)
 	local data = container[self]
-	self:Debug('UpdateButton', container, '|', container.dirtyLayout, '|', self:GetNextMove(container))
-	if not data.running and (container.dirtyLayout or (not UnitAffectingCombat("player") and self:GetNextMove(container))) then
+	self:Debug('UpdateButton on ', event, 'for', container, ':', container.dirtyLayout, '|', self:GetNextMove(container))
+	if not data.running and (container.dirtyLayout or self:GetNextMove(container)) then
 		data.button:Enable()
 	else
 		data.button:Disable()
@@ -220,35 +256,23 @@ end
 
 function mod:Start(container)
 	local data = container[self]
-	data.running = true
+	data.running = 1
 	data.button:Disable()
 	self:Debug('Starting on', container)
 	return self:Process(container)
 end
 
-function mod:AdiBags_PreContentUpdate(event, container)
-	local data = container[self]
-	data.cached = nil
-	if data.running then
-		self:Process(container)
-	else
-		self:UpdateButton(container)
-	end
-end
-
 function mod:AdiBags_ContainerLayoutDirty(event, container)
-	local data = container[self]
-	if data.running then
+	if (container[self].running or 0) > 1 then
 		self:Process(container)
 	else
-		self:UpdateButton(container)
+		self:UpdateButton(event, container)
 	end
 end
 
 function mod:RefreshAllBags(event)
 	for container in pairs(containers) do
 		container[self].cached = nil
-		self:UpdateButton(container)
+		self:UpdateButton(event, container)
 	end
 end
-
