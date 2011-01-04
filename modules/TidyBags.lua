@@ -15,6 +15,7 @@ mod.uiName = L['Tidy bags']
 mod.uiDesc = L['Tidy your bags by clicking on the small "T" button at the top left of bags. Special bags with free slots will be filled with macthing items and stackable items will be stacked to save space.']
 
 local containers = {}
+local locked = {}
 
 function mod:OnInitialize()
 	self.db = addon.db:RegisterNamespace(self.moduleName, {
@@ -178,22 +179,29 @@ function mod:GetNextMove(container)
 	return unpack(data, 1, 4)
 end
 
-local PickupItem = PickupContainerItem -- Might require something more sophisticated for bank
+function mod:PickupItem(container, bag, slot, expectedCursorInfo)
+	PickupContainerItem(bag, slot)
+	if GetCursorInfo() == expectedCursorInfo then
+		if addon:SetGlobalLock(true) then
+			self:Debug('Locked all items')
+		end
+		if not locked[bag]  then
+			locked[bag] = container
+			self:RegisterEvent('BAG_UPDATE')
+		end
+		return true
+	end
+end
 
 function mod:Process(container)
 	if not GetCursorInfo() then
 		local fromBag, fromSlot, toBag, toSlot = self:GetNextMove(container)
-		if fromBag then
-			if addon:SetGlobalLock(true) then
-				self:Debug('Locked all items')
-			end
-			PickupItem(fromBag, fromSlot)
-			if GetCursorInfo() == "item" then
-				PickupItem(toBag, toSlot)
-				if not GetCursorInfo() then
-					self:Debug('Moved', fromBag, fromSlot, 'to', toBag, toSlot)
-					return
-				end
+		if fromBag and self:PickupItem(container, fromBag, fromSlot, "item") then
+			if self:PickupItem(container, toBag, toSlot, nil) then
+				self:Debug('Moved', fromBag, fromSlot, 'to', toBag, toSlot)
+				return
+			else
+				ClearCursor()
 			end
 		end
 	end
@@ -205,6 +213,17 @@ function mod:Process(container)
 	else
 		self:Debug('Done')
 		container[self].running = nil
+	end
+end
+
+function mod:BAG_UPDATE(event, bag)
+	local container = locked[bag]
+	if container then
+		locked[bag] = nil
+		if not next(locked) then
+			self:UnregisterEvent('BAG_UPDATE')
+			self:Process(container)
+		end
 	end
 end
 
