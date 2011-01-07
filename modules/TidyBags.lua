@@ -131,13 +131,14 @@ function mod:FindNextMove(container)
 	for i, bag in ipairs(bagList) do
 		local _, bagFamily = GetContainerNumFreeSlots(bag)
 		for slot = 1, GetContainerNumSlots(bag) do
+			local id = GetContainerItemID(bag, slot)
 			local _, count, locked, _, _, _, link = GetContainerItemInfo(bag, slot)
-			if link and not locked then
+			if id and link and not locked then
 				count = count or 1
 
 				-- Merge incomplete stacks
-				if count < (select(8, GetItemInfo(link)) or 1) then
-					local existingStack = incompleteStacks[link]
+				if count < (select(8, GetItemInfo(id)) or 1) then
+					local existingStack = incompleteStacks[id]
 					if existingStack then
 						local existingCount, toBag, toSlot = strsplit(':', existingStack)
 						-- Another incomplete stack exists for this item, try to merge both
@@ -148,7 +149,7 @@ function mod:FindNextMove(container)
 						end
 					else
 						-- First incomplete stack of this item
-						incompleteStacks[link] = strjoin(':', tostringall(count, bag, slot))
+						incompleteStacks[id] = strjoin(':', tostringall(count, bag, slot))
 					end
 				end
 
@@ -156,7 +157,7 @@ function mod:FindNextMove(container)
 				local itemFamily = GetItemFamily(link) or 0
 				if band(itemFamily, availableFamilies) ~= 0 and bagFamily == 0 then
 					for j, toBag in ipairs(bagList) do
-						if CanPutItemInContainer(link, toBag) then
+						if CanPutItemInContainer(id, toBag) then
 							wipe(freeSlots)
 							GetContainerFreeSlots(toBag, freeSlots)
 							return bag, slot, toBag, freeSlots[1]
