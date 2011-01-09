@@ -215,7 +215,6 @@ function mod:Process(container)
 		if addon:SetGlobalLock(false) then
 			self:Debug('Unlocked all items')
 			container[self].running = 2
-			return
 		end
 	end
 	if container.dirtyLayout then
@@ -248,7 +247,7 @@ end
 
 function mod:UpdateButton(event, container)
 	local data = container[self]
-	self:Debug('UpdateButton on ', event, 'for', container, ':', container.dirtyLayout, '|', self:GetNextMove(container))
+	self:Debug('UpdateButton on ', event, 'for', container, ': running=', data.running, ' dirtyLayout=', container.dirtyLayout, '|', self:GetNextMove(container))
 	if not data.running and (container.dirtyLayout or self:GetNextMove(container)) then
 		data.button:Enable()
 	else
@@ -258,9 +257,11 @@ end
 
 function mod:Start(container)
 	local data = container[self]
-	data.running = 1
-	data.button:Disable()
-	self:Debug('Starting on', container)
+	if not data.running then
+		data.running = 1
+		data.button:Disable()
+		self:Debug('Starting', container)
+	end
 	return self:Process(container)
 end
 
