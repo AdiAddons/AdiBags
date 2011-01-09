@@ -55,14 +55,15 @@ function mod:GetOptions()
 	}, addon:GetOptionHandler(self)
 end
 
-function mod:AdiBags_InteractingWindowChanged(_, new)
+function mod:AdiBags_InteractingWindowChanged(event, new)
 	if not new then
-		return self:AutomaticTidy()
+		return self:AutomaticTidy(event)
 	end
 end
 
-function mod:AutomaticTidy()
-	if not self.db.profile.autoTidy then return end
+function mod:AutomaticTidy(event)
+	if not self.db.profile.autoTidy or InCombatLockdown() then return end
+	self:Debug('AutomaticTidy on', event)
 	for container in pairs(containers) do
 		local data = container[self]
 		if not data.running and data.bag:CanOpen() then
@@ -276,4 +277,9 @@ function mod:RefreshAllBags(event)
 		container[self].cached = nil
 		self:UpdateButton(event, container)
 	end
+end
+
+function mod:PLAYER_REGEN_ENABLED(event)
+	self:RefreshAllBags(event)
+	self:AutomaticTidy()
 end
