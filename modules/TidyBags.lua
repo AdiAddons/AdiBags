@@ -30,7 +30,7 @@ function mod:OnEnable()
 	self:RegisterMessage('AdiBags_InteractingWindowChanged')
 	self:RegisterEvent('BAG_UPDATE')
 	self:RegisterEvent('PLAYER_REGEN_DISABLED', 'RefreshAllBags')
-	self:RegisterEvent('PLAYER_REGEN_ENABLED', 'RefreshAllBags')
+	self:RegisterEvent('PLAYER_REGEN_ENABLED')
 	self:RegisterEvent('LOOT_CLOSED', 'AutomaticTidy')
 	for container in pairs(containers) do
 		container[self].button:Show()
@@ -195,6 +195,7 @@ end
 
 function mod:Process(container)
 	local phase = container[self].running
+	container[self].running = nil
 	self:Debug('Processing', container, phase)
 	if phase == 1 then
 		if not GetCursorInfo() then
@@ -204,6 +205,7 @@ function mod:Process(container)
 				if self:PickupItem(container, fromBag, fromSlot, "item") then
 					if self:PickupItem(container, toBag, toSlot, nil) then
 						self:Debug('Moved', fromBag, fromSlot, 'to', toBag, toSlot)
+						container[self].running = 1
 						return
 					else
 						self:Debug('Something failed !')
@@ -212,19 +214,16 @@ function mod:Process(container)
 				end
 			end
 		end
-		if addon:SetGlobalLock(false) then
-			self:Debug('Unlocked all items')
-			container[self].running = 2
-		end
+		container[self].running = 2
+		addon:SetGlobalLock(false)
 	end
 	if container.dirtyLayout then
 		self:Debug('Cleaning up layout')
 		container:LayoutSections(0)
-		return
+		container[self].running = 2
+	else
+		self:Debug('Done')
 	end
-	self:Debug('Done')
-	container[self].running = nil
-	self:UpdateButton('Process', container)
 end
 
 function mod:BAG_UPDATE(event, bag)
@@ -268,9 +267,8 @@ end
 function mod:AdiBags_ContainerLayoutDirty(event, container)
 	if (container[self].running or 0) > 1 then
 		self:Process(container)
-	else
-		self:UpdateButton(event, container)
 	end
+	self:UpdateButton(event, container)
 end
 
 function mod:RefreshAllBags(event)
@@ -284,3 +282,4 @@ function mod:PLAYER_REGEN_ENABLED(event)
 	self:RefreshAllBags(event)
 	self:AutomaticTidy()
 end
+
