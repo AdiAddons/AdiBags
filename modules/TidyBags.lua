@@ -158,7 +158,8 @@ function mod:FindNextMove(container)
 				local itemFamily = GetItemFamily(link) or 0
 				if band(itemFamily, availableFamilies) ~= 0 and bagFamily == 0 then
 					for j, toBag in ipairs(bagList) do
-						if CanPutItemInContainer(id, toBag) then
+						local canMove, _, _, containerFamily = CanPutItemInContainer(id, toBag)
+						if canMove and band(itemFamily, containerFamily) ~= 0 then
 							wipe(freeSlots)
 							GetContainerFreeSlots(toBag, freeSlots)
 							return bag, slot, toBag, freeSlots[1]
