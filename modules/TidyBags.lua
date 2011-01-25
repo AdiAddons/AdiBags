@@ -103,73 +103,100 @@ end
 
 local bor = bit.bor
 local band = bit.band
-local GetItemFamily = GetItemFamily
 local GetContainerFreeSlots = GetContainerFreeSlots
 local GetContainerItemInfo = GetContainerItemInfo
 local CanPutItemInContainer = addon.CanPutItemInContainer
 local GetItemFamily = addon.GetItemFamily
+local GetSlotId = addon.GetSlotId
+local GetBagSlotFromId = addon.GetBagSlotFromId
+
+-- Memoization tables
+local itemMaxStackMemo = setmetatable({}, {__index = function(t, id)
+	if not id then return end
+	local count = select(8, GetItemInfo(id)) or false
+	t[id] = count
+	return count
+end})
+local itemFamilyMemo = setmetatable({}, {__index = function(t, id)
+if not id then return end
+	local family = GetItemFamily(id) or false
+	t[id] = family
+	return family
+end})
 
 local incompleteStacks = {}
 local bagList = {}
 local freeSlots = {}
+local profBags = {}
 function mod:FindNextMove(container)
 	if InCombatLockdown() then return end
 	self:Debug('FindNextMove', container)
-	wipe(incompleteStacks)
+	
 	wipe(bagList)
-
-	local availableFamilies = 0
 	for bag in pairs(container.bagIds) do
-		local size, _, family = GetContainerNumSlots(bag), GetContainerNumFreeSlots(bag)
-		if size > 0 and family then
+		local size = GetContainerNumSlots(bag)
+		if size > 0 then
 			tinsert(bagList, bag)
-			availableFamilies = bor(availableFamilies, family)
 		end
 	end
 	table.sort(bagList)
 	self:Debug('FindNextMove, bags:', unpack(bagList))
 
+	-- Firstly, merge incomplete stacks
+	wipe(incompleteStacks)
+	wipe(profBags)	
 	for i, bag in ipairs(bagList) do
-		local _, bagFamily = GetContainerNumFreeSlots(bag)
+		local numFree, bagFamily = GetContainerNumFreeSlots(bag)
+		if numFree > 0 and bagFamily ~= 0 and not profBags[bagFamily] then
+			profBags[bagFamily] = bag
+		end
 		for slot = 1, GetContainerNumSlots(bag) do
 			local id = GetContainerItemID(bag, slot)
-			local _, count, locked, _, _, _, link = GetContainerItemInfo(bag, slot)
-			if id and link and not locked then
-				count = count or 1
-
-				-- Merge incomplete stacks
-				if count < (select(8, GetItemInfo(id)) or 1) then
+			local maxStack = itemMaxStackMemo[id]
+			if maxStack and maxStack > 1 then
+				local _, count = GetContainerItemInfo(bag, slot)
+				if id and count < maxStack then
 					local existingStack = incompleteStacks[id]
 					if existingStack then
-						local existingCount, toBag, toSlot = strsplit(':', existingStack)
-						-- Another incomplete stack exists for this item, try to merge both
-						if count < tonumber(existingCount) then
-							return bag, slot, tonumber(toBag), tonumber(toSlot)
+						local toBag, toSlot = GetBagSlotFromId(existingStack)
+						self:Debug('Should merge stacks:', bag, slot, toBag, toSlot)
+						if toBag < bag or (toBag == bag and toSlot < slot) then
+							return bag, slot, toBag, toSlot
 						else
-							return tonumber(toBag), tonumber(toSlot), bag, slot
+							return toBag, toSlot, bag, slot
 						end
 					else
-						-- First incomplete stack of this item
-						incompleteStacks[id] = strjoin(':', tostringall(count, bag, slot))
+						incompleteStacks[id] = GetSlotId(bag, slot)
 					end
 				end
-
-				-- Move items into appropriate profession bags
-				local itemFamily = GetItemFamily(link) or 0
-				if band(itemFamily, availableFamilies) ~= 0 and bagFamily == 0 then
-					for j, toBag in ipairs(bagList) do
-						local canMove, _, _, containerFamily = CanPutItemInContainer(id, toBag)
-						if canMove and band(itemFamily, containerFamily) ~= 0 then
-							wipe(freeSlots)
-							GetContainerFreeSlots(toBag, freeSlots)
-							return bag, slot, toBag, freeSlots[1]
-						end
-					end
-				end
-
 			end
 		end
 	end
+	
+	-- Then move profession materials into profession bags, if we have some
+	if next(profBags) then
+		for i, bag in ipairs(bagList) do
+			local _, bagFamily = GetContainerNumFreeSlots(bag)
+			if bagFamily == 0 then
+				for slot = 1, GetContainerNumSlots(bag) do
+					local id = GetContainerItemID(bag, slot)
+					local itemFamily = itemFamilyMemo[id]
+					if itemFamily and itemFamily ~= 0 then
+						for family, toBag in pairs(profBags) do
+							if band(family, itemFamily) ~= 0 then
+								wipe(freeSlots)
+								GetContainerFreeSlots(toBag, freeSlots)
+								self:Debug("Should move into profession bag:", bag, slot, toBag, freeSlots[1])
+								return bag, slot, toBag, freeSlots[1]
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	
+	self:Debug('Nothing to do')
 end
 
 function mod:GetNextMove(container)
