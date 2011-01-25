@@ -223,8 +223,7 @@ end
 
 function mod:Process(container)
 	local phase = container[self].running
-	container[self].running = nil
-	self:Debug('Processing', container, phase)
+	self:Debug('Processing', container, 'phase', phase)
 	if phase == 1 then
 		if not GetCursorInfo() then
 			local fromBag, fromSlot, toBag, toSlot = self:GetNextMove(container)
@@ -233,24 +232,30 @@ function mod:Process(container)
 				if self:PickupItem(container, fromBag, fromSlot, "item") then
 					if self:PickupItem(container, toBag, toSlot, nil) then
 						self:Debug('Moved', fromBag, fromSlot, 'to', toBag, toSlot)
-						container[self].running = 1
 						return
-					else
-						self:Debug('Something failed !')
-						ClearCursor()
 					end
 				end
+				self:Debug('Something failed !')
+				ClearCursor()
 			end
 		end
 		container[self].running = 2
-		addon:SetGlobalLock(false)
 	end
-	if container.dirtyLayout then
-		self:Debug('Cleaning up layout')
-		container:LayoutSections(0)
-		container[self].running = 2
-	else
-		self:Debug('Done')
+	if phase == 2 then
+		local unlocked = addon:SetGlobalLock(false)
+		container[self].running = 3
+		if unlocked then
+			self:Debug('Unlocked all bags')
+			return
+		end
+	end
+	if phase == 3 then
+		container[self].running = nil
+		if container.dirtyLayout then
+			self:Debug('Cleaning up layout')
+			container:LayoutSections(0)
+		end
+		self:Debug("Done")
 	end
 end
 
@@ -267,7 +272,9 @@ function mod:BAG_UPDATE(event, bag)
 					return self:Process(container)
 				end
 			end
-			self:UpdateButton('BAG_UPDATE', container)
+			if not data.running then
+				self:UpdateButton('BAG_UPDATE', container)
+			end
 		end
 	end
 end
@@ -293,10 +300,12 @@ function mod:Start(container)
 end
 
 function mod:AdiBags_ContainerLayoutDirty(event, container)
-	if (container[self].running or 0) > 1 then
+	local running = container[self].running 
+	if not running then
+		self:UpdateButton(event, container)
+	elseif running > 2 then
 		self:Process(container)
 	end
-	self:UpdateButton(event, container)
 end
 
 function mod:RefreshAllBags(event)
