@@ -221,42 +221,42 @@ function mod:PickupItem(container, bag, slot, expectedCursorInfo)
 	end
 end
 
-function mod:Process(container)
-	local phase = container[self].running
+function mod:ProcessInternal(container, phase)
 	self:Debug('Processing', container, 'phase', phase)
-	if phase == 1 then
-		if not GetCursorInfo() then
-			local fromBag, fromSlot, toBag, toSlot = self:GetNextMove(container)
-			if fromBag then
-				self:Debug('Trying to move from', fromBag, fromSlot, 'to', toBag, toSlot)
-				if self:PickupItem(container, fromBag, fromSlot, "item") then
-					if self:PickupItem(container, toBag, toSlot, nil) then
-						self:Debug('Moved', fromBag, fromSlot, 'to', toBag, toSlot)
-						return
-					end
+	if phase == 1 and not GetCursorInfo() then
+		local fromBag, fromSlot, toBag, toSlot = self:GetNextMove(container)
+		if fromBag then
+			self:Debug('Trying to move from', fromBag, fromSlot, 'to', toBag, toSlot)
+			if self:PickupItem(container, fromBag, fromSlot, "item") then
+				if self:PickupItem(container, toBag, toSlot, nil) then
+					self:Debug('Moved', fromBag, fromSlot, 'to', toBag, toSlot)
+					return 1
 				end
-				self:Debug('Something failed !')
-				ClearCursor()
 			end
-		end
-		container[self].running = 2
-	end
-	if phase == 2 then
-		local unlocked = addon:SetGlobalLock(false)
-		container[self].running = 3
-		if unlocked then
-			self:Debug('Unlocked all bags')
-			return
+			self:Debug('Something failed !')
+			ClearCursor()
 		end
 	end
-	if phase == 3 then
-		container[self].running = nil
-		if container.dirtyLayout then
-			self:Debug('Cleaning up layout')
-			container:LayoutSections(0)
-		end
-		self:Debug("Done")
+	if addon:SetGlobalLock(false) then
+		self:Debug('Unlocked all bags')
+		return 2
 	end
+	if container.dirtyLayout then
+		self:Debug('Cleaning up layout')
+		container:LayoutSections(0)
+	end
+	self:Debug("Done")
+end
+
+function mod:Process(container)
+	local data = container[self]
+	if data.processing then
+		self:Debug('Prevented reentering')
+		return
+	end
+	data.processing = true
+	data.running = self:ProcessInternal(container, data.running)
+	data.processing = nil
 end
 
 function mod:BAG_UPDATE(event, bag)
@@ -303,7 +303,7 @@ function mod:AdiBags_ContainerLayoutDirty(event, container)
 	local running = container[self].running 
 	if not running then
 		self:UpdateButton(event, container)
-	elseif running > 2 then
+	else
 		self:Process(container)
 	end
 end
