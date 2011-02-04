@@ -132,12 +132,9 @@ function addon:SetupDefaultFilters()
 
 	-- [85] Low quality items
 	do
+		local IsJunk = addon.IsJunk
 		--@noloc[[
-		local junkFilter = addon:RegisterFilter('Junk', 85, function(self, slotData)
-			if (slotData.class == L['Junk'] or slotData.subclass == L['Junk']) and slotData.quality < ITEM_QUALITY_UNCOMMON or  slotData.quality == ITEM_QUALITY_POOR then
-				return L['Junk']
-			end
-		end)
+		local junkFilter = addon:RegisterFilter('Junk', 85, function(self, slotData) return IsJunk(slotData.itemId) and L['Junk'] end)
 		junkFilter.uiName = L['Junk']
 		--@noloc]]
 		junkFilter.uiDesc = L['Put items of poor quality or labeled as junk in the "Junk" section.']

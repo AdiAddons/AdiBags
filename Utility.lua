@@ -136,6 +136,39 @@ function addon.GetDistinctItemID(link)
 end
 
 --------------------------------------------------------------------------------
+-- Detect junk items, with third-party addon support
+--------------------------------------------------------------------------------
+
+do
+	local GetItemInfo, ITEM_QUALITY_POOR, ITEM_QUALITY_UNCOMMON = GetItemInfo, ITEM_QUALITY_POOR, ITEM_QUALITY_UNCOMMON
+	
+	local function IsJunk_Simple(itemId)
+		local _, _, quality, _, _, class, subclass = GetItemInfo(itemId)
+		--@noloc[[
+		return quality == ITEM_QUALITY_POOR or quality < ITEM_QUALITY_UNCOMMON and (class == L['Junk'] or subclass == L['Junk'])
+		--@noloc]]		
+	end
+	
+	-- Scrap support, as suggest by xbeeps
+	if Scrap and type(Scrap.IsJunk) == "function" then
+		local Scrap = Scrap
+		addon.IsJunk = function(itemId) return IsJunk_Simple(itemId) or Scrap:IsJunk(itemId) end
+		Scrap:HookScript('OnReceiveDrag', function() addon:SendMessage("AdiBags_FiltersChanged") end)
+
+	-- BrainDead support
+	elseif LibStub('AceAddon-3.0'):GetAddon('BrainDead', true) then
+		local SellJunk = LibStub('AceAddon-3.0'):GetAddon('BrainDead'):GetModule('SellJunk')
+		addon.IsJunk = function(itemId)
+			return IsJunk_Simple(itemId) or (SellJunk:IsEnabled() and SellJunk.db.profile.items[itemId])
+		end
+		
+	-- no third-party addon
+	else
+		addon.IsJunk = IsJunk_Simple
+	end
+end
+
+--------------------------------------------------------------------------------
 -- Item and container family
 --------------------------------------------------------------------------------
 

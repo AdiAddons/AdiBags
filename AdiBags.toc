@@ -6,7 +6,7 @@
 ## Version: @project-version@
 ## SavedVariables: AdiBagsDB
 ## X-Date: @project-date-iso@
-## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, AdiDebug
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, AdiDebug, Scrap, BrainDead
 
 #@no-lib-strip@
 libs\LibStub\LibStub.lua
