@@ -187,6 +187,10 @@ function addon:OnEnable()
 
 	self:RawHook("OpenAllBags", true)
 	self:RawHook("CloseAllBags", true)
+	if _G.ToggleAllBags then -- 4.1 compat
+		-- TODO: I should really look at 4.1 changes to understand what they are doing
+		self:RawHook("ToggleAllBags", "OpenAllBags", true)
+	end
 	self:RawHook("ToggleBackpack", true)
 	self:RawHook("ToggleBag", true)
 	self:RawHook("OpenBackpack", true)
