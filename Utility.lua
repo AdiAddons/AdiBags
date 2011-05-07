@@ -141,12 +141,11 @@ end
 
 do
 	local GetItemInfo, ITEM_QUALITY_POOR, ITEM_QUALITY_UNCOMMON = GetItemInfo, ITEM_QUALITY_POOR, ITEM_QUALITY_UNCOMMON
+	local JUNK = addon.BI['Junk']
 	
 	local function IsJunk_Simple(itemId)
 		local _, _, quality, _, _, class, subclass = GetItemInfo(itemId)
-		--@noloc[[
-		return quality == ITEM_QUALITY_POOR or quality < ITEM_QUALITY_UNCOMMON and (class == L['Junk'] or subclass == L['Junk'])
-		--@noloc]]		
+		return quality == ITEM_QUALITY_POOR or quality < ITEM_QUALITY_UNCOMMON and (class == JUNK or subclass == JUNK)
 	end
 	
 	-- Scrap support, as suggest by xbeeps

@@ -467,14 +467,16 @@ local function FilterByBag(slotData)
 	end
 end
 
+local MISCELLANEOUS = addon.BI['Miscellaneous']
+local FREE_SPACE = L["Free space"]
 function containerProto:FilterSlot(slotData)
 	if self.BagSlotPanel:IsShown() then
 		return FilterByBag(slotData)
 	elseif slotData.link then
-		local section, category, filterName = addon:Filter(slotData, L['Miscellaneous'])
+		local section, category, filterName = addon:Filter(slotData, MISCELLANEOUS)
 		return section, category, filterName, addon:ShouldStack(slotData)
 	else
-		return L["Free space"], nil, nil, addon:ShouldStack(slotData)
+		return FREE_SPACE, nil, nil, addon:ShouldStack(slotData)
 	end
 end
 

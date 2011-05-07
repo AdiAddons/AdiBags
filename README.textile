@@ -4,7 +4,7 @@ It is heavily inspired by Nargiddley's Baggins.
 
 Configuration is available through Blizzard addon panel, /adibags chat command or right-clicking on the LDB plugin.
 
-*Important note about translation*: some filters may not works properly because of missing translations. Translators, please take a look at the "translations pages":http://www.wowace.com/addons/adibags/localization/ for the following phrases : "Consummable":http://www.wowace.com/addons/adibags/localization/phrases/31-consumable/, "Miscellaneous":http://www.wowace.com/addons/adibags/localization/phrases/62-miscellaneous/, "Trade Goods":http://www.wowace.com/addons/adibags/localization/phrases/108-trade-goods/, "Gem":http://www.wowace.com/addons/adibags/localization/phrases/48-gem/, "Glyph":http://www.wowace.com/addons/adibags/localization/phrases/142-glyph/, "Quest":http://www.wowace.com/addons/adibags/localization/phrases/82-quest/, "Recipe":http://www.wowace.com/addons/adibags/localization/phrases/143-recipe/ and "Junk":http://www.wowace.com/addons/adibags/localization/phrases/55-junk/. Moreover, these translated strings should match exacly the auction house categories. I am manually updating the localization file, so send a PM when you change something.
+*Important note about localized filters*: some filters rely on translations from "LibBabble-Inventory-3.0":http://www.wowace.com/addons/libbabble-inventory-3-0/ so if some of them behave strangely in your locale, please take a look at the "library translation status":http://www.wowace.com/addons/libbabble-inventory-3-0/localization/.
 
 Related pages:
 

@@ -31,6 +31,9 @@ L["KEYRING_TAG"] = "Ke"
 L["GEM_BAG_TAG"] = "Ge"
 L["MINING_BAG_TAG"] = "Mi"
 
+-- Get LibBabble-Inventory-3.0
+addon.BI = LibStub('LibBabble-Inventory-3.0'):GetLookupTable()
+
 --------------------------------------------------------------------------------
 -- Locales from localization system (not yet)
 --------------------------------------------------------------------------------

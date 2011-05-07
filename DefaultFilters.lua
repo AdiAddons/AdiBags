@@ -5,19 +5,34 @@ All rights reserved.
 --]]
 
 local addonName, addon = ...
-local L = addon.L
 
 function addon:SetupDefaultFilters()
+	local L, BI = addon.L, addon.BI
+	
+	-- Make some strings local to speed things
+	local CONSUMMABLE = BI['Consumable']
+	local GEM = BI['Gem']
+	local GLYPH = BI['Glyph']
+	local JUNK = BI['Junk']
+	local MISCELLANEOUS = BI['Miscellaneous']
+	local QUEST = BI['Quest']
+	local RECIPE = BI['Recipe']
+	local TRADE_GOODS = BI['Trade Goods']
+	local WEAPON = BI["Weapon"]
+	local ARMOR =  BI["Armor"]
+	local JEWELRY = L["Jewelry"]
+	local EQUIPMENT = L['Equipment']
+	local AMMUNITION = L['Ammunition']
 
 	-- Define global ordering
 	self:SetCategoryOrders{
-		[L['Quest']] = 30,
-		[L['Trade Goods']] = 20,
-		[L['Equipment']] = 10,
-		[L['Consumable']] = -10,
-		[L['Miscellaneous']] = -20,
-		[L['Ammunition']] = -30,
-		[L['Junk']] = -40,
+		[QUEST] = 30,
+		[TRADE_GOODS] = 20,
+		[EQUIPMENT] = 10,
+		[CONSUMMABLE] = -10,
+		[MISCELLANEOUS] = -20,
+		[AMMUNITION] = -30,
+		[JUNK] = -40,
 	}
 
 	-- [90] Parts of an equipment set
@@ -91,13 +106,14 @@ function addon:SetupDefaultFilters()
 			end
 		end		
 
+		local SETS, SET_NAME =  L['Sets'], L["Set: %s"]
 		function setFilter:Filter(slotData)
 			local name = self.slots[slotData.slotId]
 			if name then
 				if not self.db.profile.oneSectionPerSet or self.db.char.mergedSets[name] then
-					return L['Sets'], L["Equipment"]
+					return SETS, EQUIPMENT
 				else
-					return L["Set: %s"]:format(name), L["Equipment"]
+					return format(SET_NAME, name), EQUIPMENT
 				end
 			end
 		end
@@ -133,37 +149,32 @@ function addon:SetupDefaultFilters()
 	-- [85] Low quality items
 	do
 		local IsJunk = addon.IsJunk
-		--@noloc[[
-		local junkFilter = addon:RegisterFilter('Junk', 85, function(self, slotData) return IsJunk(slotData.itemId) and L['Junk'] end)
-		junkFilter.uiName = L['Junk']
-		--@noloc]]
+		local junkFilter = addon:RegisterFilter('Junk', 85, function(self, slotData) return IsJunk(slotData.itemId) and JUNK end)
+		junkFilter.uiName = JUNK
 		junkFilter.uiDesc = L['Put items of poor quality or labeled as junk in the "Junk" section.']
 	end
 
 	-- [75] Quest Items
 	do
-		--@noloc[[
 		local questItemFilter = addon:RegisterFilter('Quest', 75, function(self, slotData)
-			if slotData.class == L['Quest'] or slotData.subclass == L['Quest'] then
-				return L['Quest']
+			if slotData.class == QUEST or slotData.subclass == QUEST then
+				return QUEST
 			else
 				local isQuestItem, questId = GetContainerItemQuestInfo(slotData.bag, slotData.slot)
-				return (questId or isQuestItem) and L['Quest']
+				return (questId or isQuestItem) and QUEST
 			end
 		end)
-		--@noloc]]
 		questItemFilter.uiName = L['Quest Items']
 		questItemFilter.uiDesc = L['Put quest-related items in their own section.']
 	end
 
 	-- [60] Equipment
 	do
-		local WEAPON, ARMOR, JEWELRY, MISC = L["Weapon"], L["Armor"], L["Jewelry"], L["Miscellaneous"]
 		local equipCategories = {
 			INVTYPE_2HWEAPON = WEAPON,
-			INVTYPE_AMMO = MISC,
-			INVTYPE_BAG = MISC,
-			INVTYPE_BODY = MISC,
+			INVTYPE_AMMO = MISCELLANEOUS,
+			INVTYPE_BAG = MISCELLANEOUS,
+			INVTYPE_BODY = MISCELLANEOUS,
 			INVTYPE_CHEST = ARMOR,
 			INVTYPE_CLOAK = ARMOR,
 			INVTYPE_FEET = ARMOR,
@@ -173,14 +184,14 @@ function addon:SetupDefaultFilters()
 			INVTYPE_HOLDABLE = WEAPON,
 			INVTYPE_LEGS = ARMOR,
 			INVTYPE_NECK = JEWELRY,
-			INVTYPE_QUIVER = MISC,
+			INVTYPE_QUIVER = MISCELLANEOUS,
 			INVTYPE_RANGED = WEAPON,
 			INVTYPE_RANGEDRIGHT = WEAPON,
 			INVTYPE_RELIC = JEWELRY,
 			INVTYPE_ROBE = ARMOR,
 			INVTYPE_SHIELD = WEAPON,
 			INVTYPE_SHOULDER = ARMOR,
-			INVTYPE_TABARD = MISC,
+			INVTYPE_TABARD = MISCELLANEOUS,
 			INVTYPE_THROWN = WEAPON,
 			INVTYPE_TRINKET = JEWELRY,
 			INVTYPE_WAIST = ARMOR,
@@ -204,10 +215,10 @@ function addon:SetupDefaultFilters()
 				if category == ARMOR and self.db.profile.armorTypes and slotData.subclass then
 					category = slotData.subclass
 				end
-				return category or L['Equipment'], L['Equipment']
+				return category or EQUIPMENT, EQUIPMENT
 			end
 		end)
-		equipmentFilter.uiName = L['Equipment']
+		equipmentFilter.uiName = EQUIPMENT
 		equipmentFilter.uiDesc = L['Put any item that can be equipped (including bags) into the "Equipment" section.']
 
 		function equipmentFilter:OnInitialize()
@@ -264,12 +275,12 @@ function addon:SetupDefaultFilters()
 					type = 'multiselect',
 					order = 10,
 					values = {
-						[L['Trade Goods']] = L['Trade Goods'],
-						[L['Consumable']] = L['Consumable'],
-						[L['Miscellaneous']] = L['Miscellaneous'],
-						[L['Gem']] = L['Gem'],
-						[L['Glyph']] = L['Glyph'],
-						[L['Recipe']] = L['Recipe'],
+						[TRADE_GOODS] = TRADE_GOODS,
+						[CONSUMMABLE] = CONSUMMABLE,
+						[MISCELLANEOUS] = MISCELLANEOUS,
+						[GEM] = GEM,
+						[GLYPH] = GLYPH,
+						[RECIPE] = RECIPE,
 					}
 				},
 				mergeGems = {
@@ -291,10 +302,10 @@ function addon:SetupDefaultFilters()
 
 		function itemCat:Filter(slotData)
 			local class, subclass = slotData.class, slotData.subclass
-			if class == L['Gem'] and self.db.profile.mergeGems then
-				class, subclass = L["Trade Goods"], class
-			elseif class == L['Glyph'] and self.db.profile.mergeGlyphs then
-				class, subclass = L["Trade Goods"], class
+			if class == GEM and self.db.profile.mergeGems then
+				class, subclass = TRADE_GOODS, class
+			elseif class == GLYPH and self.db.profile.mergeGlyphs then
+				class, subclass = TRADE_GOODS, class
 			end
 			if self.db.profile.splitBySubclass[class] then
 				return subclass, class
