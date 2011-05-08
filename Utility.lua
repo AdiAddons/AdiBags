@@ -145,7 +145,7 @@ do
 	
 	local function IsJunk_Simple(itemId)
 		local _, _, quality, _, _, class, subclass = GetItemInfo(itemId)
-		return quality == ITEM_QUALITY_POOR or quality < ITEM_QUALITY_UNCOMMON and (class == JUNK or subclass == JUNK)
+		return quality == ITEM_QUALITY_POOR or (quality and quality < ITEM_QUALITY_UNCOMMON and (class == JUNK or subclass == JUNK))
 	end
 	
 	-- Scrap support, as suggest by xbeeps
