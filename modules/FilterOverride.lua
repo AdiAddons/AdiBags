@@ -56,10 +56,12 @@ end
 -- Options
 --------------------------------------------------------------------------------
 
+local categoryValues
+
 local options
 function mod:GetOptions()
 	if not options then
-		local categoryValues = {}
+		categoryValues = {}
 		for name in addon:IterateCategories() do
 			categoryValues[name] = name
 		end
@@ -128,65 +130,131 @@ function mod:GetOptions()
 end
 
 do
-	local proto = {
-		type = 'multiselect',
-		confirm = true,
-		confirmText = L['Are you sure you want to remove this association ?'],
-		get = function(info, itemId) return true end,
-		set = function(info, itemId, value)
-			if not value then
-				 mod.db.profile.overrides[itemId] = nil
-				 mod:UpdateOptions()
-				 mod:SendMessage('AdiBags_FiltersChanged')
+	local AceConfigDialog = LibStub('AceConfigDialog-3.0')
+
+	local handlerProto = {
+		SetItemAssoc = function(self, value)
+			for itemId in pairs(self.values) do
+				mod.db.profile.overrides[itemId] = value
+			end
+			mod:SendMessage('AdiBags_FiltersChanged')
+			mod:UpdateOptions()
+		end,
+		GetName = function(self) return self.name end,
+		SetName = function(self, info, input) return self:SetItemAssoc(input..'#'..self.category) end,
+		ValidateName = function(self, info, input) return type(input) == "string" and strtrim(input) ~= "" end,
+		GetCategory = function(self) return self.category end,
+		SetCategory = function(self, info, input) 
+			self:SetItemAssoc(self.name..'#'..input) 
+			AceConfigDialog:SelectGroup(addonName, "filters", mod.filterName, input)
+		end,
+		ListCategories = function() return categoryValues end,
+		Remove = function(self)
+			self:SetItemAssoc(nil)
+		end,
+		RemoveItem = function(self, info, itemId)
+			values[itemId] = nil
+			mod.db.profile.overrides[itemId] = nil
+			mod:SendMessage('AdiBags_FiltersChanged')
+			if not next(values) then
+				mod:UpdateOptions()
 			end
 		end,
+		ListItems = function(self) return self.values end,
 	}
-	local meta = { __index = proto }
+	local handlerMeta = { __index = handlerProto }
+	local optionProto = {
+		type = 'group',
+		inline = true,
+		args = {
+			name = {
+				name = L['Section'],
+				type = 'input',
+				order = 10,
+				get = 'GetName',
+				set = 'SetName',
+				validate = 'ValidateName',
+			},
+			category = {
+				name = L['Category'],
+				type = 'select',
+				order = 20,
+				get = 'GetCategory',
+				set = 'SetCategory',
+				values = 'ListCategories',
+			},
+			remove = {
+				name = L['Remove'],
+				type = 'execute',
+				confirm = true,
+				confirmText = L['Are you sure you want to remove this section ?'],				
+				order = 30,
+				func = 'Remove',
+			},
+			items = {
+				name = L['Items'],
+				type = 'multiselect',
+				width = 'double',
+				order = 40,
+				confirm = true,
+				confirmText = L['Are you sure you want to remove this item ?'],
+				get = function() return true end,
+				set = 'RemoveItem',
+				values = 'ListItems',
+			},
+		},
+	}
+	local optionMeta = { __index = optionProto }
 	local AceConfigRegistry = LibStub('AceConfigRegistry-3.0')
-	local ours = {}
+	local sectionHeap = {}
+	local categories = {}
+	local categoryHeap = {}
 
-	local function CompareOptions(a, b)
-		return a.arg < b.arg
-	end
-
-	local tmp = {}
 	function mod:UpdateOptions()
 		if not options then return end
-		for option in pairs(ours) do
-			wipe(option.values)
-			option.hidden = true
+		setmetatable(handlerProto, { __index = addon:GetOptionHandler(self) })		
+		for category, categoryGroup in pairs(categories) do
+			options[category] = nil
+			for _, sectionGroup in pairs(categoryGroup.args) do
+				wipe(sectionGroup.handler.values)
+				tinsert(sectionHeap, sectionGroup)
+			end
+			wipe(categoryGroup.args)
+			tinsert(categoryHeap, categoryGroup)
 		end
-		wipe(tmp)
+		wipe(categories)
 		for itemId, override in pairs(self.db.profile.overrides) do
 			local section, category = strsplit('#', tostring(override))
-			local key = strjoin('_', section, category)
-			local option = options[key]
-			if not option then
-				option = setmetatable({
-					name = format("[%s] %s", category, section),
-					arg = format('%05d:%s', 1000+addon:GetCategoryOrder(category), section),					
-					width = 'double',
-					values = {}
-				}, meta)
-				ours[option] = true
-				options[key] = option
+			local categoryGroup = categories[category]
+			if not categoryGroup then
+				categoryGroup = tremove(categoryHeap)
+				if not categoryGroup then
+					categoryGroup = { name = category, type = 'group', args = {} }
+				end
+				categoryGroup.name, categoryGroup.order = category, addon:GetCategoryOrder(category)
+				categories[category] = categoryGroup
+				options[category] = categoryGroup
 			end
-			tinsert(tmp, option)
-			option.hidden = false
+			local key = gsub(section, "%W", "")
+			local sectionGroup = categoryGroup.args[key]
+			if not sectionGroup then
+				sectionGroup = tremove(sectionHeap)
+				if not sectionGroup then
+					sectionGroup = setmetatable({handler = setmetatable({values = {}}, handlerMeta)}, optionMeta)
+				end
+				sectionGroup.name = section
+				sectionGroup.handler.name = section
+				sectionGroup.handler.category = category
+				categoryGroup.args[key] = sectionGroup
+			end
 			local name, _, quality, _, _, _, _,  _, _, icon = GetItemInfo(itemId)
 			if not name then
-				option.values[itemId] = format("#%d", itemId)
+				sectionGroup.handler.values[itemId] = format("#%d", itemId)
 			else
 				local color = ITEM_QUALITY_COLORS[quality or 1]
 				local hex = color and color.hex or ''
-				option.values[itemId] = format("|T%s:20:20|t %s%s|r", icon, (color and color.hex or ''), name)
+				sectionGroup.handler.values[itemId] = format("|T%s:20:20|t %s%s|r", icon, (color and color.hex or ''), name)
 			end
-		end
-		table.sort(tmp, CompareOptions)
-		local order = 100
-		for i, option in pairs(tmp) do
-			option.order = order
-			order = order + 1
 		end
 		AceConfigRegistry:NotifyChange(addonName)
 	end
