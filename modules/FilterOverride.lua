@@ -7,13 +7,20 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
-local mod = addon:RegisterFilter("mod", 95, "AceEvent-3.0")
+local mod = addon:RegisterFilter("FilterOverride", 95, "AceEvent-3.0")
 mod.uiName = L['Manual filtering']
 mod.uiDesc = L['Allow you manually redefine the section in which an item should be put. Simply drag an item on the section title.']
 
 local buttons = {}
 
 function mod:OnInitialize()
+
+	-- This module was named "mod" for quite a while, retrieve the old data if they exists
+	if addon.db.sv.namespaces and addon.db.sv.namespaces.mod ~= nil then
+		addon.db.sv.namespaces[self.moduleName] = addon.db.sv.namespaces.mod
+		addon.db.sv.namespaces.mod = nil
+	end
+	
 	self.db = addon.db:RegisterNamespace(self.moduleName, { profile = { overrides = {} } })
 end
 
