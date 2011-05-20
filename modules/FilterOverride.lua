@@ -20,7 +20,7 @@ function mod:OnInitialize()
 		addon.db.sv.namespaces[self.moduleName] = addon.db.sv.namespaces.mod
 		addon.db.sv.namespaces.mod = nil
 	end
-	
+
 	self.db = addon.db:RegisterNamespace(self.moduleName, { profile = { overrides = {} } })
 end
 
@@ -58,16 +58,17 @@ end
 
 local categoryValues
 
+local function GetItemId(str)
+	local link = str and select(2, GetItemInfo(str))
+	return link and tonumber(link:match("item:(%d+)"))
+end
+
 local options
 function mod:GetOptions()
 	if not options then
 		categoryValues = {}
 		for name in addon:IterateCategories() do
 			categoryValues[name] = name
-		end
-		local function GetItemId(str)
-			local link = str and select(2, GetItemInfo(str))
-			return link and tonumber(link:match("item:(%d+)"))
 		end
 		local newItemId, newSection, newCategory
 		options = {
@@ -112,8 +113,8 @@ function mod:GetOptions()
 						order = 40,
 						func = function()
 							mod.db.profile.overrides[newItemId] = strjoin('#', newSection, newCategory)
+							mod:UpdateOptions(newCategory)
 							newItemId, newCategory, newSection = nil, nil, nil
-							mod:UpdateOptions()
 							mod:SendMessage('AdiBags_FiltersChanged')
 						end,
 						disabled = function()
@@ -133,34 +134,52 @@ do
 	local AceConfigDialog = LibStub('AceConfigDialog-3.0')
 
 	local handlerProto = {
-		SetItemAssoc = function(self, value)
+		SetItemAssoc = function(self, section, category)
+			local key = section and category and (section..'#'..category) or nil
 			for itemId in pairs(self.values) do
-				mod.db.profile.overrides[itemId] = value
+				mod.db.profile.overrides[itemId] = key
 			end
 			mod:SendMessage('AdiBags_FiltersChanged')
-			mod:UpdateOptions()
+			return mod:UpdateOptions(self.category, category)
 		end,
 		GetName = function(self) return self.name end,
-		SetName = function(self, info, input) return self:SetItemAssoc(input..'#'..self.category) end,
+		SetName = function(self, info, input) return self:SetItemAssoc(input, self.category) end,
 		ValidateName = function(self, info, input) return type(input) == "string" and strtrim(input) ~= "" end,
 		GetCategory = function(self) return self.category end,
-		SetCategory = function(self, info, input) 
-			self:SetItemAssoc(self.name..'#'..input) 
-			AceConfigDialog:SelectGroup(addonName, "filters", mod.filterName, input)
-		end,
+		SetCategory = function(self, info, input) return self:SetItemAssoc(self.name, input) end,
 		ListCategories = function() return categoryValues end,
-		Remove = function(self)
-			self:SetItemAssoc(nil)
+		Remove = function(self) return self:SetItemAssoc() end,
+		ValidateItem = function(self, info, input) return not not GetItemId(input) end,
+		AddItem = function(self, info, input, ...)
+			local itemId = GetItemId(input)
+			mod.db.profile.overrides[itemId] = self.key
+			mod:SendMessage('AdiBags_FiltersChanged')
 		end,
 		RemoveItem = function(self, info, itemId)
-			values[itemId] = nil
 			mod.db.profile.overrides[itemId] = nil
+			self.values[itemId] = nil
 			mod:SendMessage('AdiBags_FiltersChanged')
-			if not next(values) then
-				mod:UpdateOptions()
+			if not next(self.values) then
+				mod:UpdateOptions(self.category)
 			end
 		end,
-		ListItems = function(self) return self.values end,
+		ListItems = function(self)
+			local values = self.values
+			wipe(values)
+			for itemId, key in pairs(mod.db.profile.overrides) do
+				if key == self.key then
+					local name, _, quality, _, _, _, _,  _, _, icon = GetItemInfo(itemId)
+					if not name then
+						values[itemId] = format("#%d (item not found)", itemId)
+					else
+						local color = ITEM_QUALITY_COLORS[quality or 1]
+						local hex = color and color.hex or ''
+						values[itemId] = format("|T%s:20:20|t %s%s|r", icon, (color and color.hex or ''), name)
+					end
+				end
+			end
+			return values
+		end,
 	}
 	local handlerMeta = { __index = handlerProto }
 	local optionProto = {
@@ -186,16 +205,25 @@ do
 			remove = {
 				name = L['Remove'],
 				type = 'execute',
-				confirm = true,
-				confirmText = L['Are you sure you want to remove this section ?'],				
 				order = 30,
+				confirm = true,
+				confirmText = L['Are you sure you want to remove this section ?'],
 				func = 'Remove',
+			},
+			addItem = {
+				name = L['Add item'],
+				desc = L['Enter a link or the numrical identifier the item to add. You can also drop an item.'],
+				type = 'input',
+				order = 40,
+				validate = 'ValidateItem',
+				get = function() return "" end,
+				set = 'AddItem',
 			},
 			items = {
 				name = L['Items'],
 				type = 'multiselect',
 				width = 'double',
-				order = 40,
+				order = 50,
 				confirm = true,
 				confirmText = L['Are you sure you want to remove this item ?'],
 				get = function() return true end,
@@ -210,9 +238,9 @@ do
 	local categories = {}
 	local categoryHeap = {}
 
-	function mod:UpdateOptions()
+	function mod:UpdateOptions(selectCategory, fallbackSelectCategory)
 		if not options then return end
-		setmetatable(handlerProto, { __index = addon:GetOptionHandler(self) })		
+		setmetatable(handlerProto, { __index = addon:GetOptionHandler(self) })
 		for category, categoryGroup in pairs(categories) do
 			options[category] = nil
 			for _, sectionGroup in pairs(categoryGroup.args) do
@@ -243,20 +271,21 @@ do
 					sectionGroup = setmetatable({handler = setmetatable({values = {}}, handlerMeta)}, optionMeta)
 				end
 				sectionGroup.name = section
+				sectionGroup.handler.key = override
 				sectionGroup.handler.name = section
 				sectionGroup.handler.category = category
 				categoryGroup.args[key] = sectionGroup
 			end
-			local name, _, quality, _, _, _, _,  _, _, icon = GetItemInfo(itemId)
-			if not name then
-				sectionGroup.handler.values[itemId] = format("#%d", itemId)
+		end
+		if selectCategory or fallbackSelectCategory then
+			if options[selectCategory] then
+				AceConfigDialog:SelectGroup(addonName, "filters", mod.filterName, selectCategory)
+			elseif options[fallbackSelectCategory] then
+				AceConfigDialog:SelectGroup(addonName, "filters", mod.filterName, fallbackSelectCategory)
 			else
-				local color = ITEM_QUALITY_COLORS[quality or 1]
-				local hex = color and color.hex or ''
-				sectionGroup.handler.values[itemId] = format("|T%s:20:20|t %s%s|r", icon, (color and color.hex or ''), name)
+				AceConfigDialog:SelectGroup(addonName, "filters", mod.filterName)
 			end
 		end
-		AceConfigRegistry:NotifyChange(addonName)
 	end
 end
 
@@ -312,6 +341,7 @@ function headerButtonProto:OnClick()
 	if contentType ~= "item" then return end
 	mod.db.profile.overrides[itemId] = self:GetOverride()
 	mod:UpdateOptions()
+	AceConfigRegistry:NotifyChange(addonName)
 	self:SendMessage('AdiBags_FiltersChanged')
 	ClearCursor()
 end
