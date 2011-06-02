@@ -217,8 +217,8 @@ function containerProto:OnShow()
 	PlaySound(self.isBank and "igMainMenuOpen" or "igBackPackOpen")
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "PauseUpdates")
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "ResumeUpdates")
-	containerParentProto.OnShow(self)
 	self:ResumeUpdates()
+	containerParentProto.OnShow(self)
 end
 
 function containerProto:OnHide()
