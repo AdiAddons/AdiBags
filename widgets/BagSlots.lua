@@ -242,7 +242,7 @@ function bagButtonProto:OnClick(button)
 			EmptyBag(self.bag)
 		end
 	else
-		if not PutItemInBag(self.invSlot) then
+		if not PutItemInBag(self.invSlot) and self.hasItem then
 			PickupBagFromSlot(self.invSlot)
 		end
 		pendingUpdate[self.invSlot] = true
