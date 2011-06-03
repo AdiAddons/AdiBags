@@ -1,6 +1,6 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010 Adirelle (adirelle@tagada-team.net)
+Copyright 2010-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]]
 
@@ -20,7 +20,7 @@ function addon:SetupDefaultFilters()
 	local wipe = _G.wipe
 
 	local L, BI = addon.L, addon.BI
-	
+
 	-- Make some strings local to speed things
 	local CONSUMMABLE = BI['Consumable']
 	local GEM = BI['Gem']
@@ -101,8 +101,8 @@ function addon:SetupDefaultFilters()
 				end
 			end
 			self.dirty = false
-		end		
-		
+		end
+
 		function setFilter:EQUIPMENT_SETS_CHANGED(event)
 			self:UpdateNames()
 			self:SendMessage('AdiBags_FiltersChanged', true)
@@ -116,7 +116,7 @@ function addon:SetupDefaultFilters()
 			if self.dirty then
 				self:UpdateSlots()
 			end
-		end		
+		end
 
 		local SETS, SET_NAME =  L['Sets'], L["Set: %s"]
 		function setFilter:Filter(slotData)

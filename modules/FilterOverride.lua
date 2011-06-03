@@ -1,6 +1,6 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010 Adirelle (adirelle@tagada-team.net)
+Copyright 2010-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]]
 
@@ -178,7 +178,7 @@ do
 				tinsert(t, itemId)
 			end
 			if #t > 0 then
-				mod:AssignItems(section, category, unpack(t))	
+				mod:AssignItems(section, category, unpack(t))
 				wipe(t)
 				mod:UpdateOptions(self.category, category)
 			end

@@ -20,7 +20,7 @@ local select = _G.select
 local wipe = _G.wipe
 
 local JUNK = addon.BI['Junk']
-	
+
 local mod = addon:RegisterFilter("Junk", 85, "AceEvent-3.0", "AceHook-3.0")
 mod.uiName = JUNK
 mod.uiDesc = L['Put items of poor quality or labeled as junk in the "Junk" section.']
@@ -96,14 +96,14 @@ function mod:AdiBags_OverrideFilter(event, section, category, ...)
 	local include, exclude = prefs.include, prefs.exclude
 	for i = 1, select('#', ...) do
 		local id = select(i, ...)
-		local incFlag, exclFlag 
+		local incFlag, exclFlag
 		if section == JUNK then
 			incFlag = not self:BaseCheckItem(id, true) or nil
 		else
 			exclFlag = (self:BaseCheckItem(id, true) or self:ExtendedCheckItem(id, true)) and true or nil
 		end
 		if include[id] ~= incFlag or exclude[id] ~= exclFlag then
-			include[id], exclude[id] = incFlag, exclFlag 
+			include[id], exclude[id] = incFlag, exclFlag
 			changed = true
 		end
 	end
@@ -118,7 +118,7 @@ function mod:Update()
 	local acr = LibStub('AceConfigRegistry-3.0', true)
 	if acr then
 		acr:NotifyChange(addonName)
-	end	
+	end
 end
 
 -- Options
@@ -129,13 +129,13 @@ local sourceList = {
 }
 function mod:GetOptions()
 	local handler = addon:GetOptionHandler(self)
-	
+
 	local Set = handler.Set
 	function handler.Set(...)
 		Set(...)
 		mod:Update()
 	end
-	
+
 	local t = {}
 	function handler:ListItems(info)
 		local items = prefs[info[#info]]
@@ -152,17 +152,17 @@ function mod:GetOptions()
 		end
 		return t
 	end
-	
+
 	function handler:Remove(info, key)
 		return handler:Set(info, key, nil)
 	end
-	
+
 	function handler:HasNoItem(info)
 		return not next(prefs[info[#info]])
 	end
-	
+
 	local function True() return true end
-	
+
 	return {
 		sources = {
 			type = 'multiselect',
@@ -183,7 +183,7 @@ function mod:GetOptions()
 			type = 'multiselect',
 			name = L['Excluded items'],
 			order = 30,
-			values = 'ListItems',			
+			values = 'ListItems',
 			get = True,
 			set = 'Remove',
 			hidden = 'HasNoItem',
@@ -203,24 +203,24 @@ if Scrap and type(Scrap.IsJunk) == "function" then
 		return (force or prefs.sources.Scrap) and Scrap:IsJunk(itemId)
 	end
 
-	Scrap:HookScript('OnReceiveDrag', function() 
+	Scrap:HookScript('OnReceiveDrag', function()
 		if prefs.sources.Scrap then
 			wipe(cache)
-			addon:SendMessage("AdiBags_FiltersChanged") 
+			addon:SendMessage("AdiBags_FiltersChanged")
 		end
 	end)
-	
+
 	sourceList.Scrap = "Scrap"
 
 elseif BrainDead then
 	-- BrainDead support
-	
+
 	local SellJunk = BrainDead:GetModule('SellJunk')
 
 	function mod:ExtendedCheckItem(itemId, force)
 		return (force or prefs.sources.BrainDead) and SellJunk.db.profile.items[itemId]
 	end
-	
+
 	sourceList.BrainDead = "BrainDead"
 end
 

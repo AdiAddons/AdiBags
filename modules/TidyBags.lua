@@ -1,6 +1,6 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010 Adirelle (adirelle@tagada-team.net)
+Copyright 2010-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]]
 
@@ -270,7 +270,7 @@ function bagProto:ProcessInternal()
 		self:Debug('Unlocked all items')
 	end
 	self.running = nil
-	self:UpdateButton("ProcessInternal")	
+	self:UpdateButton("ProcessInternal")
 	self:Debug("Done")
 end
 

@@ -1,6 +1,6 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010 Adirelle (adirelle@tagada-team.net)
+Copyright 2010-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]]
 
@@ -76,7 +76,6 @@ local modifierTests = {
 	ctrl = IsControlKeyDown,
 	alt = IsAltKeyDown,
 }
-
 
 local function TestModifier(name)
 	return modifierTests[mod.db.profile[name] or "never"]()

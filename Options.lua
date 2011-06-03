@@ -1,6 +1,6 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010 Adirelle (adirelle@tagada-team.net)
+Copyright 2010-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]]
 
@@ -240,7 +240,7 @@ function addon:GetOptions()
 	local profiles = LibStub('AceDBOptions-3.0'):GetOptionsTable(self.db)
 	profiles.order = 600
 	profiles.disabled = false
-	local bagList = {}	
+	local bagList = {}
 	for name, module in self:IterateModules() do
 		if module.isBag then
 			bagList[module.bagName] = L[module.bagName]
