@@ -83,8 +83,8 @@ function mod:CheckItem(itemId)
 	return false
 end
 
-function mod:IsJunk(itemId)
-	return itemId and cache[itemId] or false
+function mod:IsJunk(_, itemId)
+	return tonumber(itemId) and cache[tonumber(itemId)] or false
 end
 
 function mod:Filter(slotData)
