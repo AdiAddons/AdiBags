@@ -7,6 +7,13 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+-- GLOBALS: HideUIPanel InterfaceOptionsFrame LibStub
+local _G = _G
+local setmetatable = _G.setmetatable
+local strjoin = _G.strjoin
+local type = _G.type
+local unpack = _G.unpack
+
 local AceConfigDialog = LibStub('AceConfigDialog-3.0')
 
 local options

@@ -7,6 +7,23 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+local _G = _G
+local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
+local CreateFrame = _G.CreateFrame
+local GetContainerItemInfo = _G.GetContainerItemInfo
+local GetContainerNumSlots = _G.GetContainerNumSlots
+local GetInventoryItemID = _G.GetInventoryItemID
+local GetInventoryItemLink = _G.GetInventoryItemLink
+local initialized = _G.initialized
+local next = _G.next
+local pairs = _G.pairs
+local PlaySound = _G.PlaySound
+local strmatch = _G.strmatch
+local tonumber = _G.tonumber
+local type = _G.type
+local unpack = _G.unpack
+local wipe = _G.wipe
+
 local mod = addon:RegisterFilter('NewItem', 80, 'AceEvent-3.0', 'AceBucket-3.0', 'AceTimer-3.0')
 mod.uiName = L['Track new items']
 mod.uiDesc = L['Track new items in each bag, displaying a glowing aura over them and putting them in a special section. "New" status can be reset by clicking on the small "N" button at top left of bags.']

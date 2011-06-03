@@ -7,6 +7,15 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+-- GLOBALS: CLOSE CreateFrame ToggleDropDownMenu UIDropDownMenu_AddButton
+local _G = _G
+local format = _G.format
+local ipairs = _G.ipairs
+local pairs = _G.pairs
+local table = _G.table
+local tinsert = _G.tinsert
+local wipe = _G.wipe
+
 local mod = addon:NewModule('SectionVisibilityDropdown', 'AceEvent-3.0')
 mod.uiName = L['Section visibility button']
 mod.uiDesc = L['Add a dropdown menu to bags that allow to hide the sections.']

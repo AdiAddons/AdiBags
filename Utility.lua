@@ -9,6 +9,22 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+-- GLOBALS: setmetatable GetContainerNumFreeSlots GetItemFamily GameTooltip
+local _G = _G
+local bit = _G.bit
+local geterrorhandler = _G.geterrorhandler
+local GetItemInfo = _G.GetItemInfo
+local math = _G.math
+local pcall = _G.pcall
+local select = _G.select
+local strjoin = _G.strjoin
+local strmatch = _G.strmatch
+local tonumber = _G.tonumber
+local tostring = _G.tostring
+local type = _G.type
+local ITEM_QUALITY_POOR = _G.ITEM_QUALITY_POOR
+local ITEM_QUALITY_UNCOMMON = _G.ITEM_QUALITY_UNCOMMON
+
 --------------------------------------------------------------------------------
 -- (bag,slot) <=> slotId conversion
 --------------------------------------------------------------------------------

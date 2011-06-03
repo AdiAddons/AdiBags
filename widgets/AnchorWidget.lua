@@ -7,6 +7,8 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+-- GLOBALS: CreateFrame UIParent
+
 local anchorClass, anchorProto, anchorParentProto = addon:NewClass("Anchor", "Frame")
 
 function addon:CreateAnchorWidget(...) return anchorClass:Create(...) end

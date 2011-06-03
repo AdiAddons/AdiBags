@@ -7,6 +7,15 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+-- GLOBALS: GameTooltip IsModifierKeyDown IsShiftKeyDown IsControlKeyDown IsAltKeyDown
+local _G = _G
+local format = _G.format
+local pairs = _G.pairs
+local setmetatable = _G.setmetatable
+local table = _G.table
+local tinsert = _G.tinsert
+local wipe = _G.wipe
+
 local mod = addon:NewModule('TooltipInfo', 'AceEvent-3.0', 'AceHook-3.0')
 mod.uiName = L['Tooltip information']
 mod.uiDesc = L['Add more information in tooltips related to items in your bags.']

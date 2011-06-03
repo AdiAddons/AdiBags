@@ -7,6 +7,16 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+-- GLOBALS: ExpandCurrencyList GetCurrencyListInfo GetCurrencyListSize IsAddOnLoaded
+local _G = _G
+local CreateFrame = _G.CreateFrame
+local format = _G.format
+local hooksecurefunc = _G.hooksecurefunc
+local ipairs = _G.ipairs
+local table = _G.table
+local tinsert = _G.tinsert
+local wipe = _G.wipe
+
 local mod = addon:NewModule('CurrencyFrame', 'AceEvent-3.0')
 mod.uiName = L['Currency']
 mod.uiDesc = L['Display character currency at bottom left of the backpack.']

@@ -7,6 +7,30 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+-- GLOBALS: LibStub AdiDebug NUM_CONTAINER_FRAMES
+local _G = _G
+local assert = _G.assert
+local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
+local BANK_CONTAINER = _G.BANK_CONTAINER
+local BankFrame = _G.BankFrame
+local CloseBankFrame = _G.CloseBankFrame
+local GetContainerNumSlots = _G.GetContainerNumSlots
+local geterrorhandler = _G.geterrorhandler
+local ipairs = _G.ipairs
+local next = _G.next
+local NUM_BAG_SLOTS = _G.NUM_BAG_SLOTS
+local NUM_BANKBAGSLOTS = _G.NUM_BANKBAGSLOTS
+local NUM_BANKGENERIC_SLOTS = _G.NUM_BANKGENERIC_SLOTS
+local pairs = _G.pairs
+local pcall = _G.pcall
+local strmatch = _G.strmatch
+local strsplit = _G.strsplit
+local tinsert = _G.tinsert
+local tsort = _G.table.sort
+local type = _G.type
+local UIParent = _G.UIParent
+local wipe = _G.wipe
+
 LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'AceEvent-3.0', 'AceBucket-3.0', 'AceHook-3.0')
 --@debug@
 _G[addonName] = addon
@@ -79,10 +103,11 @@ local FAMILY_ICONS = {
   [0x0400] = [[Interface\Icons\Trade_Mining]], -- Mining Bag
 }
 
+local band = _G.bit.band
 function addon:GetFamilyTag(family)
 	if family and family ~= 0 then
 		for mask, tag in pairs(FAMILY_TAGS) do
-			if bit.band(family, mask) ~= 0 then
+			if band(family, mask) ~= 0 then
 				return tag, FAMILY_ICONS[mask]
 			end
 		end
@@ -651,7 +676,7 @@ function addon:NewBag(name, order, bagIds, isBank, ...)
 	bag.isBank = isBank
 	bag.order = order
 	tinsert(bags, bag)
-	table.sort(bags, CompareBags)
+	tsort(bags, CompareBags)
 	return bag
 end
 
@@ -1015,7 +1040,7 @@ function addon:UpdateFilters()
 			tinsert(allFilters, filter)
 		end
 	end
-	table.sort(allFilters, CompareFilters)
+	tsort(allFilters, CompareFilters)
 	wipe(activeFilters)
 	for i, filter in ipairs(allFilters) do
 		if filter:IsEnabled() then

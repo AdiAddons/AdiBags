@@ -7,6 +7,8 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+-- GLOBALS: CreateFrame
+
 local mod = addon:NewModule('MoneyFrame', 'AceEvent-3.0')
 mod.uiName = L['Money']
 mod.uiDesc = L['Display character money at bottom right of the backpack.']

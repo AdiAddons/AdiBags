@@ -7,6 +7,39 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+-- GLOBALS: LibStub UIParent
+local _G = _G
+local assert = _G.assert
+local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
+local BANK_CONTAINER = _G.BANK_CONTAINER
+local band = _G.bit.band
+local CreateFrame = _G.CreateFrame
+local format = _G.format
+local GetContainerFreeSlots = _G.GetContainerFreeSlots
+local GetContainerItemID = _G.GetContainerItemID
+local GetContainerItemInfo = _G.GetContainerItemInfo
+local GetContainerItemLink = _G.GetContainerItemLink
+local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
+local GetContainerNumSlots = _G.GetContainerNumSlots
+local GetCursorInfo = _G.GetCursorInfo
+local GetItemFamily = _G.GetItemFamily
+local GetItemInfo = _G.GetItemInfo
+local GetMerchantItemLink = _G.GetMerchantItemLink
+local ipairs = _G.ipairs
+local max, floor = _G.math.max, _G.math.floor
+local next = _G.next
+local NUM_BAG_SLOTS = _G.NUM_BAG_SLOTS
+local pairs = _G.pairs
+local PlaySound = _G.PlaySound
+local select = _G.select
+local strjoin = _G.strjoin
+local table = _G.table
+local tinsert = _G.tinsert
+local tostring = _G.tostring
+local tremove = _G.tremove
+local unpack = _G.unpack
+local wipe = _G.wipe
+
 local GetSlotId = addon.GetSlotId
 local GetBagSlotFromId = addon.GetBagSlotFromId
 
@@ -257,7 +290,6 @@ end
 -- Backdrop click handler
 --------------------------------------------------------------------------------
 
-local band = bit.band
 local function FindBagWithRoom(self, itemFamily)
 	local fallback
 	for bag in pairs(self.bagIds) do
@@ -324,7 +356,7 @@ function containerProto:AddBottomWidget(widget, side, order, height, xOffset, yO
 end
 
 function containerProto:GetContentMinWidth()
-	return math.max(
+	return max(
 		(self.BottomLeftRegion:IsShown() and self.BottomLeftRegion:GetWidth() or 0) +
 			(self.BottomRightRegion:IsShown() and self.BottomRightRegion:GetWidth() or 0),
 		self.Title:GetStringWidth() + 32 +
@@ -339,9 +371,9 @@ function containerProto:OnLayout()
 		bottomHeight = self.BottomLeftRegion:GetHeight() + BAG_INSET
 	end
 	if self.BottomRightRegion:IsShown() then
-		bottomHeight = math.max(bottomHeight, self.BottomRightRegion:GetHeight() + BAG_INSET)
+		bottomHeight = max(bottomHeight, self.BottomRightRegion:GetHeight() + BAG_INSET)
 	end
-	self:SetWidth(BAG_INSET * 2 + math.max(self:GetContentMinWidth(), self.Content:GetWidth()))
+	self:SetWidth(BAG_INSET * 2 + max(self:GetContentMinWidth(), self.Content:GetWidth()))
 	self:SetHeight(addon.TOP_PADDING + BAG_INSET + bottomHeight + self.Content:GetHeight())
 end
 
@@ -613,7 +645,6 @@ local function CompareSections(a, b)
 end
 
 local sections = {}
-local max, floor = math.max, math.floor
 
 local function GetBestSection(maxWidth, maxHeight, xOffset, rowHeight, category)
 	local bestIndex, leastWasted, bestWidth, bestHeight

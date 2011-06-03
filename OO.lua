@@ -7,6 +7,18 @@ All rights reserved.
 local addonName, addon = ...
 local safecall = addon.safecall
 
+-- GLOBALS: SLASH_ADIBAGSOODEBUG1 SlashCmdList LibStub
+local _G = _G
+local assert = _G.assert
+local CreateFrame = _G.CreateFrame
+local next = _G.next
+local pairs = _G.pairs
+local print = _G.print
+local select = _G.select
+local setmetatable = _G.setmetatable
+local string = _G.string
+local tostring = _G.tostring
+
 --------------------------------------------------------------------------------
 -- Classes
 --------------------------------------------------------------------------------

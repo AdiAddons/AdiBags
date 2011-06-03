@@ -7,6 +7,18 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+-- GLOBALS: LibStub
+local _G = _G
+local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
+local GetContainerNumSlots = _G.GetContainerNumSlots
+local ipairs = _G.ipairs
+local pairs = _G.pairs
+local string = _G.string
+local strjoin = _G.strjoin
+local table = _G.table
+local tinsert = _G.tinsert
+local wipe = _G.wipe
+
 local mod = addon:NewModule('DataSource', 'AceEvent-3.0', 'AceBucket-3.0')
 mod.uiName = L['LDB Plugin']
 mod.uiDesc = L['Provides a LDB data source to be displayed by LDB display addons.']

@@ -7,6 +7,51 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+-- GLOBALS: GameTooltip StaticPopup_Show
+local _G = _G
+local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
+local BANK_BAG = _G.BANK_BAG
+local BANK_BAG_PURCHASE = _G.BANK_BAG_PURCHASE
+local BANK_CONTAINER = _G.BANK_CONTAINER
+local BankFrame = _G.BankFrame
+local band = _G.bit.band
+local ClearCursor = _G.ClearCursor
+local ContainerIDToInventoryID = _G.ContainerIDToInventoryID
+local COSTS_LABEL = _G.COSTS_LABEL
+local CreateFrame = _G.CreateFrame
+local CursorHasItem = _G.CursorHasItem
+local CursorUpdate = _G.CursorUpdate
+local GetBankSlotCost = _G.GetBankSlotCost
+local GetCoinTextureString = _G.GetCoinTextureString
+local GetContainerItemID = _G.GetContainerItemID
+local GetContainerItemInfo = _G.GetContainerItemInfo
+local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
+local GetContainerNumSlots = _G.GetContainerNumSlots
+local geterrorhandler = _G.geterrorhandler
+local GetInventoryItemTexture = _G.GetInventoryItemTexture
+local GetItemInfo = _G.GetItemInfo
+local GetNumBankSlots = _G.GetNumBankSlots
+local ipairs = _G.ipairs
+local IsInventoryItemLocked = _G.IsInventoryItemLocked
+local next = _G.next
+local NUM_BAG_SLOTS = _G.NUM_BAG_SLOTS
+local NUM_BANKGENERIC_SLOTS = _G.NUM_BANKGENERIC_SLOTS
+local pairs = _G.pairs
+local pcall = _G.pcall
+local PickupBagFromSlot = _G.PickupBagFromSlot
+local PickupContainerItem = _G.PickupContainerItem
+local PlaySound = _G.PlaySound
+local PutItemInBag = _G.PutItemInBag
+local select = _G.select
+local SetItemButtonDesaturated = _G.SetItemButtonDesaturated
+local SetItemButtonTexture = _G.SetItemButtonTexture
+local SetItemButtonTextureVertexColor = _G.SetItemButtonTextureVertexColor
+local strjoin = _G.strjoin
+local table = _G.table
+local tinsert = _G.tinsert
+local unpack = _G.unpack
+local wipe = _G.wipe
+
 local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING
 local BAG_INSET = addon.BAG_INSET
@@ -38,7 +83,7 @@ do
 		addon:Debug('FindSlotForItem', itemId, GetItemInfo(itemId), 'count=', itemCount, 'maxStack=', maxStack, 'family=', itemFamily, 'bags:', unpack(bags))
 		local bestBag, bestSlot, bestScore
 		for i, bag in pairs(bags) do
-			local scoreBonus = bit.band(select(2, GetContainerNumFreeSlots(bag)) or 0, itemFamily) ~= 0 and maxStack or 0
+			local scoreBonus = band(select(2, GetContainerNumFreeSlots(bag)) or 0, itemFamily) ~= 0 and maxStack or 0
 			for slot = 1, GetContainerNumSlots(bag) do
 				local texture, slotCount, locked = GetContainerItemInfo(bag, slot)
 				if not locked and (not texture or GetContainerItemID(bag, slot) == itemId) then

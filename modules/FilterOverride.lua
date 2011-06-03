@@ -7,6 +7,28 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+local _G = _G
+local ClearCursor = _G.ClearCursor
+local format = _G.format
+local GetCursorInfo = _G.GetCursorInfo
+local GetItemInfo = _G.GetItemInfo
+local gsub = _G.gsub
+local ITEM_QUALITY_COLORS = _G.ITEM_QUALITY_COLORS
+local LibStub = _G.LibStub
+local next = _G.next
+local pairs = _G.pairs
+local select = _G.select
+local setmetatable = _G.setmetatable
+local strsplit = _G.strsplit
+local strtrim = _G.strtrim
+local tinsert = _G.tinsert
+local tonumber = _G.tonumber
+local tostring = _G.tostring
+local tremove = _G.tremove
+local type = _G.type
+local unpack = _G.unpack
+local wipe = _G.wipe
+
 local mod = addon:RegisterFilter("FilterOverride", 95, "AceEvent-3.0")
 mod.uiName = L['Manual filtering']
 mod.uiDesc = L['Allow you manually redefine the section in which an item should be put. Simply drag an item on the section title.']

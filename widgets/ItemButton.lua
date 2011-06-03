@@ -6,6 +6,29 @@ All rights reserved.
 
 local addonName, addon = ...
 
+-- GLOBALS: StackSplitFrame ContainerFrame_UpdateCooldown BankButtonIDToInvSlotID
+local _G = _G
+local BANK_CONTAINER = _G.BANK_CONTAINER
+local GetContainerItemID = _G.GetContainerItemID
+local GetContainerItemInfo = _G.GetContainerItemInfo
+local GetContainerItemLink = _G.GetContainerItemLink
+local GetContainerItemQuestInfo = _G.GetContainerItemQuestInfo
+local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
+local GetItemInfo = _G.GetItemInfo
+local GetItemQualityColor = _G.GetItemQualityColor
+local IsInventoryItemLocked = _G.IsInventoryItemLocked
+local ITEM_QUALITY_POOR = _G.ITEM_QUALITY_POOR
+local ITEM_QUALITY_UNCOMMON = _G.ITEM_QUALITY_UNCOMMON
+local next = _G.next
+local pairs = _G.pairs
+local select = _G.select
+local SetItemButtonDesaturated = _G.SetItemButtonDesaturated
+local string = _G.string
+local TEXTURE_ITEM_QUEST_BANG = _G.TEXTURE_ITEM_QUEST_BANG
+local TEXTURE_ITEM_QUEST_BORDER = _G.TEXTURE_ITEM_QUEST_BORDER
+local tostring = _G.tostring
+local wipe = _G.wipe
+
 local GetSlotId = addon.GetSlotId
 local GetBagSlotFromId = addon.GetBagSlotFromId
 

@@ -7,6 +7,30 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+-- GLOBALS: GetContainerFreeSlots GetContainerItemInfo
+local _G = _G
+local bor = _G.bit.bor
+local band = _G.bit.band
+local ClearCursor = _G.ClearCursor
+local CreateFrame = _G.CreateFrame
+local GetContainerItemID = _G.GetContainerItemID
+local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
+local GetContainerNumSlots = _G.GetContainerNumSlots
+local GetCursorInfo = _G.GetCursorInfo
+local GetItemInfo = _G.GetItemInfo
+local InCombatLockdown = _G.InCombatLockdown
+local ipairs = _G.ipairs
+local next = _G.next
+local pairs = _G.pairs
+local PickupContainerItem = _G.PickupContainerItem
+local PlaySound = _G.PlaySound
+local select = _G.select
+local setmetatable = _G.setmetatable
+local table = _G.table
+local tinsert = _G.tinsert
+local unpack = _G.unpack
+local wipe = _G.wipe
+
 local GetSlotId = addon.GetSlotId
 local GetBagSlotFromId = addon.GetBagSlotFromId
 
@@ -260,10 +284,6 @@ end
 
 -- Tidying logic
 
-local bor = bit.bor
-local band = bit.band
-local GetContainerFreeSlots = GetContainerFreeSlots
-local GetContainerItemInfo = GetContainerItemInfo
 local CanPutItemInContainer = addon.CanPutItemInContainer
 local GetItemFamily = addon.GetItemFamily
 local GetSlotId = addon.GetSlotId

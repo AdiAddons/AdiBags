@@ -7,6 +7,23 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+local _G = _G
+local ceil = _G.ceil
+local floor = _G.floor
+local format = _G.format
+local GetItemInfo = _G.GetItemInfo
+local ipairs = _G.ipairs
+local math = _G.math
+local max = _G.max
+local pairs = _G.pairs
+local string = _G.string
+local strjoin = _G.strjoin
+local strsplit = _G.strsplit
+local table = _G.table
+local tinsert = _G.tinsert
+local tostring = _G.tostring
+local wipe = _G.wipe
+
 local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING
 local SECTION_SPACING = addon.SECTION_SPACING

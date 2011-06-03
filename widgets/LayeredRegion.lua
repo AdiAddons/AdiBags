@@ -8,6 +8,16 @@ local addonName, addon = ...
 local L = addon.L
 local safecall = addon.safecall
 
+local _G = _G
+local assert = _G.assert
+local ipairs = _G.ipairs
+local pairs = _G.pairs
+local table = _G.table
+local tinsert = _G.tinsert
+local type = _G.type
+local unpack = _G.unpack
+local max = _G.math.max
+
 --------------------------------------------------------------------------------
 -- Abstract layered region
 --------------------------------------------------------------------------------
@@ -164,8 +174,6 @@ function simpleLayeredRegionProto:OnWidgetAdded(data, order, size, xOffset, yOff
 	data.yOffset = yOffset or 0
 	table.sort(self.widgets, CompareWidgets)
 end
-
-local max = math.max
 
 function simpleLayeredRegionProto:OnLayout()
 	local dx, dy, sx, sy = self.dx, self.dy, self.sx, self.sy
