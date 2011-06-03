@@ -63,6 +63,8 @@ local function GetItemId(str)
 	return link and tonumber(link:match("item:(%d+)"))
 end
 
+local AceConfigRegistry = LibStub('AceConfigRegistry-3.0')
+
 local options
 function mod:GetOptions()
 	if not options then
@@ -233,7 +235,6 @@ do
 		},
 	}
 	local optionMeta = { __index = optionProto }
-	local AceConfigRegistry = LibStub('AceConfigRegistry-3.0')
 	local sectionHeap = {}
 	local categories = {}
 	local categoryHeap = {}
