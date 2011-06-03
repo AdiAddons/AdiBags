@@ -9,9 +9,13 @@ local L = addon.L
 
 -- GLOBALS: setmetatable Scrap LibStub
 local _G = _G
+local format = _G.format
 local GetItemInfo = _G.GetItemInfo
+local ITEM_QUALITY_COLORS = _G.ITEM_QUALITY_COLORS
 local ITEM_QUALITY_POOR = _G.ITEM_QUALITY_POOR
 local ITEM_QUALITY_UNCOMMON = _G.ITEM_QUALITY_UNCOMMON
+local next = _G.next
+local pairs = _G.pairs
 local select = _G.select
 local wipe = _G.wipe
 
@@ -63,21 +67,19 @@ function mod:ExtendedCheckItem(itemId, force)
 end
 
 function mod:CheckItem(itemId)
-	if not itemId then return false end
-	if prefs.exclude[itemId] then
-		self:Debug('CheckItem', GetItemInfo(itemId), '=> excluded')
+	if not itemId then
+		return false
+	elseif not GetItemInfo(itemId) then
+		return nil -- Should cause to rescan later
+	elseif prefs.exclude[itemId] then
 		return false
 	elseif prefs.include[itemId] then
-		self:Debug('CheckItem', GetItemInfo(itemId), '=> included')
 		return true
 	elseif self:BaseCheckItem(itemId) then
-		self:Debug('CheckItem', GetItemInfo(itemId), '=> BaseCheckItem')
 		return true
 	elseif self:ExtendedCheckItem(itemId) then
-		self:Debug('CheckItem', GetItemInfo(itemId), '=> ExtendedCheckItem')
 		return true
 	end
-	self:Debug('CheckItem', GetItemInfo(itemId), '=> not junk')
 	return false
 end
 
@@ -90,7 +92,6 @@ function mod:Filter(slotData)
 end
 
 function mod:AdiBags_OverrideFilter(event, section, category, ...)
-	self:Debug(event, section, category, ...)
 	local changed = false
 	local include, exclude = prefs.include, prefs.exclude
 	for i = 1, select('#', ...) do
@@ -102,7 +103,6 @@ function mod:AdiBags_OverrideFilter(event, section, category, ...)
 			exclFlag = (self:BaseCheckItem(id, true) or self:ExtendedCheckItem(id, true)) and true or nil
 		end
 		if include[id] ~= incFlag or exclude[id] ~= exclFlag then
-			self:Debug('OverrideFilter', GetItemInfo(id), "included=", incFlag, "excluded=", exclFlag)
 			include[id], exclude[id] = incFlag, exclFlag 
 			changed = true
 		end
