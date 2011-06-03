@@ -52,6 +52,20 @@ function mod:Filter(slotData)
 	end
 end
 
+function mod:AssignItems(section, category, ...)
+	local key = section and category and (section..'#'..category) or nil
+	for i = 1, select('#', ...) do
+		local itemId = select(i, ...)
+		mod.db.profile.overrides[itemId] = key
+	end
+	self:SendMessage('AdiBags_OverrideFilter', section, category, ...)
+	self:SendMessage('AdiBags_FiltersChanged')
+	local acr = LibStub('AceConfigRegistry-3.0', true)
+	if acr then
+		acr:NotifyChange(addonName)
+	end
+end
+
 --------------------------------------------------------------------------------
 -- Options
 --------------------------------------------------------------------------------
@@ -114,10 +128,9 @@ function mod:GetOptions()
 						desc = L["Click on this button to create the new association."],
 						order = 40,
 						func = function()
-							mod.db.profile.overrides[newItemId] = strjoin('#', newSection, newCategory)
+							mod:AssignItems(newSection, newCategory, newItemId)
 							mod:UpdateOptions(newCategory)
 							newItemId, newCategory, newSection = nil, nil, nil
-							mod:SendMessage('AdiBags_FiltersChanged')
 						end,
 						disabled = function()
 							return not newItemId or not newSection or not newCategory
@@ -135,14 +148,18 @@ end
 do
 	local AceConfigDialog = LibStub('AceConfigDialog-3.0')
 
+	local t = {}
 	local handlerProto = {
 		SetItemAssoc = function(self, section, category)
-			local key = section and category and (section..'#'..category) or nil
+			wipe(t)
 			for itemId in pairs(self.values) do
-				mod.db.profile.overrides[itemId] = key
+				tinsert(t, itemId)
 			end
-			mod:SendMessage('AdiBags_FiltersChanged')
-			return mod:UpdateOptions(self.category, category)
+			if #t > 0 then
+				mod:AssignItems(section, category, unpack(t))	
+				wipe(t)
+				mod:UpdateOptions(self.category, category)
+			end
 		end,
 		GetName = function(self) return self.name end,
 		SetName = function(self, info, input) return self:SetItemAssoc(input, self.category) end,
@@ -153,17 +170,12 @@ do
 		Remove = function(self) return self:SetItemAssoc() end,
 		ValidateItem = function(self, info, input) return not not GetItemId(input) end,
 		AddItem = function(self, info, input, ...)
-			local itemId = GetItemId(input)
-			mod.db.profile.overrides[itemId] = self.key
-			mod:SendMessage('AdiBags_FiltersChanged')
+			mod:AssignItems(self.name, self.category, GetItemId(input))
+			mod:UpdateOptions()
 		end,
 		RemoveItem = function(self, info, itemId)
-			mod.db.profile.overrides[itemId] = nil
-			self.values[itemId] = nil
-			mod:SendMessage('AdiBags_FiltersChanged')
-			if not next(self.values) then
-				mod:UpdateOptions(self.category)
-			end
+			mod:AssignItems(nil, nil, itemId)
+			mod:UpdateOptions(self.category)
 		end,
 		ListItems = function(self)
 			local values = self.values
@@ -315,10 +327,6 @@ function headerButtonProto:OnCreate(section)
 	addon.SetupTooltip(self, L["Drop your item there to add it to this section."])
 end
 
-function headerButtonProto:GetOverride()
-	return strjoin('#', self.section.name, self.section.category)
-end
-
 function headerButtonProto:CURSOR_UPDATE()
 	local contentType, itemId = GetCursorInfo()
 	if contentType == "item" then
@@ -340,11 +348,9 @@ end
 function headerButtonProto:OnClick()
 	local contentType, itemId = GetCursorInfo()
 	if contentType ~= "item" then return end
-	mod.db.profile.overrides[itemId] = self:GetOverride()
-	mod:UpdateOptions()
-	AceConfigRegistry:NotifyChange(addonName)
-	self:SendMessage('AdiBags_FiltersChanged')
 	ClearCursor()
+	mod:AssignItems(self.section.name, self.section.category, itemId)
+	mod:UpdateOptions()
 end
 
 function mod:NewHeaderButton(...)

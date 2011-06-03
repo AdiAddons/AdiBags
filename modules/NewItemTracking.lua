@@ -186,14 +186,13 @@ function mod:EQUIPMENT_SWAP_FINISHED(event)
 end
 
 local GetDistinctItemID = addon.GetDistinctItemID
-local IsJunk = addon.IsJunk
 
 local function IsIgnored(itemId)
 	if mod.db.profile.ignoreJunk then
 		if type(itemId) == "string" then
 			itemId = tonumber(strmatch(itemId, "item:(%d+)") or itemId)
 		end
-		return IsJunk(itemId)
+		return addon:IsJunk(itemId)
 	end
 end
 

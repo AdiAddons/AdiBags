@@ -146,14 +146,6 @@ function addon:SetupDefaultFilters()
 
 	end
 
-	-- [85] Low quality items
-	do
-		local IsJunk = addon.IsJunk
-		local junkFilter = addon:RegisterFilter('Junk', 85, function(self, slotData) return IsJunk(slotData.itemId) and JUNK end)
-		junkFilter.uiName = JUNK
-		junkFilter.uiDesc = L['Put items of poor quality or labeled as junk in the "Junk" section.']
-	end
-
 	-- [75] Quest Items
 	do
 		local questItemFilter = addon:RegisterFilter('Quest', 75, function(self, slotData)
