@@ -308,7 +308,7 @@ function bagButtonProto:BAG_UPDATE(event, bag, ...)
 end
 
 function bagButtonProto:ITEM_LOCK_CHANGED(event, invSlot, containerSlot)
-	if not (containerSlot and invSlot == self.invSlot) or pendingUpdates[self.invSlot] then
+	if not (containerSlot and invSlot == self.invSlot) or pendingUpdate[self.invSlot] then
 		return self:Update()
 	end
 end

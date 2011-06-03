@@ -608,7 +608,7 @@ function bagProto:Open()
 	if not frame:IsShown() then
 		self:Debug('Open')
 		frame:Show()
-		addon:SendMessage('AdiBags_BagOpened', name, self)
+		addon:SendMessage('AdiBags_BagOpened', self.bagName, self)
 		return true
 	end
 end
@@ -617,7 +617,7 @@ function bagProto:Close()
 	if self.frame and self.frame:IsShown() then
 		self:Debug('Close')
 		self.frame:Hide()
-		addon:SendMessage('AdiBags_BagClosed', name, self)
+		addon:SendMessage('AdiBags_BagClosed', self.bagName, self)
 		if self.PostClose then
 			self:PostClose()
 		end
