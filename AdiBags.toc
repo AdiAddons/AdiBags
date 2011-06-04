@@ -38,6 +38,7 @@ widgets\BagSlots.lua
 widgets\ItemButton.lua
 widgets\Section.lua
 widgets\AnchorWidget.lua
+widgets\Config-ItemList.lua
 
 modules\DataSource.lua
 modules\SearchHighlight.lua
