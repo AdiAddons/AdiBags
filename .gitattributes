@@ -1,0 +1,2 @@
+*.lua	filter=trimTrailingSpaces
+*.xml	filter=trimTrailingSpaces
