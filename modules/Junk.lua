@@ -7,6 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
 local _G = _G
 local GetItemInfo = _G.GetItemInfo
 local ITEM_QUALITY_POOR = _G.ITEM_QUALITY_POOR
@@ -16,6 +17,7 @@ local setmetatable = _G.setmetatable
 local tonumber = _G.tonumber
 local type = _G.type
 local wipe = _G.wipe
+--GLOBALS>
 
 local JUNK = addon.BI['Junk']
 

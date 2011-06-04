@@ -7,6 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
 local _G = _G
 local ceil = _G.ceil
 local floor = _G.floor
@@ -22,6 +23,7 @@ local tinsert = _G.tinsert
 local tostring = _G.tostring
 local tsort = _G.table.sort
 local wipe = _G.wipe
+--GLOBALS>
 
 local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING

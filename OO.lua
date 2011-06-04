@@ -7,6 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local safecall = addon.safecall
 
+--<GLOBALS
 local _G = _G
 local assert = _G.assert
 local CreateFrame = _G.CreateFrame
@@ -18,6 +19,7 @@ local select = _G.select
 local setmetatable = _G.setmetatable
 local SlashCmdList = _G.SlashCmdList
 local tostring = _G.tostring
+--GLOBALS>
 
 --------------------------------------------------------------------------------
 -- Classes

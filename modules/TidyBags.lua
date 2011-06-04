@@ -7,6 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
 local _G = _G
 local band = _G.bit.band
 local ClearCursor = _G.ClearCursor
@@ -30,6 +31,7 @@ local tinsert = _G.tinsert
 local tsort = _G.table.sort
 local unpack = _G.unpack
 local wipe = _G.wipe
+--GLOBALS>
 
 local GetSlotId = addon.GetSlotId
 local GetBagSlotFromId = addon.GetBagSlotFromId

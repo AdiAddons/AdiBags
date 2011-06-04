@@ -9,6 +9,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
 local _G = _G
 local band = _G.bit.band
 local floor = _G.floor
@@ -27,6 +28,7 @@ local strmatch = _G.strmatch
 local tonumber = _G.tonumber
 local tostring = _G.tostring
 local type = _G.type
+--GLOBALS>
 
 --------------------------------------------------------------------------------
 -- (bag,slot) <=> slotId conversion

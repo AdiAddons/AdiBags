@@ -7,6 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
 local _G = _G
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
 local CreateFrame = _G.CreateFrame
@@ -22,6 +23,7 @@ local tonumber = _G.tonumber
 local type = _G.type
 local unpack = _G.unpack
 local wipe = _G.wipe
+--GLOBALS>
 
 local mod = addon:RegisterFilter('NewItem', 80, 'AceEvent-3.0', 'AceBucket-3.0', 'AceTimer-3.0')
 mod.uiName = L['Track new items']

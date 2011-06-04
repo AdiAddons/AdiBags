@@ -7,6 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
 local _G = _G
 local ClearCursor = _G.ClearCursor
 local GetCursorInfo = _G.GetCursorInfo
@@ -24,6 +25,7 @@ local tremove = _G.tremove
 local type = _G.type
 local unpack = _G.unpack
 local wipe = _G.wipe
+--GLOBALS>
 
 local mod = addon:RegisterFilter("FilterOverride", 95, "AceEvent-3.0")
 mod.uiName = L['Manual filtering']
@@ -202,7 +204,7 @@ do
 		ListItems = function(self)
 			wipe(self.values)
 			for itemId, key in pairs(mod.db.profile.overrides) do
-				if key == self.key then			
+				if key == self.key then
 					self.values[itemId] = true
 				end
 			end

@@ -7,6 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
 local _G = _G
 local assert = _G.assert
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
@@ -39,6 +40,7 @@ local tsort = _G.table.sort
 local UIParent = _G.UIParent
 local unpack = _G.unpack
 local wipe = _G.wipe
+--GLOBALS>
 
 local GetSlotId = addon.GetSlotId
 local GetBagSlotFromId = addon.GetBagSlotFromId

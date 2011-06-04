@@ -7,9 +7,11 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
 local _G = _G
 local CreateFrame = _G.CreateFrame
 local UIParent = _G.UIParent
+--GLOBALS>
 
 local anchorClass, anchorProto, anchorParentProto = addon:NewClass("Anchor", "Frame")
 

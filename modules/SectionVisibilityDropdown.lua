@@ -7,6 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
 local _G = _G
 local CLOSE = _G.CLOSE
 local CreateFrame = _G.CreateFrame
@@ -18,6 +19,7 @@ local ToggleDropDownMenu = _G.ToggleDropDownMenu
 local tsort = _G.table.sort
 local UIDropDownMenu_AddButton = _G.UIDropDownMenu_AddButton
 local wipe = _G.wipe
+--GLOBALS>
 
 local mod = addon:NewModule('SectionVisibilityDropdown', 'AceEvent-3.0')
 mod.uiName = L['Section visibility button']

@@ -7,6 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
 local _G = _G
 local CreateFrame = _G.CreateFrame
 local ExpandCurrencyList = _G.ExpandCurrencyList
@@ -19,6 +20,7 @@ local IsAddOnLoaded = _G.IsAddOnLoaded
 local tconcat = _G.table.concat
 local tinsert = _G.tinsert
 local wipe = _G.wipe
+--GLOBALS>
 
 local mod = addon:NewModule('CurrencyFrame', 'AceEvent-3.0')
 mod.uiName = L['Currency']

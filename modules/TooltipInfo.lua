@@ -7,6 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
 local _G = _G
 local format = _G.format
 local GameTooltip = _G.GameTooltip
@@ -20,6 +21,7 @@ local tconcat = _G.table.concat
 local tinsert = _G.tinsert
 local tsort = _G.table.sort
 local wipe = _G.wipe
+--GLOBALS>
 
 local mod = addon:NewModule('TooltipInfo', 'AceEvent-3.0', 'AceHook-3.0')
 mod.uiName = L['Tooltip information']

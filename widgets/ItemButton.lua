@@ -6,6 +6,7 @@ All rights reserved.
 
 local addonName, addon = ...
 
+--<GLOBALS
 local _G = _G
 local BankButtonIDToInvSlotID = _G.BankButtonIDToInvSlotID
 local BANK_CONTAINER = _G.BANK_CONTAINER
@@ -30,6 +31,7 @@ local TEXTURE_ITEM_QUEST_BANG = _G.TEXTURE_ITEM_QUEST_BANG
 local TEXTURE_ITEM_QUEST_BORDER = _G.TEXTURE_ITEM_QUEST_BORDER
 local tostring = _G.tostring
 local wipe = _G.wipe
+--GLOBALS>
 
 local GetSlotId = addon.GetSlotId
 local GetBagSlotFromId = addon.GetBagSlotFromId

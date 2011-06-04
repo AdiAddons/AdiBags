@@ -8,6 +8,7 @@ local addonName, addon = ...
 local L = addon.L
 local safecall = addon.safecall
 
+--<GLOBALS
 local _G = _G
 local assert = _G.assert
 local ipairs = _G.ipairs
@@ -17,6 +18,7 @@ local tinsert = _G.tinsert
 local tsort = _G.table.sort
 local type = _G.type
 local unpack = _G.unpack
+--GLOBALS>
 
 --------------------------------------------------------------------------------
 -- Abstract layered region

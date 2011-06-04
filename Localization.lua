@@ -6,12 +6,14 @@ All rights reserved.
 
 local addonName, addon = ...
 
+--<GLOBALS
 local _G = _G
 local GetLocale = _G.GetLocale
 local pairs = _G.pairs
+local rawset = _G.rawset
 local setmetatable = _G.setmetatable
 local tostring = _G.tostring
-local rawset = _G.rawset
+--GLOBALS>
 
 local L = setmetatable({}, {
 	__index = function(self, key)

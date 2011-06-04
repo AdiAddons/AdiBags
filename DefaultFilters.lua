@@ -8,6 +8,7 @@ local addonName, addon = ...
 
 function addon:SetupDefaultFilters()
 	-- Globals: GetEquipmentSetLocations
+	--<GLOBALS
 	local _G = _G
 	local BANK_CONTAINER = _G.BANK_CONTAINER
 	local BANK_CONTAINER_INVENTORY_OFFSET = _G.BANK_CONTAINER_INVENTORY_OFFSET
@@ -18,6 +19,7 @@ function addon:SetupDefaultFilters()
 	local GetNumEquipmentSets = _G.GetNumEquipmentSets
 	local pairs = _G.pairs
 	local wipe = _G.wipe
+	--GLOBALS>
 
 	local L, BI = addon.L, addon.BI
 

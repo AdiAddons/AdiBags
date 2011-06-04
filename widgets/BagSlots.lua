@@ -7,6 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
 local _G = _G
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
 local band = _G.bit.band
@@ -52,6 +53,7 @@ local tinsert = _G.tinsert
 local tsort = _G.table.sort
 local unpack = _G.unpack
 local wipe = _G.wipe
+--GLOBALS>
 
 local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING

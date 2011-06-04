@@ -7,6 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
 local _G = _G
 local ClearCursor = _G.ClearCursor
 local CreateFrame = _G.CreateFrame
@@ -21,6 +22,7 @@ local tonumber = _G.tonumber
 local tsort = _G.table.sort
 local UIParent = _G.UIParent
 local wipe = _G.wipe
+--GLOBALS>
 
 local AceGUI = LibStub("AceGUI-3.0")
 
@@ -51,7 +53,7 @@ do
 			end
 		end
 	end
-	
+
 	local function Button_OnDragStart(frame)
 		local widget = frame.obj
 		local listWidget = widget:GetUserData('listwidget')

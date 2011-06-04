@@ -7,8 +7,10 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
 local _G = _G
 local CreateFrame = _G.CreateFrame
+--GLOBALS>
 
 local mod = addon:NewModule('MoneyFrame', 'AceEvent-3.0')
 mod.uiName = L['Money']

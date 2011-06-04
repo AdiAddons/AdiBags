@@ -7,6 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
 local _G = _G
 local assert = _G.assert
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
@@ -32,6 +33,7 @@ local tsort = _G.table.sort
 local type = _G.type
 local UIParent = _G.UIParent
 local wipe = _G.wipe
+--GLOBALS>
 
 LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'AceEvent-3.0', 'AceBucket-3.0', 'AceHook-3.0')
 --@debug@

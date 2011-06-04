@@ -7,6 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
 local _G = _G
 local format = _G.format
 local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
@@ -17,6 +18,7 @@ local strjoin = _G.strjoin
 local tconcat = _G.table.concat
 local tinsert = _G.tinsert
 local wipe = _G.wipe
+--GLOBALS>
 
 local mod = addon:NewModule('DataSource', 'AceEvent-3.0', 'AceBucket-3.0')
 mod.uiName = L['LDB Plugin']
