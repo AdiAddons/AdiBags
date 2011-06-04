@@ -7,13 +7,16 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
--- GLOBALS: CLOSE CreateFrame ToggleDropDownMenu UIDropDownMenu_AddButton
 local _G = _G
+local CLOSE = _G.CLOSE
+local CreateFrame = _G.CreateFrame
 local format = _G.format
 local ipairs = _G.ipairs
 local pairs = _G.pairs
-local table = _G.table
 local tinsert = _G.tinsert
+local ToggleDropDownMenu = _G.ToggleDropDownMenu
+local tsort = _G.table.sort
+local UIDropDownMenu_AddButton = _G.UIDropDownMenu_AddButton
 local wipe = _G.wipe
 
 local mod = addon:NewModule('SectionVisibilityDropdown', 'AceEvent-3.0')
@@ -89,7 +92,7 @@ local function CollapseDropDownMenu_Initialize(self, level)
 			tinsert(entries, key)
 		end
 	end
-	table.sort(entries)
+	tsort(entries)
 
 	-- Add an entry for each section
 	local currentCat = nil

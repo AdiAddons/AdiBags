@@ -7,7 +7,9 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
--- GLOBALS: CreateFrame UIParent
+local _G = _G
+local CreateFrame = _G.CreateFrame
+local UIParent = _G.UIParent
 
 local anchorClass, anchorProto, anchorParentProto = addon:NewClass("Anchor", "Frame")
 
@@ -52,7 +54,6 @@ function anchorProto:OnCreate(parent, name, label, target)
 	self.corner = corner
 end
 
-local abs = math.abs
 function anchorProto:GetPosition()
 	local target = self.target
 	local scale = target:GetScale()

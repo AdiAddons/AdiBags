@@ -6,10 +6,12 @@ All rights reserved.
 
 local addonName, addon = ...
 
--- GLOBALS: setmetatable pairs LibStub GetLocale
 local _G = _G
-local rawset = _G.rawset
+local GetLocale = _G.GetLocale
+local pairs = _G.pairs
+local setmetatable = _G.setmetatable
 local tostring = _G.tostring
+local rawset = _G.rawset
 
 local L = setmetatable({}, {
 	__index = function(self, key)

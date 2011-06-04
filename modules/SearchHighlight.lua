@@ -7,8 +7,8 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
--- GLOBALS: CreateFrame
 local _G = _G
+local CreateFrame = _G.CreateFrame
 local GetItemInfo = _G.GetItemInfo
 
 local mod = addon:NewModule('SearchHighlight', 'AceEvent-3.0')

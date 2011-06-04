@@ -7,20 +7,20 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
--- GLOBALS: GameTooltip StaticPopup_Show
 local _G = _G
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
+local band = _G.bit.band
+local BankFrame = _G.BankFrame
 local BANK_BAG = _G.BANK_BAG
 local BANK_BAG_PURCHASE = _G.BANK_BAG_PURCHASE
 local BANK_CONTAINER = _G.BANK_CONTAINER
-local BankFrame = _G.BankFrame
-local band = _G.bit.band
 local ClearCursor = _G.ClearCursor
 local ContainerIDToInventoryID = _G.ContainerIDToInventoryID
 local COSTS_LABEL = _G.COSTS_LABEL
 local CreateFrame = _G.CreateFrame
 local CursorHasItem = _G.CursorHasItem
 local CursorUpdate = _G.CursorUpdate
+local GameTooltip = _G.GameTooltip
 local GetBankSlotCost = _G.GetBankSlotCost
 local GetCoinTextureString = _G.GetCoinTextureString
 local GetContainerItemID = _G.GetContainerItemID
@@ -46,9 +46,10 @@ local select = _G.select
 local SetItemButtonDesaturated = _G.SetItemButtonDesaturated
 local SetItemButtonTexture = _G.SetItemButtonTexture
 local SetItemButtonTextureVertexColor = _G.SetItemButtonTextureVertexColor
+local StaticPopup_Show = _G.StaticPopup_Show
 local strjoin = _G.strjoin
-local table = _G.table
 local tinsert = _G.tinsert
+local tsort = _G.table.sort
 local unpack = _G.unpack
 local wipe = _G.wipe
 
@@ -175,7 +176,7 @@ do
 			end
 		end
 		if #otherBags > 0 then
-			table.sort(otherBags)
+			tsort(otherBags)
 			currentBag, currentSlot, numSlots = bag, 0, GetContainerNumSlots(bag)
 			addon:SetGlobalLock(true)
 			swapFrame:RegisterEvent('BAG_UPDATE')
@@ -404,7 +405,7 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	title:SetJustifyH("LEFT")
 	title:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
 
-	table.sort(bags)
+	tsort(bags)
 	self.buttons = {}
 	local buttonClass = isBank and bankButtonClass or bagButtonClass
 	local x = BAG_INSET

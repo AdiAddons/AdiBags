@@ -7,13 +7,16 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
--- GLOBALS: ExpandCurrencyList GetCurrencyListInfo GetCurrencyListSize IsAddOnLoaded
 local _G = _G
 local CreateFrame = _G.CreateFrame
+local ExpandCurrencyList = _G.ExpandCurrencyList
 local format = _G.format
+local GetCurrencyListInfo = _G.GetCurrencyListInfo
+local GetCurrencyListSize = _G.GetCurrencyListSize
 local hooksecurefunc = _G.hooksecurefunc
 local ipairs = _G.ipairs
-local table = _G.table
+local IsAddOnLoaded = _G.IsAddOnLoaded
+local tconcat = _G.table.concat
 local tinsert = _G.tinsert
 local wipe = _G.wipe
 
@@ -118,7 +121,7 @@ function mod:Update()
 	local widget, fs = self.widget, self.fontstring
 	if #values > 0 then
 		widget:Show()
-		fs:SetText(table.concat(values, " "))
+		fs:SetText(tconcat(values, " "))
 		widget:SetWidth(fs:GetStringWidth())
 		widget:SetHeight(fs:GetStringHeight())
 		wipe(values)

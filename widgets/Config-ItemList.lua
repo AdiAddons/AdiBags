@@ -7,16 +7,19 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
--- GLOBALS: CreateFrame UIParent LibStub
 local _G = _G
-local frame = _G.frame
+local ClearCursor = _G.ClearCursor
+local CreateFrame = _G.CreateFrame
+local GameTooltip = _G.GameTooltip
+local GetCursorInfo = _G.GetCursorInfo
 local GetItemInfo = _G.GetItemInfo
 local pairs = _G.pairs
+local PickupItem = _G.PickupItem
 local PlaySound = _G.PlaySound
-local self = _G.self
-local table = _G.table
-local text = _G.text
 local tinsert = _G.tinsert
+local tonumber = _G.tonumber
+local tsort = _G.table.sort
+local UIParent = _G.UIParent
 local wipe = _G.wipe
 
 local AceGUI = LibStub("AceGUI-3.0")
@@ -128,7 +131,6 @@ do
 		frame:SetHighlightTexture([[Interface\Buttons\ButtonHilight-Square]], "ADD")
 
 		local widget = {
-			text  = text,
 			frame = frame,
 			type  = Type
 		}
@@ -181,7 +183,7 @@ do
 		for itemId in pairs(values) do
 			tinsert(t, itemId)
 		end
-		table.sort(t)
+		tsort(t)
 		for _, itemId in pairs(t) do
 			AddItem(self, itemId)
 		end

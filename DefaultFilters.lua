@@ -7,6 +7,7 @@ All rights reserved.
 local addonName, addon = ...
 
 function addon:SetupDefaultFilters()
+	-- Globals: GetEquipmentSetLocations
 	local _G = _G
 	local BANK_CONTAINER = _G.BANK_CONTAINER
 	local BANK_CONTAINER_INVENTORY_OFFSET = _G.BANK_CONTAINER_INVENTORY_OFFSET
@@ -14,7 +15,6 @@ function addon:SetupDefaultFilters()
 	local format = _G.format
 	local GetContainerItemQuestInfo = _G.GetContainerItemQuestInfo
 	local GetEquipmentSetInfo = _G.GetEquipmentSetInfo
-	local GetEquipmentSetLocations = _G.GetEquipmentSetLocations
 	local GetNumEquipmentSets = _G.GetNumEquipmentSets
 	local pairs = _G.pairs
 	local wipe = _G.wipe

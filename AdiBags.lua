@@ -7,13 +7,14 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
--- GLOBALS: LibStub AdiDebug NUM_CONTAINER_FRAMES
 local _G = _G
 local assert = _G.assert
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
-local BANK_CONTAINER = _G.BANK_CONTAINER
 local BankFrame = _G.BankFrame
+local BANK_CONTAINER = _G.BANK_CONTAINER
 local CloseBankFrame = _G.CloseBankFrame
+local ContainerFrame_GenerateFrame = _G.ContainerFrame_GenerateFrame
+local ContainerFrame_GetOpenFrame = _G.ContainerFrame_GetOpenFrame
 local GetContainerNumSlots = _G.GetContainerNumSlots
 local geterrorhandler = _G.geterrorhandler
 local ipairs = _G.ipairs
@@ -21,6 +22,7 @@ local next = _G.next
 local NUM_BAG_SLOTS = _G.NUM_BAG_SLOTS
 local NUM_BANKBAGSLOTS = _G.NUM_BANKBAGSLOTS
 local NUM_BANKGENERIC_SLOTS = _G.NUM_BANKGENERIC_SLOTS
+local NUM_CONTAINER_FRAMES = _G.NUM_CONTAINER_FRAMES
 local pairs = _G.pairs
 local pcall = _G.pcall
 local strmatch = _G.strmatch

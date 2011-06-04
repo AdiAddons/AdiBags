@@ -7,16 +7,16 @@ All rights reserved.
 local addonName, addon = ...
 local safecall = addon.safecall
 
--- GLOBALS: SLASH_ADIBAGSOODEBUG1 SlashCmdList LibStub
 local _G = _G
 local assert = _G.assert
 local CreateFrame = _G.CreateFrame
+local format = _G.format
 local next = _G.next
 local pairs = _G.pairs
 local print = _G.print
 local select = _G.select
 local setmetatable = _G.setmetatable
-local string = _G.string
+local SlashCmdList = _G.SlashCmdList
 local tostring = _G.tostring
 
 --------------------------------------------------------------------------------
@@ -193,11 +193,12 @@ function addon:GetPool(name)
 end
 
 --@debug@
+-- Globals: SLASH_ADIBAGSOODEBUG1
 SLASH_ADIBAGSOODEBUG1 = "/aboo"
 function SlashCmdList.ADIBAGSOODEBUG()
 	print('Classes:')
 	for name, class in pairs(classes) do
-		print(string.format("- %s: type: %s, template: %s, serial: %d", name, class.frameType, tostring(class.frameTemplate), class.serial))
+		print(format("- %s: type: %s, template: %s, serial: %d", name, class.frameType, tostring(class.frameTemplate), class.serial))
 	end
 	print('Pools:')
 	for name, pool in pairs(pools) do
@@ -208,7 +209,7 @@ function SlashCmdList.ADIBAGSOODEBUG()
 		for k in pairs(pool.heap) do
 			heapSize = heapSize + 1
 		end
-		print(string.format("- %s: heap size: %d, number of active objects: %d", name, heapSize, numActives))
+		print(format("- %s: heap size: %d, number of active objects: %d", name, heapSize, numActives))
 	end
 end
 --@end-debug@

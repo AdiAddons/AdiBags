@@ -9,21 +9,24 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
--- GLOBALS: setmetatable GetContainerNumFreeSlots GetItemFamily GameTooltip
 local _G = _G
-local bit = _G.bit
+local band = _G.bit.band
+local floor = _G.floor
+local GameTooltip = _G.GameTooltip
+local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
 local geterrorhandler = _G.geterrorhandler
+local GetItemFamily = _G.GetItemFamily
 local GetItemInfo = _G.GetItemInfo
-local math = _G.math
+local ITEM_QUALITY_POOR = _G.ITEM_QUALITY_POOR
+local ITEM_QUALITY_UNCOMMON = _G.ITEM_QUALITY_UNCOMMON
 local pcall = _G.pcall
 local select = _G.select
+local setmetatable = _G.setmetatable
 local strjoin = _G.strjoin
 local strmatch = _G.strmatch
 local tonumber = _G.tonumber
 local tostring = _G.tostring
 local type = _G.type
-local ITEM_QUALITY_POOR = _G.ITEM_QUALITY_POOR
-local ITEM_QUALITY_UNCOMMON = _G.ITEM_QUALITY_UNCOMMON
 
 --------------------------------------------------------------------------------
 -- (bag,slot) <=> slotId conversion
@@ -37,7 +40,7 @@ end
 
 function addon.GetBagSlotFromId(slotId)
 	if slotId then
-		return math.floor(slotId / 100), slotId % 100
+		return floor(slotId / 100), slotId % 100
 	end
 end
 
@@ -174,5 +177,5 @@ end
 function addon.CanPutItemInContainer(item, container)
 	local freeSlots, containerFamily = GetContainerNumFreeSlots(container)
 	local itemFamily = addon.GetItemFamily(item)
-	return freeSlots > 0 and (containerFamily == 0 or bit.band(itemFamily, containerFamily) ~= 0), freeSlots, itemFamily, containerFamily
+	return freeSlots > 0 and (containerFamily == 0 or band(itemFamily, containerFamily) ~= 0), freeSlots, itemFamily, containerFamily
 end

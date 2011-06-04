@@ -7,20 +7,15 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
--- GLOBALS: setmetatable Scrap LibStub
 local _G = _G
-local format = _G.format
 local GetItemInfo = _G.GetItemInfo
-local ITEM_QUALITY_COLORS = _G.ITEM_QUALITY_COLORS
 local ITEM_QUALITY_POOR = _G.ITEM_QUALITY_POOR
 local ITEM_QUALITY_UNCOMMON = _G.ITEM_QUALITY_UNCOMMON
-local next = _G.next
-local pairs = _G.pairs
 local select = _G.select
-local wipe = _G.wipe
-local strmatch = _G.strmatch
+local setmetatable = _G.setmetatable
 local tonumber = _G.tonumber
 local type = _G.type
+local wipe = _G.wipe
 
 local JUNK = addon.BI['Junk']
 

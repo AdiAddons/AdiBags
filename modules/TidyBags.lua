@@ -7,13 +7,13 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
--- GLOBALS: GetContainerFreeSlots GetContainerItemInfo
 local _G = _G
-local bor = _G.bit.bor
 local band = _G.bit.band
 local ClearCursor = _G.ClearCursor
 local CreateFrame = _G.CreateFrame
+local GetContainerFreeSlots = _G.GetContainerFreeSlots
 local GetContainerItemID = _G.GetContainerItemID
+local GetContainerItemInfo = _G.GetContainerItemInfo
 local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
 local GetContainerNumSlots = _G.GetContainerNumSlots
 local GetCursorInfo = _G.GetCursorInfo
@@ -26,8 +26,8 @@ local PickupContainerItem = _G.PickupContainerItem
 local PlaySound = _G.PlaySound
 local select = _G.select
 local setmetatable = _G.setmetatable
-local table = _G.table
 local tinsert = _G.tinsert
+local tsort = _G.table.sort
 local unpack = _G.unpack
 local wipe = _G.wipe
 
@@ -317,7 +317,7 @@ function bagProto:FindNextMove()
 			tinsert(bagList, bag)
 		end
 	end
-	table.sort(bagList)
+	tsort(bagList)
 	self:Debug('FindNextMove in bags', unpack(bagList))
 
 	-- Firstly, merge incomplete stacks

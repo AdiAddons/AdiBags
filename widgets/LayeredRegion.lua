@@ -11,12 +11,12 @@ local safecall = addon.safecall
 local _G = _G
 local assert = _G.assert
 local ipairs = _G.ipairs
+local max = _G.max
 local pairs = _G.pairs
-local table = _G.table
 local tinsert = _G.tinsert
+local tsort = _G.table.sort
 local type = _G.type
 local unpack = _G.unpack
-local max = _G.math.max
 
 --------------------------------------------------------------------------------
 -- Abstract layered region
@@ -172,7 +172,7 @@ function simpleLayeredRegionProto:OnWidgetAdded(data, order, size, xOffset, yOff
 	data.size = size or nil
 	data.xOffset = xOffset or 0
 	data.yOffset = yOffset or 0
-	table.sort(self.widgets, CompareWidgets)
+	tsort(self.widgets, CompareWidgets)
 end
 
 function simpleLayeredRegionProto:OnLayout()

@@ -7,13 +7,18 @@ All rights reserved.
 local addonName, addon = ...
 local L = addon.L
 
--- GLOBALS: GameTooltip IsModifierKeyDown IsShiftKeyDown IsControlKeyDown IsAltKeyDown
 local _G = _G
 local format = _G.format
+local GameTooltip = _G.GameTooltip
+local IsAltKeyDown = _G.IsAltKeyDown
+local IsControlKeyDown = _G.IsControlKeyDown
+local IsModifierKeyDown = _G.IsModifierKeyDown
+local IsShiftKeyDown = _G.IsShiftKeyDown
 local pairs = _G.pairs
 local setmetatable = _G.setmetatable
-local table = _G.table
+local tconcat = _G.table.concat
 local tinsert = _G.tinsert
+local tsort = _G.table.sort
 local wipe = _G.wipe
 
 local mod = addon:NewModule('TooltipInfo', 'AceEvent-3.0', 'AceHook-3.0')
@@ -117,8 +122,8 @@ function mod:OnTooltipSetItem(tt)
 				tinsert(t, format("(%d,%d)", GetBagSlotFromId(slotId)))
 			end
 			if #t > 1 then
-				table.sort(t)
-				tt:AddDoubleLine(L["Virtual stack slots"], table.concat(t, ", "))
+				tsort(t)
+				tt:AddDoubleLine(L["Virtual stack slots"], tconcat(t, ", "))
 				vBag, vSlot = nil, nil
 			end
 		end

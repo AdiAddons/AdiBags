@@ -9,13 +9,9 @@ local L = addon.L
 
 local _G = _G
 local ClearCursor = _G.ClearCursor
-local format = _G.format
 local GetCursorInfo = _G.GetCursorInfo
 local GetItemInfo = _G.GetItemInfo
 local gsub = _G.gsub
-local ITEM_QUALITY_COLORS = _G.ITEM_QUALITY_COLORS
-local LibStub = _G.LibStub
-local next = _G.next
 local pairs = _G.pairs
 local select = _G.select
 local setmetatable = _G.setmetatable

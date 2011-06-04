@@ -14,7 +14,6 @@ local GetContainerItemInfo = _G.GetContainerItemInfo
 local GetContainerNumSlots = _G.GetContainerNumSlots
 local GetInventoryItemID = _G.GetInventoryItemID
 local GetInventoryItemLink = _G.GetInventoryItemLink
-local initialized = _G.initialized
 local next = _G.next
 local pairs = _G.pairs
 local PlaySound = _G.PlaySound
@@ -181,7 +180,7 @@ end
 function mod:BANKFRAME_OPENED(event)
 	self:Debug(event)
 	self:UpdateInventory()
-	if initialized then
+	if not initializing then
 		for name, bag in pairs(bags) do
 			self:UpdateBags()
 		end
@@ -197,7 +196,7 @@ function mod:EQUIPMENT_SWAP_FINISHED(event)
 	self:Debug(event)
 	frozen = false
 	inventoryScanned = false
-	if initialized then
+	if not initializing then
 		self:UpdateBags()
 	end
 end

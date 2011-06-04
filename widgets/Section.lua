@@ -13,15 +13,14 @@ local floor = _G.floor
 local format = _G.format
 local GetItemInfo = _G.GetItemInfo
 local ipairs = _G.ipairs
-local math = _G.math
 local max = _G.max
 local pairs = _G.pairs
-local string = _G.string
+local setmetatable = _G.setmetatable
 local strjoin = _G.strjoin
 local strsplit = _G.strsplit
-local table = _G.table
 local tinsert = _G.tinsert
 local tostring = _G.tostring
+local tsort = _G.table.sort
 local wipe = _G.wipe
 
 local ITEM_SIZE = addon.ITEM_SIZE
@@ -93,7 +92,7 @@ function sectionProto:OnHide()
 end
 
 function sectionProto:ToString()
-	return string.format("Section[%q,%q]", tostring(self.name), tostring(self.category))
+	return format("Section[%q,%q]", tostring(self.name), tostring(self.category))
 end
 
 function addon:BuildSectionKey(name, category)
@@ -226,7 +225,7 @@ function sectionProto:PutButtonAt(button, index)
 		self:SetDirtyLevel(1)
 		self.slots[button] = index
 	end
-	local row, col = math.floor((index-1) / self.width), (index-1) % self.width
+	local row, col = floor((index-1) / self.width), (index-1) % self.width
 	button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
 end
 
@@ -285,7 +284,7 @@ function sectionProto:ReorderButtons()
 		button:Show()
 		tinsert(buttonOrder, button)
 	end
-	table.sort(buttonOrder, CompareButtons)
+	tsort(buttonOrder, CompareButtons)
 
 	local slots, freeSlots = self.slots, self.freeSlots
 	wipe(freeSlots)
