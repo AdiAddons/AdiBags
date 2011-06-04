@@ -5,6 +5,7 @@ All rights reserved.
 --]]
 
 local addonName, addon = ...
+local L = addon.L
 
 -- GLOBALS: CreateFrame UIParent LibStub
 local _G = _G
@@ -60,6 +61,16 @@ do
 		local listWidget = frame.obj:GetUserData('listwidget')
 		if listWidget then
 			listWidget:Fire("OnEnter")
+			if frame.obj.itemId then
+				local _, link = GetItemInfo(frame.obj.itemId)
+				if link then
+					GameTooltip:AddLine(link)
+				end
+				GameTooltip:AddLine(L["Click or drag this item to remove it."], 1, 1, 1)
+			else
+				GameTooltip:AddLine(L["Drop an item there to add it to the list."], 1, 1, 1)
+			end
+			GameTooltip:Show()
 		end
 	end
 
@@ -92,10 +103,8 @@ do
 	function methods:SetItemId(itemId)
 		self.itemId = itemId
 		if itemId then
-			local name, _, _, _, _, _, _, _, _, texture = GetItemInfo(itemId)
-			if name and texture then
-				self.frame:SetNormalTexture(texture)
-			end
+			local _, _, _, _, _, _, _, _, _, texture = GetItemInfo(itemId)
+			self.frame:SetNormalTexture(texture or [[Interface\\Icons\\INV_Misc_QuestionMark]])
 			self.frame:GetNormalTexture():SetTexCoord(0, 1, 0, 1)
 		else
 			self.frame:SetNormalTexture([[Interface\Buttons\UI-Slot-Background]])
