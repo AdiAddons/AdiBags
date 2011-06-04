@@ -139,49 +139,15 @@ function mod:GetOptions()
 		return mod:Update()
 	end
 
-	local t = {}
 	function handler:ListItems(info)
-		local items = prefs[info[#info]]
-		wipe(t)
-		for itemId in pairs(items) do
-			local name, _, quality, _, _, _, _,  _, _, icon = GetItemInfo(itemId)
-			if not name then
-				t[itemId] = format("#%d (item not found)", itemId)
-			else
-				local color = ITEM_QUALITY_COLORS[quality or 1]
-				local hex = color and color.hex or ''
-				t[itemId] = format("|T%s:20:20|t %s%s|r", icon, (color and color.hex or ''), name)
-			end
-		end
-		return t
+		return prefs[info[#info]]
 	end
 
-	function handler:Remove(info, key)
-		return self:Set(info, key, nil)
-	end
-
-	function handler:HasNoItem(info)
-		return not next(prefs[info[#info]])
-	end
-	
-	local function GetItemId(value)
-		if type(value) == "number" or type(value) == "string" and value ~= "" then
-			local name, link = GetItemInfo(value)
-			return link and tonumber(strmatch(link, "item:(%d+)"))
-		end
-	end
-	
-	function handler:ValidateItem(info, value)
-		return GetItemId(value) and true or L["Invalid item number, name or link"]
-	end
-	
-	function handler:AddItem(info, value)
-		prefs[info.arg][GetItemId(value)] = true
-		mod:Update()
+	function handler:SetItem(info, key, value)
+		return self:Set(info, key, value and true or nil)
 	end
 
 	local function True() return true end
-	local function Void() return end
 
 	return {
 		sources = {
@@ -190,55 +156,25 @@ function mod:GetOptions()
 			values = sourceList,
 			order = 10,
 		},
-		_includeHeader = {
-			type = 'header',
-			name = L['Included items'],
-			order = 100,
-		},
-		addInclude = {
-			type = 'input',
-			name = L['Add item'],
-			desc = L['Enter an item id, item name or drop an item there to add it to the include list.'],
-			order = 110,			
-			arg = 'include',
-			get = Void,
-			set = 'AddItem',
-			validate = 'ValidateItem',
-		},
 		include = {
 			type = 'multiselect',
-			name = L['Current item list'],
+			dialogControl = 'ItemList',
+			name = L['Include list'],
 			desc = L['Items in this list are always considered as junk. Click an item to remove it from the list.'],
-			order = 120,
+			order = 20,
 			values = 'ListItems',
 			get = True,
-			set = 'Remove',
-			hidden = 'HasNoItem',
-		},
-		_excludedHeader = {
-			type = 'header',
-			name = L['Excluded items'],
-			order = 200,
-		},
-		addExclude = {
-			type = 'input',
-			name = L['Add item'],
-			desc = L['Enter an item id, item name or drop an item there to add it to the exclude list.'],
-			order = 210,			
-			arg = 'exclude',
-			get = Void,
-			set = 'AddItem',
-			validate = 'ValidateItem',
+			set = 'SetItem',
 		},
 		exclude = {
 			type = 'multiselect',
-			name = L['Current item list'],
+			dialogControl = 'ItemList',
+			name = L['Exclude list'],
 			desc = L['Items in this list are never considered as junk. Click an item to remove it from the list.'],
-			order = 220,
+			order = 30,
 			values = 'ListItems',
 			get = True,
-			set = 'Remove',
-			hidden = 'HasNoItem',
+			set = 'SetItem',
 		},
 	}, handler
 end
