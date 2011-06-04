@@ -18,6 +18,9 @@ local next = _G.next
 local pairs = _G.pairs
 local select = _G.select
 local wipe = _G.wipe
+local strmatch = _G.strmatch
+local tonumber = _G.tonumber
+local type = _G.type
 
 local JUNK = addon.BI['Junk']
 
@@ -133,7 +136,7 @@ function mod:GetOptions()
 	local Set = handler.Set
 	function handler.Set(...)
 		Set(...)
-		mod:Update()
+		return mod:Update()
 	end
 
 	local t = {}
@@ -154,14 +157,31 @@ function mod:GetOptions()
 	end
 
 	function handler:Remove(info, key)
-		return handler:Set(info, key, nil)
+		return self:Set(info, key, nil)
 	end
 
 	function handler:HasNoItem(info)
 		return not next(prefs[info[#info]])
 	end
+	
+	local function GetItemId(value)
+		if type(value) == "number" or type(value) == "string" and value ~= "" then
+			local name, link = GetItemInfo(value)
+			return link and tonumber(strmatch(link, "item:(%d+)"))
+		end
+	end
+	
+	function handler:ValidateItem(info, value)
+		return GetItemId(value) and true or L["Invalid item number, name or link"]
+	end
+	
+	function handler:AddItem(info, value)
+		prefs[info.arg][GetItemId(value)] = true
+		mod:Update()
+	end
 
 	local function True() return true end
+	local function Void() return end
 
 	return {
 		sources = {
@@ -170,19 +190,51 @@ function mod:GetOptions()
 			values = sourceList,
 			order = 10,
 		},
+		_includeHeader = {
+			type = 'header',
+			name = L['Included items'],
+			order = 100,
+		},
+		addInclude = {
+			type = 'input',
+			name = L['Add item'],
+			desc = L['Enter an item id, item name or drop an item there to add it to the include list.'],
+			order = 110,			
+			arg = 'include',
+			get = Void,
+			set = 'AddItem',
+			validate = 'ValidateItem',
+		},
 		include = {
 			type = 'multiselect',
-			name = L['Included items'],
-			order = 20,
+			name = L['Current item list'],
+			desc = L['Items in this list are always considered as junk. Click an item to remove it from the list.'],
+			order = 120,
 			values = 'ListItems',
 			get = True,
 			set = 'Remove',
 			hidden = 'HasNoItem',
 		},
+		_excludedHeader = {
+			type = 'header',
+			name = L['Excluded items'],
+			order = 200,
+		},
+		addExclude = {
+			type = 'input',
+			name = L['Add item'],
+			desc = L['Enter an item id, item name or drop an item there to add it to the exclude list.'],
+			order = 210,			
+			arg = 'exclude',
+			get = Void,
+			set = 'AddItem',
+			validate = 'ValidateItem',
+		},
 		exclude = {
 			type = 'multiselect',
-			name = L['Excluded items'],
-			order = 30,
+			name = L['Current item list'],
+			desc = L['Items in this list are never considered as junk. Click an item to remove it from the list.'],
+			order = 220,
 			values = 'ListItems',
 			get = True,
 			set = 'Remove',
