@@ -195,26 +195,22 @@ do
 			mod:AssignItems(self.name, self.category, GetItemId(input))
 			mod:UpdateOptions()
 		end,
-		RemoveItem = function(self, info, itemId)
-			mod:AssignItems(nil, nil, itemId)
+		SetItem = function(self, info, itemId, value)
+			if value then
+				mod:AssignItems(self.name, self.category, itemId)
+			else
+				mod:AssignItems(nil, nil, itemId)
+			end
 			mod:UpdateOptions(self.category)
 		end,
 		ListItems = function(self)
-			local values = self.values
-			wipe(values)
+			wipe(self.values)
 			for itemId, key in pairs(mod.db.profile.overrides) do
-				if key == self.key then
-					local name, _, quality, _, _, _, _,  _, _, icon = GetItemInfo(itemId)
-					if not name then
-						values[itemId] = format("#%d (item not found)", itemId)
-					else
-						local color = ITEM_QUALITY_COLORS[quality or 1]
-						local hex = color and color.hex or ''
-						values[itemId] = format("|T%s:20:20|t %s%s|r", icon, (color and color.hex or ''), name)
-					end
+				if key == self.key then			
+					self.values[itemId] = true
 				end
 			end
-			return values
+			return self.values
 		end,
 	}
 	local handlerMeta = { __index = handlerProto }
@@ -246,24 +242,14 @@ do
 				confirmText = L['Are you sure you want to remove this section ?'],
 				func = 'Remove',
 			},
-			addItem = {
-				name = L['Add item'],
-				desc = L['Enter a link or the numrical identifier the item to add. You can also drop an item.'],
-				type = 'input',
-				order = 40,
-				validate = 'ValidateItem',
-				get = function() return "" end,
-				set = 'AddItem',
-			},
 			items = {
 				name = L['Items'],
+				desc = L['Click on a item to remove it from the list. You can drop an item on the empty slot to add it to the list.'],
 				type = 'multiselect',
-				width = 'double',
-				order = 50,
-				confirm = true,
-				confirmText = L['Are you sure you want to remove this item ?'],
+				dialogControl = 'ItemList',
+				order = 40,
 				get = function() return true end,
-				set = 'RemoveItem',
+				set = 'SetItem',
 				values = 'ListItems',
 			},
 		},
