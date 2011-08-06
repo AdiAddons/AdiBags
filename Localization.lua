@@ -84,7 +84,6 @@ L["Please note this filter matchs every item. Any filter with lower priority tha
 L["Put any item that can be equipped (including bags) into the \"Equipment\" section."] = true
 L["Put items belonging to one or more sets of the built-in gear manager in specific sections."] = true
 L["Put items in sections depending on their first-level category at the Auction House."] = true
-L["Put items of poor quality or labeled as junk in the \"Junk\" section."] = true
 L["Put quest-related items in their own section."] = true
 L["Quest Items"] = true
 L["Section setup"] = true
@@ -186,7 +185,9 @@ L["Space in use"] = true
 -- modules/FilterOverride.lua
 L["Add association"] = true
 L["Allow you manually redefine the section in which an item should be put. Simply drag an item on the section title."] = true
-L["Are you sure you want to remove this association ?"] = true
+L["Are you sure you want to remove this section ?"] = true
+L["Category"] = true
+L["Click on a item to remove it from the list. You can drop an item on the empty slot to add it to the list."] = true
 L["Click on this button to create the new association."] = true
 L["Drop your item there to add it to this section."] = true
 L["Enter the name of the section to associate with the item."] = true
@@ -194,10 +195,21 @@ L["Enter the name, link or itemid of the item to associate with the section. You
 L["Item"] = true
 L["Manual filtering"] = true
 L["New Override"] = true
+L["Remove"] = true
 L["Section category"] = true
 L["Section"] = true
 L["Select the category of the section to associate. This is used to group sections together."] = true
 L["Use this section to define any item-section association."] = true
+
+-- modules/Junk.lua
+L["Exclude list"] = true
+L["Include list"] = true
+L["Included categories"] = true
+L["Items in this list are always considered as junk. Click an item to remove it from the list."] = true
+L["Items in this list are never considered as junk. Click an item to remove it from the list."] = true
+L["Junk category"] = true
+L["Low quality items"] = true
+L["Put items of poor quality or labeled as junk in the \"Junk\" section."] = true
 
 -- modules/MoneyFrame.lua
 L["Display character money at bottom right of the backpack."] = true
@@ -240,7 +252,6 @@ L["AH subcategory"] = true
 L["Add more information in tooltips related to items in your bags."] = true
 L["Always"] = true
 L["Bag number"] = true
-L["Category"] = true
 L["Container information"] = true
 L["Filter"] = true
 L["Filtering information"] = true
@@ -262,6 +273,10 @@ L["When shift is held down"] = true
 L["Click to purchase"] = true
 L["Equipped bags"] = true
 L["Right-click to try to empty this bag."] = true
+
+-- widgets/Config-ItemList.lua
+L["Click or drag this item to remove it."] = true
+L["Drop an item there to add it to the list."] = true
 
 -- widgets/ContainerFrame.lua
 L["Bag #%d"] = true
@@ -287,7 +302,6 @@ L["Allow you manually redefine the section in which an item should be put. Simpl
 L["Always"] = "Toujours"
 L["Ammunition"] = "Munitions"
 L["Anchored"] = "Ancrée"
-L["Are you sure you want to remove this association ?"] = "Etes-vous sûr de vouloir supprimer cette association ?"
 L["Background colors"] = "Couleurs de fond"
 L["Backpack"] = "Sac à dos"
 L["Bag #%d"] = "Sac n°%d"
@@ -486,9 +500,10 @@ L["Allow you manually redefine the section in which an item should be put. Simpl
 L["Always"] = "Immer"
 L["Ammunition"] = "Munition"
 L["Anchored"] = "Verankert"
-L["Are you sure you want to remove this association ?"] = "Möchtest du diese Zuweisung wirklich löschen?"
+L["Are you sure you want to remove this section ?"] = "Bist Du sicher, dass Du diesen Bereich entfernen möchtest?" -- Needs review
 L["Background colors"] = "Hintergrundfarben"
 L["Backpack"] = "Rucksack"
+L["Bag #%d"] = "Tasche #%d" -- Needs review
 L["Bag number"] = "Taschennummer"
 L["Bag type"] = "Taschenart"
 L["Bag usage format"] = "Format der Taschennutzung"
@@ -601,6 +616,7 @@ L["QUIVER_TAG"] = "Kö"
 L["Quality highlight"] = "Qualität hervorheben"
 L["Quest Items"] = "Questgegenstände"
 L["Quest indicator"] = "Quest Kennzeichen"
+L["Remove"] = "Entfernen" -- Needs review
 L["Reset new items"] = "Neue Gegenstände zurücksetzen"
 L["Reset position"] = "Position zurücksetzen"
 L["Right-click to try to empty this bag."] = "Rechte Maustaste nutzen um diese Tasche zu leeren."
@@ -651,6 +667,7 @@ L["When alt is held down"] = "Wenn Alt gedrückt ist"
 L["When any modifier key is held down"] = "Wenn irgendeine Modifizierungstase gedrückt ist"
 L["When ctrl is held down"] = "Wenn Strg gedrückt ist"
 L["When shift is held down"] = "Wenn Umschalt gedrückt ist"
+L["When trading:"] = "Beim Handeln:" -- Needs review
 
 ------------------------ esMX ------------------------
 -- no translation
@@ -671,7 +688,6 @@ L["Allow you manually redefine the section in which an item should be put. Simpl
 L["Always"] = "Всегда"
 L["Ammunition"] = "Боеприпасы"
 L["Anchored"] = "Закрепленные"
-L["Are you sure you want to remove this association ?"] = "Вы уверены что хотите удалить ассоциаци ?"
 L["Background colors"] = "Цвета фона"
 L["Backpack"] = "Рюкзак"
 L["Bag #%d"] = "Сумка #%d"
@@ -850,7 +866,6 @@ L["Adjust the maximum height of the bags, relative to screen size."] = "Ajustar 
 L["Allow you manually redefine the section in which an item should be put. Simply drag an item on the section title."] = "Permite redefinir manualmente la sección en la que un objeto debe situarse. Solo arrastra un objeto dentro del título de la sección"
 L["Always"] = "Siempre"
 L["Ammunition"] = "Municion (not for 4.0)"
-L["Are you sure you want to remove this association ?"] = "¿Estás seguro de borrar esta asociación?"
 L["Bag #%d"] = "Bolsa #%d"
 L["Bag number"] = "Número de bolsa"
 L["Bag usage format"] = "Formato mal usado."
@@ -964,7 +979,6 @@ L["Allow you manually redefine the section in which an item should be put. Simpl
 L["Always"] = "總是"
 L["Ammunition"] = "彈藥"
 L["Anchored"] = "錨點"
-L["Are you sure you want to remove this association ?"] = "確定要刪除此關聯?"
 L["Background colors"] = "背景顏色"
 L["Backpack"] = "背包"
 L["Bag #%d"] = "背包 #%d"
@@ -1075,6 +1089,7 @@ L["QUIVER_TAG"] = "Qu"
 L["Quality highlight"] = "品質高亮"
 L["Quest Items"] = "任務物品"
 L["Quest indicator"] = "任務指示物"
+L["Remove"] = "移除"
 L["Reset new items"] = "重設新物品"
 L["Reset position"] = "重設位置"
 L["Right-click to try to empty this bag."] = "右鍵點擊嘗試空白的背包。"
@@ -1139,7 +1154,6 @@ L["Allow you manually redefine the section in which an item should be put. Simpl
 L["Always"] = "总是"
 L["Ammunition"] = "弹药"
 L["Anchored"] = "锚点"
-L["Are you sure you want to remove this association ?"] = "您确定要移除这个组合？"
 L["Background colors"] = "背景色"
 L["Backpack"] = "背包"
 L["Bag number"] = "背包数"
@@ -1291,11 +1305,11 @@ L["Allow you manually redefine the section in which an item should be put. Simpl
 L["Always"] = "항상"
 L["Ammunition"] = "탄약"
 L["Anchored"] = "앵커 지정"
-L["Are you sure you want to remove this association ?"] = "정말로 관련된 이것을 제거하시겠습니까?"
+L["Are you sure you want to remove this section ?"] = "정말로 이 항목을 제거하시겠습니까?"
 L["Background colors"] = "배경 색상"
 L["Backpack"] = "가방"
 L["Bag #%d"] = "가방 #%d"
-L["Bag number"] = "가방 수"
+L["Bag number"] = "가방 갯수"
 L["Bag type"] = "가방 유형"
 L["Bag usage format"] = "가방 사용칸수 형식"
 L["Bags"] = "가방"
@@ -1306,10 +1320,10 @@ L["By name"] = "이름별"
 L["By quality and item level"] = "등급과 아이템 레벨별"
 L["Category"] = "분류"
 L["Change stacking at merchants', auction house, bank, mailboxes or when trading."] = "상점, 경매장, 은행, 우편함에서 혹은 거래 중인 경우에 겹치기를 변경합니다. "
-L["Check sets that should be merged into a unique \"Sets\" section. This is obviously a per-character setting."] = "고유의 \"세트\" 항목안에 병합되어질 세트를 체크하세요. 이것은 분명한 캐릭터별 설정입니다."
+L["Check sets that should be merged into a unique \"Sets\" section. This is obviously a per-character setting."] = "고유의 \"세트\" 항목안에 병합되어질 세트를 체크하세요. 이것은 명백한 캐릭터별 설정입니다."
 L["Check this so armors are dispatched in four sections by type."] = "방어구를 유형별로 4개의 항목안에 처리할 것 같으면 이것에 체크하십시요."
 L["Check this so tidying is performed when you close the loot windows or you leave merchants, mailboxes, etc."] = "전리품 획득창을 닫거나 상점. 우편함등을 벗어 난 경우에 정리를 수행할 것 같으면 이것에 체크하십시요."
-L["Check this to display a bag type tag in the top left corner of items."] = "아이템의 상단 좌측 구석에 가방 유형 태그를 표시하려면 이것에 체크하세요."
+L["Check this to display a bag type tag in the top left corner of items."] = "아이템의 상단 좌측 모서리에 가방 유형 태그를 표시하려면 이것에 체크하세요."
 L["Check this to display a colored border around items, based on item quality."] = "아이템 등급에 기반해, 아이템 주위에 색이 입혀진 테두리를 표시하려면 이것에 체크하세요."
 L["Check this to display an icon after usage of each type of bags."] = "각 유형의 가방 사용칸수 뒤에 아이콘을 표시하려면 이것에 체크하세요."
 L["Check this to display an indicator on quest items."] = "퀘스트 아이템에 지시기를 표시하려면 이것에 체크하세요."
@@ -1347,7 +1361,7 @@ L["Enter the name of the section to associate with the item."] = "아이템과 �
 L["Enter the name, link or itemid of the item to associate with the section. You can also drop an item into this box."] = "항목과 연계하기 위한 아이템의 이름, 링크, 아이템 id를 입력합니다. 또한 이 박스안에 아이템을 떨굴 수 있습니다."
 L["Equipment"] = "착용 장비"
 L["Equipped bags"] = "착용된 가방"
-L["Fill lines at most"] = "대부분 선 채우기"
+L["Fill lines at most"] = "대부분 줄 채우기"
 L["Filter"] = "선별"
 L["Filtering information"] = "선별하기 정보"
 L["Filters"] = "선별기"
@@ -1413,6 +1427,7 @@ L["QUIVER_TAG"] = "화"
 L["Quality highlight"] = "등급 강조"
 L["Quest Items"] = "퀘스트 아이템"
 L["Quest indicator"] = "퀘스트 지시기"
+L["Remove"] = "제거"
 L["Reset new items"] = "새 아이템 초기화"
 L["Reset position"] = "위치 초기화"
 L["Right-click to try to empty this bag."] = "이 가방을 비우려면 오른쪽 클릭 하십시요."
@@ -1465,8 +1480,8 @@ L["Use this section to define any item-section association."] = "특정 아이�
 L["Use this to adjust the bag scale."] = "가방 비율을 조절하려면 이것을 사용하세요."
 L["Use this to adjust the quality-based border opacity. 100% means fully opaque."] = "등급에 기반한 테두리 불투명도를 조절하려면 이것을 사용하세요. 100%는 꽉찬 투명도를 의미합니다. "
 L["Virtual stack slots"] = "가상의 겹침 칸"
-L["Virtual stacks"] = "가상 스택"
-L["Virtual stacks display in one place items that actually spread over several bag slots."] = "실제로 가방의 여러 공간을 차지하는 아이템을 가상 스택을 사용해서 한칸으로 표시합니다."
+L["Virtual stacks"] = "가상 겹치기"
+L["Virtual stacks display in one place items that actually spread over several bag slots."] = "가상 겹치기는 실제로 여러개의 가방 칸을 차지하는 아이템을 한칸으로 표시합니다."
 L["When alt is held down"] = "alt 키를 누르고 있는 경우"
 L["When any modifier key is held down"] = "특정 변경키를 누르고 있는 경우"
 L["When ctrl is held down"] = "ctrl 키를 누르고 있는 경우"
