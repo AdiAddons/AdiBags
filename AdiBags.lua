@@ -216,7 +216,6 @@ function addon:OnEnable()
 
 	self:RawHook("OpenAllBags", true)
 	self:RawHook("CloseAllBags", true)
-	-- TODO: I should really look at 4.1 changes to understand what they are doing
 	self:RawHook("ToggleAllBags", "OpenAllBags", true)
 	self:RawHook("ToggleBackpack", true)
 	self:RawHook("ToggleBag", true)
@@ -473,7 +472,8 @@ function addon:OpenAllBags(forceOpen)
 	end
 end
 
-function addon:CloseAllBags()
+function addon:CloseAllBags(requesterFrame)
+	if requesterFrame then return end -- UpdateInteractingWindow takes care of these cases
 	for i, bag in self:IterateBags() do
 		bag:Close()
 	end
@@ -770,7 +770,7 @@ do
 			if not self.wasOpen then
 				self:Open()
 			end
-		elseif not window and self:IsOpen() and not self.wasOpen then
+		elseif self:IsOpen() and not self.wasOpen then
 			self:Close()
 		end
 	end
