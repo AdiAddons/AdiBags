@@ -445,24 +445,17 @@ local function GetContainerFrame(id, spawn)
 	end
 end
 
-function addon:OpenAllBags(forceOpen)
-	local total, open = 0, 0
+function addon:OpenAllBags(requesterFrame)
+	if requesterFrame then return end -- UpdateInteractingWindow takes care of these cases
 	for i, bag in self:IterateBags() do
-		if bag:CanOpen() then
-			total = total + 1
-			if bag:IsOpen() then
-				open = open + 1
-			end
+		if bag:CanOpen() and bag:IsOpen() then
+			return
 		end
 	end
 	for id in IterateBuiltInContainers() do
-		total = total + 1
 		if GetContainerFrame(id) then
-			open = open + 1
+			return
 		end
-	end
-	if open == total and not forceOpen then
-		return self:CloseAllBags()
 	end
 	for _, bag in self:IterateBags() do
 		bag:Open()
