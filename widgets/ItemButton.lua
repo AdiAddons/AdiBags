@@ -178,6 +178,9 @@ function buttonProto:OnShow()
 	self:RegisterEvent('BAG_UPDATE_COOLDOWN', 'UpdateCooldown')
 	self:RegisterEvent('ITEM_LOCK_CHANGED', 'UpdateLock')
 	self:RegisterEvent('QUEST_ACCEPTED', 'UpdateBorder')
+	if self.UpdateSearch then
+		self:RegisterEvent('INVENTORY_SEARCH_UPDATE', 'UpdateSearch')
+	end
 	self:RegisterEvent('UNIT_QUEST_LOG_CHANGED')
 	self:RegisterMessage('AdiBags_UpdateAllButtons', 'Update')
 	self:RegisterMessage('AdiBags_GlobalLockChanged', 'UpdateLock')
@@ -240,6 +243,9 @@ function buttonProto:Update()
 	self:UpdateBorder()
 	self:UpdateCooldown()
 	self:UpdateLock()
+	if self.UpdateSearch then
+		self:UpdateSearch()
+	end
 	addon:SendMessage('AdiBags_UpdateButton', self)
 end
 
@@ -264,6 +270,17 @@ function buttonProto:UpdateLock(isolatedEvent)
 	end
 	if isolatedEvent then
 		addon:SendMessage('AdiBags_UpdateLock', self)
+	end
+end
+
+if select(4, GetBuildInfo()) == 40300 then
+	function buttonProto:UpdateSearch()
+		local _, _, _, _, _, _, _, isFiltered = GetContainerItemInfo(self.bag, self.slot)
+		if isFiltered then
+			self.searchOverlay:Show();
+		else
+			self.searchOverlay:Hide();
+		end
 	end
 end
 

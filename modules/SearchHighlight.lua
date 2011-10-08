@@ -4,6 +4,11 @@ Copyright 2010-2011 Adirelle (adirelle@tagada-team.net)
 All rights reserved.
 --]]
 
+if select(4, GetBuildInfo()) == 40300 then
+	-- Client 4.3: integrated search box
+	return
+end
+
 local addonName, addon = ...
 local L = addon.L
 
