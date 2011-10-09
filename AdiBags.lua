@@ -216,7 +216,7 @@ function addon:OnEnable()
 
 	self:RawHook("OpenAllBags", true)
 	self:RawHook("CloseAllBags", true)
-	self:RawHook("ToggleAllBags", "OpenAllBags", true)
+	self:RawHook("ToggleAllBags", true)
 	self:RawHook("ToggleBackpack", true)
 	self:RawHook("ToggleBag", true)
 	self:RawHook("OpenBackpack", true)
@@ -445,18 +445,31 @@ local function GetContainerFrame(id, spawn)
 	end
 end
 
-function addon:OpenAllBags(requesterFrame)
-	if requesterFrame then return end -- UpdateInteractingWindow takes care of these cases
+function addon:ToggleAllBags()
+	local open, total = 0, 0
 	for i, bag in self:IterateBags() do
-		if bag:CanOpen() and bag:IsOpen() then
-			return
+		if bag:CanOpen() then
+			total = total + 1
+			if bag:IsOpen() then
+				open = open + 1
+			end
 		end
 	end
 	for id in IterateBuiltInContainers() do
+		total = total + 1
 		if GetContainerFrame(id) then
-			return
+			open = open + 1
 		end
 	end
+	if open == total then
+		return self:CloseAllBags()
+	else
+		return self:OpenAllBags()
+	end
+end
+
+function addon:OpenAllBags(requesterFrame)
+	if requesterFrame then return end -- UpdateInteractingWindow takes care of these cases
 	for _, bag in self:IterateBags() do
 		bag:Open()
 	end
