@@ -379,12 +379,12 @@ end
 
 local function Panel_OnShow(self)
 	PlaySound(self.openSound)
-	addon:SendMessage('AdiBags_FiltersChanged')
+	addon:SendMessage('AdiBags_FiltersChanged', true)
 end
 
 local function Panel_OnHide(self)
 	PlaySound(self.closeSound)
-	addon:SendMessage('AdiBags_FiltersChanged')
+	addon:SendMessage('AdiBags_FiltersChanged', true)
 end
 
 --------------------------------------------------------------------------------
