@@ -198,6 +198,15 @@ function addon:OnInitialize()
 	self.RegisterEvent(addonName, 'PLAYER_ENTERING_WORLD', function() if self.db.profile.enabled then self:Enable() end end)
 
 	self:UpgradeProfile()
+	
+	-- ProfessionVault support
+	local PV  =_G.ProfessionsVault
+	if PV then
+		self:Debug('Installing ProfessionVault callback')
+		self.RegisterMessage(PV, "AdiBags_UpdateButton", function(_, _, button)
+			PV:SlotColor(button.itemId, button.IconTexture)
+		end)
+	end
 
 	self:Debug('Initialized')
 end
