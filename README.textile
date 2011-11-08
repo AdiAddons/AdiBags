@@ -10,6 +10,8 @@ Related pages:
 
 "WoWace project page":http://www.wowace.com/addons/adibags/
 
+Also see the feedback section at the end of this page.
+
 h2. Features
 
 * smart filters are used to dispatch items into several sections, including:
@@ -76,6 +78,8 @@ h2. Tips & tricks
 * if you want to highlight new items without putting them into a specific section, edit the "new items" filter priority to put it at the end of the filter list.
 
 h2. Feedback
+
+Use your Curse.com account on the Wowace website.
 
 "WoWace forum thread":http://forums.wowace.com/showthread.php?p=301168
 "Bug tracker":http://www.wowace.com/addons/adibags/tickets/
