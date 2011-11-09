@@ -160,9 +160,16 @@ do
 		end
 	end)
 
-	swapFrame:SetScript('OnEvent', function(self, event, bag)
-		addon:Debug(event, bag)
-		locked[bag] = nil
+	swapFrame:SetScript('OnEvent', function(self, event, bagOrSlot)
+		addon:Debug(event, bagOrSlot)
+		if event == 'PLAYERBANKSLOTS_CHANGED' then
+			if bagOrSlot > 0 and bagOrSlot <= NUM_BANKGENERIC_SLOTS then
+				bagOrSlot = -1
+			else
+				return
+			end
+		end
+		locked[bagOrSlot] = nil
 		if not next(locked) then
 			self:Process()
 		end
@@ -181,6 +188,7 @@ do
 			tsort(otherBags)
 			currentBag, currentSlot, numSlots = bag, 0, GetContainerNumSlots(bag)
 			addon:SetGlobalLock(true)
+			swapFrame:RegisterEvent('PLAYERBANKSLOTS_CHANGED')
 			swapFrame:RegisterEvent('BAG_UPDATE')
 			swapFrame:Process()
 		end

@@ -71,7 +71,7 @@ function mod:OnEnable()
 	addon:HookBagFrameCreation(self, 'OnBagFrameCreated')
 
 	self:RegisterMessage('AdiBags_InteractingWindowChanged')
-	self:RegisterBucketEvent('BAG_UPDATE', 0)
+	self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2)
 	self:RegisterEvent('PLAYER_REGEN_DISABLED', 'RefreshAllBags')
 	self:RegisterEvent('PLAYER_REGEN_ENABLED')
 	self:RegisterEvent('LOOT_CLOSED', 'AutomaticTidy')
@@ -118,8 +118,8 @@ end
 
 local wasLocked = {}
 local wasCached = {}
-function mod:BAG_UPDATE(bagIds)
-	self:Debug('BAG_UPDATE')
+function mod:AdiBags_BagUpdated(bagIds)
+	self:Debug('AdiBags_BagUpdated')
 	wipe(wasLocked)
 	wipe(wasCached)
 	for name, bag in pairs(bags) do
