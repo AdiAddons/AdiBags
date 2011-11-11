@@ -39,6 +39,7 @@ L["ENGINEERING_BAG_TAG"] = "Eg"
 L["KEYRING_TAG"] = "Ke"
 L["GEM_BAG_TAG"] = "Ge"
 L["MINING_BAG_TAG"] = "Mi"
+L["TACKLE_BOX_TAG"] = "Fi"
 
 -- Get LibBabble-Inventory-3.0
 addon.BI = LibStub('LibBabble-Inventory-3.0'):GetLookupTable()
@@ -475,6 +476,7 @@ L["Space in use / total space"] = "Espace utilisé / espace total"
 L["Split armors by types"] = "Séparer les types d'armures"
 L["Split by subcategories"] = "Répartir par sous-catégorie"
 L["Strictly keep ordering"] = "Conserver strictement l'ordre"
+L["TACKLE_BOX_TAG"] = "Pê" -- Needs review
 L["Tidy bags"] = "Ranger les sacs"
 L["Tidy your bags by clicking on the small \"T\" button at the top left of bags. Special bags with free slots will be filled with macthing items and stackable items will be stacked to save space."] = "Range vos sacs lorsque vous cliquez sur le bouton \"T\" en haut à droite des sacs. Dans la mesure du possible, les sacs spéciaux seront remplis avec les objets correspondant, et les objets seront empilés pour libérer de la place."
 L["Toggle and configure item filters."] = "Activer et configurer les filtres."

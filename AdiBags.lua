@@ -90,6 +90,7 @@ local FAMILY_TAGS = {
   [0x0100] = L["KEYRING_TAG"], -- Keyring
   [0x0200] = L["GEM_BAG_TAG"], -- Gem Bag
   [0x0400] = L["MINING_BAG_TAG"], -- Mining Bag
+  [0x100000] = L["TACKLE_BOX_TAG"], -- Tackle Box
 --@noloc]]
 }
 
@@ -105,6 +106,7 @@ local FAMILY_ICONS = {
   [0x0100] = [[Interface\Icons\INV_Misc_Key_14]], -- Keyring
   [0x0200] = [[Interface\Icons\INV_Misc_Gem_BloodGem_01]], -- Gem Bag
   [0x0400] = [[Interface\Icons\Trade_Mining]], -- Mining Bag
+  [0x100000] = [[Interface\Icons\Trade_Fishing]], -- Tackle Box
 }
 
 local band = _G.bit.band
