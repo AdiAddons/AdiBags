@@ -949,7 +949,7 @@ L["Put any item that can be equipped (including bags) into the \"Equipment\" sec
 L["Put items belonging to one or more sets of the built-in gear manager in specific sections."] = "Coloca los artículos pertenecientes a uno o más conjuntos del gestor de equipamiento en secciones específicas."
 L["Put items in sections depending on their first-level category at the Auction House."] = "Coloca los artículos en las secciones en función de su primer nivel de categoría de la casa de subastas."
 L["Put items of poor quality or labeled as junk in the \"Junk\" section."] = "Coloca los artículos de mala calidad o etiquetados como basura en la sección \"basura\" ."
-L["Put quest-related items in their own section."] = [=[Poner los objetos relacionados con misiones en su correspondiente seccion. 
+L["Put quest-related items in their own section."] = [=[Poner los objetos relacionados con misiones en su correspondiente seccion.
 ( not quest section?)]=]
 L["Quality highlight"] = "Resaltar calidad"
 L["Quest Items"] = "Objetos de misión"
@@ -1672,6 +1672,7 @@ L["Items in this list are never considered as junk. Click an item to remove it f
 L["Jewelry"] = "joalheria" -- Needs review
 L["Junk category"] = "Categoria de sucata" -- Needs review
 L["Keep all stacks together."] = "Manter todas as pilhas juntas" -- Needs review
+L["LDB Plugin"] = "Plugin LDB" -- Needs review
 L["Layout priority"] = "Prioridade do layout" -- Needs review
 L["Lock anchor"] = "travar âncora" -- Needs review
 L["Low quality items"] = "Item inferior" -- Needs review
@@ -1696,6 +1697,7 @@ L["One section per set"] = "uma seção por set" -- Needs review
 L["Only one section."] = "Somente uma seção" -- Needs review
 L["Opacity"] = "Opacidade" -- Needs review
 L["Please note this filter matchs every item. Any filter with lower priority than this one will have no effect."] = "por favor note que este filtro engloba todos os itens. qualquer filtro com menor prioridade não terá efeito algum." -- Needs review
+L["Plugins"] = "Plugins" -- Needs review
 L["Position mode"] = "Modo de posicionamento" -- Needs review
 L["Priority"] = "prioridade" -- Needs review
 L["Provides a LDB data source to be displayed by LDB display addons."] = "Fornece uma fonte LDB para ser exibida por LDB addons" -- Needs review
