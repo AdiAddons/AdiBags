@@ -114,6 +114,13 @@ function addon:AcquireItemButton(container, bag, slot)
 	end
 end
 
+-- Pre-spawn a bunch of buttons, when we are out of combat
+-- because buttons created in combat do not work well
+hooksecurefunc(addon, 'OnInitialize', function()
+	addon:Debug('Prespawning buttons')
+	containerButtonPool:PreSpawn(100)
+end)
+
 --------------------------------------------------------------------------------
 -- Model data
 --------------------------------------------------------------------------------

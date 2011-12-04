@@ -150,6 +150,13 @@ function poolProto:Release(object)
 	self.heap[object] = true
 end
 
+function poolProto:PreSpawn(number)
+	for i = 1, number do
+		local object = self.class:Create()
+		self.heap[object] = true
+	end
+end
+
 local function PoolIterator(data, current)
 	current = next(data.pool[data.attribute], current)
 	if current == nil and data.attribute == "heap" then
