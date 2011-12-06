@@ -191,7 +191,7 @@ function buttonProto:OnShow()
 	self:RegisterEvent('UNIT_QUEST_LOG_CHANGED')
 	self:RegisterMessage('AdiBags_UpdateAllButtons', 'Update')
 	self:RegisterMessage('AdiBags_GlobalLockChanged', 'UpdateLock')
-	self:Update()
+	self:FullUpdate()
 end
 
 function buttonProto:OnHide()
