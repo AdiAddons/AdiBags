@@ -91,21 +91,25 @@ function addon:SetupDefaultFilters()
 				local name = GetEquipmentSetInfo(i)
 				local ids = GetEquipmentSetItemIDs(name)
 				local locations = GetEquipmentSetLocations(name)
-				for invId, location in pairs(locations) do
-					if location ~= 0 and location ~= 1 and ids[invId] ~= 0 then
-						local player, bank, bags, slot, container = EquipmentManager_UnpackLocation(location)
-						local slotId
-						if bags and slot and container then
-							slotId = GetSlotId(container, slot)
-						elseif bank and slot then
-							slotId = GetSlotId(BANK_CONTAINER, slot - BANK_CONTAINER_INVENTORY_OFFSET)
-						elseif not player or not slot then
-							missing = true
-						end
-						if slotId and not self.slots[slotId] then
-							self.slots[slotId] = name
+				if ids and locations then
+					for invId, location in pairs(locations) do
+						if location ~= 0 and location ~= 1 and ids[invId] ~= 0 then
+							local player, bank, bags, slot, container = EquipmentManager_UnpackLocation(location)
+							local slotId
+							if bags and slot and container then
+								slotId = GetSlotId(container, slot)
+							elseif bank and slot then
+								slotId = GetSlotId(BANK_CONTAINER, slot - BANK_CONTAINER_INVENTORY_OFFSET)
+							elseif not player or not slot then
+								missing = true
+							end
+							if slotId and not self.slots[slotId] then
+								self.slots[slotId] = name
+							end
 						end
 					end
+				else
+					missing = true
 				end
 			end
 			self.dirty = not missing
