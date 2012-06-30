@@ -1,4 +1,7 @@
-*.lua	filter=trimTrailingSpaces
-*.xml	filter=trimTrailingSpaces
-*.toc	filter=trimTrailingSpaces
-*.textile	filter=trimTrailingSpaces
+*.lua     text
+*.xml     text
+*.toc     text
+*.textile text
+.*meta    text whitespace=blank-at-eol,tab-in-indent
+*.sh      text eol=lf
+*         text=auto
