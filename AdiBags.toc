@@ -1,4 +1,4 @@
-## Interface: 40300
+## Interface: 50000
 
 ## Title: AdiBags
 ## Notes: Adirelle's bag addon.
