@@ -1,6 +1,6 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010-2012 Adirelle (adirelle@tagada-team.net)
+Copyright 2010-2012 Adirelle (adirelle@gmail.com)
 All rights reserved.
 --]]
 
