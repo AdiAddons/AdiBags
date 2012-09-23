@@ -76,16 +76,16 @@ end
 local FAMILY_ORDER = {
 	0x0000, -- Regular bag
 	0x0001, -- Quiver
-  0x0002, -- Ammo Pouch
-  0x0004, -- Soul Bag
-  0x0008, -- Leatherworking Bag
-  0x0010, -- Inscription Bag
-  0x0020, -- Herb Bag
-  0x0040, -- Enchanting Bag
-  0x0080, -- Engineering Bag
-  0x0100, -- Keyring
-  0x0200, -- Gem Bag
-  0x0400, -- Mining Bag
+	0x0002, -- Ammo Pouch
+	0x0004, -- Soul Bag
+	0x0008, -- Leatherworking Bag
+	0x0010, -- Inscription Bag
+	0x0020, -- Herb Bag
+	0x0040, -- Enchanting Bag
+	0x0080, -- Engineering Bag
+	0x0100, -- Keyring
+	0x0200, -- Gem Bag
+	0x0400, -- Mining Bag
 }
 
 local size = {}
