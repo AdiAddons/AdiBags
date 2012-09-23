@@ -280,14 +280,12 @@ function buttonProto:UpdateLock(isolatedEvent)
 	end
 end
 
-if select(4, GetBuildInfo()) == 40300 then
-	function buttonProto:UpdateSearch()
-		local _, _, _, _, _, _, _, isFiltered = GetContainerItemInfo(self.bag, self.slot)
-		if isFiltered then
-			self.searchOverlay:Show();
-		else
-			self.searchOverlay:Hide();
-		end
+function buttonProto:UpdateSearch()
+	local _, _, _, _, _, _, _, isFiltered = GetContainerItemInfo(self.bag, self.slot)
+	if isFiltered then
+		self.searchOverlay:Show();
+	else
+		self.searchOverlay:Hide();
 	end
 end
 

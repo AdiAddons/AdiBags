@@ -167,14 +167,11 @@ function containerProto:OnCreate(name, bagIds, isBank)
 	}, "ANCHOR_BOTTOMLEFT", -8, 0)
 	headerLeftRegion:AddWidget(bagSlotButton, 50)
 
-	if select(4, GetBuildInfo()) == 40300 then
-		-- Search boxes are provided by the 4.3 client
-		local searchBox = CreateFrame("EditBox", self:GetName().."SearchBox", self, "BagSearchBoxTemplate")
-		searchBox:SetSize(130, 20)
-		searchBox:SetFrameLevel(minFrameLevel)
-		headerRightRegion:AddWidget(searchBox, -10, 130, 0, -1)
-		tinsert(_G.ITEM_SEARCHBAR_LIST, searchBox:GetName())
-	end
+	local searchBox = CreateFrame("EditBox", self:GetName().."SearchBox", self, "BagSearchBoxTemplate")
+	searchBox:SetSize(130, 20)
+	searchBox:SetFrameLevel(minFrameLevel)
+	headerRightRegion:AddWidget(searchBox, -10, 130, 0, -1)
+	tinsert(_G.ITEM_SEARCHBAR_LIST, searchBox:GetName())
 
 	local title = self:CreateFontString(self:GetName().."Title","OVERLAY","GameFontHighlightLarge")
 	self.Title = title
