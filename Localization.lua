@@ -49,9 +49,10 @@ addon.BI = LibStub('LibBabble-Inventory-3.0'):GetLookupTable()
 --------------------------------------------------------------------------------
 
 -- %Localization: adibags
--- THE END OF THE FILE IS UPDATED BY A SCRIPT
--- ANY CHANGE BELOW THESES LINES WILL BE LOST
--- CHANGES SHOULD BE MADE USING http://www.wowace.com/addons/adibags/localization/
+-- THE END OF THE FILE IS UPDATED BY https://github.com/Adirelle/wowaceTools/#updatelocalizationphp.
+-- ANY CHANGE BELOW THESES LINES WILL BE LOST.
+-- UPDATE THE TRANSLATIONS AT http://www.wowace.com/addons/adibags/localization/
+-- AND ASK THE AUTHOR TO UPDATE THIS FILE.
 
 -- @noloc[[
 
@@ -226,11 +227,6 @@ L["New"] = true
 L["Reset new items"] = true
 L["Track new items in each bag, displaying a glowing aura over them and putting them in a special section. \"New\" status can be reset by clicking on the small \"N\" button at top left of bags."] = true
 L["Track new items"] = true
-
--- modules/SearchHighlight.lua
-L["Enter a text to search in item names."] = true
-L["Item search"] = true
-L["Provides a text widget at top of the backpack where you can type (part of) an item name to locate it in your bags."] = true
 
 -- modules/SectionVisibilityDropdown.lua
 L["Add a dropdown menu to bags that allow to hide the sections."] = true
@@ -854,7 +850,7 @@ L["Space in use / total space"] = "Использовано / всего мес�
 L["Split armors by types"] = "Разделять доспехи по типам"
 L["Split by subcategories"] = "Разделить по субкатегориям"
 L["Strictly keep ordering"] = "Строго соблюдать порядок"
-L["Tidy bags"] = "Чистыйе сумки"
+L["Tidy bags"] = "Чистые сумки" -- Needs review
 L["Tidy your bags by clicking on the small \"T\" button at the top left of bags. Special bags with free slots will be filled with macthing items and stackable items will be stacked to save space."] = "Убраться в ваших сумках можно нажав небольшую кнопку \"Т\", которая находится верхней левой стороне окна сумок. Специальные сумки будут заполнены подходящими для них предметами, и вещи которые можно сложить, будут сложены в стопки для экономии места."
 L["Toggle and configure item filters."] = "Переключение и настройка фильтров предмета."
 L["Toggle and configure plugins."] = "Переключение и настройка плагина."
@@ -867,7 +863,7 @@ L["Use this section to define any item-section association."] = "Использ�
 L["Use this to adjust the bag scale."] = "Регулировка масштаба сумок."
 L["Use this to adjust the quality-based border opacity. 100% means fully opaque."] = "Используете ето для настройки, на основе качества, границ прозрачности. 100% означает полностью непрозрачный"
 L["Virtual stacks"] = "Виртуальные стопки"
-L["Virtual stacks display in one place items that actually spread over several bag slots."] = "Виртуальные стопки отображаютса в одном месте, предметы которые на самом деле распространяютса в нескольких сумачных слотаф."
+L["Virtual stacks display in one place items that actually spread over several bag slots."] = "Виртуальные стопки отображают в одном месте предметы, которые фактически находятся в нескольких местах сумки." -- Needs review
 L["Virtual stack slots"] = "Виртуальное сложение слотов"
 L["When alt is held down"] = "Когда кнопка Alt нажата"
 L["When any modifier key is held down"] = "Когда какая-либо клавиша модификатора нажата"
@@ -992,6 +988,7 @@ L["Always"] = "總是"
 L["AMMO_TAG"] = "Am"
 L["Ammunition"] = "彈藥"
 L["Anchored"] = "錨點"
+L["Are you sure you want to remove this section ?"] = "你確定要刪除本分類嗎？"
 L["Background colors"] = "背景顏色"
 L["Backpack"] = "背包"
 L["Bag #%d"] = "背包 #%d"
@@ -1005,18 +1002,24 @@ L["By category, subcategory, quality and item level (default)"] = "按類別, �
 L["By name"] = "按物品名稱"
 L["By quality and item level"] = "按品質和物品等級"
 L["Category"] = "種類"
+L["Change stacking at merchants', auction house, bank, mailboxes or when trading."] = "商人，拍賣行，銀行，郵箱或交易時更改堆疊。"
+L["Check sets that should be merged into a unique \"Sets\" section. This is obviously a per-character setting."] = "檢查\"裝備組合\"應合併成一個獨特的“組合”分類。此項根據每個角色設置有所不同。" -- Needs review
+L["Check this so armors are dispatched in four sections by type."] = "護甲將按四大類型分組（布甲/皮甲/鎖甲/板甲）。" -- Needs review
+L["Check this so tidying is performed when you close the loot windows or you leave merchants, mailboxes, etc."] = "當關閉拾取窗口，離開交易，郵箱等動作時整理背包。"
 L["Check this to display a bag type tag in the top left corner of items."] = "在物品左上角顯示背包標籤"
 L["Check this to display a colored border around items, based on item quality."] = "依物品品質著色邊框"
 L["Check this to display an icon after usage of each type of bags."] = "在每個背包運用類型後顯示圖示。"
 L["Check this to display an indicator on quest items."] = "在任務物品上顯示指示。"
 L["Check this to display an textual tag before usage of each type of bags."] = "在每個背包運用類型前顯示文字標記。"
-L["Check this to display one individual section per set. If this is disabled, there will be one big \"Sets\" section."] = "依各個套裝獨立分組。若停用此選項，將會合併成一個大「套裝」分組。" -- Needs review
-L["Check this to display only one value counting all equipped bags, ignoring their type."] = "讓所有裝備背包顯示一個值，忽略其類型。" -- Needs review
+L["Check this to display one individual section per set. If this is disabled, there will be one big \"Sets\" section."] = "依各個套裝獨立分組。若停用此選項，將會合併成一個大「套裝」分組。"
+L["Check this to display only one value counting all equipped bags, ignoring their type."] = "讓所有裝備背包顯示一個值，忽略其類型。"
 L["Check this to have poor quality items dimmed."] = "黯淡品質為粗糙的物品"
 L["Check this to show space at your bank in the plugin."] = "在銀行中顯示背包空間。"
 L["Check this to show this section. Uncheck to hide it."] = "設定要顯示的區段"
 L["Check to enable this module."] = "檢查以啟用模組。"
+L["Click on a item to remove it from the list. You can drop an item on the empty slot to add it to the list."] = "點擊一個項目從列表中刪除它。也可拖放物品至空格以添加至列表。" -- Needs review
 L["Click on this button to create the new association."] = "建立新的關聯"
+L["Click or drag this item to remove it."] = "單擊或拖動要刪除的物品。" -- Needs review
 L["Click there to reset the bag positions and sizes."] = "點擊重置背包位置和尺寸。"
 L["Click to purchase"] = "點擊購買"
 L["Click to reset item status."] = "點擊重置物品狀態。"
@@ -1034,6 +1037,7 @@ L["Currency"] = "貨幣"
 L["Dim junk"] = "暗淡的垃圾"
 L["Display character currency at bottom left of the backpack."] = "與背爆左下角顯示角色通貨"
 L["Display character money at bottom right of the backpack."] = "在背包右下方顯示玩家金錢。"
+L["Drop an item there to add it to the list."] = "拖放物品至此可添加至列表。" -- Needs review
 L["Drop your item there to add it to this section."] = "拖放物品加入到類別。"
 L["Enabled"] = "啟用"
 L["ENCHANTING_BAG_TAG"] = "En"
@@ -1043,11 +1047,13 @@ L["Enter the name, link or itemid of the item to associate with the section. You
 L["Enter the name of the section to associate with the item."] = "輸入區塊名稱以建立相關"
 L["Equipment"] = "裝備"
 L["Equipped bags"] = "裝備背包"
+L["Exclude list"] = "排除列表"
 L["Fill lines at most"] = "填充線至多"
 L["Filter"] = "過濾"
 L["Filtering information"] = "過濾資訊"
 L["Filters"] = "篩檢程式"
 L["Filters are used to dispatch items in bag sections. One item can only appear in one section. If the same item is selected by several filters, the one with the highest priority wins."] = "篩檢程式是用來在背包分類中調度物品。一件物品只能在一個分類中顯示。如果在多個篩檢程式中選中相同的物品, 最高優先順序的一個將勝出。"
+L["Four general sections."] = "裝備分為四大類(武器/護甲/飾品/其他)" -- Needs review
 L["Free space"] = "可用空間"
 L["Free space / total space"] = "空間/總空間"
 L["Gear manager item sets"] = "裝備管理物品設定"
@@ -1059,6 +1065,8 @@ L["HERB_BAG_TAG"] = "He"
 L["Highlight color"] = "高亮顏色"
 L["Highlight scale"] = "高亮縮放"
 L["Ignore low quality items"] = "忽略低品質的物品"
+L["Included categories"] = "包含分類" -- Needs review
+L["Include list"] = "包含列表"
 L["... including incomplete stacks"] = "... 包括不完整的堆疊"
 L["INSCRIPTION_BAG_TAG"] = "In"
 L["Item"] = "物品"
@@ -1066,6 +1074,8 @@ L["Item category"] = "物品類別"
 L["Item information"] = "物品資訊"
 L["Items"] = "物品"
 L["Item search"] = "物品搜索"
+L["Items in this list are always considered as junk. Click an item to remove it from the list."] = "在此列表中的物品一直被視為垃圾。可從列表中點擊要剔除的物品。" -- Needs review
+L["Items in this list are never considered as junk. Click an item to remove it from the list."] = "在此列表中的物品永遠不會被視為垃圾。可從列表中點擊要剔除的物品。" -- Needs review
 L["Jewelry"] = "飾品"
 L["Junk category"] = "垃圾" -- Needs review
 L["Keep all stacks together."] = "保持全部堆疊合起來。"
@@ -1074,7 +1084,7 @@ L["Layout priority"] = "優先佈局"
 L["LDB Plugin"] = "LDB 插件"
 L["LEATHERWORKING_BAG_TAG"] = "Le"
 L["Lock anchor"] = "鎖定錨點"
-L["Low quality items"] = "低品質物品" -- Needs review
+L["Low quality items"] = "劣質物品" -- Needs review
 L["Manual"] = "手動"
 L["Manual filtering"] = "手動過濾"
 L["Maximum bag height"] = "最大高度的背包"
@@ -1101,9 +1111,9 @@ L["Plugins"] = "插件"
 L["Position mode"] = "位置模式"
 L["Priority"] = "優先順序"
 L["Provides a LDB data source to be displayed by LDB display addons."] = "提供LDB顯示插件的資料來源"
-L["Provides a text widget at top of the backpack where you can type (part of) an item name to locate it in your bags."] = "在背包頂部提供文字輸入框，可鍵入(部分)物品名稱於背包中查尋。" -- Needs review
-L["Put any item that can be equipped (including bags) into the \"Equipment\" section."] = "放置可裝備物品至「裝備」分組。" -- Needs review
-L["Put items belonging to one or more sets of the built-in gear manager in specific sections."] = "按裝備管理設置的套裝分組放置物品。" -- Needs review
+L["Provides a text widget at top of the backpack where you can type (part of) an item name to locate it in your bags."] = "在背包頂部提供文字輸入框，可鍵入(部分)物品名稱於背包中查找。" -- Needs review
+L["Put any item that can be equipped (including bags) into the \"Equipment\" section."] = "放置可裝備物品至「裝備」分組。"
+L["Put items belonging to one or more sets of the built-in gear manager in specific sections."] = "按裝備管理設置的套裝分組放置物品。"
 L["Put items in sections depending on their first-level category at the Auction House."] = "按拍賣場主類型規則分組放置物品。" -- Needs review
 L["Put items of poor quality or labeled as junk in the \"Junk\" section."] = "將不良品質或垃圾裝備放置於垃圾區段"
 L["Put quest-related items in their own section."] = "將任務相關物品置入相關區塊"
@@ -1121,8 +1131,12 @@ L["Section category"] = "科類"
 L["Section setup"] = "部分設定"
 L["Section visibility"] = "部分可見度"
 L["Section visibility button"] = "部分可見按鈕"
+L["Select how bag usage should be formatted in the plugin."] = "選擇背包使用狀況格式"
 L["Select how items should be sorted within each section."] = "設定各區塊物品的分類方式"
 L["Select how the bag are positionned."] = "設定背包位置"
+L["Select the category of the section to associate. This is used to group sections together."] = "選擇分類相關聯的分組。這是用來組合分組。" -- Needs review
+L["Select the sections in which the items should be dispatched."] = "選擇物品分配的分組"
+L["Select which first-level categories should be split by sub-categories."] = "選擇使用子類型分拆的物品主類型" -- Needs review
 L["Semi-automated tidy"] = "半自動整理"
 L["Separate incomplete stacks."] = "分開不完整的堆疊。"
 L["Separate unstackable items."] = "分開未可堆疊的物品。"
@@ -1135,6 +1149,7 @@ L["Show container information..."] = "顯示容器資訊"
 L["Show every distinct item stacks."] = "顯示每個不同的物品堆疊。"
 L["Show filtering information..."] = "顯示過濾資訊..."
 L["Show item information..."] = "顯示物品資訊"
+L["Show only one free slot for each kind of bags."] = "每種類型背包空間格合拼後數量。" -- Needs review
 L["Show only one slot of items that can be stacked."] = "可堆疊物品合併顯示於一格"
 L["Show only one slot of items that cannot be stacked."] = "將不可堆疊物品也集中顯示"
 L["Show %s"] = "顯示 %s"
@@ -1147,12 +1162,15 @@ L["Split armors by types"] = "根據武器種類進行分類"
 L["Split by subcategories"] = "子類別的分離"
 L["Strictly keep ordering"] = "嚴格地保持次序"
 L["Tidy bags"] = "整理背包"
+L["Tidy your bags by clicking on the small \"T\" button at the top left of bags. Special bags with free slots will be filled with macthing items and stackable items will be stacked to save space."] = "左上方的小“T”按鈕上點擊後整潔的你的行李袋。特殊袋的空間格，將充滿匹配和可堆疊的物品，將會堆疊以節省空間。" -- Needs review
 L["Toggle and configure item filters."] = "切換和配置物品過濾。"
 L["Toggle and configure plugins."] = "切換和配置插件。"
 L["Tooltip information"] = "提示資訊"
 L["Track new items"] = "追蹤新物品"
+L["Track new items in each bag, displaying a glowing aura over them and putting them in a special section. \"New\" status can be reset by clicking on the small \"N\" button at top left of bags."] = "在每個袋追踪新的物品，顯示一個發光的光環在\"新的物品\"上，並把\"新的物品\"歸類為一個特殊分類-新物品。可以通過點擊左上角的小“N”按鈕，還原分類。" -- Needs review
 L["Uncheck this to disable AdiBags."] = "不選此停用AdiBags。"
 L["Unlock anchor"] = "解鎖錨點"
+L["Use this section to define any item-section association."] = "使用此分類定義任意物品分組過濾" -- Needs review
 L["Use this to adjust the bag scale."] = "調整包包大小"
 L["Use this to adjust the quality-based border opacity. 100% means fully opaque."] = "調整品質邊框透明度 100%=完全不透明"
 L["Virtual stacks"] = "虛擬堆疊"
