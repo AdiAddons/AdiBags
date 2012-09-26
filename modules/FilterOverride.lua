@@ -93,8 +93,12 @@ end
 local categoryValues
 
 local function GetItemId(str)
-	local link = str and select(2, GetItemInfo(str))
-	return link and tonumber(link:match("item:(%d+)"))
+	if type(str) == "string" and strmatch(str, "battlepet:") then
+		return 82800 -- Official item (Pet Cage)
+	elseif str then
+		local link = select(2, GetItemInfo(str))
+		return link and tonumber(link:match("item:(%d+)"))
+	end
 end
 
 local AceConfigRegistry = LibStub('AceConfigRegistry-3.0')

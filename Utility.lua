@@ -121,7 +121,7 @@ end
 --------------------------------------------------------------------------------
 
 function addon.IsValidItemLink(link)
-	if type(link) == "string" and strmatch(link, 'item:[-:%d]+') and not strmatch(link, 'item:%d+:0:0:0:0:0:0:0:0:0') then
+	if type(link) == "string" and (strmatch(link, "battlepet:") or (strmatch(link, 'item:[-:%d]+') and not strmatch(link, 'item:%d+:0:0:0:0:0:0:0:0:0'))) then
 		return true
 	end
 end
@@ -132,14 +132,18 @@ end
 
 local function __GetDistinctItemID(link)
 	if not link or not addon.IsValidItemLink(link) then return end
-	local itemString, id, enchant, gem1, gem2, gem3, gem4, suffix, reforge = strmatch(link, '(item:(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):%-?%d+:%-?%d+:(%-?%d+))')
-	id = tonumber(id)
-	local equipSlot = select(9, GetItemInfo(id))
-	if equipSlot and equipSlot ~= "" and equipSlot ~= "INVTYPE_BAG" then
-		-- Rebuild an item link without noise
-		id = strjoin(':', 'item', id, enchant, gem1, gem2, gem3, gem4, suffix, "0", "0", reforge)
+	if strmatch(link, "battlepet:") then
+		return link
+	else
+		local itemString, id, enchant, gem1, gem2, gem3, gem4, suffix, reforge = strmatch(link, '(item:(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):%-?%d+:%-?%d+:(%-?%d+))')
+		id = tonumber(id)
+		local equipSlot = select(9, GetItemInfo(id))
+		if equipSlot and equipSlot ~= "" and equipSlot ~= "INVTYPE_BAG" then
+			-- Rebuild an item link without noise
+			id = strjoin(':', 'item', id, enchant, gem1, gem2, gem3, gem4, suffix, "0", "0", reforge)
+		end
+		return id
 	end
-	return id
 end
 
 local distinctIDs = setmetatable({}, {__index = function(t, link)
