@@ -174,10 +174,12 @@ end
 -- Item and container family
 --------------------------------------------------------------------------------
 
-local GetItemFamily, GetItemInfo, GetContainerNumFreeSlots = GetItemFamily, GetItemInfo, GetContainerNumFreeSlots
-
 function addon.GetItemFamily(item)
-	return select(9, GetItemInfo(item)) == "INVTYPE_BAG" and 0 or GetItemFamily(item)
+	if (type(item) == "string" and strmatch(item, "battlepet:")) or select(9, GetItemInfo(item)) == "INVTYPE_BAG" then
+		return 0
+	else
+		return GetItemFamily(item)
+	end
 end
 
 function addon.CanPutItemInContainer(item, container)

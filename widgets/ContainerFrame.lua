@@ -22,7 +22,6 @@ local GetContainerItemLink = _G.GetContainerItemLink
 local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
 local GetContainerNumSlots = _G.GetContainerNumSlots
 local GetCursorInfo = _G.GetCursorInfo
-local GetItemFamily = _G.GetItemFamily
 local GetItemInfo = _G.GetItemInfo
 local GetMerchantItemLink = _G.GetMerchantItemLink
 local ipairs = _G.ipairs
@@ -44,6 +43,7 @@ local wipe = _G.wipe
 
 local GetSlotId = addon.GetSlotId
 local GetBagSlotFromId = addon.GetBagSlotFromId
+local GetItemFamily = addon.GetItemFamily
 
 local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING
@@ -199,6 +199,7 @@ function containerProto:OnCreate(name, bagIds, isBank)
 	self:AddWidget(content)
 
 	self:UpdateBackgroundColor()
+	self.dirtyLevel = 0
 	self.paused = true
 	self.forceLayout = true
 
