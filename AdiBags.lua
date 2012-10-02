@@ -167,6 +167,7 @@ local DEFAULT_SETTINGS = {
 			freeSpace = true,
 			notWhenTrading = 1,
 		},
+		automaticLayout = 0,
 	},
 	char = {
 		collapsedSections = {

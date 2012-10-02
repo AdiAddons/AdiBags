@@ -351,13 +351,25 @@ function addon:GetOptions()
 					},
 					laxOrdering = {
 						name = L['Layout priority'],
+						desc = L['Select the top objective of the layout algorithm.'],
 						type = 'select',
 						width = 'double',
-						order = 149,
+						order = 148,
 						values = {
 							[0] = L['Strictly keep ordering'],
 							[1] = L['Group sections of same category'],
 							[2] = L['Fill lines at most'],
+						}
+					},
+					automaticLayout = {
+						name = L['Automatically rearrange sections ...'],
+						type = 'select',
+						width = 'double',
+						order = 149,
+						values = {
+							[0] = L['Always'],
+							[1] = L['When not talking to merchant, banker, ...'],
+							[2] = L['Only when required'],
 						}
 					},
 					backgroundColors = {
