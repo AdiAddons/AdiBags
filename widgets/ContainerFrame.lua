@@ -779,10 +779,8 @@ function containerProto:LayoutSections(cleanLevel)
 	if self.forceLayout then
 		cleanLevel = -1
 		self.forceLayout = nil
-	elseif cleanLevel == true then
-		cleanLevel = 0
 	elseif not cleanLevel then
-		cleanLevel = 1
+		cleanLevel = addon:GetInteractingWindow() and 1 or 0
 	end
 
 	self:Debug('LayoutSections: #sections=', num, 'cleanLevel=', cleanLevel, 'dirtyLevel=', dirtyLevel, '=>', (dirtyLevel > cleanLevel) and "cleanup required" or "NO-OP")
