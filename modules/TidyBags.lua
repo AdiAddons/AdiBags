@@ -71,6 +71,7 @@ function mod:OnEnable()
 	addon:HookBagFrameCreation(self, 'OnBagFrameCreated')
 
 	self:RegisterMessage('AdiBags_InteractingWindowChanged')
+	self:RegisterMessage('AdiBags_ContainerLayoutDirty', 'RefreshAllBags')
 	self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2)
 	self:RegisterEvent('PLAYER_REGEN_DISABLED', 'RefreshAllBags')
 	self:RegisterEvent('PLAYER_REGEN_ENABLED')
@@ -211,7 +212,7 @@ function bagProto:UpdateButton(event)
 		--@debug@
 		self:Debug('UpdateButton on', event, self.running and "(running)" or "", 'GetNextMove:', self:GetNextMove())
 		--@end-debug@
-		if not self.running and self:GetNextMove() then
+		if not self.running and (self:GetNextMove() or self.container.dirtyLevel > 0) then
 			self.button:Enable()
 		else
 			self.button:Disable()
@@ -273,6 +274,7 @@ function bagProto:ProcessInternal()
 	end
 	self.running = nil
 	self:UpdateButton("ProcessInternal")
+	self.container:LayoutSections(0)
 	self:Debug("Done")
 end
 
