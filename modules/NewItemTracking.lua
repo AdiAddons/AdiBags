@@ -208,7 +208,11 @@ local GetDistinctItemID = addon.GetDistinctItemID
 local function IsIgnored(itemId)
 	if mod.db.profile.ignoreJunk then
 		if type(itemId) == "string" then
-			itemId = tonumber(strmatch(itemId, "item:(%d+)") or itemId)
+			if strmatch(itemId, "battlepet:") then
+				itemId = 82800
+			else
+				itemId = tonumber(strmatch(itemId, "item:(%d+)") or itemId)
+			end
 		end
 		return addon:IsJunk(itemId)
 	end
