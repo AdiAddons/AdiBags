@@ -212,7 +212,7 @@ function bagProto:UpdateButton(event)
 		--@debug@
 		self:Debug('UpdateButton on', event, self.running and "(running)" or "", 'GetNextMove:', self:GetNextMove())
 		--@end-debug@
-		if not self.running and (self:GetNextMove() or self.container.dirtyLevel > 0) then
+		if not self.running and (self:GetNextMove() or (self.container and self.container.dirtyLevel > 0)) then
 			self.button:Enable()
 		else
 			self.button:Disable()
@@ -274,7 +274,9 @@ function bagProto:ProcessInternal()
 	end
 	self.running = nil
 	self:UpdateButton("ProcessInternal")
-	self.container:LayoutSections(0)
+	if self.container then
+		self.container:LayoutSections(0)
+	end
 	self:Debug("Done")
 end
 
