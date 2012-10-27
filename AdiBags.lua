@@ -233,7 +233,7 @@ function addon:OnEnable()
 	self:RawHook("ToggleBag", true)
 	self:RawHook("OpenBackpack", true)
 	self:RawHook("CloseBackpack", true)
-	self:RawHook('CloseAllWindows', true)
+	self:RawHook('CloseSpecialWindows', true)
 
 	-- Track most windows involving items
 	self:RegisterEvent('BANKFRAME_OPENED', 'UpdateInteractingWindow')
@@ -337,10 +337,9 @@ function addon:BankUpdated(slots)
 	end
 end
 
-function addon:CloseAllWindows(ignoreCenter)
-	local bagWasOpen = self:CloseAllBags()
-	local otherWindows = self.hooks.CloseAllWindows(ignoreCenter)
-	return otherWindows or bagWasOpen
+function addon:CloseSpecialWindows()
+	local found = self.hooks.CloseSpecialWindows()
+	return self:CloseAllBags() or found
 end
 
 --@debug@
