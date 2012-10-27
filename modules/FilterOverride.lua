@@ -15,6 +15,7 @@ local GetItemInfo = _G.GetItemInfo
 local gsub = _G.gsub
 local pairs = _G.pairs
 local select = _G.select
+local strmatch = _G.strmatch
 local setmetatable = _G.setmetatable
 local strsplit = _G.strsplit
 local strtrim = _G.strtrim
