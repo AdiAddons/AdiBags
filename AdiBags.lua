@@ -233,7 +233,7 @@ function addon:OnEnable()
 	self:RawHook("ToggleBag", true)
 	self:RawHook("OpenBackpack", true)
 	self:RawHook("CloseBackpack", true)
-	self:RawHook('CloseSpecialWindows', true)
+	self:RawHook('CloseAllWindows', true)
 
 	-- Track most windows involving items
 	self:RegisterEvent('BANKFRAME_OPENED', 'UpdateInteractingWindow')
@@ -337,9 +337,10 @@ function addon:BankUpdated(slots)
 	end
 end
 
-function addon:CloseSpecialWindows()
+function addon:CloseAllWindows(ignoreCenter)
 	local bagWasOpen = self:CloseAllBags()
-	return self.hooks.CloseSpecialWindows() or bagWasOpen
+	local otherWindows = self.hooks.CloseAllWindows(ignoreCenter)
+	return otherWindows or bagWasOpen
 end
 
 --@debug@
@@ -492,15 +493,20 @@ end
 
 function addon:CloseAllBags(requesterFrame)
 	if requesterFrame then return end -- UpdateInteractingWindow takes care of these cases
+	local found = false
 	for i, bag in self:IterateBags() do
-		bag:Close()
+		if bag:Close() then
+			found = true
+		end
 	end
 	for id in IterateBuiltInContainers() do
 		local frame = GetContainerFrame(id)
 		if frame then
 			frame:Hide()
+			found = 1
 		end
 	end
+	return found
 end
 
 function addon:ToggleBag(id)
