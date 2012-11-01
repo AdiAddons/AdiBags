@@ -464,7 +464,12 @@ function stackProto:SetVisibleSlot(slotId)
 	if slotId == self.slotId then return end
 	self.slotId = slotId
 	local button = self.button
+	local mouseover = false
 	if button then
+		if button:IsMouseOver() then
+			mouseover = true
+			button:GetScript('OnLeave')(button)
+		end
 		button.GetCount = nil
 		button:Release()
 	end
@@ -474,6 +479,9 @@ function stackProto:SetVisibleSlot(slotId)
 		button:SetAllPoints(self)
 		button:SetStack(self)
 		button:Show()
+		if mouseover then
+			button:GetScript('OnEnter')(button)
+		end
 	else
 		button = nil
 	end
