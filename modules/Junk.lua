@@ -29,7 +29,9 @@ local DEFAULTS = {
 	profile = {
 		sources = { ['*'] = true },
 		include = {},
-		exclude = {},
+		exclude = {
+			[6948] = true,
+		},
 	},
 }
 
