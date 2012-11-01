@@ -410,8 +410,7 @@ local function Panel_UpdateSkin(self)
 end
 
 local function Panel_ConfigChanged(self, event, name)
-	local cat = strsplit('.', name)
-	if cat == 'skin' or cat == 'backgroundColors' then
+	if strsplit('.', name) == 'skin' then
 		return Panel_UpdateSkin(self)
 	end
 end

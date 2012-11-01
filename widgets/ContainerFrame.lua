@@ -248,8 +248,7 @@ function containerProto:LayoutChanged()
 end
 
 function containerProto:ConfigChanged(event, name)
-	local cat = strsplit('.', name)
-	if cat == 'skin' or cat == 'backgroundColors' then
+	if strsplit('.', name) == 'skin' then
 		return self:UpdateSkin()
 	end
 end

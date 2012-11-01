@@ -453,14 +453,14 @@ function addon:GetOptions()
 								type = 'color',
 								order = 50,
 								hasAlpha = true,
-								arg = { "backgroundColors", "Backpack" },
+								arg = { "skin", "BackpackColor" },
 							},
 							bankColor = {
 								name = L['Bank color'],
 								type = 'color',
 								order = 60,
 								hasAlpha = true,
-								arg = { "backgroundColors", "Bank" },
+								arg = { "skin", "BankColor" },
 							},
 						},
 					}
