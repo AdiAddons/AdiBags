@@ -29,8 +29,7 @@ local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING
 local SECTION_SPACING = addon.SECTION_SPACING
 local SLOT_OFFSET = ITEM_SIZE + ITEM_SPACING
-local HEADER_SIZE = 14 + ITEM_SPACING
-addon.HEADER_SIZE = HEADER_SIZE
+local HEADER_SIZE = addon.HEADER_SIZE
 
 --------------------------------------------------------------------------------
 -- Section ordering

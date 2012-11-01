@@ -49,6 +49,7 @@ local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING
 local SECTION_SPACING = addon.SECTION_SPACING
 local BAG_INSET = addon.BAG_INSET
+local HEADER_SIZE = addon.HEADER_SIZE
 
 --------------------------------------------------------------------------------
 -- Widget scripts
@@ -746,11 +747,11 @@ local function DoLayoutSections(self, rowWidth, maxHeight)
 				break
 			end
 		end
+		wasted = max(wasted, contentHeight - y)
 		if y > 0 then
 			numColumns = numColumns + 1
 			columnX = columnX + columnWidth
 			contentWidth = max(contentWidth, columnX)
-			wasted = maxHeight - y
 		else
 			break
 		end
@@ -813,7 +814,7 @@ function containerProto:LayoutSections(cleanLevel)
 				if totalHeight / numColumns < minHeight then
 					numColumns = numColumns - 1
 				end
-				maxHeight = totalHeight / numColumns * 1.10
+				maxHeight = totalHeight / numColumns + (ITEM_SIZE + ITEM_SPACING)
 				contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight)
 			elseif numColumns == 1 and contentWidth < self.minWidth  then
 				contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self.minWidth, maxHeight)

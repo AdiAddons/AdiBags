@@ -129,6 +129,7 @@ addon.ITEM_SPACING = 4
 addon.SECTION_SPACING = addon.ITEM_SIZE / 3 + addon.ITEM_SPACING
 addon.BAG_INSET = 8
 addon.TOP_PADDING = 32
+addon.HEADER_SIZE = 14 + addon.ITEM_SPACING
 
 local BACKDROP = {
 	bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
