@@ -4,7 +4,8 @@ Copyright 2010-2012 Adirelle (adirelle@gmail.com)
 All rights reserved.
 --]]
 
-local addonName, addon = ...
+local addonName = "AdiBags"
+local addon = LibStub('AceAddon-3.0'):GetAddon(addonName)
 local L = addon.L
 
 --<GLOBALS
@@ -560,7 +561,7 @@ end
 -- Setup
 --------------------------------------------------------------------------------
 
-function addon:InitializeOptions()
+local function InitializeOptions()
 	local AceConfig = LibStub('AceConfig-3.0')
 
 	AceConfig:RegisterOptionsTable(addonName.."BlizzOptions", {
@@ -589,7 +590,7 @@ function addon:InitializeOptions()
 	})
 	AceConfigDialog:AddToBlizOptions(addonName.."BlizzOptions", addonName)
 
-	AceConfig:RegisterOptionsTable(addonName, function() return self:GetOptions() end)
+	AceConfig:RegisterOptionsTable(addonName, addon:GetOptions())
 
 	LibStub('AceConsole-3.0'):RegisterChatCommand("adibags", addon.OpenOptions, true)
 end
@@ -598,3 +599,5 @@ function addon.OpenOptions()
 	AceConfigDialog:SetDefaultSize(addonName, 800, 600)
 	AceConfigDialog:Open(addonName)
 end
+
+InitializeOptions()

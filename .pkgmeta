@@ -44,3 +44,5 @@ externals:
     url: svn://svn.wowace.com/wow/libbabble-inventory-3-0/mainline/trunk
     tag: latest
 
+move-folders:
+  AdiBags/AdiBags_Config: AdiBags_Config

@@ -9,6 +9,7 @@ local L = addon.L
 
 --<GLOBALS
 local _G = _G
+local ADDON_LOAD_FAILED = _G.ADDON_LOAD_FAILED
 local assert = _G.assert
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
 local BankFrame = _G.BankFrame
@@ -16,9 +17,11 @@ local BANK_CONTAINER = _G.BANK_CONTAINER
 local CloseBankFrame = _G.CloseBankFrame
 local ContainerFrame_GenerateFrame = _G.ContainerFrame_GenerateFrame
 local ContainerFrame_GetOpenFrame = _G.ContainerFrame_GetOpenFrame
+local format = _G.format
 local GetContainerNumSlots = _G.GetContainerNumSlots
 local geterrorhandler = _G.geterrorhandler
 local ipairs = _G.ipairs
+local LoadAddOn = _G.LoadAddOn
 local next = _G.next
 local NUM_BAG_SLOTS = _G.NUM_BAG_SLOTS
 local NUM_BANKBAGSLOTS = _G.NUM_BANKBAGSLOTS
@@ -26,6 +29,7 @@ local NUM_BANKGENERIC_SLOTS = _G.NUM_BANKGENERIC_SLOTS
 local NUM_CONTAINER_FRAMES = _G.NUM_CONTAINER_FRAMES
 local pairs = _G.pairs
 local pcall = _G.pcall
+local print = _G.print
 local strmatch = _G.strmatch
 local strsplit = _G.strsplit
 local tinsert = _G.tinsert
@@ -192,7 +196,6 @@ function addon:OnInitialize()
 
 	self:InitializeFilters()
 	self:CreateBagAnchor()
-	addon:InitializeOptions()
 
 	self:SetEnabledState(false)
 
@@ -316,6 +319,26 @@ function addon:UpgradeProfile()
 	if type(profile.rowWidth) == "number" then
 		local rowWidth = profile.rowWidth
 		profile.rowWidth = { Bank = rowWidth, Backpack = rowWidth }
+	end
+end
+
+--------------------------------------------------------------------------------
+-- Option addon handling
+--------------------------------------------------------------------------------
+
+do
+	local configAddonName = "AdiBags_Config"
+	local why = '???'
+	local function CouldNotLoad()
+		print("|cffff0000AdiBags:", format(ADDON_LOAD_FAILED, configAddonName, why), "|r")
+	end
+	function addon:OpenOptions()
+		self.OpenOptions = CouldNotLoad
+		local  loaded, reason = LoadAddOn(configAddonName)
+		if not loaded then
+			why = _G['ADDON_'..reason]
+		end
+		addon:OpenOptions()
 	end
 end
 
