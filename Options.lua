@@ -507,7 +507,7 @@ function addon:GetOptions()
 								end
 							},
 							notWhenTrading = {
-								name = L['When trading:'],
+								name = L["At mechants', bank, auction house, ..."],
 								desc = L["Change stacking at merchants', auction house, bank, mailboxes or when trading."],
 								order = 40,
 								width = 'double',
