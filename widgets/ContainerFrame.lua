@@ -716,6 +716,7 @@ local function DoLayoutSections(self, rowWidth, maxHeight)
 	local wasted = 0
 	local contentWidth, contentHeight = 0, 0
 	local columnX, numColumns = 0, 0
+	local section
 	local num = #sections
 	while num > 0 do
 		local columnWidth, y = 0, 0
@@ -726,13 +727,16 @@ local function DoLayoutSections(self, rowWidth, maxHeight)
 				if not index then
 					break
 				end
-				local section = tremove(sections, index)
+				section = tremove(sections, index)
 				num = num - 1
-				--section:Show()
 				section:SetPoint("TOPLEFT", content, columnX + x, -y)
 				section:SetSizeInSlots(width, height)
+				section:SetHeaderOverflow(true)
 				x = x + section:GetWidth() + SECTION_SPACING
 				rowHeight = max(rowHeight, section:GetHeight())
+			end
+			if section then
+				section:SetHeaderOverflow(false)
 			end
 			if x > 0 then
 				y = y + rowHeight + ITEM_SPACING

@@ -284,6 +284,17 @@ function sectionProto:SetSizeInSlots(width, height)
 	end
 end
 
+function sectionProto:SetHeaderOverflow(overflow)
+	if self.headerOverflow ~= overflow then
+		self.headerOverflow = overflow
+		if overflow then
+			self.Header:SetPoint("TOPRIGHT", SECTION_SPACING, 0)
+		else
+			self.Header:SetPoint("TOPRIGHT", 0, 0)
+		end
+	end
+end
+
 function sectionProto:Layout(cleanLevel)
 	if self.dirtyLevel > cleanLevel  then
 		self:Debug('Layout, cleanLevel=', cleanLevel, 'dirtyLevel=', self.dirtyLevel, '=> reordering buttons')
