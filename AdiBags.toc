@@ -6,7 +6,7 @@
 ## Version: @project-version@
 ## SavedVariables: AdiBagsDB
 ## X-Date: @project-date-iso@
-## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibBabble-Inventory-3.0, AdiDebug, Scrap, BrainDead, ProfessionsVault
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibBabble-Inventory-3.0, AdiDebug, LibSharedMedia-3.0, Scrap, BrainDead, ProfessionsVault
 
 #@no-lib-strip@
 libs\LibStub\LibStub.lua
@@ -19,6 +19,7 @@ libs\AceHook-3.0\AceHook-3.0.xml
 libs\AceBucket-3.0\AceBucket-3.0.xml
 libs\AceConsole-3.0\AceConsole-3.0.xml
 libs\LibBabble-Inventory-3.0\lib.xml
+libs\LibSharedMedia-3.0\lib.xml
 #@end-no-lib-strip@
 
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua

@@ -43,6 +43,12 @@ externals:
   libs/LibBabble-Inventory-3.0:
     url: svn://svn.wowace.com/wow/libbabble-inventory-3-0/mainline/trunk
     tag: latest
+  libs/LibSharedMedia-3.0:
+    url: svn://svn.wowace.com/wow/libsharedmedia-3-0/mainline/trunk/LibSharedMedia-3.0
+    tag: latest
+  libs/AceGUI-3.0-SharedMediaWidgets:
+    url: svn://svn.wowace.com/wow/ace-gui-3-0-shared-media-widgets/mainline/trunk/AceGUI-3.0-SharedMediaWidgets
+    tag: latest
 
 move-folders:
   AdiBags/AdiBags_Config: AdiBags_Config
