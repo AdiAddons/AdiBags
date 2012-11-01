@@ -362,25 +362,24 @@ function containerProto:AddBottomWidget(widget, side, order, height, xOffset, yO
 	region:AddWidget(widget, order, height, xOffset, yOffset)
 end
 
-function containerProto:GetContentMinWidth()
-	return max(
-		(self.BottomLeftRegion:IsShown() and self.BottomLeftRegion:GetWidth() or 0) +
-			(self.BottomRightRegion:IsShown() and self.BottomRightRegion:GetWidth() or 0),
-		self.Title:GetStringWidth() + 32 +
-			(self.HeaderLeftRegion:IsShown() and (self.HeaderLeftRegion:GetWidth() + 4) or 0) +
-			(self.HeaderRightRegion:IsShown() and (self.HeaderRightRegion:GetWidth() + 4) or 0)
-	)
-end
-
 function containerProto:OnLayout()
-	local bottomHeight = 0
-	if self.BottomLeftRegion:IsShown() then
-		bottomHeight = self.BottomLeftRegion:GetHeight() + BAG_INSET
+	self:Debug('OnLayout')
+	local hlr, hrr = self.HeaderLeftRegion, self.HeaderRightRegion
+	local blr, brr = self.BottomLeftRegion, self.BottomRightRegion
+	local minWidth = max(
+		self.Title:GetStringWidth() + 32 + (hlr:IsShown() and hlr:GetWidth() or 0) + (hrr:IsShown() and hrr:GetWidth() or 0),
+		(blr:IsShown() and blr:GetWidth() or 0) + (brr:IsShown() and brr:GetWidth() or 0)
+	)
+	if minWidth ~= self.minWidth then
+		self:Debug("MinWidth changed, forcing layout", self.minWidth, "=>", minWidth)
+		self.minWidth = minWidth
+		self:LayoutSections(-1)
 	end
-	if self.BottomRightRegion:IsShown() then
-		bottomHeight = max(bottomHeight, self.BottomRightRegion:GetHeight() + BAG_INSET)
-	end
-	self:SetWidth(BAG_INSET * 2 + max(self:GetContentMinWidth(), self.Content:GetWidth()))
+	local bottomHeight = max(
+		blr:IsShown() and (BAG_INSET + blr:GetHeight()) or 0,
+		brr:IsShown() and (BAG_INSET + brr:GetHeight()) or 0
+	)
+	self:SetWidth(BAG_INSET * 2 + max(minWidth, self.Content:GetWidth()))
 	self:SetHeight(addon.TOP_PADDING + BAG_INSET + bottomHeight + self.Content:GetHeight())
 end
 
@@ -756,6 +755,7 @@ local function DoLayoutSections(self, rowWidth, maxHeight)
 end
 
 function containerProto:LayoutSections(cleanLevel)
+	if not self.minWidth then return end
 
 	local num = 0
 	local dirtyLevel = self.dirtyLevel or 0
@@ -811,8 +811,8 @@ function containerProto:LayoutSections(cleanLevel)
 				end
 				maxHeight = totalHeight / numColumns * 1.10
 				contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight)
-			elseif numColumns == 1 and contentWidth < self:GetContentMinWidth()  then
-				contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self:GetContentMinWidth(), maxHeight)
+			elseif numColumns == 1 and contentWidth < self.minWidth  then
+				contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self.minWidth, maxHeight)
 			end
 
 			self.Content:SetSize(contentWidth, contentHeight)
