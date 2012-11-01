@@ -250,6 +250,7 @@ function addon:GetOptions()
 			bagList[module.bagName] = L[module.bagName]
 		end
 	end
+	local LSM = LibStub('LibSharedMedia-3.0')
 	options = {
 		--@debug@
 		name = addonName..' DEV',
@@ -373,23 +374,91 @@ function addon:GetOptions()
 							[2] = L['Only when required'],
 						}
 					},
-					backgroundColors = {
-						name = L['Background colors'],
+				},
+			},
+			skin = {
+				name = L['Skin'],
+				type = 'group',
+				order = 150,
+				args = {
+					texts = {
+						name = L['Texts'],
 						type = 'group',
 						inline = true,
-						order = 150,
+						order = 10,
 						args = {
+							font = {
+								name = L['Font'],
+								type = 'select',
+								dialogControl = 'LSM30_Font',
+								values = AceGUIWidgetLSMlists.font,
+								order = 10,
+								arg = { "skin", "font" },
+							},
+							size = {
+								name = L['Size'],
+								type = 'select',
+								values = {
+									[12] = L['Small'],
+									[16] = L['Medium'],
+									[20] = L['Large'],
+								},
+								order = 20,
+								arg = { "skin", "fontSize" },
+							},
+						},
+					},
+					background = {
+						name = L['Bag background'],
+						type = 'group',
+						inline = true,
+						order = 20,
+						args = {
+							texture = {
+								name = L['Texture'],
+								type = 'select',
+								dialogControl = 'LSM30_Background',
+								values = AceGUIWidgetLSMlists.background,
+								order = 10,
+								arg = { "skin", "background" },
+							},
+							insets = {
+								name = L['Insets'],
+								type = 'range',
+								order = 20,
+								arg = { "skin", "insets" },
+								min = -16,
+								max = 16,
+								step = 1,
+							},
+							border = {
+								name = L['Border'],
+								type = 'select',
+								dialogControl = 'LSM30_Border',
+								values = AceGUIWidgetLSMlists.border,
+								order = 30,
+								arg = { "skin", "border" },
+							},
+							borderWidth = {
+								name = L['Border width'],
+								type = 'range',
+								order = 40,
+								arg = { "skin", "borderWidth" },
+								min = 1,
+								max = 64,
+								step = 1,
+							},
 							backpackColor = {
-								name = L['Backpack'],
+								name = L['Backpack color'],
 								type = 'color',
-								order = 150,
+								order = 50,
 								hasAlpha = true,
 								arg = { "backgroundColors", "Backpack" },
 							},
 							bankColor = {
-								name = L['Bank'],
+								name = L['Bank color'],
 								type = 'color',
-								order = 160,
+								order = 60,
 								hasAlpha = true,
 								arg = { "backgroundColors", "Bank" },
 							},

@@ -58,9 +58,9 @@ h3. Alt bags and bank
 
 AdiBags is not an alt bags/bank viewer. If you want to keep track of what your alt owns, I suggest using an addon like "BagSync":http://www.wowinterface.com/downloads/info15351-BagSync.html.
 
-h3. Bag skinning
+h3. Full bag skinning
 
-Who need it anyway ?
+Basic skinning is available using LibSharedMedia-1.0: you can choose the bag font, background and border, as well as the color.
 
 h3. Comprehensive in-game filter/section editor
 

@@ -79,6 +79,7 @@ function sectionProto:OnCreate()
 
 	self:SetScript('OnShow', self.OnShow)
 	self:SetScript('OnHide', self.OnHide)
+
 end
 
 function sectionProto:OnShow()
@@ -119,6 +120,18 @@ function sectionProto:OnAcquire(container, name, category)
 	self.dirtyLevel = 0
 	self.container = container
 	self:RegisterMessage('AdiBags_OrderChanged')
+	self:RegisterMessage('AdiBags_ConfigChanged')
+	self:UpdateFont()
+end
+
+function sectionProto:UpdateFont()
+	local font, size = addon:GetFont()
+	local header = self.Header
+	local width = header:GetStringWidth()
+	header:SetFont(font, size-4)
+	if self:IsShown() and header:GetStringWidth() ~= width then
+		self:SetDirtyLevel(2)
+	end
 end
 
 function sectionProto:OnRelease()
@@ -132,6 +145,12 @@ end
 
 function sectionProto:AdiBags_OrderChanged()
 	self:ReorderButtons()
+end
+
+function sectionProto:AdiBags_ConfigChanged(_, name)
+	if name == 'skin.font' or name == 'skin.fontSize' then
+		return self:UpdateFont()
+	end
 end
 
 function sectionProto:GetOrder()

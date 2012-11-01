@@ -80,8 +80,6 @@ function containerProto:OnCreate(name, bagIds, isBank)
 	--self:EnableMouse(true)
 	self:SetFrameStrata("HIGH")
 
-	self:SetBackdrop(addon.BACKDROP)
-
 	self:SetScript('OnShow', self.OnShow)
 	self:SetScript('OnHide', self.OnHide)
 
@@ -198,7 +196,7 @@ function containerProto:OnCreate(name, bagIds, isBank)
 	self.Content = content
 	self:AddWidget(content)
 
-	self:UpdateBackgroundColor()
+	self:UpdateSkin()
 	self.dirtyLevel = 0
 	self.paused = true
 	self.forceLayout = true
@@ -250,8 +248,9 @@ function containerProto:LayoutChanged()
 end
 
 function containerProto:ConfigChanged(event, name)
-	if name:match('^backgroundColors%.') then
-		self:UpdateBackgroundColor()
+	local cat = strsplit('.', name)
+	if cat == 'skin' or cat == 'backgroundColors' then
+		return self:UpdateSkin()
 	end
 end
 
@@ -390,12 +389,18 @@ end
 -- Miscellaneous
 --------------------------------------------------------------------------------
 
-function containerProto:UpdateBackgroundColor()
-	local r, g, b, a = unpack(addon.db.profile.backgroundColors[self.name], 1, 4)
+function containerProto:UpdateSkin()
+	local backdrop, r, g, b, a = addon:GetContainerSkin(self.name)
+	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(r, g, b, a)
-	self:SetBackdropBorderColor(0.5, 0.5, 0.5, a)
-	self.BagSlotPanel:SetBackdropColor(r, g, b, a)
-	self.BagSlotPanel:SetBackdropBorderColor(0.5, 0.5, 0.5, a)
+	local m = max(r, g, b)
+	if m == 0 then
+		self:SetBackdropBorderColor(0.5, 0.5, 0.5, a)
+	else
+		self:SetBackdropBorderColor(0.5+(0.5*r/m), 0.5+(0.5*g/m), 0.5+(0.5*b/m), a)
+	end
+	local font, size = addon:GetFont()
+	self.Title:SetFont(font, size)
 end
 
 --------------------------------------------------------------------------------

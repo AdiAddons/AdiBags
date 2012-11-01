@@ -395,13 +395,33 @@ local function Panel_OnHide(self)
 	addon:SendMessage('AdiBags_FiltersChanged', true)
 end
 
+local function Panel_UpdateSkin(self)
+	local backdrop, r, g, b, a = addon:GetContainerSkin(self:GetParent().name)
+	self:SetBackdrop(backdrop)
+	self:SetBackdropColor(r, g, b, a)
+	local m = max(r, g, b)
+	if m == 0 then
+		self:SetBackdropBorderColor(0.5, 0.5, 0.5, a)
+	else
+		self:SetBackdropBorderColor(0.5+(0.5*r/m), 0.5+(0.5*g/m), 0.5+(0.5*b/m), a)
+	end
+	local font, size = addon:GetFont()
+	self.Title:SetFont(font, size)
+end
+
+local function Panel_ConfigChanged(self, event, name)
+	local cat = strsplit('.', name)
+	if cat == 'skin' or cat == 'backgroundColors' then
+		return Panel_UpdateSkin(self)
+	end
+end
+
 --------------------------------------------------------------------------------
 -- Panel creation
 --------------------------------------------------------------------------------
 
 function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	local self = CreateFrame("Frame", container:GetName().."Bags", container)
-	self:SetBackdrop(addon.BACKDROP)
 	self:SetPoint("BOTTOMLEFT", container, "TOPLEFT", 0, 4)
 
 	self.openSound = isBank and "igMainMenuOpen" or "igBackPackOpen"
@@ -410,6 +430,7 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	self:SetScript('OnHide', Panel_OnHide)
 
 	local title = self:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+	self.Title = title
 	title:SetText(L["Equipped bags"])
 	title:SetTextColor(1, 1, 1)
 	title:SetJustifyH("LEFT")
@@ -433,6 +454,9 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 
 	self:SetWidth(x + BAG_INSET)
 	self:SetHeight(BAG_INSET + TOP_PADDING + ITEM_SIZE)
+
+	LibStub('AceEvent-3.0').RegisterMessage(self:GetName(), 'AdiBags_ConfigChanged', Panel_ConfigChanged, self)
+	Panel_UpdateSkin(self)
 
 	return self
 end
