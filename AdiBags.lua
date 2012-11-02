@@ -353,7 +353,7 @@ do
 	end
 	function addon:OpenOptions(...)
 		self.OpenOptions = CouldNotLoad
-		local  loaded, reason = LoadAddOn(configAddonName)
+		local loaded, reason = LoadAddOn(configAddonName)
 		if not loaded then
 			why = _G['ADDON_'..reason]
 		end

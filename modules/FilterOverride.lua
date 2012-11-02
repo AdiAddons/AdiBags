@@ -91,88 +91,29 @@ end
 -- Options
 --------------------------------------------------------------------------------
 
-local categoryValues
-
-local function GetItemId(str)
-	if type(str) == "string" and strmatch(str, "battlepet:") then
-		return 82800 -- Official item (Pet Cage)
-	elseif str then
-		local link = select(2, GetItemInfo(str))
-		return link and tonumber(link:match("item:(%d+)"))
-	end
-end
+-- Replaced by something more useful when the options are initialized
+mod.UpdateOptions = function() end
 
 local options
 function mod:GetOptions()
-	if not options then
-		categoryValues = {}
-		for name in addon:IterateCategories() do
-			categoryValues[name] = name
-		end
-		local newItemId, newSection, newCategory
-		options = {
-			newAssoc = {
-				type = 'group',
-				name = L["New Override"],
-				desc = L["Use this section to define any item-section association."],
-				order = 10,
-				inline = true,
-				args = {
-					item = {
-						type = 'input',
-						name = L['Item'],
-						desc = L["Enter the name, link or itemid of the item to associate with the section. You can also drop an item into this box."],
-						order = 10,
-						get = function() return newItemId and select(2, GetItemInfo(newItemId)) end,
-						set = function(_, value) newItemId = GetItemId(value) end,
-						validate = function(_, value) return not not GetItemId(value) end,
-					},
-					section = {
-						type = 'input',
-						name = L['Section'],
-						desc = L["Enter the name of the section to associate with the item."],
-						order = 20,
-						get = function() return newSection end,
-						set = function(_, value) newSection = value end,
-						validate = function(_, value) return value and value:trim() ~= "" end,
-					},
-					category = {
-						type = 'select',
-						name = L['Section category'],
-						desc = L["Select the category of the section to associate. This is used to group sections together."],
-						order = 30,
-						get = function() return newCategory end,
-						set = function(_, value) newCategory = value end,
-						values = categoryValues,
-					},
-					add = {
-						type = 'execute',
-						name = L['Add association'],
-						desc = L["Click on this button to create the new association."],
-						order = 40,
-						func = function()
-							mod:AssignItems(newSection, newCategory, newItemId)
-							mod:UpdateOptions(newCategory)
-							newItemId, newCategory, newSection = nil, nil, nil
-						end,
-						disabled = function()
-							return not newItemId or not newSection or not newCategory
-						end,
-					},
-				},
-			},
-		}
-		mod:UpdateOptions()
+	if options then return options end
+
+	local categoryValues = {}
+	for name in addon:IterateCategories() do
+		categoryValues[name] = name
 	end
 
-	return options
-end
-
-do
-	local AceConfigDialog = LibStub('AceConfigDialog-3.0')
+	local function GetItemId(str)
+		if type(str) == "string" and strmatch(str, "battlepet:") then
+			return 82800 -- Official item (Pet Cage)
+		elseif str then
+			local link = select(2, GetItemInfo(str))
+			return link and tonumber(link:match("item:(%d+)"))
+		end
+	end
 
 	local t = {}
-	local handlerProto = {
+	local handlerProto = setmetatable({
 		SetItemAssoc = function(self, section, category)
 			wipe(t)
 			for itemId in pairs(self.values) do
@@ -213,8 +154,9 @@ do
 			end
 			return self.values
 		end,
-	}
+	}, { __index = addon:GetOptionHandler(self) })
 	local handlerMeta = { __index = handlerProto }
+
 	local optionProto = {
 		type = 'group',
 		inline = true,
@@ -260,9 +202,8 @@ do
 	local categories = {}
 	local categoryHeap = {}
 
-	function mod:UpdateOptions(selectCategory, fallbackSelectCategory)
-		if not options then return end
-		setmetatable(handlerProto, { __index = addon:GetOptionHandler(self) })
+	local AceConfigDialog = LibStub('AceConfigDialog-3.0')
+	mod.UpdateOptions = function(self, selectCategory, fallbackSelectCategory)
 		for category, categoryGroup in pairs(categories) do
 			options[category] = nil
 			for _, sectionGroup in pairs(categoryGroup.args) do
@@ -309,6 +250,63 @@ do
 			end
 		end
 	end
+
+	local newItemId, newSection, newCategory
+	options = {
+		newAssoc = {
+			type = 'group',
+			name = L["New Override"],
+			desc = L["Use this section to define any item-section association."],
+			order = 10,
+			inline = true,
+			args = {
+				item = {
+					type = 'input',
+					name = L['Item'],
+					desc = L["Enter the name, link or itemid of the item to associate with the section. You can also drop an item into this box."],
+					order = 10,
+					get = function() return newItemId and select(2, GetItemInfo(newItemId)) end,
+					set = function(_, value) newItemId = GetItemId(value) end,
+					validate = function(_, value) return not not GetItemId(value) end,
+				},
+				section = {
+					type = 'input',
+					name = L['Section'],
+					desc = L["Enter the name of the section to associate with the item."],
+					order = 20,
+					get = function() return newSection end,
+					set = function(_, value) newSection = value end,
+					validate = function(_, value) return value and value:trim() ~= "" end,
+				},
+				category = {
+					type = 'select',
+					name = L['Section category'],
+					desc = L["Select the category of the section to associate. This is used to group sections together."],
+					order = 30,
+					get = function() return newCategory end,
+					set = function(_, value) newCategory = value end,
+					values = categoryValues,
+				},
+				add = {
+					type = 'execute',
+					name = L['Add association'],
+					desc = L["Click on this button to create the new association."],
+					order = 40,
+					func = function()
+						mod:AssignItems(newSection, newCategory, newItemId)
+						mod:UpdateOptions(newCategory)
+						newItemId, newCategory, newSection = nil, nil, nil
+					end,
+					disabled = function()
+						return not newItemId or not newSection or not newCategory
+					end,
+				},
+			},
+		},
+	}
+	mod:UpdateOptions()
+
+	return options
 end
 
 --------------------------------------------------------------------------------

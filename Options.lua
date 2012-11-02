@@ -18,6 +18,8 @@ local type = _G.type
 local unpack = _G.unpack
 --GLOBALS>
 
+local safecall = addon.safecall
+
 local AceConfigDialog = LibStub('AceConfigDialog-3.0')
 
 local options
@@ -171,17 +173,21 @@ do
 		end
 
 		if module.GetOptions then
-			local opts, handler = module:GetOptions()
-			extendedOptions = {
-				handler = handler,
-				args = opts,
-			}
+			local opts, handler = safecall(module, "GetOptions")
+			if opts and handler then
+				extendedOptions = {
+					handler = handler,
+					args = opts,
+				}
+			end
 		elseif module.GetFilterOptions then
-			local opts, handler = module:GetFilterOptions()
-			extendedOptions = {
-				handler = handler,
-				args = opts,
-			}
+			local opts, handler = safecall(module, "GetFilterOptions")
+			if opts and handler then
+				extendedOptions = {
+					handler = handler,
+					args = opts,
+				}
+			end
 		end
 
 		data.options[name..'Basic'] = baseOptions
@@ -221,7 +227,9 @@ end
 -- Core options
 --------------------------------------------------------------------------------
 
-do
+local function GetOptions()
+	if options then return options end
+
 	local lockOption = {
 		name = function()
 			return addon.anchor:IsShown() and L["Lock anchor"] or L["Unlock anchor"]
@@ -620,13 +628,16 @@ do
 	end
 	UpdateFilterOrder()
 
-	LibStub('AceEvent-3.0').RegisterMessage(addonName.."Options", 'AdiBags_FiltersChanged', UpdateFilterOrder)
-	LibStub('AceConfig-3.0'):RegisterOptionsTable(addonName, options)
+	LibStub('AceEvent-3.0').RegisterMessage(addonName.."_Config", 'AdiBags_FiltersChanged', UpdateFilterOrder)
+
+	return options
 end
 
 --------------------------------------------------------------------------------
 -- Setup
 --------------------------------------------------------------------------------
+
+LibStub('AceConfig-3.0'):RegisterOptionsTable(addonName, GetOptions)
 
 function addon:OpenOptions(...)
 	AceConfigDialog:SetDefaultSize(addonName, 800, 600)

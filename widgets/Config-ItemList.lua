@@ -4,7 +4,8 @@ Copyright 2010-2012 Adirelle (adirelle@gmail.com)
 All rights reserved.
 --]]
 
-local addonName, addon = ...
+local addonName = "AdiBags"
+local addon = LibStub('AceAddon-3.0'):GetAddon(addonName)
 local L = addon.L
 
 --<GLOBALS
@@ -211,4 +212,3 @@ do
 
 	AceGUI:RegisterWidgetType(Type, Constructor, Version)
 end
-
