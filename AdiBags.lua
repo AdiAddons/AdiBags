@@ -361,6 +361,30 @@ do
 	end
 end
 
+do
+	-- Create the Blizzard addon option frame
+	local panel = CreateFrame("Frame", addonName.."BlizzOptions")
+	panel.name = addonName
+	InterfaceOptions_AddCategory(panel)
+
+	local fs = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+	fs:SetPoint("TOPLEFT", 10, -15)
+	fs:SetPoint("BOTTOMRIGHT", panel, "TOPRIGHT", 10, -45)
+	fs:SetJustifyH("LEFT")
+	fs:SetJustifyV("TOP")
+	fs:SetText(addonName)
+
+	local button = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+	button:SetText(L['Configure'])
+	button:SetWidth(128)
+	button:SetPoint("TOPLEFT", 10, -48)
+	button:SetScript('OnClick', function()
+		while CloseWindows() do end
+		return addon:OpenOptions()
+	end)
+
+end
+
 --------------------------------------------------------------------------------
 -- Event handlers
 --------------------------------------------------------------------------------

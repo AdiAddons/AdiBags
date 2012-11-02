@@ -221,31 +221,30 @@ end
 -- Core options
 --------------------------------------------------------------------------------
 
-local lockOption = {
-	name = function()
-		return addon.anchor:IsShown() and L["Lock anchor"] or L["Unlock anchor"]
-	end,
-	desc = L["Click to toggle the bag anchor."],
-	type = 'execute',
-	order = 110,
-	func = function()
-		addon:ToggleAnchor()
-	end,
-	disabled = function(info) return (info.handler and info.handler:IsDisabled(info)) or addon.db.profile.positionMode ~= 'anchored' end,
-}
+do
+	local lockOption = {
+		name = function()
+			return addon.anchor:IsShown() and L["Lock anchor"] or L["Unlock anchor"]
+		end,
+		desc = L["Click to toggle the bag anchor."],
+		type = 'execute',
+		order = 110,
+		func = function()
+			addon:ToggleAnchor()
+		end,
+		disabled = function(info) return (info.handler and info.handler:IsDisabled(info)) or addon.db.profile.positionMode ~= 'anchored' end,
+	}
 
-function addon:GetOptions()
-	if options then return options end
 	filterOptions._desc = {
 		name = L['Filters are used to dispatch items in bag sections. One item can only appear in one section. If the same item is selected by several filters, the one with the highest priority wins.'],
 		type = 'description',
 		order = 1,
 	}
-	local profiles = LibStub('AceDBOptions-3.0'):GetOptionsTable(self.db)
+	local profiles = LibStub('AceDBOptions-3.0'):GetOptionsTable(addon.db)
 	profiles.order = 600
 	profiles.disabled = false
 	local bagList = {}
-	for name, module in self:IterateModules() do
+	for name, module in addon:IterateModules() do
 		if module.isBag then
 			bagList[module.bagName] = L[module.bagName]
 		end
@@ -311,9 +310,9 @@ function addon:GetOptions()
 						max = 3.0,
 						step = 0.1,
 						set = function(info, newScale)
-							self.db.profile.scale = newScale
-							self:LayoutBags()
-							self:SendMessage('AdiBags_LayoutChanged')
+							addon.db.profile.scale = newScale
+							addon:LayoutBags()
+							addon:SendMessage('AdiBags_LayoutChanged')
 						end,
 					},
 					rowWidth = {
@@ -622,49 +621,15 @@ function addon:GetOptions()
 	UpdateFilterOrder()
 
 	LibStub('AceEvent-3.0').RegisterMessage(addonName.."Options", 'AdiBags_FiltersChanged', UpdateFilterOrder)
-
-	return options
+	LibStub('AceConfig-3.0'):RegisterOptionsTable(addonName, options)
 end
 
 --------------------------------------------------------------------------------
 -- Setup
 --------------------------------------------------------------------------------
 
-local function InitializeOptions()
-	local AceConfig = LibStub('AceConfig-3.0')
-
-	AceConfig:RegisterOptionsTable(addonName.."BlizzOptions", {
-		name = addonName,
-		type = 'group',
-		args = {
-			configure = {
-				name = L['Configure'],
-				type = 'execute',
-				order = 100,
-				func = function()
-					-- Close all UIPanels
-					-- Doing InterfaceOptionsFrame.lastFrame = nil here taints the thing, causing weird issues
-					local currentFrame = InterfaceOptionsFrame
-					while currentFrame do
-						local lastFrame = currentFrame.lastFrame
-						HideUIPanel(currentFrame)
-						currentFrame = lastFrame
-					end
-					-- Open the option pane on next update, hopefully after AceConfigDialog tried to close all its windows
-					LibStub('AceTimer-3.0').ScheduleTimer(addonName, addon.OpenOptions, 0)
-				end,
-			},
-			lock = lockOption,
-		},
-	})
-	AceConfigDialog:AddToBlizOptions(addonName.."BlizzOptions", addonName)
-
-	AceConfig:RegisterOptionsTable(addonName, addon:GetOptions())
-end
-
 function addon.OpenOptions()
 	AceConfigDialog:SetDefaultSize(addonName, 800, 600)
 	AceConfigDialog:Open(addonName)
 end
 
-InitializeOptions()
