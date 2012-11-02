@@ -58,8 +58,6 @@ else
 end
 --@end-alpha@
 
-addon:SetDefaultModulePrototype{Debug = addon.Debug}
-
 --------------------------------------------------------------------------------
 -- Helpful constants
 --------------------------------------------------------------------------------
@@ -386,6 +384,21 @@ do
 	end)
 
 end
+
+--------------------------------------------------------------------------------
+-- Module prototype
+--------------------------------------------------------------------------------
+
+addon:SetDefaultModulePrototype{
+	Debug = addon.Debug,
+	OpenOptions = function(self)
+		if self.isFilter then
+			return addon:OpenOptions("filters", self.filterName)
+		elseif not self.isBag then
+			return addon:OpenOptions("modules", self.moduleName)
+		end
+	end,
+}
 
 --------------------------------------------------------------------------------
 -- Event handlers

@@ -68,13 +68,20 @@ end
 function mod:OnBagFrameCreated(bag)
 	if bag.bagName ~= "Backpack" then return end
 	local frame = bag:GetFrame()
-	self.widget = CreateFrame("Frame", addonName.."CurrencyFrame", frame)
-	self.widget:SetHeight(16)
-	self.fontstring = self.widget:CreateFontString(nil, "OVERLAY","NumberFontNormalLarge")
-	self.fontstring:SetPoint("BOTTOMLEFT", 0, 1)
+
+	local widget =CreateFrame("Button", addonName.."CurrencyFrame", frame)
+	self.widget = widget
+	widget:SetHeight(16)
+	widget:RegisterForClicks("RightButtonUp")
+	widget:SetScript('OnClick', function() self:OpenOptions() end)
+	addon.SetupTooltip(widget, { L['Currency'], L['Right-click to configure.'] }, "ANCHOR_BOTTOMLEFT")
+
+	local fs = widget:CreateFontString(nil, "OVERLAY","NumberFontNormalLarge")
+	self.fontstring = fs
+	fs:SetPoint("BOTTOMLEFT", 0, 1)
+
 	self:Update()
-	--AddBottomWidget(widget, side, order, height, xOffset, yOffset)
-	frame:AddBottomWidget(self.widget, "LEFT", 50, 19)
+	frame:AddBottomWidget(widget, "LEFT", 50, 19)
 end
 
 local IterateCurrencies
