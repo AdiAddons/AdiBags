@@ -30,6 +30,7 @@ function mod:OnInitialize()
 	self.db = addon.db:RegisterNamespace(self.moduleName, {
 		profile = {
 			shown = { ['*'] = true },
+			hideZeroes = true,
 		},
 	})
 end
@@ -114,7 +115,7 @@ do
 	end
 end
 
-local ICON_STRING = "%d\124T%s:0:0:0:0:64:64:5:59:5:59\124t "
+local ICON_STRING = "\124T%s:0:0:0:0:64:64:5:59:5:59\124t "
 
 local values = {}
 local updating
@@ -122,9 +123,10 @@ function mod:Update()
 	if not self.widget or updating then return end
 	updating = true
 
+	local shown, hideZeroes = self.db.profile.shown, self.db.profile.hideZeroes
 	for i, name, _, _, _, _, count, icon in IterateCurrencies() do
-		if self.db.profile.shown[name] then
-			tinsert(values, format(ICON_STRING, count, icon))
+		if shown[name] and (count > 0 or not hideZeroes) then
+			tinsert(values, count..format(ICON_STRING, icon))
 		end
 	end
 
@@ -145,10 +147,15 @@ function mod:GetOptions()
 	local values = {}
 	local function GetValueList()
 		wipe(values)
-		for i, name in IterateCurrencies() do
-			values[name] = name
+		for i, name, _, _, _, _, _, icon in IterateCurrencies() do
+			values[name] = format(ICON_STRING, icon)..name
 		end
 		return values
+	end
+
+	local function Set(info, ...)
+		info.handler:Set(info, ...)
+		mod:Update()
 	end
 
 	return {
@@ -157,10 +164,15 @@ function mod:GetOptions()
 			type = 'multiselect',
 			order = 10,
 			values = GetValueList,
-			set = function(info, ...)
-				info.handler:Set(info, ...)
-				mod:Update()
-			end
+			set = Set,
+			width = 'double',
+		},
+		hideZeroes = {
+			name = L['Hide zeroes'],
+			desc = L['Ignore currencies with null amounts.'],
+			type = 'toggle',
+			order = 20,
+			set = Set,
 		},
 	}, addon:GetOptionHandler(self)
 end
