@@ -19,3 +19,7 @@
 
 ..\AdiBags\widgets\Config-ItemList.lua
 ..\AdiBags\Options.lua
+
+#@debug@
+## Version: DEV
+#@end-debug@

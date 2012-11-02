@@ -48,3 +48,6 @@ modules\SectionVisibilityDropdown.lua
 
 DefaultFilters.lua
 
+#@debug@
+## Version: DEV
+#@end-debug@
