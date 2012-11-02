@@ -102,8 +102,6 @@ local function GetItemId(str)
 	end
 end
 
-local AceConfigRegistry = LibStub('AceConfigRegistry-3.0')
-
 local options
 function mod:GetOptions()
 	if not options then
