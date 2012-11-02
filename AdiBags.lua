@@ -224,7 +224,9 @@ function addon:OnInitialize()
 		end)
 	end
 
-	self:RegisterChatCommand("adibags", "OpenOptions", true)
+	self:RegisterChatCommand("adibags", function(cmd)
+		addon:OpenOptions(strsplit(' ', cmd or ""))
+	end, true)
 
 	self:Debug('Initialized')
 end
@@ -351,13 +353,13 @@ do
 	local function CouldNotLoad()
 		print("|cffff0000AdiBags:", format(ADDON_LOAD_FAILED, configAddonName, why), "|r")
 	end
-	function addon:OpenOptions()
+	function addon:OpenOptions(...)
 		self.OpenOptions = CouldNotLoad
 		local  loaded, reason = LoadAddOn(configAddonName)
 		if not loaded then
 			why = _G['ADDON_'..reason]
 		end
-		addon:OpenOptions()
+		addon:OpenOptions(...)
 	end
 end
 

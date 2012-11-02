@@ -628,8 +628,14 @@ end
 -- Setup
 --------------------------------------------------------------------------------
 
-function addon.OpenOptions()
+function addon:OpenOptions(...)
 	AceConfigDialog:SetDefaultSize(addonName, 800, 600)
-	AceConfigDialog:Open(addonName)
+	if select('#', ...) > 0 then
+		self:Debug('OpenOptions =>', select('#', ...), ...)
+		AceConfigDialog:Open(addonName)
+		AceConfigDialog:SelectGroup(addonName, ...)
+	elseif not AceConfigDialog:Close(addonName) then
+		AceConfigDialog:Open(addonName)
+	end
 end
 
