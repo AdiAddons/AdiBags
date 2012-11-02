@@ -93,6 +93,7 @@ function mod:GetOptions()
 		autoTidy = {
 			name = L['Semi-automated tidy'],
 			desc = L['Check this so tidying is performed when you close the loot windows or you leave merchants, mailboxes, etc.'],
+			width = 'double',
 			type = 'toggle',
 			order = 10,
 		},
@@ -167,7 +168,10 @@ end
 -- Bag methods
 --------------------------------------------------------------------------------
 
-local function TidyButton_OnClick(button)
+local function TidyButton_OnClick(_, button)
+	if button == "RightButton" then
+		return mod:OpenOptions()
+	end
 	PlaySound("igMainMenuOptionCheckBoxOn")
 	return button.bag:Tidy()
 end
@@ -185,9 +189,11 @@ function bagProto:AttachContainer(container)
 	button:SetHeight(20)
 	button:SetScript("OnClick", TidyButton_OnClick)
 	button:SetScript("OnShow", TidyButton_OnShow)
+	button:RegisterForClicks("AnyUp")
 	addon.SetupTooltip(button, {
 		L["Tidy bags"],
-		L["Click to tidy bags."]
+		L["Click to tidy bags."],
+		L["Right-click to configure."]
 	}, "ANCHOR_TOPLEFT", 0, 8)
 	container:AddHeaderWidget(button, 0)
 

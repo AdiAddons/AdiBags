@@ -100,7 +100,10 @@ end
 -- Widget creation
 --------------------------------------------------------------------------------
 
-local function ResetButton_OnClick(button)
+local function ResetButton_OnClick(_, button)
+	if button == "RightButton" then
+		return mod:OpenOptions()
+	end
 	PlaySound("igMainMenuOptionCheckBoxOn")
 	mod:Reset(button.bagName)
 end
@@ -114,10 +117,12 @@ function mod:OnBagFrameCreated(bag)
 	button:SetWidth(20)
 	button:SetHeight(20)
 	button:SetScript("OnClick", ResetButton_OnClick)
+	button:RegisterForClicks("AnyUp")
 	container:AddHeaderWidget(button, 10)
 	addon.SetupTooltip(button, {
 		L["Reset new items"],
-		L["Click to reset item status."]
+		L["Click to reset item status."],
+		L["Right-click to configure."]
 	}, "ANCHOR_TOPLEFT", 0, 8)
 
 	if not next(bags[bag.bagName].newItems) then
@@ -140,6 +145,7 @@ function mod:GetOptions()
 			name = L['New item highlight'],
 			type = 'toggle',
 			order = 10,
+			width = 'double',
 		},
 		glowScale = {
 			name = L['Highlight scale'],
@@ -164,7 +170,8 @@ function mod:GetOptions()
 			set = function(info, ...)
 				info.handler:Set(info, ...)
 				self:UpdateBags()
-			end
+			end,
+			width = 'double',
 		},
 	}, addon:GetOptionHandler(self)
 end

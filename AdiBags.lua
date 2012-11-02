@@ -392,11 +392,7 @@ end
 addon:SetDefaultModulePrototype{
 	Debug = addon.Debug,
 	OpenOptions = function(self)
-		if self.isFilter then
-			return addon:OpenOptions("filters", self.filterName)
-		elseif not self.isBag then
-			return addon:OpenOptions("modules", self.moduleName)
-		end
+		return addon:OpenOptions("modules", self.moduleName)
 	end,
 }
 
@@ -1086,6 +1082,9 @@ local filterProto = {
 	isFilter = true,
 	priority = 0,
 	Debug = addon.Debug,
+	OpenOptions = function(self)
+		return addon:OpenOptions("filters", self.filterName)
+	end,
 }
 addon.filterProto = filterProto
 
