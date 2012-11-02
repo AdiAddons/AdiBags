@@ -168,12 +168,12 @@ end
 -- Bag methods
 --------------------------------------------------------------------------------
 
-local function TidyButton_OnClick(_, button)
+local function TidyButton_OnClick(widget, button)
 	if button == "RightButton" then
 		return mod:OpenOptions()
 	end
 	PlaySound("igMainMenuOptionCheckBoxOn")
-	return button.bag:Tidy()
+	return widget.bag:Tidy()
 end
 
 local function TidyButton_OnShow(button)

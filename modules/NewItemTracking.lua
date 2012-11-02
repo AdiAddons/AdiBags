@@ -100,12 +100,12 @@ end
 -- Widget creation
 --------------------------------------------------------------------------------
 
-local function ResetButton_OnClick(_, button)
+local function ResetButton_OnClick(widget, button)
 	if button == "RightButton" then
 		return mod:OpenOptions()
 	end
 	PlaySound("igMainMenuOptionCheckBoxOn")
-	mod:Reset(button.bagName)
+	mod:Reset(widget.bagName)
 end
 
 function mod:OnBagFrameCreated(bag)
