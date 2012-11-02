@@ -693,7 +693,7 @@ local getNextSection = {
 	end
 }
 
-local function DoLayoutSections(self, rowWidth, maxHeight)
+local function DoLayoutSections(self, rowWidth, maxHeight, maxWidth)
 	rowWidth = rowWidth + ITEM_SIZE - SECTION_SPACING
 
 	local minHeight = 0
@@ -723,8 +723,8 @@ local function DoLayoutSections(self, rowWidth, maxHeight)
 		local columnWidth, y = 0, 0
 		while num > 0 and y < maxHeight do
 			local rowHeight, x = 0, 0
-			while num > 0 and x < rowWidth do
-				local index, width, height = getNext(rowWidth - x, maxHeight - y, x, rowHeight)
+			while num > 0 and x < maxWidth do
+				local index, width, height = getNext(min(rowWidth, maxWidth - x), maxHeight - y, x, rowHeight)
 				if not index then
 					break
 				end
@@ -808,16 +808,14 @@ function containerProto:LayoutSections(cleanLevel)
 		else
 			local rowWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.rowWidth[self.name] - ITEM_SPACING
 			local maxHeight = addon.db.profile.maxHeight * UIParent:GetHeight() * UIParent:GetEffectiveScale() / self:GetEffectiveScale()
-			local contentWidth, contentHeight, numColumns, wastedHeight, minHeight = DoLayoutSections(self, rowWidth, maxHeight)
+			local contentWidth, contentHeight, numColumns, wastedHeight, minHeight = DoLayoutSections(self, rowWidth, maxHeight, self.minWidth)
 			if numColumns > 1 and wastedHeight / contentHeight > 0.1 then
 				local totalHeight = contentHeight * numColumns - wastedHeight
 				if totalHeight / numColumns < minHeight then
 					numColumns = numColumns - 1
 				end
-				maxHeight = totalHeight / numColumns + (ITEM_SIZE + ITEM_SPACING)
-				contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight)
-			elseif numColumns == 1 and contentWidth < self.minWidth  then
-				contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, self.minWidth, maxHeight)
+				maxHeight = totalHeight / numColumns + ITEM_SIZE
+				contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight, max(rowWidth, self.minWidth / numColumns))
 			end
 
 			self.Content:SetSize(contentWidth, contentHeight)
