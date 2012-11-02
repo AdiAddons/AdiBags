@@ -371,13 +371,14 @@ local function GetOptions()
 						}
 					},
 					automaticLayout = {
-						name = L['Automatically rearrange sections ...'],
+						name = L['Automatic layout update'],
+						desc = L['This setting allows to tone down what some people calls "section dancing" when moving/selling/milling items.'],
 						type = 'select',
 						width = 'double',
 						order = 149,
 						values = {
-							[0] = L['Always'],
-							[1] = L['When not talking to merchant, banker, ...'],
+							[0] = L['As soon as possible'],
+							[1] = L["Not at merchants', bank, ..."],
 							[2] = L['Only when required'],
 						}
 					},

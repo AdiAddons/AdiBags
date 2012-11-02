@@ -169,7 +169,7 @@ local DEFAULT_SETTINGS = {
 			freeSpace = true,
 			notWhenTrading = 1,
 		},
-		automaticLayout = 0,
+		automaticLayout = 1,
 		skin = {
 			font = LSM.DefaultMedia.font,
 			fontSize = 16,
