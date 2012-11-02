@@ -39,7 +39,7 @@ local UIParent = _G.UIParent
 local wipe = _G.wipe
 --GLOBALS>
 
-LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'AceEvent-3.0', 'AceBucket-3.0', 'AceHook-3.0')
+LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'AceEvent-3.0', 'AceBucket-3.0', 'AceHook-3.0', 'AceConsole-3.0')
 --@debug@
 _G[addonName] = addon
 --@end-debug@
@@ -223,6 +223,8 @@ function addon:OnInitialize()
 			PV:SlotColor(button.itemId, button.IconTexture)
 		end)
 	end
+
+	self:RegisterChatCommand("adibags", "OpenOptions", true)
 
 	self:Debug('Initialized')
 end

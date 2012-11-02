@@ -660,8 +660,6 @@ local function InitializeOptions()
 	AceConfigDialog:AddToBlizOptions(addonName.."BlizzOptions", addonName)
 
 	AceConfig:RegisterOptionsTable(addonName, addon:GetOptions())
-
-	LibStub('AceConsole-3.0'):RegisterChatCommand("adibags", addon.OpenOptions, true)
 end
 
 function addon.OpenOptions()
