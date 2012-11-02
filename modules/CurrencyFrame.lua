@@ -69,11 +69,12 @@ function mod:OnBagFrameCreated(bag)
 	if bag.bagName ~= "Backpack" then return end
 	local frame = bag:GetFrame()
 	self.widget = CreateFrame("Frame", addonName.."CurrencyFrame", frame)
+	self.widget:SetHeight(16)
 	self.fontstring = self.widget:CreateFontString(nil, "OVERLAY","NumberFontNormalLarge")
-	self.fontstring:SetPoint("BOTTOMLEFT", 0 ,1)
-	--AddBottomWidget(widget, side, order, height, xOffset, yOffset)
-	frame:AddBottomWidget(self.widget, "LEFT", 50, 13)
+	self.fontstring:SetPoint("BOTTOMLEFT", 0, 1)
 	self:Update()
+	--AddBottomWidget(widget, side, order, height, xOffset, yOffset)
+	frame:AddBottomWidget(self.widget, "LEFT", 50, 19)
 end
 
 local IterateCurrencies
@@ -106,7 +107,7 @@ do
 	end
 end
 
-local ICON_STRING = "%d\124T%s:0:0:0:0:64:64:5:59:5:59\124t"
+local ICON_STRING = "%d\124T%s:0:0:0:0:64:64:5:59:5:59\124t "
 
 local values = {}
 local updating
@@ -122,10 +123,9 @@ function mod:Update()
 
 	local widget, fs = self.widget, self.fontstring
 	if #values > 0 then
+		fs:SetText(tconcat(values, ""))
 		widget:Show()
-		fs:SetText(tconcat(values, " "))
-		widget:SetWidth(fs:GetStringWidth())
-		widget:SetHeight(fs:GetStringHeight())
+		widget:SetWidth(fs:GetStringWidth() + 4 * #values)
 		wipe(values)
 	else
 		widget:Hide()
