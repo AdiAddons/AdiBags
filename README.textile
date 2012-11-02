@@ -1,4 +1,4 @@
-AdiBags display the content bag in one view, gather into several sections using smart filters.
+AdiBags displays the content of your bags in one view, distributed into several sections using smart filters.
 
 It is heavily inspired by Nargiddley's Baggins.
 
@@ -6,35 +6,62 @@ Configuration is available through Blizzard addon panel, /adibags chat command o
 
 *Important note about localized filters*: some filters rely on translations from "LibBabble-Inventory-3.0":http://www.wowace.com/addons/libbabble-inventory-3-0/ so if some of them behave strangely in your locale, please take a look at the "library translation status":http://www.wowace.com/addons/libbabble-inventory-3-0/localization/.
 
-Related pages:
+h2. Feedback
 
-"WoWace project page":http://www.wowace.com/addons/adibags/
+Please report any bug or error using the wowace bug tracker (your Curse accout works there). The comments section below is not meant to report and track bugs. *I won't reply to bug reports in the comment section anymore.*
 
-*Also see the feedback section at the end of this page.*
+Some words about submitting bug reports:
+* I do not care about "it doesn't work, fix it!" messages. I need to know how it failed and a way to reproduce the bug so I can test it and make sure I fix it.
+* Bug reports are not in the "fire and forget" kind of things. I may have to ask you some details.
+* Please check all existing tickets and the "known issues" section below before submitting new ones. Duplicate reports will be rejected on sight.
+
+"Bug tracker":http://www.wowace.com/addons/adibags/tickets/
+"WoWace forum thread":http://forums.wowace.com/showthread.php?p=301168
 
 h2. Features
 
-* smart filters are used to dispatch items into several sections, including:
-** item sets of the Blizzard's gear manager (one section per set),
-** junk items,
-** quest items,
-** equipment (items your character can wear),
-** sections based on item category: trade goods, consumables, recipes, ...
-** manual filtering,
-** ammunition and warlocks' soul shards,
-** free space.
-* smart item sorting inside each section,
-* smart section layout,
-* new item tracker,
-* bag tidy,
-* name-based search,
-* equipped bag panel,
-* display character money in the backpack,
-* display character tokens in the backpack,
-* LDB data source displaying free space,
-* two bag layout modes:
-** anchored: unlock and move the anchor,
-** manual: move the bags by dragging their title.
+Most of these features may be configured. Check out the configuration panel ! (using the /adibags chat command or clicking on the bag icon, you have any LDB display)
+
+* Smart filters are used to distribute items into several sections, including:
+** Item sets of the Blizzard's gear manager (one section per set),
+** Junk items (whitelist and blacklist available),
+** Quest items,
+** Equipment (items your character can wear),
+** Sections based on item category: trade goods, consumables, recipes, ...
+** Manual filtering (drag and drop items on section header, or add new section from the configuration panel),
+** Ammunition and warlocks' soul shards,
+** Free space.
+* Smart item sorting inside each section.
+* Smart section layout.
+* Track new items ; use the [N] button resets the "new" flag.
+* Display slot type.
+* Bag tidy ; click on the [T] button.
+* Hide some sections, using the [V] button.
+* Name-based search.
+* Equipped bags (click on the bag icon in the top left corner),
+* Display character money in the backpack.
+* Display character tokens in the backpack.
+* LDB data source, displaying free space.
+* Two bag placement modes (choose one in the configuration panel):
+** Anchored: the bags expand from an anchor towards the center of the screen. The anchor can be unlocked and moved.
+** Manual: move the bags by dragging their title.
+
+h2. Separate modules
+
+I have written two separate modules for AdiBags:
+* "AdiBags_Outfitter":http://wow.curse.com/downloads/wow-addons/details/adibags_outfitter.aspx: add filters for "Outfitter":http://wow.curse.com/downloads/wow-addons/details/outfitter.aspx item sets.
+* "AdiBags_PT3Filter":http://wow.curse.com/downloads/wow-addons/details/adibags-pt3filter.aspx: add filters based on "LibPeriodicTable-3.1":http://wow.curse.com/downloads/wow-addons/details/libperiodictable-3-1.aspx categories.
+
+h2. Tips & tricks
+
+* you can create your own sections using the "manual filter" in filter configuration. You can then drag and drop items on section titles to reassign them ; this works for any section.
+* if you want to highlight new items without putting them into a specific section, edit the "new items" filter priority to put it at the end of the filter list.
+
+h2. Known issues
+
+* *All items are always news / new items are not deteteced / item sets are not working:* AdiBags is (ab)using the game API to emulate some features that is was not meant to do. It relies on some timings that depend on your computer speed, your realm server and/or your network connection (because the game is inherently asynchronous). In some cases, it just does not work and there is almost nothing I can do because I cannot reproduce the bug to diagnose it and to try to fix it. *So basically, if the new item or item set filters are not working for you, there is little chance I can fix it.*
+
+* *Protected action/addon blocked error:* they sometimes happen with AdiBags. Even though my effort, I can not reproduce these. Blizzard taint reports are very buggy, often blaming the wrong addon. As such they are pretty much useless.
 
 h2. Things that likely will not be implemented
 
@@ -65,29 +92,3 @@ Basic skinning is available using LibSharedMedia-1.0: you can choose the bag fon
 h3. Comprehensive in-game filter/section editor
 
 According to my experience with Baggins, comprehensive editor is awful to write as an author and awful to use as an user. Hence I focus on creating filters that have a smart built-in behavior and only a few options. I try to avoid the 20% of features that would require 80% of development effort.
-
-h2. Separate modules
-
-I have written two separate modules for AdiBags:
-* "AdiBags_Outfitter":http://wow.curse.com/downloads/wow-addons/details/adibags_outfitter.aspx: add filters for "Outfitter":http://wow.curse.com/downloads/wow-addons/details/outfitter.aspx item sets.
-* "AdiBags_PT3Filter":http://wow.curse.com/downloads/wow-addons/details/adibags-pt3filter.aspx: add filters based on "LibPeriodicTable-3.1":http://wow.curse.com/downloads/wow-addons/details/libperiodictable-3-1.aspx categories.
-
-h2. Tips & tricks
-
-* you can create your own sections using the "manual filter" in filter configuration. You can then drag and drop items on section titles to reassign them ; this works for any section.
-* if you want to highlight new items without putting them into a specific section, edit the "new items" filter priority to put it at the end of the filter list.
-
-h2. Known issues
-
-*All items are always news / new items are not deteteced / item sets are not working:* AdiBags is (ab)using the game API to emulate some features that is was not meant to do. It relies on some timings that depend on your computer speed, your realm server and/or your network connection (because the game is inherently asynchronous). In some cases, it just does not work and there is almost nothing I can do because I cannot reproduce the bug to diagnose it and to try to fix it. *So basically, if the new item or item set filters are not working for you, there is little chance I can fix it.*
-
-h2. Feedback
-
-Use your Curse.com account on the Wowace website.
-
-"WoWace forum thread":http://forums.wowace.com/showthread.php?p=301168
-"Bug tracker":http://www.wowace.com/addons/adibags/tickets/
-
-A word about submitting bug reports: I do not care about "it doesn't work, fix it!" messages. I need to know how it failed and a way to reproduce the bug so I can test it and make sure I fix it. Also, bug reports are not in the "fire and forget" kind of things. I may have to ask you some details.
-
-
