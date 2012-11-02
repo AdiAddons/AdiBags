@@ -17,4 +17,5 @@
 ..\AdiBags\libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
 #@end-no-lib-strip@
 
+..\AdiBags\widgets\Config-ItemList.lua
 ..\AdiBags\Options.lua
