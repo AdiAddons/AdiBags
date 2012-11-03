@@ -15,7 +15,7 @@ local UseContainerItem = _G.UseContainerItem
 
 local mod = addon:NewModule('BankSwitcher', 'AceEvent-3.0')
 mod.uiName = L['Bank Switcher']
-mod.uiDesc = L['Move items from and to back by right-clicking on section headers.']
+mod.uiDesc = L['Move items from and to the bank by right-clicking on section headers.']
 
 function mod:OnEnable()
 	self:RegisterMessage('AdiBags_InteractingWindowChanged')

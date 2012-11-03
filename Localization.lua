@@ -59,56 +59,25 @@ addon.BI = LibStub('LibBabble-Inventory-3.0'):GetLookupTable()
 ------------------------ enUS ------------------------
 
 
--- AdiBags.lua
-L["AdiBags Anchor"] = true
-L["Backpack"] = true
-L["Bank"] = true
+-- config/Config-ItemList.lua
+L["Click or drag this item to remove it."] = true
+L["Drop an item there to add it to the list."] = true
 
--- DefaultFilters.lua
-L["Ammunition"] = true
-L["Check sets that should be merged into a unique \"Sets\" section. This is obviously a per-character setting."] = true
-L["Check this so armors are dispatched in four sections by type."] = true
-L["Check this to display one individual section per set. If this is disabled, there will be one big \"Sets\" section."] = true
-L["Consider gems as a subcategory of trade goods"] = true
-L["Consider glyphs as a subcategory of trade goods"] = true
-L["Equipment"] = true
-L["Four general sections."] = true
-L["Gear manager item sets"] = true
-L["Gems are trade goods"] = true
-L["Glyphs are trade goods"] = true
-L["Item category"] = true
-L["Jewelry"] = true
-L["Merged sets"] = true
-L["One section per item slot."] = true
-L["One section per set"] = true
-L["Only one section."] = true
-L["Please note this filter matchs every item. Any filter with lower priority than this one will have no effect."] = true
-L["Put any item that can be equipped (including bags) into the \"Equipment\" section."] = true
-L["Put items belonging to one or more sets of the built-in gear manager in specific sections."] = true
-L["Put items in sections depending on their first-level category at the Auction House."] = true
-L["Put quest-related items in their own section."] = true
-L["Quest Items"] = true
-L["Section setup"] = true
-L["Select the sections in which the items should be dispatched."] = true
-L["Select which first-level categories should be split by sub-categories."] = true
-L["Set: %s"] = true
-L["Sets"] = true
-L["Split armors by types"] = true
-L["Split by subcategories"] = true
-
--- Options.lua
+-- config/Options.lua
 L["... including incomplete stacks"] = true
 L["Adjust the maximum height of the bags, relative to screen size."] = true
 L["Adjust the maximum number of items per row."] = true
-L["Always"] = true
 L["Anchored"] = true
+L["As soon as possible"] = true
 L["At mechants', bank, auction house, ..."] = true
-L["Automatically rearrange sections ..."] = true
+L["Automatic layout update"] = true
 L["Backpack color"] = true
+L["Backpack"] = true
 L["Bag background"] = true
 L["Bag type"] = true
 L["Bags"] = true
 L["Bank color"] = true
+L["Bank"] = true
 L["Border width"] = true
 L["Border"] = true
 L["By category, subcategory, quality and item level (default)"] = true
@@ -144,6 +113,7 @@ L["Merge free space"] = true
 L["Merge incomplete stacks with complete ones."] = true
 L["Merge stackable items"] = true
 L["Merge unstackable items"] = true
+L["Not at merchants', bank, ..."] = true
 L["Only when required"] = true
 L["Opacity"] = true
 L["Plugins"] = true
@@ -169,6 +139,7 @@ L["Sorting order"] = true
 L["Strictly keep ordering"] = true
 L["Texts"] = true
 L["Texture"] = true
+L["This setting allows to tone down what some people calls \"section dancing\" when moving/selling/milling items."] = true
 L["Toggle and configure item filters."] = true
 L["Toggle and configure plugins."] = true
 L["Uncheck this to disable AdiBags."] = true
@@ -177,12 +148,57 @@ L["Use this to adjust the bag scale."] = true
 L["Use this to adjust the quality-based border opacity. 100% means fully opaque."] = true
 L["Virtual stacks display in one place items that actually spread over several bag slots."] = true
 L["Virtual stacks"] = true
-L["When not talking to merchant, banker, ..."] = true
+
+-- core/Core.lua
+L["Warning: you are using an alpha or beta version of AdiBags without displaying Lua errors. If anything goes wrong, AdiBags (or any other addon causing some error) will simply stop working for apparently no reason. Please either enable the display of Lua errors or install an error handler addon like BugSack or Swatter."] = true
+
+-- core/DefaultFilters.lua
+L["Ammunition"] = true
+L["Check sets that should be merged into a unique \"Sets\" section. This is obviously a per-character setting."] = true
+L["Check this so armors are dispatched in four sections by type."] = true
+L["Check this to display one individual section per set. If this is disabled, there will be one big \"Sets\" section."] = true
+L["Consider gems as a subcategory of trade goods"] = true
+L["Consider glyphs as a subcategory of trade goods"] = true
+L["Equipment"] = true
+L["Four general sections."] = true
+L["Gear manager item sets"] = true
+L["Gems are trade goods"] = true
+L["Glyphs are trade goods"] = true
+L["Item category"] = true
+L["Jewelry"] = true
+L["Merged sets"] = true
+L["One section per item slot."] = true
+L["One section per set"] = true
+L["Only one section."] = true
+L["Please note this filter matchs every item. Any filter with lower priority than this one will have no effect."] = true
+L["Put any item that can be equipped (including bags) into the \"Equipment\" section."] = true
+L["Put items belonging to one or more sets of the built-in gear manager in specific sections."] = true
+L["Put items in sections depending on their first-level category at the Auction House."] = true
+L["Put quest-related items in their own section."] = true
+L["Quest Items"] = true
+L["Section setup"] = true
+L["Select the sections in which the items should be dispatched."] = true
+L["Select which first-level categories should be split by sub-categories."] = true
+L["Set: %s"] = true
+L["Sets"] = true
+L["Split armors by types"] = true
+L["Split by subcategories"] = true
+
+-- core/Layout.lua
+L["AdiBags Anchor"] = true
+
+-- modules/BankSwitcher.lua
+L["Bank Switcher"] = true
+L["Move items from and to the bank by right-clicking on section headers."] = true
+L["Right-click to move these items."] = true
 
 -- modules/CurrencyFrame.lua
 L["Currencies to show"] = true
 L["Currency"] = true
 L["Display character currency at bottom left of the backpack."] = true
+L["Hide zeroes"] = true
+L["Ignore currencies with null amounts."] = true
+L["Right-click to configure."] = true
 
 -- modules/DataSource.lua
 L["Bag usage format"] = true
@@ -229,7 +245,9 @@ L["Items in this list are always considered as junk. Click an item to remove it 
 L["Items in this list are never considered as junk. Click an item to remove it from the list."] = true
 L["Junk category"] = true
 L["Low quality items"] = true
+L["Nothing to sell."] = true
 L["Put items of poor quality or labeled as junk in the \"Junk\" section."] = true
+L["Right-click to sell these items."] = true
 
 -- modules/MoneyFrame.lua
 L["Display character money at bottom right of the backpack."] = true
@@ -265,6 +283,7 @@ L["Tidy your bags by clicking on the small \"T\" button at the top left of bags.
 L["AH category"] = true
 L["AH subcategory"] = true
 L["Add more information in tooltips related to items in your bags."] = true
+L["Always"] = true
 L["Bag number"] = true
 L["Container information"] = true
 L["Filter"] = true
@@ -283,14 +302,16 @@ L["When any modifier key is held down"] = true
 L["When ctrl is held down"] = true
 L["When shift is held down"] = true
 
+-- widgets/AnchorWidget.lua
+L["Alt-right-click to switch to anchored placement."] = true
+L["Alt-right-click to switch to manual placement."] = true
+L["Drag to move this bag."] = true
+L["Right-click to (un)lock the bag anchor."] = true
+
 -- widgets/BagSlots.lua
 L["Click to purchase"] = true
 L["Equipped bags"] = true
 L["Right-click to try to empty this bag."] = true
-
--- widgets/Config-ItemList.lua
-L["Click or drag this item to remove it."] = true
-L["Drop an item there to add it to the list."] = true
 
 -- widgets/ContainerFrame.lua
 L["Bag #%d"] = true
@@ -311,13 +332,16 @@ L["Adjust the maximum number of items per row."] = "Ajustez le nombre maximal d'
 L["AH category"] = "Catégorie HV"
 L["AH subcategory"] = "Sous-catégorie HV"
 L["Allow you manually redefine the section in which an item should be put. Simply drag an item on the section title."] = "Vous permet de redéfinir manuellement la section dans laquelle un objet doit être mis. Tirez simplement un objet sur le titre de section."
+L["Alt-right-click to switch to anchored placement."] = "Alt+clic-droit pour activer le placement ancré."
+L["Alt-right-click to switch to manual placement."] = "Alt+clic-droit pour activer le placement manuel."
 L["Always"] = "Toujours"
 L["AMMO_TAG"] = "Ba"
 L["Ammunition"] = "Munitions"
 L["Anchored"] = "Ancrée"
 L["Are you sure you want to remove this section ?"] = "Etes-vous sûr de vouloir effacer cette section ?"
+L["As soon as possible"] = "Dès que possible"
 L["At mechants', bank, auction house, ..."] = "Chez les marchands, à la banque, à l'hôtel des ventes, ..."
-L["Automatically rearrange sections ..."] = "Réarranger les sections automatiquement..."
+L["Automatic layout update"] = "Mise-à-jour automatique de la disposition"
 L["Backpack"] = "Sac à dos"
 L["Backpack color"] = "Couleur du sac à dos"
 L["Bag background"] = "Arrière-plan des sacs"
@@ -329,6 +353,7 @@ L["Bag usage format"] = "Format de l'usage des sacs"
 L["Bank"] = "Banque"
 L["Bank bag #%d"] = "Sac de banque n°%d"
 L["Bank color"] = "Couleur de la banque"
+L["Bank Switcher"] = "Banque rapide"
 L["Border"] = "Bord"
 L["Border width"] = "Largeur du bord"
 L["By category, subcategory, quality and item level (default)"] = "Par catégorie, sous-catégorie, qualité et niveau d'objet (par défaut)"
@@ -371,6 +396,7 @@ L["Currency"] = "Insignes"
 L["Dim junk"] = "Assombrir la camelote"
 L["Display character currency at bottom left of the backpack."] = "Affiche les insignes du personnage en bas à gauche du sac à dos."
 L["Display character money at bottom right of the backpack."] = "Affiche l'or du personnage en bas à droite du sac à dos."
+L["Drag to move this bag."] = "Tirer pour déplacer ce sac."
 L["Drop an item there to add it to the list."] = "Glissez un objet ici pour l'ajouter à la liste."
 L["Drop your item there to add it to this section."] = "Déposez votre objet ici pour l'ajouter à cette section."
 L["Enabled"] = "Activé"
@@ -396,8 +422,10 @@ L["Gems are trade goods"] = "Gemmes dans artisanat"
 L["Glyphs are trade goods"] = "Glyphes dans artisanat"
 L["Group sections of same category"] = "Grouper les sections de la même catégorie"
 L["HERB_BAG_TAG"] = "He"
+L["Hide zeroes"] = "Cacher les zéros"
 L["Highlight color"] = "Couleur du surlignage"
 L["Highlight scale"] = "Echelle du surlignage"
+L["Ignore currencies with null amounts."] = "Ignore les insignes en quantité nulle."
 L["Ignore low quality items"] = "Ignorer les objets de mauvaise qualité"
 L["Included categories"] = "Catégories incluses"
 L["Include list"] = "Liste \"inclus\""
@@ -434,10 +462,13 @@ L["Merge stackable items"] = "Fusionne les objets empilables"
 L["Merge unstackable items"] = "Fusionner les objets non-empilables"
 L["MINING_BAG_TAG"] = "Mi"
 L["Money"] = "Monnaie"
+L["Move items from and to the bank by right-clicking on section headers."] = "Déplacer des objets de ou vers la banque en cliquant-droit sur les en-tête de section."
 L["Never"] = "Jamais"
 L["New"] = "Nouveau"
 L["New item highlight"] = "Surlignage des nouveaux objets"
 L["New Override"] = "Nouvelle association"
+L["Not at merchants', bank, ..."] = "Pas chez les marchands, à la banque, ..."
+L["Nothing to sell."] = "Rien à vendre."
 L["One section per item slot."] = "Une section par emplacement d'équipement"
 L["One section per set"] = "Une section par ensemble"
 L["Only one section."] = "Seulement une section"
@@ -460,7 +491,11 @@ L["QUIVER_TAG"] = "Fl"
 L["Remove"] = "Effacer"
 L["Reset new items"] = "Remet à zéro les nouveaux objets."
 L["Reset position"] = "R.à.z. position"
+L["Right-click to configure."] = "Clic-droit pour configurer."
+L["Right-click to move these items."] = "Clic-droit pour déplacer ces objets."
+L["Right-click to sell these items."] = "Clic-droit pour vendre ces objets."
 L["Right-click to try to empty this bag."] = "Clic droit pour essayer de vider ce sac."
+L["Right-click to (un)lock the bag anchor."] = "Clic-droit pour (dé)verrouiller l'ancre des sacs."
 L["Scale"] = "Echelle"
 L["Section"] = "Section"
 L["Section category"] = "Catégorie de section"
@@ -504,6 +539,7 @@ L["Strictly keep ordering"] = "Conserver strictement l'ordre"
 L["TACKLE_BOX_TAG"] = "Pê"
 L["Texts"] = "Textes"
 L["Texture"] = "Texture"
+L["This setting allows to tone down what some people calls \"section dancing\" when moving/selling/milling items."] = "Ce réglage permet de réduire ce que certains appellent la \"danse des sections\", quand vous déplacez/vendez des objets."
 L["Tidy bags"] = "Ranger les sacs"
 L["Tidy your bags by clicking on the small \"T\" button at the top left of bags. Special bags with free slots will be filled with macthing items and stackable items will be stacked to save space."] = "Range vos sacs lorsque vous cliquez sur le bouton \"T\" en haut à droite des sacs. Dans la mesure du possible, les sacs spéciaux seront remplis avec les objets correspondant, et les objets seront empilés pour libérer de la place."
 L["Toggle and configure item filters."] = "Activer et configurer les filtres."
@@ -519,10 +555,10 @@ L["Use this to adjust the quality-based border opacity. 100% means fully opaque.
 L["Virtual stacks"] = "Piles virtuelles"
 L["Virtual stacks display in one place items that actually spread over several bag slots."] = "Les piles virtuelles affichent en un seul endroit plusieurs piles d'objets."
 L["Virtual stack slots"] = "Emplacements de pile virtuelle"
+L["Warning: you are using an alpha or beta version of AdiBags without displaying Lua errors. If anything goes wrong, AdiBags (or any other addon causing some error) will simply stop working for apparently no reason. Please either enable the display of Lua errors or install an error handler addon like BugSack or Swatter."] = "Attention : vous utilisez une version alpha ou beta d'AdiBags sans afficher les erreurs Lua. Si quelque chose se passe mal, AdiBags (ou n'importe quel autre addon causant une erreur) va simplement arrêter de fonctionner sans raison apparente. Veuillez soit activer l'affichage des erreurs Lua ou installer un addon de gestion d'erreurs comme BugSack ou Swatter."
 L["When alt is held down"] = "Quand ALT est enfoncé"
 L["When any modifier key is held down"] = "Quand n'importe quelle touche de modification est enfoncée"
 L["When ctrl is held down"] = "Quand CONTROL est enfoncé"
-L["When not talking to merchant, banker, ..."] = "Lorsque je ne cause pas à un marchand, un banquier, ..."
 L["When shift is held down"] = "Quand MAJ est enfoncé"
 
 ------------------------ deDE ------------------------
@@ -1008,8 +1044,10 @@ L["AMMO_TAG"] = "Am"
 L["Ammunition"] = "彈藥"
 L["Anchored"] = "錨點"
 L["Are you sure you want to remove this section ?"] = "你確定要刪除本分類嗎？"
-L["Automatically rearrange sections ..."] = "自動重新整理分類..." -- Needs review
+L["At mechants', bank, auction house, ..."] = "在商人,銀行,拍賣場等..." -- Needs review
 L["Backpack"] = "背包"
+L["Backpack color"] = "背包顏色" -- Needs review
+L["Bag background"] = "背包背景" -- Needs review
 L["Bag #%d"] = "背包 #%d"
 L["Bag number"] = "背包數量"
 L["Bags"] = "背包"
@@ -1017,6 +1055,9 @@ L["Bag type"] = "背包類型"
 L["Bag usage format"] = "背包運用格式"
 L["Bank"] = "銀行"
 L["Bank bag #%d"] = "銀行背包 #%d"
+L["Bank color"] = "銀行顏色" -- Needs review
+L["Border"] = "邊框" -- Needs review
+L["Border width"] = "邊框寬度" -- Needs review
 L["By category, subcategory, quality and item level (default)"] = "按類別, 子類別, 品質和物品等級(預設)"
 L["By name"] = "按物品名稱"
 L["By quality and item level"] = "按品質和物品等級"
@@ -1071,6 +1112,7 @@ L["Filter"] = "過濾"
 L["Filtering information"] = "過濾資訊"
 L["Filters"] = "篩檢程式"
 L["Filters are used to dispatch items in bag sections. One item can only appear in one section. If the same item is selected by several filters, the one with the highest priority wins."] = "篩檢程式是用來在背包分類中調度物品。一件物品只能在一個分類中顯示。如果在多個篩檢程式中選中相同的物品, 最高優先順序的一個將勝出。"
+L["Font"] = "字型" -- Needs review
 L["Four general sections."] = "裝備分為四大類(武器/護甲/飾品/其他)" -- Needs review
 L["Free space"] = "可用空間"
 L["Free space / total space"] = "空間/總空間"
@@ -1087,6 +1129,7 @@ L["Included categories"] = "包含分類" -- Needs review
 L["Include list"] = "包含列表"
 L["... including incomplete stacks"] = "... 包括不完整的堆疊"
 L["INSCRIPTION_BAG_TAG"] = "In"
+L["Insets"] = "插圖" -- Needs review
 L["Item"] = "物品"
 L["Item category"] = "物品類別"
 L["Item information"] = "物品資訊"
@@ -1097,6 +1140,7 @@ L["Jewelry"] = "飾品"
 L["Junk category"] = "垃圾" -- Needs review
 L["Keep all stacks together."] = "保持全部堆疊合起來。"
 L["KEYRING_TAG"] = "Ke"
+L["Large"] = "大" -- Needs review
 L["Layout priority"] = "優先佈局"
 L["LDB Plugin"] = "LDB 插件"
 L["LEATHERWORKING_BAG_TAG"] = "Le"
@@ -1107,6 +1151,7 @@ L["Manual filtering"] = "手動過濾"
 L["Maximum bag height"] = "最大高度的背包"
 L["Maximum row width"] = "最大行寬度"
 L["Maximum stack size"] = "最大的堆疊多少"
+L["Medium"] = "中" -- Needs review
 L["Merge bag types"] = "合併背包類型"
 L["Merged sets"] = "合併設定"
 L["Merge free space"] = "合併空間"
@@ -1171,7 +1216,10 @@ L["Show only one free slot for each kind of bags."] = "每種類型背包空間�
 L["Show only one slot of items that can be stacked."] = "可堆疊物品合併顯示於一格"
 L["Show only one slot of items that cannot be stacked."] = "將不可堆疊物品也集中顯示"
 L["Show %s"] = "顯示 %s"
+L["Size"] = "大小" -- Needs review
+L["Skin"] = "皮膚" -- Needs review
 L["Slot number"] = "槽數"
+L["Small"] = "小" -- Needs review
 L["Sorting order"] = "排序"
 L["SOUL_BAG_TAG"] = "So"
 L["Space in use"] = "空間使用"
@@ -1179,6 +1227,8 @@ L["Space in use / total space"] = "空間使用/總空間"
 L["Split armors by types"] = "根據武器種類進行分類"
 L["Split by subcategories"] = "子類別的分離"
 L["Strictly keep ordering"] = "嚴格地保持次序"
+L["Texts"] = "文字" -- Needs review
+L["Texture"] = "材質" -- Needs review
 L["Tidy bags"] = "整理背包"
 L["Tidy your bags by clicking on the small \"T\" button at the top left of bags. Special bags with free slots will be filled with macthing items and stackable items will be stacked to save space."] = "左上方的小“T”按鈕上點擊後整潔的你的行李袋。特殊袋的空間格，將充滿匹配和可堆疊的物品，將會堆疊以節省空間。" -- Needs review
 L["Toggle and configure item filters."] = "切換和配置物品過濾。"
@@ -1197,7 +1247,6 @@ L["Virtual stack slots"] = "虛擬堆疊插槽"
 L["When alt is held down"] = "當 alt 按住"
 L["When any modifier key is held down"] = "當任何修改鍵按住"
 L["When ctrl is held down"] = "當 ctrl 按住"
-L["When not talking to merchant, banker, ..."] = "對話不是與商人，銀行家，..." -- Needs review
 L["When shift is held down"] = "當 shift 按住"
 
 ------------------------ zhCN ------------------------
