@@ -32,8 +32,13 @@ end
 function mod:OnBagFrameCreated(bag)
 	if bag.bagName ~= "Backpack" then return end
 	local frame = bag:GetFrame()
-	self.widget = CreateFrame("Frame", addonName.."MoneyFrame", frame, "MoneyFrameTemplate")
-	self.widget:SetHeight(19)
+	local widget = CreateFrame("Button", addonName.."MoneyFrame", frame, "MoneyFrameTemplate")
+	self.widget = widget
+	widget:SetHeight(19)
+	widget:RegisterForClicks("RightButtonUp")
+	widget:SetScript('OnClick', function() self:OpenOptions() end)
+	addon.SetupTooltip(widget, { L['Money'], L['Right-click to configure.'] }, "ANCHOR_BOTTOMRIGHT")
+	
 	frame:AddBottomWidget(self.widget, "RIGHT", 50, 19, 19, 0)
 end
 

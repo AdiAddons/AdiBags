@@ -28,9 +28,14 @@ libs\LibSharedMedia-3.0\lib.xml
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 
 Localization.lua
-Utility.lua
-AdiBags.lua
-OO.lua
+core\Constants.lua
+core\Utility.lua
+core\Core.lua
+core\Hooks.lua
+core\Bags.lua
+core\Filters.lua
+core\Layout.lua
+core\OO.lua
 
 widgets\LayeredRegion.lua
 widgets\ContainerFrame.lua
@@ -49,7 +54,7 @@ modules\CurrencyFrame.lua
 modules\TooltipInfo.lua
 modules\SectionVisibilityDropdown.lua
 
-DefaultFilters.lua
+core\DefaultFilters.lua
 
 #@debug@
 ## Version: DEV

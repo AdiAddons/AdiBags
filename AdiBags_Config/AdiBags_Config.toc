@@ -17,8 +17,8 @@
 ..\AdiBags\libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
 #@end-no-lib-strip@
 
-..\AdiBags\widgets\Config-ItemList.lua
-..\AdiBags\Options.lua
+..\AdiBags\config\Config-ItemList.lua
+..\AdiBags\config\Options.lua
 
 #@debug@
 ## Version: DEV

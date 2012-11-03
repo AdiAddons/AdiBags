@@ -20,6 +20,7 @@ local GetItemFamily = _G.GetItemFamily
 local GetItemInfo = _G.GetItemInfo
 local ITEM_QUALITY_POOR = _G.ITEM_QUALITY_POOR
 local ITEM_QUALITY_UNCOMMON = _G.ITEM_QUALITY_UNCOMMON
+local pairs = _G.pairs
 local pcall = _G.pcall
 local select = _G.select
 local setmetatable = _G.setmetatable
@@ -29,6 +30,9 @@ local tonumber = _G.tonumber
 local tostring = _G.tostring
 local type = _G.type
 --GLOBALS>
+
+local FAMILY_TAGS = addon.FAMILY_TAGS
+local FAMILY_ICONS = addon.FAMILY_ICONS
 
 --------------------------------------------------------------------------------
 -- (bag,slot) <=> slotId conversion
@@ -186,4 +190,14 @@ function addon.CanPutItemInContainer(item, container)
 	local freeSlots, containerFamily = GetContainerNumFreeSlots(container)
 	local itemFamily = addon.GetItemFamily(item)
 	return freeSlots > 0 and (containerFamily == 0 or band(itemFamily, containerFamily) ~= 0), freeSlots, itemFamily, containerFamily
+end
+
+function addon:GetFamilyTag(family)
+	if family and family ~= 0 then
+		for mask, tag in pairs(FAMILY_TAGS) do
+			if band(family, mask) ~= 0 then
+				return tag, FAMILY_ICONS[mask]
+			end
+		end
+	end
 end
