@@ -32,7 +32,7 @@ Most of these features may be configured. Check out the configuration panel ! (u
 ** Ammunition and warlocks' soul shards,
 ** Free space.
 * Smart item sorting inside each section.
-* Smart section layout.
+* Smart section layout ; change the setting "Automatic layout update" to control the frequency of updates.
 * Track new items ; use the [N] button resets the "new" flag.
 * Display slot type.
 * Bag tidy ; click on the [T] button.
