@@ -62,23 +62,29 @@ end
 --------------------------------------------------------------------------------
 
 local sectionClass, sectionProto = addon:NewClass("Section", "Frame", "AceEvent-3.0")
-addon:CreatePool(sectionClass, "AcquireSection")
+local sectionPool = addon:CreatePool(sectionClass, "AcquireSection")
+
+local sectionFont = CreateFont(addonName.."SectionHeaderNormalFont")
+sectionFont:SetFontObject("GameFontNormalLeft")
 
 function sectionProto:OnCreate()
 	self.buttons = {}
 	self.slots = {}
 	self.freeSlots = {}
 
-	local header = self:CreateFontString(nil, "ARTWORK", "GameFontNormalLeft")
+	local header = CreateFrame("Button", nil, self)
+	header.section = self
+	header:SetNormalFontObject(sectionFont)
 	header:SetPoint("TOPLEFT", 0, 0)
 	header:SetPoint("TOPRIGHT", SECTION_SPACING - ITEM_SPACING, 0)
 	header:SetHeight(HEADER_SIZE)
+	header:EnableMouse(false)
+	header:RegisterForClicks()
 	self.Header = header
 	self:SendMessage('AdiBags_SectionCreated', self)
 
 	self:SetScript('OnShow', self.OnShow)
 	self:SetScript('OnHide', self.OnHide)
-
 end
 
 function sectionProto:OnShow()
@@ -121,14 +127,15 @@ function sectionProto:OnAcquire(container, name, category)
 	self:RegisterMessage('AdiBags_OrderChanged')
 	self:RegisterMessage('AdiBags_ConfigChanged')
 	self:UpdateFont()
+	self:UpdateHeaderScripts()
 end
 
 function sectionProto:UpdateFont()
 	local font, size = addon:GetFont()
-	local header = self.Header
-	local width = header:GetStringWidth()
-	header:SetFont(font, size-4)
-	if self:IsShown() and header:GetStringWidth() ~= width then
+	local fontstring = self.Header:GetFontString()
+	local width = fontstring:GetStringWidth()
+	sectionFont:SetFont(font, size-4)
+	if self:IsShown() and fontstring:GetStringWidth() ~= width then
 		self:SetDirtyLevel(2)
 	end
 end
@@ -189,6 +196,71 @@ end
 
 function sectionProto:ClearDirtyLevel()
 	self.dirtyLevel = 0
+end
+
+--------------------------------------------------------------------------------
+-- Section hooks
+--------------------------------------------------------------------------------
+
+local scriptDispatcher = LibStub('CallbackHandler-1.0'):New(addon, 'RegisterSectionHeaderScript', 'UnregisterSectionHeaderScript', 'UnregisterAllSectionHeaderScripts')
+
+local scripts = {
+	OnClick = {
+		Enable = function(self)
+			self:RegisterForClicks("AnyUp")
+		end,
+		Disable = function(self)
+			self:RegisterForClicks()
+		end,
+		Handler = function(...) return scriptDispatcher:Fire('OnClick', ...) end
+	},
+	OnEnter = {
+		Handler = function(...) return scriptDispatcher:Fire('OnEnter', ...) end
+	},
+	OnLeave = {
+		Handler = function(...) return scriptDispatcher:Fire('OnLeave', ...) end
+	},
+	OnReceiveDrag = {
+		Handler = function(...) return scriptDispatcher:Fire('OnReceiveDrag', ...) end
+	}
+}
+
+local usedScripts = {}
+
+function sectionProto:UpdateHeaderScripts()
+	local header = self.Header
+	for name, funcs in pairs(scripts) do
+		if not usedScripts[name] and header:GetScript(name) then
+			header:SetScript(name, nil)
+			if funcs.Disable then
+				funcs.Disable(header)
+			end
+		elseif usedScripts[name] and not header:GetScript(name) then
+			header:SetScript(name, funcs.Handler)
+			if funcs.Enable then
+				funcs.Enable(header)
+			end
+		end
+	end
+	header:EnableMouse(not not next(usedScripts))
+end
+
+function scriptDispatcher:OnUsed(_, script)
+	if not scripts[script] then return end
+	addon:Debug('Used SectionHeaderScript', script)
+	usedScripts[script] = true
+	for section in sectionPool:IterateActiveObjects() do
+		section:UpdateHeaderScripts()
+	end
+end
+
+function scriptDispatcher:OnUnused(_, script)
+	if scripts[script] == nil then return end
+	addon:Debug('Unused SectionHeaderScript', script)
+	usedScripts[script] = nil
+	for section in sectionPool:IterateActiveObjects() do
+		section:UpdateHeaderScripts()
+	end
 end
 
 --------------------------------------------------------------------------------

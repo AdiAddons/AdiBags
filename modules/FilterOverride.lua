@@ -46,24 +46,13 @@ function mod:OnInitialize()
 end
 
 function mod:OnEnable()
-	for section in addon:GetPool("Section"):IterateAllObjects() do
-		self:HookSection("OnEnable", section)
-	end
-	self:RegisterMessage('AdiBags_SectionCreated', 'HookSection')
-	for button in pairs(buttons) do
-		button:Show()
-	end
 	self:UpdateOptions()
+	self:RegisterEvent('CURSOR_UPDATE')
+	self:CURSOR_UPDATE()
 end
 
 function mod:OnDisable()
-	for section in addon:GetPool("Section"):IterateAllObjects() do
-		self:HookSection("OnEnable", section)
-	end
-	self:RegisterMessage('AdiBags_SectionCreated', 'HookSection')
-	for button in pairs(buttons) do
-		button:Hide()
-	end
+	addon.UnregisterAllSectionHeaderScripts(self)
 end
 
 function mod:Filter(slotData)
@@ -310,65 +299,47 @@ function mod:GetOptions()
 end
 
 --------------------------------------------------------------------------------
--- Section header button class
+-- Section header hooks
 --------------------------------------------------------------------------------
 
-local headerButtonClass, headerButtonProto = addon:NewClass("SectionHeaderButton", "Button", "AceEvent-3.0")
-
-function headerButtonProto:OnCreate(section)
-	self:SetParent(section)
-	self.section = section
-	self:SetPoint("TOPLEFT")
-	self:SetPoint("TOPRIGHT")
-	self:SetPoint("BOTTOM", section.Header)
-	self:SetScript('OnShow', self.OnShow)
-	self:SetScript('OnHide', self.OnHide)
-	self:SetScript('OnClick', self.OnClick)
-	self:SetScript('OnReceiveDrag', self.OnClick)
-	self:EnableMouse(true)
-	self:RegisterForClicks("AnyUp")
-
-	self:SetHighlightTexture([[Interface\BUTTONS\UI-Panel-Button-Highlight]], "ADD")
-	self:GetHighlightTexture():SetTexCoord(4/128, 76/128, 4/32, 18/32)
-
-	addon.SetupTooltip(self, L["Drop your item there to add it to this section."])
-end
-
-function headerButtonProto:CURSOR_UPDATE()
-	local contentType, itemId = GetCursorInfo()
-	if contentType == "item" then
-		self:Enable()
-	else
-		self:Disable()
+local function Tooltip_Update(header)
+	if GetCursorInfo() == "item" then
+		GameTooltip:SetOwner(header, "ANCHOR_TOPLEFT", 0, 0)
+		GameTooltip:AddLine(L["Drop your item there to add it to this section."])
+		GameTooltip:Show()
+	elseif GameTooltip:GetOwner() == header then
+		GameTooltip:Hide()
 	end
 end
 
-function headerButtonProto:OnShow()
-	self:RegisterEvent("CURSOR_UPDATE")
-	self:CURSOR_UPDATE()
+function mod:OnEnterSectionHeader(_, header)
+	header.UpdateTooltip = Tooltip_Update
+	Tooltip_Update(header)
 end
 
-function headerButtonProto:OnHide()
-	self:UnregisterEvent("CURSOR_UPDATE")
+function mod:OnLeaveSectionHeader(_, header)
+	header.UpdateTooltip = nil
+	if GameTooltip:GetOwner() == header then
+		GameTooltip:Hide()
+	end
 end
 
-function headerButtonProto:OnClick()
+function mod:OnClickSectionHeader(_, header)
 	local contentType, itemId = GetCursorInfo()
 	if contentType ~= "item" then return end
 	ClearCursor()
-	mod:AssignItems(self.section.name, self.section.category, itemId)
+	mod:AssignItems(header.section.name, header.section.category, itemId)
 	mod:UpdateOptions()
 end
 
-function mod:NewHeaderButton(...)
-	return headerButtonClass:Create(...)
+function mod:CURSOR_UPDATE()
+	if GetCursorInfo() == "item" then
+		addon.RegisterSectionHeaderScript(self, 'OnEnter', 'OnEnterSectionHeader')
+		addon.RegisterSectionHeaderScript(self, 'OnLeave', 'OnLeaveSectionHeader')
+		addon.RegisterSectionHeaderScript(self, 'OnClick', 'OnClickSectionHeader')
+		addon.RegisterSectionHeaderScript(self, 'OnReceiveDrag', 'OnClickSectionHeader')
+	else
+		addon.UnregisterAllSectionHeaderScripts(self)
+	end
 end
 
-local seen = {}
-function mod:HookSection(event, section)
-	if seen[section] then return end
-	seen[section] = true
-	local button = self:NewHeaderButton(section)
-	button:Show()
-	buttons[button] = true
-end
