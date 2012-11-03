@@ -10,11 +10,14 @@ local L = addon.L
 --<GLOBALS
 local _G = _G
 local ceil = _G.ceil
+local CreateFont = _G.CreateFont
+local CreateFrame = _G.CreateFrame
 local floor = _G.floor
 local format = _G.format
 local GetItemInfo = _G.GetItemInfo
 local ipairs = _G.ipairs
 local max = _G.max
+local next = _G.next
 local pairs = _G.pairs
 local setmetatable = _G.setmetatable
 local strjoin = _G.strjoin
