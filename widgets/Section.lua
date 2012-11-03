@@ -313,6 +313,30 @@ function sectionProto:IsEmpty()
 end
 
 --------------------------------------------------------------------------------
+-- Iterating
+--------------------------------------------------------------------------------
+
+function sectionProto:IterateContainerSlots()
+	local button, iter, data
+	return function(_, previous)
+		while true do
+			if not iter then
+				button = next(self.buttons, button)
+				if not button then
+					return
+				end
+				iter, data, previous = button:IterateSlots()
+			end
+			local slotId, bag, slot, itemId, count = iter(data, previous)
+			if slotId then
+				return slotId, bag, slot, itemId, count
+			end
+			iter, data, previous = nil
+		end
+	end
+end
+
+--------------------------------------------------------------------------------
 -- Layout
 --------------------------------------------------------------------------------
 

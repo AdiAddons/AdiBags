@@ -178,6 +178,16 @@ function buttonProto:GetStack()
 	return self.stack
 end
 
+local function SimpleButtonSlotIterator(self, slotId)
+	if not slotId and self.bag and self.slot then
+		return GetSlotId(self.bag, self.slot), self.bag, self.slot, self.itemId, self.stack
+	end
+end
+
+function buttonProto:IterateSlots()
+	return SimpleButtonSlotIterator, self
+end
+
 --------------------------------------------------------------------------------
 -- Scripts & event handlers
 --------------------------------------------------------------------------------
@@ -529,6 +539,19 @@ end
 
 function stackProto:GetBagFamily()
 	return self.button and self.button:GetBagFamily()
+end
+
+local function StackSlotIterator(self, previous)
+	local slotId = next(self.slots, previous)
+	if slotId then
+		local bag, slot = GetBagSlotFromId(slotId)
+		local _, count = GetContainerItemInfo(bag, slot)
+		return slotId, bag, slot, self:GetItemId(), count
+	end
+end
+
+function stackProto:IterateSlots()
+	return StackSlotIterator, self
 end
 
 -- Reuse button methods
