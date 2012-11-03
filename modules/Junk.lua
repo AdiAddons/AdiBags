@@ -135,7 +135,7 @@ end
 
 function mod:OnEnterSectionHeader(_, header)
 	if header.section.name == JUNK then
-		GameTooltip:SetOwner(header, 'ANCHOR_TOPRIGHT', 0, 0)
+		GameTooltip:SetOwner(header, 'ANCHOR_RIGHT', 0, 0)
 		GameTooltip:AddLine(L['Right-click to sell these items.'])
 		GameTooltip:Show()
 	end
@@ -149,13 +149,12 @@ end
 
 function mod:OnClickSectionHeader(_, header, button)
 	if header.section.name == JUNK and button == "RightButton" then
-		local stacks, gold = 0, 0, 0
-		for slotId, bag, slot, itemId, count in header.section:IterateContainerSlots() do
+		local stacks = 0
+		for slotId, bag, slot, itemId in header.section:IterateContainerSlots() do
 			local sellPrice = select(11, GetItemInfo(itemId))
 			if sellPrice and sellPrice > 0 then
 				UseContainerItem(bag, slot)
 				stacks = stacks + 1
-				gold = gold + count * sellPrice
 			end
 		end
 		if stacks == 0 then
