@@ -80,6 +80,8 @@ function sectionProto:OnCreate()
 	header:SetHeight(HEADER_SIZE)
 	header:EnableMouse(false)
 	header:RegisterForClicks()
+	header:SetText("DUMMY")
+	header:GetFontString():SetAllPoints()
 	self.Header = header
 	self:SendMessage('AdiBags_SectionCreated', self)
 
