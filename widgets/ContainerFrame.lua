@@ -26,18 +26,19 @@ local GetItemInfo = _G.GetItemInfo
 local GetMerchantItemLink = _G.GetMerchantItemLink
 local ipairs = _G.ipairs
 local max = _G.max
+local min = _G.min
 local next = _G.next
 local NUM_BAG_SLOTS = _G.NUM_BAG_SLOTS
 local pairs = _G.pairs
 local PlaySound = _G.PlaySound
 local select = _G.select
 local strjoin = _G.strjoin
+local strsplit = _G.strsplit
 local tinsert = _G.tinsert
 local tostring = _G.tostring
 local tremove = _G.tremove
 local tsort = _G.table.sort
 local UIParent = _G.UIParent
-local unpack = _G.unpack
 local wipe = _G.wipe
 --GLOBALS>
 
@@ -653,13 +654,12 @@ local sections = {}
 local function GetBestSection(maxWidth, maxHeight, xOffset, rowHeight, category)
 	local bestIndex, leastWasted, bestWidth, bestHeight
 	for index, section in ipairs(sections) do
-		if category and section.category ~= category then
-			break
-		end
-		local fit, width, height, wasted = section:FitInSpace(maxWidth, maxHeight, xOffset, rowHeight)
-		if fit then
-			if not leastWasted or wasted < leastWasted then
-				bestIndex, bestWidth, bestHeight, leastWasted = index, width, height, wasted
+		if not category or section.category == category then
+			local fit, width, height, wasted = section:FitInSpace(maxWidth, maxHeight, xOffset, rowHeight)
+			if fit then
+				if not leastWasted or wasted < leastWasted then
+					bestIndex, bestWidth, bestHeight, leastWasted = index, width, height, wasted
+				end
 			end
 		end
 	end
@@ -690,17 +690,13 @@ local function DoLayoutSections(self, rowWidth, maxHeight, maxWidth)
 	local minHeight = 0
 	for key, section in pairs(self.sections) do
 		if not section:IsCollapsed() then
-			local fit, _, _, _, height = section:FitInSpace(rowWidth, 10000, 0, 0)
-			if fit and height > minHeight then
-				minHeight = height
-			end
+			local height = section:EstimateHeight(rowWidth)
+			minHeight = max(minHeight, height)
 			tinsert(sections, section)
 		end
 	end
 	tsort(sections, CompareSections)
-	if minHeight > maxHeight then
-		maxHeight = minHeight
-	end
+	maxHeight = max(minHeight, maxHeight)
 
 	local content = self.Content
 	local getNext = getNextSection[addon.db.profile.laxOrdering]
@@ -801,13 +797,9 @@ function containerProto:LayoutSections(cleanLevel)
 			local minWidth = max(self.minWidth, rowWidth)
 			local maxHeight = addon.db.profile.maxHeight * UIParent:GetHeight() * UIParent:GetEffectiveScale() / self:GetEffectiveScale()
 			local contentWidth, contentHeight, numColumns, wastedHeight, minHeight = DoLayoutSections(self, rowWidth, maxHeight, minWidth)
-			if numColumns > 1 and wastedHeight / contentHeight > 0.1 then
-				local totalHeight = contentHeight * numColumns - wastedHeight
-				if totalHeight / numColumns < minHeight then
-					numColumns = numColumns - 1
-				end
-				maxHeight = totalHeight / numColumns + ITEM_SIZE
-				contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight, max(rowWidth, minWidth / numColumns))
+			if numColumns > 1 then
+				minWidth = max(minWidth, (rowWidth + SECTION_SPACING) * numColumns - SECTION_SPACING)
+				contentWidth, contentHeight, numColumns, wastedHeight = DoLayoutSections(self, rowWidth, maxHeight, minWidth)
 			end
 
 			self.Content:SetSize(contentWidth, contentHeight)

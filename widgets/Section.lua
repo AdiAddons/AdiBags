@@ -17,6 +17,7 @@ local format = _G.format
 local GetItemInfo = _G.GetItemInfo
 local ipairs = _G.ipairs
 local max = _G.max
+local min = _G.min
 local next = _G.next
 local pairs = _G.pairs
 local setmetatable = _G.setmetatable
@@ -352,27 +353,42 @@ function sectionProto:PutButtonAt(button, index)
 	button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
 end
 
-function sectionProto:FitInSpace(maxWidth, maxHeight, xOffset, rowHeight)
+function sectionProto:EstimateHeight(maxWidth)
 	local maxColumns = floor((ceil(maxWidth) + ITEM_SPACING) / SLOT_OFFSET)
-	local maxRows = floor((ceil(maxHeight) - HEADER_SIZE + ITEM_SPACING) / SLOT_OFFSET)
-	if maxColumns * maxRows < self.count then
+	local numRows = ceil(self.count / maxColumns)
+	return HEADER_SIZE + SLOT_OFFSET * numRows - ITEM_SPACING
+end
+
+function sectionProto:FitInSpace(maxWidth, maxHeight, xOffset, rowHeight)
+	maxWidth, maxHeight = ceil(maxWidth), ceil(maxHeight)
+	local maxColumns = floor((maxWidth + ITEM_SPACING) / SLOT_OFFSET)
+	local maxRows = floor((maxHeight - HEADER_SIZE + ITEM_SPACING) / SLOT_OFFSET)
+	local count = self.count
+	if maxColumns * maxRows < count then
 		return false
 	end
-	local numColumns, numRows
-	if maxColumns >= self.count then
-		numColumns, numRows = self.count, 1
-	else
-		numColumns, numRows = maxColumns, ceil(self.count / maxColumns)
-	end
-	local height = HEADER_SIZE + ITEM_SIZE * numRows + ITEM_SPACING * max(numRows - 1, 0)
-	local available = maxWidth * maxHeight
-	local gap = max(0, height - rowHeight) * xOffset
-	local occupation = self.count * SLOT_OFFSET * SLOT_OFFSET + numColumns * SLOT_OFFSET * HEADER_SIZE
+	local numRows = min(count, max(ceil(count / maxColumns), floor((rowHeight - HEADER_SIZE + ITEM_SPACING) / SLOT_OFFSET)))
+	local numColumns = ceil(count / numRows)
 
-	local wasted = available + gap - occupation
-	if gap < occupation / 2 then
-		return true, numColumns, numRows, wasted, height
+	local width = numColumns * SLOT_OFFSET - ITEM_SPACING
+	local height = HEADER_SIZE + SLOT_OFFSET * numRows - ITEM_SPACING
+
+	local occupation = width * HEADER_SIZE + SLOT_OFFSET * SLOT_OFFSET * count
+	local area = width * height
+	local gap = max(0, height - rowHeight) * xOffset
+	if gap * 2 > occupation then
+		return false
 	end
+
+	local wasted = gap + area - occupation
+	if maxWidth > width and maxWidth < width + SLOT_OFFSET + SECTION_SPACING then
+		wasted = wasted + max(height, rowHeight) * (maxWidth - width)
+	end
+	if rowHeight > height then
+		wasted = wasted + width * (rowHeight - height)
+	end
+
+	return true, numColumns, numRows, wasted, height
 end
 
 function sectionProto:SetSizeInSlots(width, height)
