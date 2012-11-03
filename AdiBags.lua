@@ -226,6 +226,13 @@ function addon:OnInitialize()
 		addon:OpenOptions(strsplit(' ', cmd or ""))
 	end, true)
 
+	-- Just a warning
+	--@alpha@
+	if geterrorhandler() == _ERRORMESSAGE and not GetCVarBool("scriptErrors") then
+		print('|cffffee00', L["Warning: you are using an alpha or beta version of AdiBags without displaying Lua errors. If anything goes wrong, AdiBags (or any other addon causing some error) will simply stop working for apparently no reason. Please either enable the display of Lua errors or install an error handler addon like BugSack or Swatter."], '|r')
+	end
+	--@end-alpha@
+
 	self:Debug('Initialized')
 end
 
