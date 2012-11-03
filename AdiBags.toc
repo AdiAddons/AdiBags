@@ -53,6 +53,7 @@ modules\Junk.lua
 modules\CurrencyFrame.lua
 modules\TooltipInfo.lua
 modules\SectionVisibilityDropdown.lua
+modules\BankSwitcher.lua
 
 core\DefaultFilters.lua
 
