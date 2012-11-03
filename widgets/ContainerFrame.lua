@@ -332,6 +332,8 @@ function containerProto:OnClick(...)
 		itemLink = data2
 	elseif kind == "merchant" then
 		itemLink = GetMerchantItemLink(data1)
+	elseif ... == "RightButton" then
+		return addon:OpenOptions('bags')
 	else
 		return
 	end
