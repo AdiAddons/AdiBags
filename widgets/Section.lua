@@ -81,6 +81,8 @@ function sectionProto:OnCreate()
 	header:EnableMouse(false)
 	header:RegisterForClicks()
 	header:SetText("DUMMY")
+	header:SetHighlightTexture([[Interface\BUTTONS\UI-Panel-Button-Highlight]], "ADD")
+	header:GetHighlightTexture():SetTexCoord(4/128, 76/128, 4/32, 18/32)
 	header:GetFontString():SetAllPoints()
 	self.Header = header
 	self:SendMessage('AdiBags_SectionCreated', self)
