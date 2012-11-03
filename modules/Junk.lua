@@ -9,13 +9,17 @@ local L = addon.L
 
 --<GLOBALS
 local _G = _G
+local format = _G.format
+local GameTooltip = _G.GameTooltip
 local GetItemInfo = _G.GetItemInfo
 local ITEM_QUALITY_POOR = _G.ITEM_QUALITY_POOR
 local ITEM_QUALITY_UNCOMMON = _G.ITEM_QUALITY_UNCOMMON
+local print = _G.print
 local select = _G.select
 local setmetatable = _G.setmetatable
 local tonumber = _G.tonumber
 local type = _G.type
+local UseContainerItem = _G.UseContainerItem
 local wipe = _G.wipe
 --GLOBALS>
 
@@ -51,8 +55,14 @@ end
 function mod:OnEnable()
 	prefs = self.db.profile
 	self:RegisterMessage('AdiBags_OverrideFilter')
+	self:RegisterMessage('AdiBags_InteractingWindowChanged')
 	self:Hook(addon, 'IsJunk')
 	wipe(cache)
+	self:AdiBags_InteractingWindowChanged("OnEnable", addon:GetInteractingWindow())
+end
+
+function mod:OnDisable()
+	addon.UnregisterAllSectionHeaderScripts(self)
 end
 
 function mod:BaseCheckItem(itemId, force)
@@ -120,6 +130,47 @@ function mod:Update()
 	local acr = LibStub('AceConfigRegistry-3.0', true)
 	if acr then
 		acr:NotifyChange(addonName)
+	end
+end
+
+function mod:OnEnterSectionHeader(_, header)
+	if header.section.name == JUNK then
+		GameTooltip:SetOwner(header, 'ANCHOR_TOPRIGHT', 0, 0)
+		GameTooltip:AddLine(L['Right-click to sell these items.'])
+		GameTooltip:Show()
+	end
+end
+
+function mod:OnLeaveSectionHeader(_, header)
+	if header.section.name == JUNK and GameTooltip:GetOwner() == header then
+		GameTooltip:Hide()
+	end
+end
+
+function mod:OnClickSectionHeader(_, header, button)
+	if header.section.name == JUNK and button == "RightButton" then
+		local stacks, gold = 0, 0, 0
+		for slotId, bag, slot, itemId, count in header.section:IterateContainerSlots() do
+			local sellPrice = select(11, GetItemInfo(itemId))
+			if sellPrice and sellPrice > 0 then
+				UseContainerItem(bag, slot)
+				stacks = stacks + 1
+				gold = gold + count * sellPrice
+			end
+		end
+		if stacks == 0 then
+			print(format("|cfffee00%s %s: %s|r", addonName, JUNK, L['Nothing to sell.']))
+		end
+	end
+end
+
+function mod:AdiBags_InteractingWindowChanged(_, new, old)
+	if new == "MERCHANT" then
+		addon.RegisterSectionHeaderScript(self, 'OnEnter', 'OnEnterSectionHeader')
+		addon.RegisterSectionHeaderScript(self, 'OnLeave', 'OnLeaveSectionHeader')
+		addon.RegisterSectionHeaderScript(self, 'OnClick', 'OnClickSectionHeader')
+	elseif old == "MERCHANT" then
+		addon.UnregisterAllSectionHeaderScripts(self)
 	end
 end
 
