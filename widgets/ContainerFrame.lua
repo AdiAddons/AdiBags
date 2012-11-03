@@ -56,11 +56,7 @@ local HEADER_SIZE = addon.HEADER_SIZE
 --------------------------------------------------------------------------------
 
 local function BagSlotButton_OnClick(button)
-	if button:GetChecked() then
-		button.panel:Show()
-	else
-		button.panel:Hide()
-	end
+	button.panel:SetShown(button:GetChecked())
 end
 
 --------------------------------------------------------------------------------
@@ -114,7 +110,6 @@ function containerProto:OnCreate(name, bagIds, isBank)
 	button:RegisterForClicks("AnyUp")
 	button:SetScript('OnClick', function(_, ...) return self:OnClick(...) end)
 	button:SetScript('OnReceiveDrag', function() return self:OnClick("LeftButton") end)
-	self.ClickReceiver = button
 	local minFrameLevel = button:GetFrameLevel() + 1
 
 	local headerLeftRegion = SimpleLayeredRegion:Create(self, "TOPLEFT", "RIGHT", 4)
@@ -181,15 +176,9 @@ function containerProto:OnCreate(name, bagIds, isBank)
 	title:SetPoint("LEFT", headerLeftRegion, "RIGHT", 4, 0)
 	title:SetPoint("RIGHT", headerRightRegion, "LEFT", -4, 0)
 
-	local anchor = addon:CreateAnchorWidget(self, name, L[name], self)
+	local anchor = addon:CreateBagAnchorWidget(self, name, L[name])
 	anchor:SetAllPoints(title)
-	anchor:EnableMouse(true)
 	anchor:SetFrameLevel(self:GetFrameLevel() + 10)
-	anchor:SetScript('OnMouseDown', anchor.StartMoving)
-	anchor:SetScript('OnMouseUp', anchor.StopMoving)
-	if addon.db.profile.positionMode == 'manual' then
-		anchor:Show()
-	end
 	self.Anchor = anchor
 
 	local content = CreateFrame("Frame", nil, self)

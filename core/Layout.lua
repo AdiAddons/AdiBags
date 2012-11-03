@@ -19,7 +19,7 @@ function addon:CreateBagAnchor()
 	local anchor = self:CreateAnchorWidget(UIParent, "anchor", L["AdiBags Anchor"])
 	anchor:SetSize(80, 80)
 	anchor:SetFrameStrata("TOOLTIP")
-	anchor:SetBackdrop(self.ANCHOR_BACKDROP)
+	anchor:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]] })
 	anchor:SetBackdropColor(0, 1, 0, 1)
 	anchor:SetBackdropBorderColor(0, 0, 0, 0)
 	anchor:EnableMouse(true)
@@ -106,18 +106,7 @@ function addon:ToggleAnchor()
 end
 
 function addon:UpdatePositionMode()
-	if self.db.profile.positionMode == 'anchored' then
-		for index, bag in self:IterateBags() do
-			if bag:HasFrame() then
-				bag:GetFrame().Anchor:Hide()
-			end
-		end
-	else
-		for index, bag in self:IterateBags() do
-			if bag:HasFrame() then
-				bag:GetFrame().Anchor:Show()
-			end
-		end
+	if self.db.profile.positionMode ~= 'anchored' then
 		self.anchor:Hide()
 	end
 	self:LayoutBags()
