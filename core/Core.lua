@@ -436,9 +436,12 @@ addon.sectionFont = CreateFont(addonName.."SectionFont")
 addon.sectionFont:SetFontObject("GameFontNormalLeft")
 
 function addon:UpdateFonts()
-	local font = LSM:Fetch(LSM.MediaType.FONT, self.db.profile.skin.font)
-	local size = self.db.profile.skin.fontSize
+	local skin = self.db.profile.skin
+	local font = LSM:Fetch(LSM.MediaType.FONT, skin.font)
+	local size = skin.fontSize
 	self.bagFont:SetFont(font, size)
+	self.bagFont:SetTextColor(unpack(skin.fontBagColor, 1, 3))
 	self.sectionFont:SetFont(font, size-4)
+	self.sectionFont:SetTextColor(unpack(skin.fontSectionColor, 1, 3))
 end
 

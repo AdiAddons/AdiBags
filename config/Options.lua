@@ -414,6 +414,22 @@ local function GetOptions()
 								order = 20,
 								arg = { "skin", "fontSize" },
 							},
+							fontBagColor = {
+								name = L['Bag title color'],
+								type = 'color',
+								type = 'color',
+								order = 30,
+								hasAlpha = false,
+								arg = { "skin", "fontBagColor" },
+							},
+							fontSectionColor = {
+								name = L['Section header color'],
+								type = 'color',
+								type = 'color',
+								order = 40,
+								hasAlpha = false,
+								arg = { "skin", "fontSectionColor" },
+							},
 						},
 					},
 					background = {
