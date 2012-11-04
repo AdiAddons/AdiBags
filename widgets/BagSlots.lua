@@ -405,8 +405,6 @@ local function Panel_UpdateSkin(self)
 	else
 		self:SetBackdropBorderColor(0.5+(0.5*r/m), 0.5+(0.5*g/m), 0.5+(0.5*b/m), a)
 	end
-	local font, size = addon:GetFont()
-	self.Title:SetFont(font, size)
 end
 
 local function Panel_ConfigChanged(self, event, name)
@@ -428,10 +426,10 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	self:SetScript('OnShow', Panel_OnShow)
 	self:SetScript('OnHide', Panel_OnHide)
 
-	local title = self:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+	local title = self:CreateFontString(nil, "OVERLAY")
 	self.Title = title
+	title:SetFontObject(addon.bagFont)
 	title:SetText(L["Equipped bags"])
-	title:SetTextColor(1, 1, 1)
 	title:SetJustifyH("LEFT")
 	title:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
 

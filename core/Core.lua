@@ -152,6 +152,7 @@ function addon:OnEnable()
 		end
 	end
 
+	self:UpdateFonts()
 	self:UpdatePositionMode()
 
 	self:Debug('Enabled')
@@ -322,6 +323,8 @@ function addon:ConfigChanged(vars)
 				end
 			elseif strmatch(name, 'rowWidth') then
 				return self:SendMessage('AdiBags_LayoutChanged')
+			elseif strmatch(name, '^skin%.font') then
+				return self:UpdateFonts()
 			end
 		end
 	end
@@ -425,6 +428,17 @@ function addon:GetContainerSkin(containerName)
 	return backdrop, r, g, b, a
 end
 
-function addon:GetFont()
-	return LSM:Fetch(LSM.MediaType.FONT, self.db.profile.skin.font), self.db.profile.skin.fontSize
+addon.bagFont = CreateFont(addonName.."BagFont")
+addon.bagFont:SetFontObject("GameFontHighlightLarge")
+addon.bagFont:SetTextColor(1, 1, 1)
+
+addon.sectionFont = CreateFont(addonName.."SectionFont")
+addon.sectionFont:SetFontObject("GameFontNormalLeft")
+
+function addon:UpdateFonts()
+	local font = LSM:Fetch(LSM.MediaType.FONT, self.db.profile.skin.font)
+	local size = self.db.profile.skin.fontSize
+	self.bagFont:SetFont(font, size)
+	self.sectionFont:SetFont(font, size-4)
 end
+

@@ -168,10 +168,10 @@ function containerProto:OnCreate(name, bagIds, isBank)
 	headerRightRegion:AddWidget(searchBox, -10, 130, 0, -1)
 	tinsert(_G.ITEM_SEARCHBAR_LIST, searchBox:GetName())
 
-	local title = self:CreateFontString(self:GetName().."Title","OVERLAY","GameFontHighlightLarge")
+	local title = self:CreateFontString(self:GetName().."Title","OVERLAY")
 	self.Title = title
+	title:SetFontObject(addon.bagFont)
 	title:SetText(L[name])
-	title:SetTextColor(1, 1, 1)
 	title:SetHeight(18)
 	title:SetJustifyH("LEFT")
 	title:SetPoint("LEFT", headerLeftRegion, "RIGHT", 4, 0)
@@ -390,8 +390,6 @@ function containerProto:UpdateSkin()
 	else
 		self:SetBackdropBorderColor(0.5+(0.5*r/m), 0.5+(0.5*g/m), 0.5+(0.5*b/m), a)
 	end
-	local font, size = addon:GetFont()
-	self.Title:SetFont(font, size)
 end
 
 --------------------------------------------------------------------------------
