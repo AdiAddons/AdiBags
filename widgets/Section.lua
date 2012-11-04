@@ -353,42 +353,25 @@ function sectionProto:PutButtonAt(button, index)
 	button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
 end
 
-function sectionProto:EstimateHeight(maxWidth)
-	local maxColumns = floor((ceil(maxWidth) + ITEM_SPACING) / SLOT_OFFSET)
-	local numRows = ceil(self.count / maxColumns)
-	return HEADER_SIZE + SLOT_OFFSET * numRows - ITEM_SPACING
-end
-
-function sectionProto:FitInSpace(maxWidth, maxHeight, xOffset, rowHeight)
+function sectionProto:FitInSpace(maxWidth, maxHeight, xOffset)
 	maxWidth, maxHeight = ceil(maxWidth), ceil(maxHeight)
 	local maxColumns = floor((maxWidth + ITEM_SPACING) / SLOT_OFFSET)
-	local maxRows = floor((maxHeight - HEADER_SIZE + ITEM_SPACING) / SLOT_OFFSET)
 	local count = self.count
-	if maxColumns * maxRows < count then
-		return false
-	end
-	local numRows = min(count, max(ceil(count / maxColumns), floor((rowHeight - HEADER_SIZE + ITEM_SPACING) / SLOT_OFFSET)))
-	local numColumns = ceil(count / numRows)
+
+	local maxRows = floor((maxHeight - HEADER_SIZE + ITEM_SPACING) / SLOT_OFFSET)
+	local numColumns = min(count, maxColumns)
+	local numRows = max(ceil(count / numColumns), maxRows)
+	numColumns = ceil(count / numRows)
 
 	local width = numColumns * SLOT_OFFSET - ITEM_SPACING
-	local height = HEADER_SIZE + SLOT_OFFSET * numRows - ITEM_SPACING
+	local height = numRows * SLOT_OFFSET - ITEM_SPACING + HEADER_SIZE
 
-	local occupation = width * HEADER_SIZE + SLOT_OFFSET * SLOT_OFFSET * count
-	local area = width * height
-	local gap = max(0, height - rowHeight) * xOffset
-	if gap * 2 > occupation then
-		return false
+	local occupation = width * height - ((SLOT_OFFSET * ITEM_SIZE) * (numColumns * numRows - count) - ITEM_SPACING)
+	local gap = max(0, height - maxHeight) * xOffset
+	if gap < occupation then
+		local area = height * max(height, maxHeight)
+		return true, numColumns, numRows, gap + area - occupation
 	end
-
-	local wasted = gap + area - occupation
-	if maxWidth > width and maxWidth < width + SLOT_OFFSET + SECTION_SPACING then
-		wasted = wasted + max(height, rowHeight) * (maxWidth - width)
-	end
-	if rowHeight > height then
-		wasted = wasted + width * (rowHeight - height)
-	end
-
-	return true, numColumns, numRows, wasted, height
 end
 
 function sectionProto:SetSizeInSlots(width, height)
@@ -396,10 +379,13 @@ function sectionProto:SetSizeInSlots(width, height)
 		self.width = width
 		self.height = height
 		self.total = width * height
-		self:SetWidth(ITEM_SIZE * width + ITEM_SPACING * max(width - 1 ,0))
-		self:SetHeight(HEADER_SIZE + ITEM_SIZE * height + ITEM_SPACING * max(height - 1, 0))
+		self:SetSize(
+			SLOT_OFFSET * width - ITEM_SPACING,
+			HEADER_SIZE + SLOT_OFFSET * height - ITEM_SPACING
+		)
 		self:SetDirtyLevel(2)
 	end
+	return self:GetSize()
 end
 
 function sectionProto:SetHeaderOverflow(overflow)
