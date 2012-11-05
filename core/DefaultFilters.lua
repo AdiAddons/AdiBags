@@ -143,7 +143,7 @@ function addon:SetupDefaultFilters()
 			end
 		end
 
-		function setFilter:GetFilterOptions()
+		function setFilter:GetOptions()
 			return {
 				oneSectionPerSet = {
 					name = L['One section per set'],
@@ -242,7 +242,7 @@ function addon:SetupDefaultFilters()
 			self.db = addon.db:RegisterNamespace('Equipment', { profile = { dispatchRule = 'category', armorTypes = false } })
 		end
 
-		function equipmentFilter:GetFilterOptions()
+		function equipmentFilter:GetOptions()
 			return {
 				dispatchRule = {
 					name = L['Section setup'],
@@ -284,7 +284,7 @@ function addon:SetupDefaultFilters()
 			})
 		end
 
-		function itemCat:GetFilterOptions()
+		function itemCat:GetOptions()
 			return {
 				splitBySubclass = {
 					name = L['Split by subcategories'],

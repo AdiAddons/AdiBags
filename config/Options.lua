@@ -174,15 +174,7 @@ do
 
 		if module.GetOptions then
 			local opts, handler = safecall(module, "GetOptions")
-			if opts and handler then
-				extendedOptions = {
-					handler = handler,
-					args = opts,
-				}
-			end
-		elseif module.GetFilterOptions then
-			local opts, handler = safecall(module, "GetFilterOptions")
-			if opts and handler then
+			if opts then
 				extendedOptions = {
 					handler = handler,
 					args = opts,
