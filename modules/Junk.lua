@@ -55,10 +55,10 @@ end
 function mod:OnEnable()
 	prefs = self.db.profile
 	self:RegisterMessage('AdiBags_OverrideFilter')
-	self:RegisterMessage('AdiBags_InteractingWindowChanged')
 	self:Hook(addon, 'IsJunk')
 	wipe(cache)
-	self:AdiBags_InteractingWindowChanged("OnEnable", addon:GetInteractingWindow())
+	addon.RegisterSectionHeaderScript(self, 'OnTooltipUpdate', 'OnTooltipUpdateSectionHeader')
+	addon.RegisterSectionHeaderScript(self, 'OnClick', 'OnClickSectionHeader')
 end
 
 function mod:OnDisable()
@@ -133,22 +133,23 @@ function mod:Update()
 	end
 end
 
-function mod:OnEnterSectionHeader(_, header)
-	if header.section.name == JUNK then
-		GameTooltip:SetOwner(header, 'ANCHOR_RIGHT', 0, 0)
-		GameTooltip:AddLine(L['Right-click to sell these items.'])
-		GameTooltip:Show()
+function mod:OnTooltipUpdateSectionHeader(_, header, tooltip)
+	if header.section.name ~= JUNK then
+		return
 	end
-end
-
-function mod:OnLeaveSectionHeader(_, header)
-	if header.section.name == JUNK and GameTooltip:GetOwner() == header then
-		GameTooltip:Hide()
+	if addon:GetInteractingWindow() == "MERCHANT" then
+		tooltip:AddLine(L['Right-click to sell these items.'])
 	end
+	tooltip:AddLine(L['Alt-right-click to configure the Junk module.'])
 end
 
 function mod:OnClickSectionHeader(_, header, button)
-	if header.section.name == JUNK and button == "RightButton" then
+	if header.section.name ~= JUNK or button ~= "RightButton" then
+		return
+	end
+	if IsAltKeyDown() then
+		mod:OpenOptions()
+	elseif addon:GetInteractingWindow() == "MERCHANT" then
 		local stacks = 0
 		for slotId, bag, slot, itemId in header.section:IterateContainerSlots() do
 			local sellPrice = select(11, GetItemInfo(itemId))
@@ -160,16 +161,6 @@ function mod:OnClickSectionHeader(_, header, button)
 		if stacks == 0 then
 			print(format("|cfffee00%s %s: %s|r", addonName, JUNK, L['Nothing to sell.']))
 		end
-	end
-end
-
-function mod:AdiBags_InteractingWindowChanged(_, new, old)
-	if new == "MERCHANT" then
-		addon.RegisterSectionHeaderScript(self, 'OnEnter', 'OnEnterSectionHeader')
-		addon.RegisterSectionHeaderScript(self, 'OnLeave', 'OnLeaveSectionHeader')
-		addon.RegisterSectionHeaderScript(self, 'OnClick', 'OnClickSectionHeader')
-	elseif old == "MERCHANT" then
-		addon.UnregisterAllSectionHeaderScripts(self)
 	end
 end
 

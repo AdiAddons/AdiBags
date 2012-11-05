@@ -32,8 +32,6 @@ local mod = addon:RegisterFilter("FilterOverride", 95, "AceEvent-3.0")
 mod.uiName = L['Manual filtering']
 mod.uiDesc = L['Allow you manually redefine the section in which an item should be put. Simply drag an item on the section title.']
 
-local buttons = {}
-
 function mod:OnInitialize()
 
 	-- This module was named "mod" for quite a while, retrieve the old data if they exists
@@ -48,6 +46,8 @@ end
 function mod:OnEnable()
 	self:UpdateOptions()
 	self:RegisterEvent('CURSOR_UPDATE')
+	addon.RegisterSectionHeaderScript(self, 'OnTooltipUpdate', 'OnTooltipUpdateSectionHeader')
+	addon.RegisterSectionHeaderScript(self, 'OnClick', 'OnClickSectionHeader')
 	self:CURSOR_UPDATE()
 end
 
@@ -302,44 +302,37 @@ end
 -- Section header hooks
 --------------------------------------------------------------------------------
 
-local function Tooltip_Update(header)
+function mod:OnTooltipUpdateSectionHeader(_, header, tooltip)
 	if GetCursorInfo() == "item" then
-		GameTooltip:SetOwner(header, "ANCHOR_TOPLEFT", 0, 0)
-		GameTooltip:AddLine(L["Drop your item there to add it to this section."])
-		GameTooltip:Show()
-	elseif GameTooltip:GetOwner() == header then
-		GameTooltip:Hide()
+		tooltip:AddLine(L["Drop your item there to add it to this section."])
+	end
+	if header.section.name ~= JUNK then
+		tooltip:AddLine(L["Alt-right-click to configure manual filtering."])
 	end
 end
 
-function mod:OnEnterSectionHeader(_, header)
-	header.UpdateTooltip = Tooltip_Update
-	Tooltip_Update(header)
-end
-
-function mod:OnLeaveSectionHeader(_, header)
-	header.UpdateTooltip = nil
-	if GameTooltip:GetOwner() == header then
-		GameTooltip:Hide()
+function mod:OnClickSectionHeader(_, header, button)
+	if GetCursorInfo() == "item" then
+		self:OnReceiveDragSectionHeader(_, header)
+	elseif header.section.name ~= JUNK and button == "RightButton" and IsAltKeyDown() then
+		self:OpenOptions()
 	end
 end
 
-function mod:OnClickSectionHeader(_, header)
+function mod:OnReceiveDragSectionHeader(_, header)
 	local contentType, itemId = GetCursorInfo()
-	if contentType ~= "item" then return end
-	ClearCursor()
-	mod:AssignItems(header.section.name, header.section.category, itemId)
-	mod:UpdateOptions()
+	if contentType == "item" then
+		ClearCursor()
+		mod:AssignItems(header.section.name, header.section.category, itemId)
+		mod:UpdateOptions()
+	end
 end
 
 function mod:CURSOR_UPDATE()
 	if GetCursorInfo() == "item" then
-		addon.RegisterSectionHeaderScript(self, 'OnEnter', 'OnEnterSectionHeader')
-		addon.RegisterSectionHeaderScript(self, 'OnLeave', 'OnLeaveSectionHeader')
-		addon.RegisterSectionHeaderScript(self, 'OnClick', 'OnClickSectionHeader')
-		addon.RegisterSectionHeaderScript(self, 'OnReceiveDrag', 'OnClickSectionHeader')
+		addon.RegisterSectionHeaderScript(self, 'OnReceiveDrag', 'OnReceiveDragSectionHeader')
 	else
-		addon.UnregisterAllSectionHeaderScripts(self)
+		addon.UnregisterSectionHeaderScript(self, 'OnReceiveDrag')
 	end
 end
 

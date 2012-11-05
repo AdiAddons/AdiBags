@@ -26,16 +26,8 @@ function mod:OnDisable()
 	addon.UnregisterAllSectionHeaderScripts(self)
 end
 
-function mod:OnEnterSectionHeader(_, header)
-	GameTooltip:SetOwner(header, 'ANCHOR_RIGHT', 0, 0)
-	GameTooltip:AddLine(L['Right-click to move these items.'])
-	GameTooltip:Show()
-end
-
-function mod:OnLeaveSectionHeader(_, header)
-	if GameTooltip:GetOwner() == header then
-		GameTooltip:Hide()
-	end
+function mod:OnTooltipUpdateSectionHeader(_, _, tooltip)
+	tooltip:AddLine(L['Right-click to move these items.'])
 end
 
 function mod:OnClickSectionHeader(_, header, button)
@@ -48,8 +40,7 @@ end
 
 function mod:AdiBags_InteractingWindowChanged(_, new, old)
 	if new == "BANKFRAME" then
-		addon.RegisterSectionHeaderScript(self, 'OnEnter', 'OnEnterSectionHeader')
-		addon.RegisterSectionHeaderScript(self, 'OnLeave', 'OnLeaveSectionHeader')
+		addon.RegisterSectionHeaderScript(self, 'OnTooltipUpdate', 'OnTooltipUpdateSectionHeader')
 		addon.RegisterSectionHeaderScript(self, 'OnClick', 'OnClickSectionHeader')
 	elseif old == "BANKFRAME" then
 		addon.UnregisterAllSectionHeaderScripts(self)

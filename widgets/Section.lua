@@ -79,12 +79,12 @@ function sectionProto:OnCreate()
 	header:SetPoint("TOPLEFT", 0, 0)
 	header:SetPoint("TOPRIGHT", SECTION_SPACING - ITEM_SPACING, 0)
 	header:SetHeight(HEADER_SIZE)
-	header:EnableMouse(false)
-	header:RegisterForClicks()
+	header:EnableMouse(true)
 	header:SetText("DUMMY")
-	header:SetHighlightTexture([[Interface\BUTTONS\UI-Panel-Button-Highlight]], "ADD")
-	header:GetHighlightTexture():SetTexCoord(4/128, 76/128, 4/32, 18/32)
+	--header:SetHighlightTexture([[Interface\BUTTONS\UI-Panel-Button-Highlight]], "ADD")
+	--header:GetHighlightTexture():SetTexCoord(4/128, 76/128, 4/32, 18/32)
 	header:GetFontString():SetAllPoints()
+	addon.SetupTooltip(header, self.ShowHeaderTooltip, "ANCHOR_NONE")
 	self.Header = header
 	self:SendMessage('AdiBags_SectionCreated', self)
 
@@ -191,62 +191,55 @@ end
 
 local scriptDispatcher = LibStub('CallbackHandler-1.0'):New(addon, 'RegisterSectionHeaderScript', 'UnregisterSectionHeaderScript', 'UnregisterAllSectionHeaderScripts')
 
-local scripts = {
-	OnClick = {
-		Enable = function(self)
-			self:RegisterForClicks("AnyUp")
-		end,
-		Disable = function(self)
-			self:RegisterForClicks()
-		end,
-		Handler = function(...) return scriptDispatcher:Fire('OnClick', ...) end
-	},
-	OnEnter = {
-		Handler = function(...) return scriptDispatcher:Fire('OnEnter', ...) end
-	},
-	OnLeave = {
-		Handler = function(...) return scriptDispatcher:Fire('OnLeave', ...) end
-	},
-	OnReceiveDrag = {
-		Handler = function(...) return scriptDispatcher:Fire('OnReceiveDrag', ...) end
-	}
-}
+local DispatchOnClick = function(...) return scriptDispatcher:Fire('OnClick', ...) end
+local DispatchOnReceiveDrag = function(...) return scriptDispatcher:Fire('DispatchOnReceiveDrag', ...) end
+
+function sectionProto.ShowHeaderTooltip(header, tooltip)
+	local self = header.section
+	tooltip:SetPoint("BOTTOMRIGHT", self.container, "TOPRIGHT", 0, 4)
+	if self.category ~= self.name then
+		tooltip:AddDoubleLine(self.name, "("..self.category..")", 1, 1, 1)
+	else
+		tooltip:AddLine(self.name, 1, 1, 1)
+	end
+	scriptDispatcher:Fire('OnTooltipUpdate', header, tooltip)
+end
 
 local usedScripts = {}
 
 function sectionProto:UpdateHeaderScripts()
 	local header = self.Header
-	for name, funcs in pairs(scripts) do
-		if not usedScripts[name] and header:GetScript(name) then
-			header:SetScript(name, nil)
-			if funcs.Disable then
-				funcs.Disable(header)
-			end
-		elseif usedScripts[name] and not header:GetScript(name) then
-			header:SetScript(name, funcs.Handler)
-			if funcs.Enable then
-				funcs.Enable(header)
-			end
+	if usedScripts.OnClick and not header:GetScript('OnClick') then
+		header:SetScript('OnClick', DispatchOnClick)
+		header:RegisterForClicks("AnyUp")
+	elseif not usedScripts.OnClick and header:GetScript('OnClick') then
+		header:SetScript('OnClick', nil)
+		header:RegisterForClicks()
+	end
+	if usedScripts.OnReceiveDrag and not header:GetScript('OnReceiveDrag') then
+		header:SetScript('OnReceiveDrag', DispatchOnReceiveDrag)
+	elseif not usedScripts.OnReceiveDrag and header:GetScript('OnReceiveDrag') then
+		header:SetScript('OnReceiveDrag', nil)
+	end
+end
+
+function scriptDispatcher:OnUsed(_, name)
+	if name == "OnClick" or name == "OnReceiveDrag" or name == "OnTooltipUpdate" then
+		addon:Debug('Used SectionHeaderScript', name)
+		usedScripts[name] = true
+		for section in sectionPool:IterateActiveObjects() do
+			section:UpdateHeaderScripts()
 		end
 	end
-	header:EnableMouse(not not next(usedScripts))
 end
 
-function scriptDispatcher:OnUsed(_, script)
-	if not scripts[script] then return end
-	addon:Debug('Used SectionHeaderScript', script)
-	usedScripts[script] = true
-	for section in sectionPool:IterateActiveObjects() do
-		section:UpdateHeaderScripts()
-	end
-end
-
-function scriptDispatcher:OnUnused(_, script)
-	if scripts[script] == nil then return end
-	addon:Debug('Unused SectionHeaderScript', script)
-	usedScripts[script] = nil
-	for section in sectionPool:IterateActiveObjects() do
-		section:UpdateHeaderScripts()
+function scriptDispatcher:OnUnused(_, name)
+	if name == "OnClick" or name == "OnReceiveDrag" or name == "OnTooltipUpdate" then
+		addon:Debug('Used SectionHeaderScript', name)
+		usedScripts[name] = nil
+		for section in sectionPool:IterateActiveObjects() do
+			section:UpdateHeaderScripts()
+		end
 	end
 end
 
