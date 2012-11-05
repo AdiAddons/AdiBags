@@ -116,8 +116,16 @@ function addon.SetupTooltip(widget, content, anchor, xOffset, yOffset)
 	widget.tootlipAnchorXOffset = xOffset or 0
 	widget.tootlipAnchorYOffset = yOffset or 0
 	widget.UpdateTooltip = WidgetTooltip_Update
-	widget:HookScript('OnEnter', WidgetTooltip_OnEnter)
-	widget:HookScript('OnLeave', WidgetTooltip_OnLeave)
+	if widget:GetScript('OnEnter') then
+		widget:HookScript('OnEnter', WidgetTooltip_OnEnter)
+	else
+		widget:SetScript('OnEnter', WidgetTooltip_OnEnter)
+	end
+	if widget:GetScript('OnLeave') then
+		widget:HookScript('OnLeave', WidgetTooltip_OnLeave)
+	else
+		widget:SetScript('OnLeave', WidgetTooltip_OnLeave)
+	end
 end
 
 --------------------------------------------------------------------------------
