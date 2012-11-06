@@ -85,6 +85,7 @@ end
 
 -- Replaced by something more useful when the options are initialized
 mod.UpdateOptions = function() end
+mod.OptionPreselectItem = mod.UpdateOptions
 
 local options
 function mod:GetOptions()
@@ -296,6 +297,13 @@ function mod:GetOptions()
 			},
 		},
 	}
+
+	local AceConfigRegistry = LibStub('AceConfigRegistry-3.0')
+	function mod:OptionPreselectItem(section, category, itemId)
+		newItemId, newSection, newCategory = itemId, section, category
+		AceConfigRegistry:NotifyChange(addonName)
+	end
+
 	mod:UpdateOptions()
 
 	return options
@@ -308,6 +316,7 @@ end
 function mod:OnTooltipUpdateSectionHeader(_, header, tooltip)
 	if GetCursorInfo() == "item" then
 		tooltip:AddLine(L["Drop your item there to add it to this section."])
+		tooltip:AddLine(L["Press Alt while doing so to open the configuration panel instead."])
 	elseif header.section:GetKey() ~= JUNK_KEY then
 		tooltip:AddLine(L["Alt-right-click to configure manual filtering."])
 	end
@@ -324,9 +333,14 @@ end
 function mod:OnReceiveDragSectionHeader(_, header)
 	local contentType, itemId = GetCursorInfo()
 	if contentType == "item" then
+		if IsAltKeyDown() then
+			self:OpenOptions()
+			self:OptionPreselectItem(header.section.name, header.section.category, itemId)
+		else
+			self:AssignItems(header.section.name, header.section.category, itemId)
+			self:UpdateOptions()
+		end
 		ClearCursor()
-		mod:AssignItems(header.section.name, header.section.category, itemId)
-		mod:UpdateOptions()
 	end
 end
 
