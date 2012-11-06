@@ -28,6 +28,9 @@ local unpack = _G.unpack
 local wipe = _G.wipe
 --GLOBALS>
 
+local JUNK = addon.BI['Junk']
+local JUNK_KEY = addon:BuildSectionKey(JUNK, JUNK)
+
 local mod = addon:RegisterFilter("FilterOverride", 95, "AceEvent-3.0")
 mod.uiName = L['Manual filtering']
 mod.uiDesc = L['Allow you manually redefine the section in which an item should be put. Simply drag an item on the section title.']
@@ -305,8 +308,7 @@ end
 function mod:OnTooltipUpdateSectionHeader(_, header, tooltip)
 	if GetCursorInfo() == "item" then
 		tooltip:AddLine(L["Drop your item there to add it to this section."])
-	end
-	if header.section.name ~= JUNK then
+	elseif header.section:GetKey() ~= JUNK_KEY then
 		tooltip:AddLine(L["Alt-right-click to configure manual filtering."])
 	end
 end
@@ -314,7 +316,7 @@ end
 function mod:OnClickSectionHeader(_, header, button)
 	if GetCursorInfo() == "item" then
 		self:OnReceiveDragSectionHeader(_, header)
-	elseif header.section.name ~= JUNK and button == "RightButton" and IsAltKeyDown() then
+	elseif header.section:GetKey() ~= JUNK_KEY and button == "RightButton" and IsAltKeyDown() then
 		self:OpenOptions()
 	end
 end

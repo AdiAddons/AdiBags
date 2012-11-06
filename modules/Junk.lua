@@ -24,6 +24,7 @@ local wipe = _G.wipe
 --GLOBALS>
 
 local JUNK = addon.BI['Junk']
+local JUNK_KEY = addon:BuildSectionKey(JUNK, JUNK)
 
 local mod = addon:RegisterFilter("Junk", 85, "AceEvent-3.0", "AceHook-3.0")
 mod.uiName = JUNK
@@ -109,7 +110,7 @@ function mod:AdiBags_OverrideFilter(event, section, category, ...)
 	for i = 1, select('#', ...) do
 		local id = select(i, ...)
 		local incFlag, exclFlag
-		if section == JUNK then
+		if section == JUNK and category == JUNK then
 			incFlag = not self:BaseCheckItem(id, true) or nil
 		else
 			exclFlag = (self:BaseCheckItem(id, true) or self:ExtendedCheckItem(id, true)) and true or nil
@@ -134,7 +135,7 @@ function mod:Update()
 end
 
 function mod:OnTooltipUpdateSectionHeader(_, header, tooltip)
-	if header.section.name ~= JUNK then
+	if header.section:GetKey() ~= JUNK_KEY then
 		return
 	end
 	if addon:GetInteractingWindow() == "MERCHANT" then
@@ -144,7 +145,7 @@ function mod:OnTooltipUpdateSectionHeader(_, header, tooltip)
 end
 
 function mod:OnClickSectionHeader(_, header, button)
-	if header.section.name ~= JUNK or button ~= "RightButton" then
+	if header.section:GetKey() ~= JUNK_KEY or button ~= "RightButton" then
 		return
 	end
 	if IsAltKeyDown() then
