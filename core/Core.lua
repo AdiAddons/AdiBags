@@ -64,10 +64,18 @@ end
 addon:SetDefaultModuleState(false)
 
 function addon:OnInitialize()
-	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", addon.DEFAULT_SETTINGS, true)
+	local bfd = self:GetFontDefaults(GameFontHighlightLarge)
+	bfd.r, bfd.g, bfd.b = 1, 1, 1
+	self.DEFAULT_SETTINGS.profile.bagFont = bfd
+	self.DEFAULT_SETTINGS.profile.sectionFont = self:GetFontDefaults(GameFontNormalLeft)
+
+	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", self.DEFAULT_SETTINGS, true)
 	self.db.RegisterCallback(self, "OnProfileChanged")
 	self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
 	self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
+
+	self.bagFont = self:CreateFont(addonName.."BagFont", GameFontHighlightLarge, function() return self.db.profile.bagFont end)
+	self.sectionFont = self:CreateFont(addonName.."SectionFont", GameFontNormalLeft, function() return self.db.profile.sectionFont end)
 
 	self.itemParentFrames = {}
 
@@ -152,7 +160,8 @@ function addon:OnEnable()
 		end
 	end
 
-	self:UpdateFonts()
+	self.bagFont:ApplySettings()
+	self.sectionFont:ApplySettings()
 	self:UpdatePositionMode()
 
 	self:Debug('Enabled')
@@ -216,6 +225,32 @@ function addon:UpgradeProfile()
 		profile.skin.BankColor = profile.backgroundColors.Bank
 		profile.backgroundColors = nil
 	end
+	
+	-- Convert old font settings
+	if type(profile.skin) == "table" then
+		local skin = profile.skin
+		if type(skin.font) == "string" then
+			profile.bagFont.name = skin.font
+			profile.sectionFont.name = skin.font
+			skin.font = nil
+		end
+		if skin.fontSize then
+			profile.bagFont.size = skin.fontSize
+			profile.sectionFont.size = skin.fontSize - 4
+			skin.fontSize = nil
+		end
+		if skin.fontBagColor then
+			local bagFont = profile.bagFont
+			bagFont.r, bagFont.g, bagFont.r = unpack(skin.fontBagColor)
+			skin.fontBagColor = nil
+		end
+		if skin.fontSectionColor then
+			local sectionFont = profile.sectionFont
+			sectionFont.r, sectionFont.g, sectionFont.b = unpack(skin.fontSectionColor)
+			skin.fontSectionColor = nil
+		end
+	end
+
 end
 
 --------------------------------------------------------------------------------
@@ -427,21 +462,3 @@ function addon:GetContainerSkin(containerName)
 	backdrop.insets.bottom = skin.insets
 	return backdrop, r, g, b, a
 end
-
-addon.bagFont = CreateFont(addonName.."BagFont")
-addon.bagFont:SetFontObject("GameFontHighlightLarge")
-addon.bagFont:SetTextColor(1, 1, 1)
-
-addon.sectionFont = CreateFont(addonName.."SectionFont")
-addon.sectionFont:SetFontObject("GameFontNormalLeft")
-
-function addon:UpdateFonts()
-	local skin = self.db.profile.skin
-	local font = LSM:Fetch(LSM.MediaType.FONT, skin.font)
-	local size = skin.fontSize
-	self.bagFont:SetFont(font, size)
-	self.bagFont:SetTextColor(unpack(skin.fontBagColor, 1, 3))
-	self.sectionFont:SetFont(font, size-4)
-	self.sectionFont:SetTextColor(unpack(skin.fontSectionColor, 1, 3))
-end
-

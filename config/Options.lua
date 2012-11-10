@@ -384,49 +384,8 @@ local function GetOptions()
 				type = 'group',
 				order = 150,
 				args = {
-					texts = {
-						name = L['Texts'],
-						type = 'group',
-						inline = true,
-						order = 10,
-						args = {
-							font = {
-								name = L['Font'],
-								type = 'select',
-								dialogControl = 'LSM30_Font',
-								values = AceGUIWidgetLSMlists.font,
-								order = 10,
-								arg = { "skin", "font" },
-							},
-							size = {
-								name = L['Size'],
-								type = 'select',
-								values = {
-									[12] = L['Small'],
-									[16] = L['Medium'],
-									[20] = L['Large'],
-								},
-								order = 20,
-								arg = { "skin", "fontSize" },
-							},
-							fontBagColor = {
-								name = L['Bag title color'],
-								type = 'color',
-								type = 'color',
-								order = 30,
-								hasAlpha = false,
-								arg = { "skin", "fontBagColor" },
-							},
-							fontSectionColor = {
-								name = L['Section header color'],
-								type = 'color',
-								type = 'color',
-								order = 40,
-								hasAlpha = false,
-								arg = { "skin", "fontSectionColor" },
-							},
-						},
-					},
+					bagFont = addon:CreateFontOptions(addon.bagFont, L["Bag title"], 10),
+					sectionFont = addon:CreateFontOptions(addon.sectionFont, L["Section header"], 15),
 					background = {
 						name = L['Bag background'],
 						type = 'group',

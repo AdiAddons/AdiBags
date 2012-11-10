@@ -110,10 +110,6 @@ addon.DEFAULT_SETTINGS = {
 		},
 		automaticLayout = 1,
 		skin = {
-			font = LibStub('LibSharedMedia-3.0').DefaultMedia.font,
-			fontSize = 16,
-			fontBagColor = { 1, 1, 1 },
-			fontSectionColor = { 1.0, 0.82, 0 },
 			background = "Blizzard Tooltip",
 			border = "Blizzard Tooltip",
 			borderWidth = 16,
