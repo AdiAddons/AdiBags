@@ -30,6 +30,7 @@ libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 Localization.lua
 core\Constants.lua
 core\Utility.lua
+core\Fonts.lua
 core\Core.lua
 core\Hooks.lua
 core\Bags.lua
