@@ -172,13 +172,7 @@ local sourceList = {
 	junkCategory = L['Junk category'],
 }
 function mod:GetOptions()
-	local handler = addon:GetOptionHandler(self)
-
-	local Set = handler.Set
-	function handler.Set(...)
-		Set(...)
-		return mod:Update()
-	end
+	local handler = addon:GetOptionHandler(self, false, function() return self:Update() end)
 
 	function handler:ListItems(info)
 		return prefs[info[#info]]

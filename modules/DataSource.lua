@@ -141,12 +141,6 @@ function mod:Update(event)
 end
 
 function mod:GetOptions()
-	local handler = addon:GetOptionHandler(self)
-	local oldSet = handler.Set
-	handler.Set = function(...)
-		oldSet(...)
-		self:Update()
-	end
 	return {
 		format = {
 			name = L['Bag usage format'],
@@ -186,5 +180,5 @@ function mod:GetOptions()
 			order = 50,
 			disabled = function(info) return info.handler:IsDisabled(info) or self.db.profile.mergeBags end,
 		},
-	}, addon:GetOptionHandler(self)
+	}, addon:GetOptionHandler(self, false, function() return self:Update() end)
 end
