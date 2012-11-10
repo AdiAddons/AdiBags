@@ -10,6 +10,7 @@ local L = addon.L
 --<GLOBALS
 local _G = _G
 local BreakUpLargeNumbers = _G.BreakUpLargeNumbers
+local CreateFont = _G.CreateFont
 local CreateFrame = _G.CreateFrame
 local ExpandCurrencyList = _G.ExpandCurrencyList
 local format = _G.format
@@ -20,6 +21,7 @@ local ipairs = _G.ipairs
 local IsAddOnLoaded = _G.IsAddOnLoaded
 local tconcat = _G.table.concat
 local tinsert = _G.tinsert
+local unpack = _G.unpack
 local wipe = _G.wipe
 --GLOBALS>
 
@@ -27,13 +29,31 @@ local mod = addon:NewModule('CurrencyFrame', 'AceEvent-3.0')
 mod.uiName = L['Currency']
 mod.uiDesc = L['Display character currency at bottom left of the backpack.']
 
+local LSM = LibStub('LibSharedMedia-3.0')
+local font = CreateFont(mod.name..'Font')
+font:SetFontObject("NumberFontNormalLarge")
+
+local DEFAULTS
+
 function mod:OnInitialize()
-	self.db = addon.db:RegisterNamespace(self.moduleName, {
-		profile = {
-			shown = { ['*'] = true },
-			hideZeroes = true,
-		},
-	})
+	local fontFile, fontSize = font:GetFont()
+	local fontName
+	for name, file in pairs(LSM:HashTable(LSM.MediaType.FONT)) do
+		if file == fontFile then
+			fontName = name
+			break
+		end
+	end
+	DEFAULTS =  {
+		shown = { ['*'] = true },
+		hideZeroes = true,
+		text = {
+			name = fontName,
+			size = floor(fontSize),
+			color = { font:GetTextColor() }
+		}
+	}
+	self.db = addon.db:RegisterNamespace(self.moduleName, { profile = DEFAULTS })
 end
 
 function mod:OnEnable()
@@ -78,9 +98,10 @@ function mod:OnBagFrameCreated(bag)
 	widget:SetScript('OnClick', function() self:OpenOptions() end)
 	addon.SetupTooltip(widget, { L['Currency'], L['Right-click to configure.'] }, "ANCHOR_BOTTOMLEFT")
 
-	local fs = widget:CreateFontString(nil, "OVERLAY","NumberFontNormalLarge")
-	self.fontstring = fs
+	local fs = widget:CreateFontString(nil, "OVERLAY")
+	fs:SetFontObject(font)
 	fs:SetPoint("BOTTOMLEFT", 0, 1)
+	self.fontstring = fs
 
 	self:Update()
 	frame:AddBottomWidget(widget, "LEFT", 50, 19)
@@ -124,6 +145,11 @@ function mod:Update()
 	if not self.widget or updating then return end
 	updating = true
 
+	local fontSkin = self.db.profile.text
+	local fontName = LSM:Fetch(LSM.MediaType.FONT, fontSkin.name)
+	font:SetFont(fontName, fontSkin.size, "OUTLINE")
+	font:SetTextColor(unpack(fontSkin.color, 1, 3))
+
 	local shown, hideZeroes = self.db.profile.shown, self.db.profile.hideZeroes
 	for i, name, _, _, _, _, count, icon in IterateCurrencies() do
 		if shown[name] and (count > 0 or not hideZeroes) then
@@ -147,20 +173,18 @@ end
 
 function mod:GetOptions()
 	local values = {}
-	local function GetValueList()
-		wipe(values)
-		for i, name, _, _, _, _, _, icon in IterateCurrencies() do
-			values[name] = format(ICON_STRING, icon)..name
-		end
-		return values
-	end
-
 	return {
 		shown = {
 			name = L['Currencies to show'],
 			type = 'multiselect',
 			order = 10,
-			values = GetValueList,
+			values = function()
+				wipe(values)
+				for i, name, _, _, _, _, _, icon in IterateCurrencies() do
+					values[name] = format(ICON_STRING, icon)..name
+				end
+				return values
+			end,
 			width = 'double',
 		},
 		hideZeroes = {
@@ -169,6 +193,12 @@ function mod:GetOptions()
 			type = 'toggle',
 			order = 20,
 		},
+		text = addon:CreateFontOptions("text", 30, DEFAULTS.text.size, function()
+			local text, def = self.db.profile.text, DEFAULTS.text
+			text.name, text.size = def.name, def.size
+			text.color[1], text.color[2], text.color[3] = unpack(def.color)
+			return self:Update()
+		end)
 	}, addon:GetOptionHandler(self, false, function() return self:Update() end)
 end
 
