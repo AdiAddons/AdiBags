@@ -21,6 +21,7 @@ local unpack = _G.unpack
 local safecall = addon.safecall
 
 local AceConfigDialog = LibStub('AceConfigDialog-3.0')
+local LSM = LibStub('LibSharedMedia-3.0')
 
 local options
 
@@ -219,6 +220,57 @@ local function UpdateFilterOrder()
 end
 
 --------------------------------------------------------------------------------
+-- Helpers
+--------------------------------------------------------------------------------
+
+function addon:CreateFontOptions(key, order, mediumSize, resetFunc)
+	mediumSize = mediumSize or 16
+	local option = {
+		name = L['Text'],
+		type = 'group',
+		order = order,
+		inline = true,
+		args = {
+			name = {
+				name = L['Font'],
+				type = 'select',
+				order = 10,
+				dialogControl = 'LSM30_Font',
+				values = LSM:HashTable(LSM.MediaType.FONT),
+				arg = { key, "name" },
+			},
+			size = {
+				name = L['Size'],
+				type = 'select',
+				order = 20,
+				values = {
+					[mediumSize - 4] = L['Small'],
+					[mediumSize]     = L['Medium'],
+					[mediumSize + 4] = L['Large'],
+				},
+				arg = { key, 'size' },
+			},
+			color = {
+				name = L['Color'],
+				type = 'color',
+				order = 30,
+				hasAlpha = false,
+				arg = { key, 'color' },
+			},
+		},
+	}
+	if resetFunc then
+		option.args.reset = {
+			name = L['Reset'],
+			type = 'execute',
+			order = 40,
+			func = resetFunc
+		}
+	end
+	return option
+end
+
+--------------------------------------------------------------------------------
 -- Core options
 --------------------------------------------------------------------------------
 
@@ -252,7 +304,6 @@ local function GetOptions()
 			bagList[module.bagName] = L[module.bagName]
 		end
 	end
-	local LSM = LibStub('LibSharedMedia-3.0')
 	options = {
 		--@debug@
 		name = addonName..' DEV',
