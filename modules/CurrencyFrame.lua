@@ -155,18 +155,12 @@ function mod:GetOptions()
 		return values
 	end
 
-	local function Set(info, ...)
-		info.handler:Set(info, ...)
-		mod:Update()
-	end
-
 	return {
 		shown = {
 			name = L['Currencies to show'],
 			type = 'multiselect',
 			order = 10,
 			values = GetValueList,
-			set = Set,
 			width = 'double',
 		},
 		hideZeroes = {
@@ -174,8 +168,7 @@ function mod:GetOptions()
 			desc = L['Ignore currencies with null amounts.'],
 			type = 'toggle',
 			order = 20,
-			set = Set,
 		},
-	}, addon:GetOptionHandler(self)
+	}, addon:GetOptionHandler(self, false, function() return self:Update() end)
 end
 
