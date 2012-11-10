@@ -9,6 +9,7 @@ local L = addon.L
 
 --<GLOBALS
 local _G = _G
+local BreakUpLargeNumbers = _G.BreakUpLargeNumbers
 local CreateFrame = _G.CreateFrame
 local ExpandCurrencyList = _G.ExpandCurrencyList
 local format = _G.format
@@ -126,7 +127,8 @@ function mod:Update()
 	local shown, hideZeroes = self.db.profile.shown, self.db.profile.hideZeroes
 	for i, name, _, _, _, _, count, icon in IterateCurrencies() do
 		if shown[name] and (count > 0 or not hideZeroes) then
-			tinsert(values, count..format(ICON_STRING, icon))
+			tinsert(values, BreakUpLargeNumbers(count))
+			tinsert(values, format(ICON_STRING, icon))
 		end
 	end
 
