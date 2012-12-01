@@ -117,6 +117,7 @@ addon.DEFAULT_SETTINGS = {
 			BackpackColor = { 0, 0, 0, 1 },
 			BankColor = { 0, 0, 0.5, 1 },
 		},
+		rightClickConfig = true,
 	},
 	char = {
 		collapsedSections = {

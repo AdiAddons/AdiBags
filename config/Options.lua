@@ -273,10 +273,17 @@ local function GetOptions()
 				order = 100,
 				disabled = false,
 			},
+			rightClickConfig = {
+				name = L['Right-click to open options'],
+				desc = L['When checked, right-clicking on an empty space of a bag opens the configuration panel.'],
+				width = 'double',
+				type = 'toggle',
+				order = 110,
+			},
 			bags = {
 				name = L['Bags'],
 				type = 'group',
-				order = 100,
+				order = 120,
 				args = {
 					bags = {
 						name = L[''],

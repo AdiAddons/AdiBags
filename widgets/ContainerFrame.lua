@@ -322,7 +322,7 @@ function containerProto:OnClick(...)
 		itemLink = data2
 	elseif kind == "merchant" then
 		itemLink = GetMerchantItemLink(data1)
-	elseif ... == "RightButton" then
+	elseif ... == "RightButton" and addon.db.profile.rightClickConfig then
 		return addon:OpenOptions('bags')
 	else
 		return
