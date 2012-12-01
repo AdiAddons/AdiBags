@@ -286,15 +286,15 @@ local function GetOptions()
 				order = 120,
 				args = {
 					bags = {
-						name = L[''],
-						desc = L[''],
+						name = L['Enabled bags'],
+						desc = L['Select which bags AdiBags should display.'],
 						type = 'multiselect',
 						order = 90,
 						values = bagList,
 					},
 					positionMode = {
 						name = L['Position mode'],
-						desc = L['Select how the bag are positionned.'],
+						desc = L['Select how the bags are positionned.'],
 						type = 'select',
 						order = 100,
 						values = {
@@ -330,7 +330,7 @@ local function GetOptions()
 						desc = L['Adjust the maximum number of items per row.'],
 						type = 'group',
 						inline = true,
-						order = 145,
+						order = 140,
 						args = {
 							Backpack = {
 								name = L['Backpack'],
@@ -354,7 +354,7 @@ local function GetOptions()
 						name = L['Maximum bag height'],
 						desc = L['Adjust the maximum height of the bags, relative to screen size.'],
 						type = 'range',
-						order = 145,
+						order = 150,
 						isPercent = true,
 						min = 0.30,
 						max = 0.90,
@@ -365,7 +365,7 @@ local function GetOptions()
 						desc = L['Select the top objective of the layout algorithm.'],
 						type = 'select',
 						width = 'double',
-						order = 148,
+						order = 160,
 						values = {
 							[0] = L['Strictly keep ordering'],
 							[1] = L['Group sections of same category'],
@@ -377,7 +377,7 @@ local function GetOptions()
 						desc = L['This setting allows to tone down what some people calls "section dancing" when moving/selling/milling items.'],
 						type = 'select',
 						width = 'double',
-						order = 149,
+						order = 170,
 						values = {
 							[0] = L['As soon as possible'],
 							[1] = L["Not at merchants', bank, ..."],
