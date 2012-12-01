@@ -33,34 +33,36 @@ addon.BAG_IDS = { BAGS = BAGS, BANK = BANK, ALL = ALL }
 
 addon.FAMILY_TAGS = {
 --@noloc[[
-	[0x0001] = L["QUIVER_TAG"], -- Quiver
-	[0x0002] = L["AMMO_TAG"], -- Ammo Pouch
-	[0x0004] = L["SOUL_BAG_TAG"], -- Soul Bag
-	[0x0008] = L["LEATHERWORKING_BAG_TAG"], -- Leatherworking Bag
-	[0x0010] = L["INSCRIPTION_BAG_TAG"], -- Inscription Bag
-	[0x0020] = L["HERB_BAG_TAG"], -- Herb Bag
-	[0x0040] = L["ENCHANTING_BAG_TAG"] , -- Enchanting Bag
-	[0x0080] = L["ENGINEERING_BAG_TAG"], -- Engineering Bag
-	[0x0100] = L["KEYRING_TAG"], -- Keyring
-	[0x0200] = L["GEM_BAG_TAG"], -- Gem Bag
-	[0x0400] = L["MINING_BAG_TAG"], -- Mining Bag
-	[0x100000] = L["TACKLE_BOX_TAG"], -- Tackle Box
+	[0x00001] = L["QUIVER_TAG"], -- Quiver
+	[0x00002] = L["AMMO_TAG"], -- Ammo Pouch
+	[0x00004] = L["SOUL_BAG_TAG"], -- Soul Bag
+	[0x00008] = L["LEATHERWORKING_BAG_TAG"], -- Leatherworking Bag
+	[0x00010] = L["INSCRIPTION_BAG_TAG"], -- Inscription Bag
+	[0x00020] = L["HERB_BAG_TAG"], -- Herb Bag
+	[0x00040] = L["ENCHANTING_BAG_TAG"] , -- Enchanting Bag
+	[0x00080] = L["ENGINEERING_BAG_TAG"], -- Engineering Bag
+	[0x00100] = L["KEYRING_TAG"], -- Keyring
+	[0x00200] = L["GEM_BAG_TAG"], -- Gem Bag
+	[0x00400] = L["MINING_BAG_TAG"], -- Mining Bag
+	[0x08000] = L["TACKLE_BOX_TAG"], -- Tackle Box
+	[0x10000] = L["COOKING_BAR_TAG"], -- Refrigerator
 --@noloc]]
 }
 
 addon.FAMILY_ICONS = {
-	[0x0001] = [[Interface\Icons\INV_Misc_Ammo_Arrow_01]], -- Quiver
-	[0x0002] = [[Interface\Icons\INV_Misc_Ammo_Bullet_05]], -- Ammo Pouch
-	[0x0004] = [[Interface\Icons\INV_Misc_Gem_Amethyst_02]], -- Soul Bag
-	[0x0008] = [[Interface\Icons\Trade_LeatherWorking]], -- Leatherworking Bag
-	[0x0010] = [[Interface\Icons\INV_Inscription_Tradeskill01]], -- Inscription Bag
-	[0x0020] = [[Interface\Icons\Trade_Herbalism]], -- Herb Bag
-	[0x0040] = [[Interface\Icons\Trade_Engraving]], -- Enchanting Bag
-	[0x0080] = [[Interface\Icons\Trade_Engineering]], -- Engineering Bag
-	[0x0100] = [[Interface\Icons\INV_Misc_Key_14]], -- Keyring
-	[0x0200] = [[Interface\Icons\INV_Misc_Gem_BloodGem_01]], -- Gem Bag
-	[0x0400] = [[Interface\Icons\Trade_Mining]], -- Mining Bag
-	[0x100000] = [[Interface\Icons\Trade_Fishing]], -- Tackle Box
+	[0x00001] = [[Interface\Icons\INV_Misc_Ammo_Arrow_01]], -- Quiver
+	[0x00002] = [[Interface\Icons\INV_Misc_Ammo_Bullet_05]], -- Ammo Pouch
+	[0x00004] = [[Interface\Icons\INV_Misc_Gem_Amethyst_02]], -- Soul Bag
+	[0x00008] = [[Interface\Icons\Trade_LeatherWorking]], -- Leatherworking Bag
+	[0x00010] = [[Interface\Icons\INV_Inscription_Tradeskill01]], -- Inscription Bag
+	[0x00020] = [[Interface\Icons\Trade_Herbalism]], -- Herb Bag
+	[0x00040] = [[Interface\Icons\Trade_Engraving]], -- Enchanting Bag
+	[0x00080] = [[Interface\Icons\Trade_Engineering]], -- Engineering Bag
+	[0x00100] = [[Interface\Icons\INV_Misc_Key_14]], -- Keyring
+	[0x00200] = [[Interface\Icons\INV_Misc_Gem_BloodGem_01]], -- Gem Bag
+	[0x00400] = [[Interface\Icons\Trade_Mining]], -- Mining Bag
+	[0x08000] = [[Interface\Icons\Trade_Fishing]], -- Tackle Box
+	[0x10000] = [[Interface\Icons\INV_Misc_Bag_Cooking]], -- Refrigerator
 }
 
 addon.ITEM_SIZE = 37
