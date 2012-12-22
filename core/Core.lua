@@ -401,8 +401,8 @@ do
 			local old = current
 			current = new
 			self.atBank = (current == "BANKFRAME")
-			if self.db.profile.virtualStacks.notWhenTrading then
-				self:SendMessage('AdiBags_FiltersChanged', 0)
+			if self.db.profile.virtualStacks.notWhenTrading ~= 0 then
+				self:SendMessage('AdiBags_FiltersChanged', true)
 			end
 			self:SendMessage('AdiBags_InteractingWindowChanged', new, old)
 		end
