@@ -77,6 +77,8 @@ function containerProto:OnCreate(name, bagIds, isBank)
 
 	--self:EnableMouse(true)
 	self:SetFrameStrata("HIGH")
+	local frameLevel = 2 + (isBank and 5 or 0)
+	self:SetFrameLevel(frameLevel - 2)
 
 	self:SetScript('OnShow', self.OnShow)
 	self:SetScript('OnHide', self.OnHide)
@@ -111,31 +113,31 @@ function containerProto:OnCreate(name, bagIds, isBank)
 	button:RegisterForClicks("AnyUp")
 	button:SetScript('OnClick', function(_, ...) return self:OnClick(...) end)
 	button:SetScript('OnReceiveDrag', function() return self:OnClick("LeftButton") end)
-	local minFrameLevel = button:GetFrameLevel() + 1
+	button:SetFrameLevel(frameLevel - 1)
 
 	local headerLeftRegion = SimpleLayeredRegion:Create(self, "TOPLEFT", "RIGHT", 4)
 	headerLeftRegion:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
 	self.HeaderLeftRegion = headerLeftRegion
 	self:AddWidget(headerLeftRegion)
-	headerLeftRegion:SetFrameLevel(minFrameLevel)
+	headerLeftRegion:SetFrameLevel(frameLevel)
 
 	local headerRightRegion = SimpleLayeredRegion:Create(self, "TOPRIGHT", "LEFT", 4)
 	headerRightRegion:SetPoint("TOPRIGHT", -32, -BAG_INSET)
 	self.HeaderRightRegion = headerRightRegion
 	self:AddWidget(headerRightRegion)
-	headerRightRegion:SetFrameLevel(minFrameLevel)
+	headerRightRegion:SetFrameLevel(frameLevel)
 
 	local bottomLeftRegion = SimpleLayeredRegion:Create(self, "BOTTOMLEFT", "UP", 4)
 	bottomLeftRegion:SetPoint("BOTTOMLEFT", BAG_INSET, BAG_INSET)
 	self.BottomLeftRegion = bottomLeftRegion
 	self:AddWidget(bottomLeftRegion)
-	bottomLeftRegion:SetFrameLevel(minFrameLevel)
+	bottomLeftRegion:SetFrameLevel(frameLevel)
 
 	local bottomRightRegion = SimpleLayeredRegion:Create(self, "BOTTOMRIGHT", "UP", 4)
 	bottomRightRegion:SetPoint("BOTTOMRIGHT", -BAG_INSET, BAG_INSET)
 	self.BottomRightRegion = bottomRightRegion
 	self:AddWidget(bottomRightRegion)
-	bottomRightRegion:SetFrameLevel(minFrameLevel)
+	bottomRightRegion:SetFrameLevel(frameLevel)
 
 	local bagSlotPanel = addon:CreateBagSlotPanel(self, name, bagSlots, isBank)
 	bagSlotPanel:Hide()
@@ -146,7 +148,7 @@ function containerProto:OnCreate(name, bagIds, isBank)
 	self.CloseButton = closeButton
 	closeButton:SetPoint("TOPRIGHT", -2, -2)
 	addon.SetupTooltip(closeButton, L["Close"])
-	closeButton:SetFrameLevel(minFrameLevel)
+	closeButton:SetFrameLevel(frameLevel)
 
 	local bagSlotButton = CreateFrame("CheckButton", nil, self)
 	bagSlotButton:SetNormalTexture([[Interface\Buttons\Button-Backpack-Up]])
@@ -164,7 +166,7 @@ function containerProto:OnCreate(name, bagIds, isBank)
 
 	local searchBox = CreateFrame("EditBox", self:GetName().."SearchBox", self, "BagSearchBoxTemplate")
 	searchBox:SetSize(130, 20)
-	searchBox:SetFrameLevel(minFrameLevel)
+	searchBox:SetFrameLevel(frameLevel)
 	headerRightRegion:AddWidget(searchBox, -10, 130, 0, -1)
 	tinsert(_G.ITEM_SEARCHBAR_LIST, searchBox:GetName())
 
