@@ -793,7 +793,7 @@ function containerProto:LayoutSections(cleanLevel)
 
 		else
 			local rowWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.rowWidth[self.name] - ITEM_SPACING
-			local minWidth = max(self.minWidth, rowWidth)
+			local minWidth = max(rowWidth, ITEM_SPACING + ITEM_SIZE * ceil((self.minWidth - ITEM_SPACING) / ITEM_SIZE))
 			local maxHeight = addon.db.profile.maxHeight * UIParent:GetHeight() * UIParent:GetEffectiveScale() / self:GetEffectiveScale()
 
 			local numColumns = 0
