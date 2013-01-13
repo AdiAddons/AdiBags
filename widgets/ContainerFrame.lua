@@ -365,17 +365,18 @@ function containerProto:OnLayout()
 		self.Title:GetStringWidth() + 32 + (hlr:IsShown() and hlr:GetWidth() or 0) + (hrr:IsShown() and hrr:GetWidth() or 0),
 		(blr:IsShown() and blr:GetWidth() or 0) + (brr:IsShown() and brr:GetWidth() or 0)
 	)
-	if minWidth ~= self.minWidth then
-		self:Debug("MinWidth changed, forcing layout", self.minWidth, "=>", minWidth)
-		self.minWidth = minWidth
-		self:LayoutSections(-1)
-	end
 	local bottomHeight = max(
 		blr:IsShown() and (BAG_INSET + blr:GetHeight()) or 0,
 		brr:IsShown() and (BAG_INSET + brr:GetHeight()) or 0
 	)
-	self:SetWidth(BAG_INSET * 2 + max(minWidth, self.Content:GetWidth()))
-	self:SetHeight(addon.TOP_PADDING + BAG_INSET + bottomHeight + self.Content:GetHeight())
+	self:SetSize(
+		BAG_INSET * 2 + max(minWidth, self.Content:GetWidth()),
+		addon.TOP_PADDING + BAG_INSET + bottomHeight + self.Content:GetHeight()
+	)
+	if ceil(self.minWidth or 0) ~= ceil(minWidth) then
+		self.minWidth = minWidth
+		return self:LayoutSections()
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -795,7 +796,7 @@ function containerProto:LayoutSections(cleanLevel)
 
 		else
 			local rowWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.rowWidth[self.name] - ITEM_SPACING
-			local minWidth = max(rowWidth, ITEM_SPACING + ITEM_SIZE * ceil((self.minWidth - ITEM_SPACING) / ITEM_SIZE))
+			local minWidth = max(rowWidth, self.minWidth)
 			local maxHeight = addon.db.profile.maxHeight * UIParent:GetHeight() * UIParent:GetEffectiveScale() / self:GetEffectiveScale()
 
 			local numColumns = 0
