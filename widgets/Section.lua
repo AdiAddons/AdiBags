@@ -173,6 +173,7 @@ end
 
 function sectionProto:SetDirtyLevel(level)
 	if level > self.dirtyLevel then
+		self:Debug('dirtyLevel raise from', self.dirtyLevel, 'to', level)
 		self.dirtyLevel = level
 	end
 end
@@ -183,6 +184,7 @@ end
 
 function sectionProto:ClearDirtyLevel()
 	self.dirtyLevel = 0
+	self:Debug('dirtyLevel cleared')
 end
 
 --------------------------------------------------------------------------------
@@ -256,18 +258,14 @@ function sectionProto:AddItemButton(slotId, button)
 			button:Hide()
 		else
 			button:Show()
-			if self.count <= self.total then
-				local freeSlots = self.freeSlots
-				for index = 1, self.total do
-					if freeSlots[index] then
-						freeSlots[index] = nil
-						self:PutButtonAt(button, index)
-						return
-					end
+			for index = 1, self.total do
+				if self.freeSlots[index] then
+					return self:PutButtonAt(button, index)
 				end
 			end
+			self:Debug('No room for new button')
+			self:SetDirtyLevel(2)
 		end
-		self:SetDirtyLevel(2)
 	end
 end
 
@@ -276,9 +274,12 @@ function sectionProto:RemoveItemButton(button)
 		local index = self.slots[button]
 		if index and index <= self.total then
 			self.freeSlots[index] = true
+			if index < self.count then
+				self:Debug('Not-last button removed')
+				self:SetDirtyLevel(1)
+			end
 		end
 		self.count = self.count - 1
-		self:SetDirtyLevel(1)
 		self.slots[button] = nil
 		self.buttons[button] = nil
 	end
@@ -316,10 +317,18 @@ end
 -- Layout
 --------------------------------------------------------------------------------
 
-function sectionProto:PutButtonAt(button, index)
-	if self.slots[button] ~= index then
-		self:SetDirtyLevel(1)
+function sectionProto:PutButtonAt(button, index, clean)
+	local oldIndex = self.slots[button]
+	if oldIndex ~= index then
+		if oldIndex then
+			self.freeSlots[oldIndex] = true
+		end
+		if not clean then
+			self:Debug('Moved button around')
+			self:SetDirtyLevel(1)
+		end
 		self.slots[button] = index
+		self.freeSlots[index] = nil
 	end
 	local row, col = floor((index-1) / self.width), (index-1) % self.width
 	button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
@@ -347,15 +356,20 @@ function sectionProto:FitInSpace(maxWidth, maxHeight, xOffset)
 end
 
 function sectionProto:SetSizeInSlots(width, height)
-	if self.width ~= width or self.height ~= height then
-		self.width = width
-		self.height = height
-		self.total = width * height
+	local oldWidth, oldHeight = self.width, self.height
+	if oldWidth ~= width or oldHeight ~= height then
+		self.width, self.height, self.total = width, height, width * height
 		self:SetSize(
 			SLOT_OFFSET * width - ITEM_SPACING,
 			HEADER_SIZE + SLOT_OFFSET * height - ITEM_SPACING
 		)
-		self:SetDirtyLevel(2)
+		if width < oldWidth or height < oldHeight then
+			self:Debug('Width or height reduced')
+			self:SetDirtyLevel(2)
+		else
+			self:Debug('Width or height changed')
+			self:SetDirtyLevel(1)
+		end
 	end
 	return self:GetSize()
 end
@@ -398,7 +412,7 @@ function sectionProto:ReorderButtons()
 	wipe(freeSlots)
 	wipe(slots)
 	for index, button in ipairs(buttonOrder) do
-		self:PutButtonAt(button, index)
+		self:PutButtonAt(button, index, true)
 	end
 	for index = self.count + 1, self.total do
 		freeSlots[index] = true
