@@ -59,7 +59,7 @@ h2. Tips & tricks
 
 h2. Known issues
 
-* *All items are always news / new items are not deteteced / item sets are not working:* AdiBags is (ab)using the game API to emulate some features that is was not meant to do. It relies on some timings that depend on your computer speed, your realm server and/or your network connection (because the game is inherently asynchronous). In some cases, it just does not work and there is almost nothing I can do because I cannot reproduce the bug to diagnose it and to try to fix it. *So basically, if the new item or item set filters are not working for you, there is little chance I can fix it.*
+* *All items are always news / new items are not detected / item sets are not working:* AdiBags is (ab)using the game API to emulate some features that is was not meant to do. It relies on some timings that depend on your computer speed, your realm server and/or your network connection (because the game is inherently asynchronous). In some cases, it just does not work and there is almost nothing I can do because I cannot reproduce the bug to diagnose it and to try to fix it. *So basically, if the new item or item set filters are not working for you, there is little chance I can fix it.*
 
 * *Protected action/addon blocked error:* they sometimes happen with AdiBags. Even though my effort, I can not reproduce these. Blizzard taint reports are very buggy, often blaming the wrong addon. As such they are pretty much useless.
 
