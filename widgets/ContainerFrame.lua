@@ -720,7 +720,7 @@ do
 				if height <= curHeight then
 					local section = tremove(sections, index)
 					section:SetPoint("TOPLEFT", content, x, -y)
-					local w, h = section:SetSizeInSlots(width, height)
+					local w, h = section:SetSizeInSlots(width, curHeight)
 					x = x + w + SECTION_SPACING
 					rowHeight = max(rowHeight, h)
 					tinsert(row, section)
