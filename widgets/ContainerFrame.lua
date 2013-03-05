@@ -373,9 +373,12 @@ function containerProto:OnLayout()
 		BAG_INSET * 2 + max(minWidth, self.Content:GetWidth()),
 		addon.TOP_PADDING + BAG_INSET + bottomHeight + self.Content:GetHeight()
 	)
-	if ceil(self.minWidth or 0) ~= ceil(minWidth) then
+	local currentMinWidth = self.minWidth
+	if ceil(currentMinWidth or 0) ~= ceil(minWidth) then
 		self.minWidth = minWidth
-		return self:LayoutSections()
+		if not currentMinWidth or ceil(minWidth - currentMinWidth) > 2 * ITEM_SIZE + ITEM_SPACING then
+			return self:LayoutSections(-1)
+		end
 	end
 end
 
@@ -767,7 +770,7 @@ function containerProto:LayoutSections(cleanLevel)
 			num = num + 1
 			if not section:IsShown() then
 				section:Show()
-				dirtyLevel = max(dirtyLevel, 2, section:GetDirtyLevel())
+				dirtyLevel = 2
 			else
 				dirtyLevel = max(dirtyLevel, section:GetDirtyLevel())
 			end
