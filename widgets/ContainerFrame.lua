@@ -753,7 +753,6 @@ function containerProto:LayoutSections(cleanLevel)
 
 	local num = 0
 	local dirtyLevel = self.dirtyLevel or 0
-	local stickyDirty = 0
 	for key, section in pairs(self.sections) do
 		if section:IsEmpty() then
 			section:Release()
