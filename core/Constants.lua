@@ -120,6 +120,7 @@ addon.DEFAULT_SETTINGS = {
 			BankColor = { 0, 0, 0.5, 1 },
 		},
 		rightClickConfig = true,
+		autoOpen = true,
 	},
 	char = {
 		collapsedSections = {

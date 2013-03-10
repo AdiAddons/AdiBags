@@ -185,9 +185,11 @@ do
 
 	function backpack:AdiBags_InteractingWindowChanged(event, window)
 		if window then
-			self.wasOpen = self:IsOpen()
-			if not self.wasOpen then
-				self:Open()
+			if addon.db.profile.autoOpen then
+				self.wasOpen = self:IsOpen()
+				if not self.wasOpen then
+					self:Open()
+				end
 			end
 		elseif self:IsOpen() and not self.wasOpen then
 			self:Close()

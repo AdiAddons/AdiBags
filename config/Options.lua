@@ -292,6 +292,12 @@ local function GetOptions()
 						order = 90,
 						values = bagList,
 					},
+					autoOpen = {
+						name = L["Open automatically"],
+						desc = L["Automatically open the bags at merchant's, bank, ..."],
+						type = 'toggle',
+						order = 95,
+					},
 					positionMode = {
 						name = L['Position mode'],
 						desc = L['Select how the bags are positionned.'],
