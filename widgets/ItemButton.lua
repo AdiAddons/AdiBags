@@ -34,10 +34,13 @@ local tostring = _G.tostring
 local wipe = _G.wipe
 --GLOBALS>
 
+local L = addon.L
 local GetSlotId = addon.GetSlotId
 local GetBagSlotFromId = addon.GetBagSlotFromId
 
 local ITEM_SIZE = addon.ITEM_SIZE
+
+local Masque = _G.LibStub("Masque", true)
 
 --------------------------------------------------------------------------------
 -- Button initialization
@@ -49,7 +52,7 @@ local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", 
 
 function buttonProto:OnCreate()
 	local name = self:GetName()
-	for i, childName in pairs(childrenNames ) do
+	for i, childName in pairs(childrenNames) do
 		self[childName] = _G[name..childName]
 	end
 	self:RegisterForDrag("LeftButton")
@@ -58,6 +61,15 @@ function buttonProto:OnCreate()
 	self:SetScript('OnHide', self.OnHide)
 	self:SetWidth(ITEM_SIZE)
 	self:SetHeight(ITEM_SIZE)
+	
+	if Masque then
+		Masque:Group(addonName, self:GetMasqueGroup()):AddButton(self, {
+			Icon   = self.IconTexture,
+			Name   = self.Stock,
+			Border = self.IconQuestTexture,
+		})
+		Masque:Register(addonName, self.Update, self)
+	end
 end
 
 function buttonProto:OnAcquire(container, bag, slot)
@@ -89,6 +101,12 @@ function buttonProto:IsLocked()
 	return select(3, GetContainerItemInfo(self.bag, self.slot))
 end
 
+if Masque then
+	function buttonProto:GetMasqueGroup()
+		return L["Backpack"]
+	end
+end
+
 --------------------------------------------------------------------------------
 -- Generic bank button sub-type
 --------------------------------------------------------------------------------
@@ -99,6 +117,13 @@ bankButtonClass.frameTemplate = "BankItemButtonGenericTemplate"
 function bankButtonProto:IsLocked()
 	return IsInventoryItemLocked(BankButtonIDToInvSlotID(self.slot))
 end
+
+if Masque then
+	function bankButtonProto:GetMasqueGroup()
+		return L["Bank"]
+	end
+end
+
 
 --------------------------------------------------------------------------------
 -- Pools and acquistion
@@ -326,12 +351,16 @@ function buttonProto:UpdateBorder(isolatedEvent)
 		end
 		if texture then
 			local border = self.IconQuestTexture
-			if texture == true then
-				border:SetVertexColor(1, 1, 1, 1)
-				border:SetTexture(r, g, b, a)
-			else
-				border:SetTexture(texture)
+			if Masque then
 				border:SetVertexColor(r, g, b, a)
+			else
+				if texture == true then
+					border:SetVertexColor(1, 1, 1, 1)
+					border:SetTexture(r, g, b, a)
+				else
+					border:SetTexture(texture)
+					border:SetVertexColor(r, g, b, a)
+				end
 			end
 			border:SetTexCoord(x1, x2, y1, y2)
 			border:SetBlendMode(blendMode)
