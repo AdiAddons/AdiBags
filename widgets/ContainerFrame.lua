@@ -782,7 +782,9 @@ function containerProto:LayoutSections(cleanLevel)
 		self.forceLayout = nil
 	elseif not cleanLevel then
 		local setting = addon.db.profile.automaticLayout
-		if setting == 2 or (setting == 1 and addon:GetInteractingWindow()) then
+		if setting == 3 then
+			cleanLevel = 2
+		elseif setting == 2 or (setting == 1 and addon:GetInteractingWindow()) then
 			cleanLevel = 1
 		else
 			cleanLevel = 0
