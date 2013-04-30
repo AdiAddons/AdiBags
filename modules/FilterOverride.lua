@@ -9,20 +9,28 @@ local L = addon.L
 
 --<GLOBALS
 local _G = _G
+local CLOSE = _G.CLOSE
 local ClearCursor = _G.ClearCursor
+local CreateFrame = _G.CreateFrame
 local GetCursorInfo = _G.GetCursorInfo
 local GetItemInfo = _G.GetItemInfo
+local IsAltKeyDown = _G.IsAltKeyDown
+local ToggleDropDownMenu = _G.ToggleDropDownMenu
+local UIDropDownMenu_AddButton = _G.UIDropDownMenu_AddButton
+local format = _G.format
 local gsub = _G.gsub
+local ipairs = _G.ipairs
 local pairs = _G.pairs
 local select = _G.select
-local strmatch = _G.strmatch
 local setmetatable = _G.setmetatable
+local strmatch = _G.strmatch
 local strsplit = _G.strsplit
 local strtrim = _G.strtrim
 local tinsert = _G.tinsert
 local tonumber = _G.tonumber
 local tostring = _G.tostring
 local tremove = _G.tremove
+local tsort = _G.table.sort
 local type = _G.type
 local unpack = _G.unpack
 local wipe = _G.wipe
@@ -310,13 +318,126 @@ function mod:GetOptions()
 end
 
 --------------------------------------------------------------------------------
+-- Section header menu
+--------------------------------------------------------------------------------
+
+local FilterDropDownMenu_Initialize
+do
+	local function CompareSections(a, b)
+		local nameA, catA = strsplit('#', a)
+		local nameB, catB = strsplit('#', b)
+		local orderA = addon:GetCategoryOrder(catA)
+		local orderB = addon:GetCategoryOrder(catB)
+		mod:Debug('CompareCategories', a, b, 'A:', nameA, catA, orderA, 'B:', nameB, catB, orderB)
+		if orderA == orderB then
+			return nameA < nameB
+		else
+			return orderA > orderB
+		end
+	end
+
+	local function Assign(_, key, itemId, checked)
+		local section, category = strsplit('#', key)
+		mod:Debug('Assign', key, itemId, checked, section, category)
+		if checked then
+			mod:AssignItems(section, category, itemId)
+		else
+			mod:AssignItems(nil, nil, itemId)
+		end
+	end
+
+	local function NewSection(_, key, itemId)
+		mod:Debug('NewSection', key, itemId, section, category)
+		local section, category = strsplit('#', key)
+		mod:OpenOptions()
+		mod:OptionPreselectItem(section, category, itemId)
+	end
+
+	local info = {}
+	local sections = {}
+	local orderedSections = {}
+	function FilterDropDownMenu_Initialize(self, level)
+		if not level then return end
+
+		local itemId, header = self.itemId, self.header
+
+		-- Title
+		wipe(info)
+		info.isTitle = true
+		local _, link = GetItemInfo(itemId)
+		info.text =  format(L['Assign %s to ...'], link)
+		info.notCheckable = true
+		UIDropDownMenu_AddButton(info, level)
+
+		wipe(sections)
+		wipe(orderedSections)
+		-- Add customized sections
+		for id, key in pairs(mod.db.profile.overrides) do
+			if not sections[key] then
+				sections[key] = true
+				tinsert(orderedSections, key)
+			end
+		end
+		-- Add shown sections
+		for invertedKey in pairs(header.section.container.sections) do
+			local category, section = strsplit('#', invertedKey)
+			local key = section .. '#' .. category
+			if not sections[key] then
+				sections[key] = true
+				tinsert(orderedSections, key)
+			end
+		end
+
+		-- Sort sections
+		tsort(orderedSections, CompareSections)
+
+		local itemKey = mod.db.profile.overrides[itemId]
+
+		-- Add a title foreach category and an entry for each section
+		local curCategory = nil
+		for i, key in ipairs(orderedSections) do
+			local section, category = strsplit('#', key)
+			if section ~= L["Free space"] then
+				-- Add an radio button for each section
+				wipe(info)
+				info.text = (section == category) and section or (section .. " ("..category..")")
+				info.checked = (itemKey == key)
+				info.arg1 = key
+				info.arg2 = itemId
+				info.func = Assign
+				UIDropDownMenu_AddButton(info, level)
+			end
+		end
+
+		-- Separator
+		wipe(info)
+		info.notCheckable = true
+		UIDropDownMenu_AddButton(info, level)
+
+		-- New section
+		info.text = L['New section']
+		info.arg1 = header.section.name .. '#' .. header.section.category
+		info.arg2 = itemId
+		info.func = NewSection
+		UIDropDownMenu_AddButton(info, level)
+
+		-- Close
+		wipe(info)
+		info.notCheckable = true
+		UIDropDownMenu_AddButton(info, level)
+		info.text = CLOSE
+		UIDropDownMenu_AddButton(info, level)
+	end
+end
+
+--------------------------------------------------------------------------------
 -- Section header hooks
 --------------------------------------------------------------------------------
 
 function mod:OnTooltipUpdateSectionHeader(_, header, tooltip)
 	if GetCursorInfo() == "item" then
 		tooltip:AddLine(L["Drop your item there to add it to this section."])
-		tooltip:AddLine(L["Press Alt while doing so to open the configuration panel instead."])
+		tooltip:AddLine(L["Press Alt while doing so to open a dropdown menu."])
 	elseif header.section:GetKey() ~= JUNK_KEY then
 		tooltip:AddLine(L["Alt-right-click to configure manual filtering."])
 	end
@@ -330,12 +451,21 @@ function mod:OnClickSectionHeader(_, header, button)
 	end
 end
 
+local dropdownFrame
 function mod:OnReceiveDragSectionHeader(_, header)
 	local contentType, itemId = GetCursorInfo()
 	if contentType == "item" then
 		if IsAltKeyDown() then
-			self:OpenOptions()
-			self:OptionPreselectItem(header.section.name, header.section.category, itemId)
+			if not dropdownFrame then
+				dropdownFrame = CreateFrame("Frame", addonName.."FilterOverrideDropDownMenu")
+				dropdownFrame.displayMode = "MENU"
+				dropdownFrame.initialize = FilterDropDownMenu_Initialize
+				dropdownFrame.point = "BOTTOMRIGHT"
+				dropdownFrame.relativePoint = "BOTTOMLEFT"
+			end
+			dropdownFrame.header = header
+			dropdownFrame.itemId = itemId
+			ToggleDropDownMenu(1, nil, dropdownFrame, 'cursor')
 		else
 			self:AssignItems(header.section.name, header.section.category, itemId)
 			self:UpdateOptions()
