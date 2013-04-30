@@ -388,6 +388,7 @@ local function GetOptions()
 							[0] = L['As soon as possible'],
 							[1] = L["Not at merchants', bank, ..."],
 							[2] = L['Only when required'],
+							[3] = L['Never'],
 						}
 					},
 				},

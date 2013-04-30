@@ -119,7 +119,6 @@ end
 
 function sectionProto:OnAcquire(container, name, category)
 	self:SetParent(container)
-	self.Header:SetText(name)
 	self.name = name
 	self.category = category or name
 	self.key = addon:BuildSectionKey(name, category)
@@ -131,6 +130,7 @@ function sectionProto:OnAcquire(container, name, category)
 	self.container = container
 	self:RegisterMessage('AdiBags_OrderChanged')
 	self:UpdateHeaderScripts()
+	self:UpdateTitle()
 end
 
 function sectionProto:OnRelease()
@@ -175,6 +175,7 @@ function sectionProto:SetDirtyLevel(level)
 	if level > self.dirtyLevel then
 		self:Debug('dirtyLevel raise from', self.dirtyLevel, 'to', level)
 		self.dirtyLevel = level
+		self:UpdateTitle()
 	end
 end
 
@@ -183,9 +184,21 @@ function sectionProto:GetDirtyLevel()
 end
 
 function sectionProto:ClearDirtyLevel()
-	self.dirtyLevel = 0
-	self:Debug('dirtyLevel cleared')
+	if self.dirtyLevel ~= 0 then
+		self.dirtyLevel = 0
+		self:UpdateTitle()
+		self:Debug('dirtyLevel cleared')
+	end
 end
+
+function sectionProto:UpdateTitle()
+	if self.dirtyLevel >= 2 then
+		self.Header:SetText("*"..self.name)
+	else
+		self.Header:SetText(self.name)
+	end
+end
+
 
 --------------------------------------------------------------------------------
 -- Section hooks
@@ -257,12 +270,13 @@ function sectionProto:AddItemButton(slotId, button)
 		if self:IsCollapsed() then
 			button:Hide()
 		else
-			button:Show()
 			for index = 1, self.total do
 				if self.freeSlots[index] then
+					button:Show()
 					return self:PutButtonAt(button, index)
 				end
 			end
+			button:Hide()
 			self:Debug('No room for new button')
 			self:SetDirtyLevel(2)
 		end
