@@ -344,6 +344,7 @@ do
 		else
 			mod:AssignItems(nil, nil, itemId)
 		end
+		ClearCursor()
 	end
 
 	local function NewSection(_, key, itemId)
@@ -351,6 +352,7 @@ do
 		local section, category = strsplit('#', key)
 		mod:OpenOptions()
 		mod:OptionPreselectItem(section, category, itemId)
+		ClearCursor()
 	end
 
 	local info = {}
@@ -469,8 +471,8 @@ function mod:OnReceiveDragSectionHeader(_, header)
 		else
 			self:AssignItems(header.section.name, header.section.category, itemId)
 			self:UpdateOptions()
+			ClearCursor()
 		end
-		ClearCursor()
 	end
 end
 
