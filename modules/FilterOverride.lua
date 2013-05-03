@@ -340,9 +340,9 @@ do
 		local section, category = strsplit('#', key)
 		mod:Debug('Assign', key, itemId, checked, section, category)
 		if checked then
-			mod:AssignItems(section, category, itemId)
-		else
 			mod:AssignItems(nil, nil, itemId)
+		else
+			mod:AssignItems(section, category, itemId)
 		end
 		ClearCursor()
 	end
