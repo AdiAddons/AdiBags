@@ -339,18 +339,6 @@ end
 
 local FilterDropDownMenu_Initialize
 do
-	local function CompareSections(a, b)
-		local nameA, catA = SplitSectionKey(a)
-		local nameB, catB = SplitSectionKey(b)
-		local orderA = addon:GetCategoryOrder(catA)
-		local orderB = addon:GetCategoryOrder(catB)
-		if orderA == orderB then
-			return nameA < nameB
-		else
-			return orderA > orderB
-		end
-	end
-
 	local function Assign(_, key, itemId, checked)
 		local section, category = SplitSectionKey(key)
 		if checked then
@@ -370,11 +358,11 @@ do
 
 	local info = {}
 	local sections = {}
-	local orderedSections = {}
 	function FilterDropDownMenu_Initialize(self, level)
 		if not level then return end
 
 		local itemId, header = self.itemId, self.header
+		local container = header.section.container
 
 		-- Title
 		wipe(info)
@@ -384,29 +372,29 @@ do
 		info.notCheckable = true
 		UIDropDownMenu_AddButton(info, level)
 
+		-- Get section from
 		wipe(sections)
-		wipe(orderedSections)
+		container:GetSectionKeys(true, sections)
+
 		-- Add customized sections
 		for id, key in pairs(mod.db.profile.overrides) do
 			if not sections[key] then
 				sections[key] = true
-				tinsert(orderedSections, key)
+				tinsert(sections, key)
 			end
 		end
 
 		-- Sort sections
-		tsort(orderedSections, CompareSections)
+		tsort(sections, addon.CompareSectionKeys)
 
+		-- Build the section list
 		local itemKey = mod.db.profile.overrides[itemId]
-
-		-- Add a title foreach category and an entry for each section
-		local curCategory = nil
-		for i, key in ipairs(orderedSections) do
-			local section, category = SplitSectionKey(key)
-			if section ~= L["Free space"] then
+		for i, key in ipairs(sections) do
+			local _, _, name, category, title = container:GetSectionInfo(key)
+			if name ~= L["Free space"] then
 				-- Add an radio button for each section
 				wipe(info)
-				info.text = (section == category) and section or (section .. " ("..category..")")
+				info.text = title
 				info.checked = (itemKey == key)
 				info.arg1 = key
 				info.arg2 = itemId
@@ -415,12 +403,9 @@ do
 			end
 		end
 
-		-- Separator
+		-- New section
 		wipe(info)
 		info.notCheckable = true
-		UIDropDownMenu_AddButton(info, level)
-
-		-- New section
 		info.text = L['New section']
 		info.arg1 = BuildSectionKey(header.section.name, header.section.category)
 		info.arg2 = itemId
@@ -430,7 +415,6 @@ do
 		-- Close
 		wipe(info)
 		info.notCheckable = true
-		UIDropDownMenu_AddButton(info, level)
 		info.text = CLOSE
 		UIDropDownMenu_AddButton(info, level)
 	end
