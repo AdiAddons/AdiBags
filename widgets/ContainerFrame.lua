@@ -673,6 +673,7 @@ end
 do
 	local t = {}
 	function containerProto:IterateSections(hidden)
+		wipe(t)
 		self:GetOrdererSectionKeys(hidden, t)
 		local i = 0
 		return function()
