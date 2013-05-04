@@ -29,6 +29,8 @@ local tsort = _G.table.sort
 local wipe = _G.wipe
 --GLOBALS>
 
+local BuildSectionKey = addon.BuildSectionKey
+
 local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING
 local SECTION_SPACING = addon.SECTION_SPACING
@@ -108,20 +110,11 @@ function sectionProto:ToString()
 	return format("Section[%q,%q]", tostring(self.name), tostring(self.category))
 end
 
-function addon:BuildSectionKey(name, category)
-	return strjoin('#', category or name, name)
-end
-
-function addon:SplitSectionKey(key)
-	local category, name = strsplit('#', key)
-	return name, category
-end
-
 function sectionProto:OnAcquire(container, name, category)
 	self:SetParent(container)
 	self.name = name
 	self.category = category or name
-	self.key = addon:BuildSectionKey(name, category)
+	self.key = BuildSectionKey(name, category)
 	self.width = 0
 	self.height = 0
 	self.count = 0

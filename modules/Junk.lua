@@ -24,7 +24,7 @@ local wipe = _G.wipe
 --GLOBALS>
 
 local JUNK = addon.BI['Junk']
-local JUNK_KEY = addon:BuildSectionKey(JUNK, JUNK)
+local JUNK_KEY = addon.BuildSectionKey(JUNK, JUNK)
 
 local mod = addon:RegisterFilter("Junk", 85, "AceEvent-3.0", "AceHook-3.0")
 mod.uiName = JUNK

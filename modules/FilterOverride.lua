@@ -36,8 +36,10 @@ local unpack = _G.unpack
 local wipe = _G.wipe
 --GLOBALS>
 
+local BuildSectionKey = addon.BuildSectionKey
+
 local JUNK = addon.BI['Junk']
-local JUNK_KEY = addon:BuildSectionKey(JUNK, JUNK)
+local JUNK_KEY = BuildSectionKey(JUNK, JUNK)
 
 local mod = addon:RegisterFilter("FilterOverride", 95, "AceEvent-3.0")
 mod.uiName = L['Manual filtering']

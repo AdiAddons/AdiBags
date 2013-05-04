@@ -21,6 +21,8 @@ local UIDropDownMenu_AddButton = _G.UIDropDownMenu_AddButton
 local wipe = _G.wipe
 --GLOBALS>
 
+local SplitSectionKey = addon.SplitSectionKey
+
 local mod = addon:NewModule('SectionVisibilityDropdown', 'AceEvent-3.0')
 mod.uiName = L['Section visibility button']
 mod.uiDesc = L['Add a dropdown menu to bags that allow to hide the sections.']
@@ -100,7 +102,7 @@ local function CollapseDropDownMenu_Initialize(self, level)
 	local currentCat = nil
 	wipe(info)
 	for i, key in ipairs(entries) do
-		local name, category = addon:SplitSectionKey(key)
+		local name, category = SplitSectionKey(key)
 		if category ~= currentCat then
 			wipe(info)
 			info.text = category

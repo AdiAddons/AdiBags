@@ -45,6 +45,7 @@ local wipe = _G.wipe
 local GetSlotId = addon.GetSlotId
 local GetBagSlotFromId = addon.GetBagSlotFromId
 local GetItemFamily = addon.GetItemFamily
+local BuildSectionKey = addon.BuildSectionKey
 
 local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING
@@ -479,7 +480,7 @@ function containerProto:GetStackButton(key)
 end
 
 function containerProto:GetSection(name, category)
-	local key = addon:BuildSectionKey(name, category)
+	local key = BuildSectionKey(name, category)
 	local section = self.sections[key]
 	if not section then
 		section = addon:AcquireSection(self, name, category)
