@@ -13,6 +13,7 @@ local assert = _G.assert
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
 local band = _G.bit.band
 local BANK_CONTAINER = _G.BANK_CONTAINER
+local ceil = _G.ceil
 local CreateFrame = _G.CreateFrame
 local format = _G.format
 local GetContainerFreeSlots = _G.GetContainerFreeSlots
@@ -46,6 +47,7 @@ local GetSlotId = addon.GetSlotId
 local GetBagSlotFromId = addon.GetBagSlotFromId
 local GetItemFamily = addon.GetItemFamily
 local BuildSectionKey = addon.BuildSectionKey
+local SplitSectionKey = addon.SplitSectionKey
 
 local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING
@@ -634,6 +636,52 @@ function containerProto:RedispatchAllItems()
 		end
 		self:SendMessage('AdiBags_PostFilter', self)
 		self.filtersChanged = nil
+	end
+end
+
+--------------------------------------------------------------------------------
+-- Section queries
+--------------------------------------------------------------------------------
+
+function containerProto:GetSectionKeys(hidden, t)
+	t = t or {}
+	for key, section in pairs(self.sections) do
+		if hidden or not section:IsCollapsed() then
+			if not t[key] then
+				tinsert(t, key)
+				t[key] = true
+			end
+		end
+	end
+	return t
+end
+
+function containerProto:GetOrdererSectionKeys(hidden, t)
+	t = t or {}
+	self:GetSectionKeys(hidden, t)
+	tsort(t, addon.CompareSectionKeys)
+	return t
+end
+
+function containerProto:GetSectionInfo(key)
+	local name, category = SplitSectionKey(key)
+	local title = (category == name) and name or (name .. " (" .. category .. ")")
+	local section = self.sections[key]
+	return key, section, name, category, title, section and (not section:IsCollapsed()) or false
+end
+
+do
+	local t = {}
+	function containerProto:IterateSections(hidden)
+		self:GetOrdererSectionKeys(hidden, t)
+		local i = 0
+		return function()
+			i = i + 1
+			local key = t[i]
+			if key then
+				return self:GetSectionInfo(key)
+			end
+		end
 	end
 end
 

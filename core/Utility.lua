@@ -202,6 +202,24 @@ local function SplitSectionKey(key)
 end
 addon.SplitSectionKey = SplitSectionKey
 
+function addon.CompareSectionKeys(a, b)
+	if a and b then
+		local nameA, catA = SplitSectionKey(a)
+		local nameB, catB = SplitSectionKey(b)
+		local orderA = addon:GetCategoryOrder(catA)
+		local orderB = addon:GetCategoryOrder(catB)
+		if orderA == orderB then
+			if catA == catB then
+				return nameA < nameB
+			else
+				return catA < catB
+			end
+		else
+			return orderA > orderB
+		end
+	end
+end
+
 --------------------------------------------------------------------------------
 -- Item and container family
 --------------------------------------------------------------------------------
