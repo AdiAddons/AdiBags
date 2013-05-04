@@ -37,6 +37,7 @@ local wipe = _G.wipe
 --GLOBALS>
 
 local BuildSectionKey = addon.BuildSectionKey
+local SplitSectionKey = addon.SplitSectionKey
 
 local JUNK = addon.BI['Junk']
 local JUNK_KEY = BuildSectionKey(JUNK, JUNK)
@@ -53,7 +54,20 @@ function mod:OnInitialize()
 		addon.db.sv.namespaces.mod = nil
 	end
 
-	self.db = addon.db:RegisterNamespace(self.moduleName, { profile = { overrides = {} } })
+	self.db = addon.db:RegisterNamespace(self.moduleName, { profile = { version = 0, overrides = {} } })
+	self.db.RegisterCallback(self, "UpgradeProfile")
+	self:UpgradeProfile()
+end
+
+function mod:UpgradeProfile()
+	if self.db.profile.version < 1 then
+		-- Convert old name#category tuple to section key using the common utility function
+		for itemId, key in pairs(self.db.profile.overrides) do
+			local name, category = strsplit('#', key)
+			self.db.profile.overrides[itemId] = BuildSectionKey(key)
+		end
+		self.db.profile.version = 1
+	end
 end
 
 function mod:OnEnable()
@@ -71,12 +85,12 @@ end
 function mod:Filter(slotData)
 	local override = self.db.profile.overrides[slotData.itemId]
 	if override then
-		return strsplit('#', override)
+		return SplitSectionKey(override)
 	end
 end
 
 function mod:AssignItems(section, category, ...)
-	local key = section and category and (section..'#'..category) or nil
+	local key = section and BuildSectionKey(section, category) or nil
 	for i = 1, select('#', ...) do
 		local itemId = select(i, ...)
 		mod.db.profile.overrides[itemId] = key
@@ -218,7 +232,7 @@ function mod:GetOptions()
 		end
 		wipe(categories)
 		for itemId, override in pairs(self.db.profile.overrides) do
-			local section, category = strsplit('#', tostring(override))
+			local section, category = SplitSectionKey(override)
 			local categoryGroup = categories[category]
 			if not categoryGroup then
 				categoryGroup = tremove(categoryHeap)
@@ -326,11 +340,10 @@ end
 local FilterDropDownMenu_Initialize
 do
 	local function CompareSections(a, b)
-		local nameA, catA = strsplit('#', a)
-		local nameB, catB = strsplit('#', b)
+		local nameA, catA = SplitSectionKey(a)
+		local nameB, catB = SplitSectionKey(b)
 		local orderA = addon:GetCategoryOrder(catA)
 		local orderB = addon:GetCategoryOrder(catB)
-		mod:Debug('CompareCategories', a, b, 'A:', nameA, catA, orderA, 'B:', nameB, catB, orderB)
 		if orderA == orderB then
 			return nameA < nameB
 		else
@@ -339,8 +352,7 @@ do
 	end
 
 	local function Assign(_, key, itemId, checked)
-		local section, category = strsplit('#', key)
-		mod:Debug('Assign', key, itemId, checked, section, category)
+		local section, category = SplitSectionKey(key)
 		if checked then
 			mod:AssignItems(nil, nil, itemId)
 		else
@@ -350,8 +362,7 @@ do
 	end
 
 	local function NewSection(_, key, itemId)
-		mod:Debug('NewSection', key, itemId, section, category)
-		local section, category = strsplit('#', key)
+		local section, category = SplitSectionKey(key)
 		mod:OpenOptions()
 		mod:OptionPreselectItem(section, category, itemId)
 		ClearCursor()
@@ -382,15 +393,6 @@ do
 				tinsert(orderedSections, key)
 			end
 		end
-		-- Add shown sections
-		for invertedKey in pairs(header.section.container.sections) do
-			local category, section = strsplit('#', invertedKey)
-			local key = section .. '#' .. category
-			if not sections[key] then
-				sections[key] = true
-				tinsert(orderedSections, key)
-			end
-		end
 
 		-- Sort sections
 		tsort(orderedSections, CompareSections)
@@ -400,7 +402,7 @@ do
 		-- Add a title foreach category and an entry for each section
 		local curCategory = nil
 		for i, key in ipairs(orderedSections) do
-			local section, category = strsplit('#', key)
+			local section, category = SplitSectionKey(key)
 			if section ~= L["Free space"] then
 				-- Add an radio button for each section
 				wipe(info)
@@ -420,7 +422,7 @@ do
 
 		-- New section
 		info.text = L['New section']
-		info.arg1 = header.section.name .. '#' .. header.section.category
+		info.arg1 = BuildSectionKey(header.section.name, header.section.category)
 		info.arg2 = itemId
 		info.func = NewSection
 		UIDropDownMenu_AddButton(info, level)
