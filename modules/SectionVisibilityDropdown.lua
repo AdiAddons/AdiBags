@@ -71,7 +71,6 @@ local function CollapseDropDownMenu_ToggleSection(button, key, container)
 end
 
 local info = {}
-local entries = {}
 local function CollapseDropDownMenu_Initialize(self, level)
 	if not level then return end
 
@@ -82,42 +81,11 @@ local function CollapseDropDownMenu_Initialize(self, level)
 	info.notCheckable = true
 	UIDropDownMenu_AddButton(info, level)
 
-	-- Now list all potential sections
-	wipe(entries)
-	for key, collapsed in pairs(addon.db.char.collapsedSections) do
-		if collapsed and not entries[key] then
-			entries[key] = true
-			tinsert(entries, key)
-		end
-	end
-	for key in pairs(self.container.sections) do
-		if not entries[key] then
-			entries[key] = true
-			tinsert(entries, key)
-		end
-	end
-	tsort(entries)
-
 	-- Add an entry for each section
 	local currentCat = nil
 	wipe(info)
-	for i, key in ipairs(entries) do
-		local name, category = SplitSectionKey(key)
-		if category ~= currentCat then
-			wipe(info)
-			info.text = category
-			info.disabled = true
-			info.notCheckable = true
-			UIDropDownMenu_AddButton(info, level)
-			currentCat = category
-			wipe(info)
-		end
-		local section = self.container.sections[key]
-		if section then
-			info.text = format("%s (%d)", name, section.count)
-		else
-			info.text = name
-		end
+	for key, section, name, category, title, visible in self.container:IterateSections(true) do
+		info.text = title
 		info.isNotRadio = true
 		info.tooltipTitle = format(L['Show %s'], name)
 		info.tooltipText = L['Check this to show this section. Uncheck to hide it.']
