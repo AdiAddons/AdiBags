@@ -136,8 +136,13 @@ function mod:GetOptions()
 			for itemId in pairs(self.values) do
 				tinsert(t, itemId)
 			end
-			if #t > 0 then
-				mod:AssignItems(section, category, unpack(t))
+			local n = #t
+			if n > 0 then
+				-- Filter with a lot of items will cause some upvalue errors in CallbackHandler
+				-- so assign items by batches of 20
+				for i = 1, n, 20 do
+					mod:AssignItems(section, category, unpack(t, i, min(i + 19, n)))
+				end
 				wipe(t)
 				mod:UpdateOptions(self.category, category)
 			end
