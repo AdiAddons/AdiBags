@@ -64,7 +64,7 @@ function mod:UpgradeProfile()
 		-- Convert old name#category tuple to section key using the common utility function
 		for itemId, key in pairs(self.db.profile.overrides) do
 			local name, category = strsplit('#', key)
-			self.db.profile.overrides[itemId] = BuildSectionKey(key)
+			self.db.profile.overrides[itemId] = BuildSectionKey(name, category)
 		end
 		self.db.profile.version = 1
 	end
