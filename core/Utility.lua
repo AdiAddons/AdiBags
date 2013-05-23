@@ -197,7 +197,7 @@ addon.BuildSectionKey = BuildSectionKey
 local function SplitSectionKey(key)
 	if key ~= nil then
 		local category, name = strsplit('#', tostring(key))
-		return name, category
+		return name or category, category
 	end
 end
 addon.SplitSectionKey = SplitSectionKey
