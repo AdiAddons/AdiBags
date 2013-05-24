@@ -215,7 +215,7 @@ do
 		self:RawHookScript(BankFrame, "OnEvent", NOOP, true)
 		self:RawHook(BankFrame, "Show", "Open", true)
 		self:RawHook(BankFrame, "Hide", "Close", true)
-		self:RawHook(BankFrame, "IsShown", "IsOpen", true)
+		--self:RawHook(BankFrame, "IsShown", "IsOpen", true)
 
 		if addon:GetInteractingWindow() == "BANKFRAME" then
 			self:Open()
