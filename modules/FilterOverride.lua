@@ -60,13 +60,31 @@ function mod:OnInitialize()
 end
 
 function mod:UpgradeProfile()
-	if self.db.profile.version < 1 then
-		-- Convert old name#category tuple to section key using the common utility function
-		for itemId, key in pairs(self.db.profile.overrides) do
-			local name, category = strsplit('#', key)
-			self.db.profile.overrides[itemId] = BuildSectionKey(name, category)
+	if self.db.profile.version < 2 then
+		-- Backup the old filters
+		local backup, changed = {}, false
+		-- Convert old section#category "tuple" to a section key using the common utility function
+		for itemId, oldKey in pairs(self.db.profile.overrides) do
+			backup[itemId] = oldKey
+			local section, category = strsplit('#', oldKey)
+			if addon:GetCategoryOrder(category) == 0 and addon:GetCategoryOrder(section) ~= 0 then
+				-- It seems the section is a category but the category is not, swap them
+				section, category = category, section
+			end
+			local newKey = BuildSectionKey(section, category)
+			if newKey ~= oldKey then
+				self.db.profile.overrides[itemId] = newKey
+				changed = true
+			end
 		end
-		self.db.profile.version = 1
+		if changed then
+			addon:Print("Custom filters upgraded. Old values are still available in the SV file AdiBags.lua.")
+			if not self.db.profile.backups then
+				self.db.profile.backups = {}
+			end
+			tinsert(self.db.profile.backups, backup)
+		end
+		self.db.profile.version = 2
 	end
 end
 
