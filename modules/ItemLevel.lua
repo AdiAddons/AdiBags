@@ -11,7 +11,6 @@ local L = addon.L
 local _G = _G
 local GetItemInfo = _G.GetItemInfo
 local pairs = _G.pairs
-local select = _G.select
 local unpack = _G.unpack
 --GLOBALS>
 
@@ -35,6 +34,17 @@ local colorScheme = {
 
 local texts = {}
 
+function mod:OnInitialize()
+	self.db = addon.db:RegisterNamespace(self.moduleName, {
+		profile = {
+			equippableOnly = true,
+			colored = true,
+			minLevel = 1,
+			ignoreJunk = true,
+		},
+	})
+end
+
 function mod:OnEnable()
 	self:RegisterMessage('AdiBags_UpdateButton', 'UpdateButton')
 	self:SendMessage('AdiBags_UpdateAllButtons')
@@ -55,27 +65,63 @@ local function CreateText(button)
 end
 
 function mod:UpdateButton(event, button)
+	local settings = self.db.profile
 	local text = texts[button]
 	local id = button:GetItemId()
-	local ilvl
 	if id then
-		local level, _, _, _, _, loc = select(4, GetItemInfo(id))
-		ilvl = loc ~= ""  and level
-	end
-	if ilvl then
-		if not text then
-			text = CreateText(button)
-		end
-		text:SetText(ilvl)
-		for i, tuple in pairs(colorScheme) do
-			if ilvl < tuple[1] then
-				text:SetTextColor(unpack(tuple, 2, 4))
-				break
+		local _, _, quality, level, _, _, _, _, loc = GetItemInfo(id)
+		if level >= settings.minLevel and (quality > 0 or not settings.ignoreJunk) and (loc ~= "" or not settings.equippableOnly) then
+			if not text then
+				text = CreateText(button)
 			end
+			text:SetText(level)
+			if settings.colored then
+				for i, tuple in pairs(colorScheme) do
+					if level < tuple[1] then
+						text:SetTextColor(unpack(tuple, 2, 4))
+						break
+					end
+				end
+			else
+				text:SetTextColor(1, 1, 1)
+			end
+			return text:Show()
 		end
-		text:Show()
-	elseif text then
+	end
+	if text then
 		text:Hide()
 	end
 end
 
+function mod:GetOptions()
+	return {
+		equippableOnly = {
+			name = L['Only equippable items'],
+			desc = L['Do not show level of items that cannot be equipped.'],
+			type = 'toggle',
+			order = 10,
+		},
+		colored = {
+			name = L['Color-coded level'],
+			desc = L['Use a color code based on item level.'],
+			type = 'toggle',
+			order = 20,
+		},
+		minLevel = {
+			name = L['Mininum level'],
+			desc = L['Do not show levels under this threshold.'],
+			type = 'range',
+			min = 1,
+			max = 500,
+			step = 1,
+			bigStep = 5,
+			order = 30,
+		},
+		ignoreJunk = {
+			name = L['Ignore low quality items'],
+			desc = L['Do not show level of poor quality items.'],
+			type = 'toggle',
+			order = 40,
+		},
+	}, addon:GetOptionHandler(self)
+end
