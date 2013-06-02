@@ -113,7 +113,7 @@ do
 				if isHeader then
 					if not isExpanded then
 						tinsert(collapse, 1, index)
-						ExpandCurrencyList(index, true)
+						ExpandCurrencyList(index, 1)
 					end
 				else
 					return index, name, isHeader, isExpanded, isUnused, isWatched, count, icon
@@ -121,7 +121,7 @@ do
 			end
 		until index > GetCurrencyListSize()
 		for i, index in ipairs(collapse) do
-			ExpandCurrencyList(index, false)
+			ExpandCurrencyList(index, 0)
 		end
 	end
 
