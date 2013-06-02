@@ -37,6 +37,7 @@ local texts = {}
 
 function mod:OnEnable()
 	self:RegisterMessage('AdiBags_UpdateButton', 'UpdateButton')
+	self:SendMessage('AdiBags_UpdateAllButtons')
 end
 
 function mod:OnDisable()
