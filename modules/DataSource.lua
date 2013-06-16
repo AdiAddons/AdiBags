@@ -74,18 +74,20 @@ function mod:BANKFRAME_CLOSED()
 end
 
 local FAMILY_ORDER = {
-	0x0000, -- Regular bag
-	0x0001, -- Quiver
-	0x0002, -- Ammo Pouch
-	0x0004, -- Soul Bag
-	0x0008, -- Leatherworking Bag
-	0x0010, -- Inscription Bag
-	0x0020, -- Herb Bag
-	0x0040, -- Enchanting Bag
-	0x0080, -- Engineering Bag
-	0x0100, -- Keyring
-	0x0200, -- Gem Bag
-	0x0400, -- Mining Bag
+	0x00000, -- Regular bag
+	0x00001, -- Quiver
+	0x00002, -- Ammo Pouch
+	0x00004, -- Soul Bag
+	0x00008, -- Leatherworking Bag
+	0x00010, -- Inscription Bag
+	0x00020, -- Herb Bag
+	0x00040, -- Enchanting Bag
+	0x00080, -- Engineering Bag
+	0x00100, -- Keyring
+	0x00200, -- Gem Bag
+	0x00400, -- Mining Bag
+	0x08000, -- Tackle Box
+	0x10000, -- Refrigerator
 }
 
 local size = {}
