@@ -58,7 +58,9 @@ function buttonProto:OnCreate()
 	self:SetScript('OnHide', self.OnHide)
 	self:SetWidth(ITEM_SIZE)
 	self:SetHeight(ITEM_SIZE)
-	self.NewItemTexture:Hide()
+	if self.NewItemTexture then
+		self.NewItemTexture:Hide()
+	end
 end
 
 function buttonProto:OnAcquire(container, bag, slot)
