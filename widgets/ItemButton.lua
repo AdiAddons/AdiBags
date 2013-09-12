@@ -45,7 +45,7 @@ local ITEM_SIZE = addon.ITEM_SIZE
 
 local buttonClass, buttonProto = addon:NewClass("ItemButton", "Button", "ContainerFrameItemButtonTemplate", "AceEvent-3.0")
 
-local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture" }
+local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture", "NewItemTexture" }
 
 function buttonProto:OnCreate()
 	local name = self:GetName()
@@ -58,6 +58,7 @@ function buttonProto:OnCreate()
 	self:SetScript('OnHide', self.OnHide)
 	self:SetWidth(ITEM_SIZE)
 	self:SetHeight(ITEM_SIZE)
+	self.NewItemTexture:Hide()
 end
 
 function buttonProto:OnAcquire(container, bag, slot)
