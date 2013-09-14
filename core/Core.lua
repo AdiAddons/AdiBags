@@ -90,15 +90,6 @@ function addon:OnInitialize()
 
 	self:UpgradeProfile()
 
-	-- ProfessionVault support
-	local PV  =_G.ProfessionsVault
-	if PV then
-		self:Debug('Installing ProfessionsVault callback')
-		self.RegisterMessage(PV, "AdiBags_UpdateButton", function(_, button)
-			PV:SlotColor(button.itemId, button.IconTexture)
-		end)
-	end
-
 	self:RegisterChatCommand("adibags", function(cmd)
 		addon:OpenOptions(strsplit(' ', cmd or ""))
 	end, true)
