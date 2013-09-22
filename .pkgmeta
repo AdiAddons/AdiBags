@@ -49,6 +49,9 @@ externals:
   libs/AceGUI-3.0-SharedMediaWidgets:
     url: svn://svn.wowace.com/wow/ace-gui-3-0-shared-media-widgets/mainline/trunk/AceGUI-3.0-SharedMediaWidgets
     tag: latest
+  libs/LibItemUpgradeInfo-1.0:
+    url: git://git.wowace.com/wow/libitemupgradeinfo-1-0/mainline.git
+    tag: latest
 
 move-folders:
   AdiBags/AdiBags_Config: AdiBags_Config

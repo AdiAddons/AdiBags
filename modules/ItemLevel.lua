@@ -30,6 +30,7 @@ local colorSchemes = {
 }
 
 local texts = {}
+local ItemUpgradeInfo = LibStub('LibItemUpgradeInfo-1.0')
 
 function mod:OnInitialize()
 	self.db = addon.db:RegisterNamespace(self.moduleName, {
@@ -72,9 +73,10 @@ end
 function mod:UpdateButton(event, button)
 	local settings = self.db.profile
 	local text = texts[button]
-	local id = button:GetItemId()
-	if id then
-		local _, _, quality, level, reqLevel, _, _, _, loc = GetItemInfo(id)
+	local link = button:GetItemLink()
+	if link then
+		local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
+		local level = ItemUpgradeInfo:GetUpgradedItemLevel(link)
 		if level >= settings.minLevel
 			and (quality > 0 or not settings.ignoreJunk)
 			and (loc ~= "" or not settings.equippableOnly)
