@@ -76,7 +76,7 @@ function mod:UpdateButton(event, button)
 	local link = button:GetItemLink()
 	if link then
 		local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
-		local level = ItemUpgradeInfo:GetUpgradedItemLevel(link)
+		local level = ItemUpgradeInfo:GetUpgradedItemLevel(link) or 0 -- Ugly workaround
 		if level >= settings.minLevel
 			and (quality > 0 or not settings.ignoreJunk)
 			and (loc ~= "" or not settings.equippableOnly)
