@@ -360,7 +360,7 @@ function addon:ConfigChanged(vars)
 	end
 	if vars.sortingOrder then
 		return self:SetSortingOrder(self.db.profile.sortingOrder)
-	elseif vars.maxHeight or vars.laxOrdering then
+	elseif vars.maxHeight or vars.maxWidth or vars.laxOrdering then
 		return self:SendMessage('AdiBags_LayoutChanged')
 	elseif vars.scale then
 		return self:LayoutBags()

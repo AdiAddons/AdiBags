@@ -356,6 +356,16 @@ local function GetOptions()
 							},
 						},
 					},
+					maxWidth = {
+						name = L['Maximum bag width'],
+						desc = L['Adjust the maximum width of the bags, relative to screen size.\nNote: due to the layout constraints, this is a soft cap.'],
+						type = 'range',
+						order = 145,
+						isPercent = true,
+						min = 0.30,
+						max = 1.00,
+						step = 0.05,
+					},
 					maxHeight = {
 						name = L['Maximum bag height'],
 						desc = L['Adjust the maximum height of the bags, relative to screen size.'],
