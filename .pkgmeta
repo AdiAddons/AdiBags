@@ -52,6 +52,9 @@ externals:
   libs/LibItemUpgradeInfo-1.0:
     url: git://git.wowace.com/wow/libitemupgradeinfo-1-0/mainline.git
     tag: latest
+  libs/BugGrabber:
+    url: svn://svn.wowace.com/wow/bug-grabber/mainline/trunk
+    tag: latest
 
 move-folders:
   AdiBags/AdiBags_Config: AdiBags_Config

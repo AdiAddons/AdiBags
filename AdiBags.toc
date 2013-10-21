@@ -6,7 +6,7 @@
 ## Version: @project-version@
 ## SavedVariables: AdiBagsDB
 ## X-Date: @project-date-iso@
-## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibBabble-Inventory-3.0, LibSharedMedia-3.0, LibItemUpgradeInfo-1.0, Scrap, BrainDead
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibBabble-Inventory-3.0, LibSharedMedia-3.0, LibItemUpgradeInfo-1.0, Scrap, BrainDead, !BugGrabber
 #@alpha@
 ## OptionalDeps: AdiDebug, BugSack, Swatter
 #@end-alpha@
@@ -14,6 +14,7 @@
 #@no-lib-strip@
 libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\BugGrabber\load.xml
 libs\AceAddon-3.0\AceAddon-3.0.xml
 libs\AceDB-3.0\AceDB-3.0.xml
 libs\AceEvent-3.0\AceEvent-3.0.xml
