@@ -338,6 +338,7 @@ function sectionProto:PutButtonAt(button, index, clean)
 		self.freeSlots[index] = nil
 	end
 	local row, col = floor((index-1) / self.width), (index-1) % self.width
+	button.row, button.column = row, col
 	button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
 end
 
@@ -370,12 +371,21 @@ function sectionProto:SetSizeInSlots(width, height)
 			SLOT_OFFSET * width - ITEM_SPACING,
 			HEADER_SIZE + SLOT_OFFSET * height - ITEM_SPACING
 		)
-		if width < oldWidth or height < oldHeight then
-			self:Debug('Width or height reduced')
-			self:SetDirtyLevel(2)
-		else
-			self:Debug('Width or height changed')
-			self:SetDirtyLevel(1)
+		if self.dirtyLevel < 1 then
+			local dirty = 1
+			if self.total < self.count then
+				self:Debug('Too small to show all buttons, layout required')
+				dirty = 2
+			elseif width < oldWidth or height < oldHeight and self.dirtyLevel < 2 then
+				for button in pairs(self.slots) do
+					if (button.row or 0) >= width or (button.column or 0) >= height then
+						self:Debug('Some button got out of bounds because of size reduction')
+						dirty = 2
+						break
+					end
+				end
+			end
+			self:SetDirtyLevel(dirty)
 		end
 	end
 	return self:GetSize()
