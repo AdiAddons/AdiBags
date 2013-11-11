@@ -39,8 +39,8 @@ local wipe = _G.wipe
 local BuildSectionKey = addon.BuildSectionKey
 local SplitSectionKey = addon.SplitSectionKey
 
-local JUNK = addon.BI['Junk']
-local JUNK_KEY = BuildSectionKey(JUNK, JUNK)
+local JUNK, FREE_SPACE = addon.BI['Junk'], L["Free space"]
+local JUNK_KEY, FREE_SPACE_KEY = BuildSectionKey(JUNK, JUNK), BuildSectionKey(FREE_SPACE, FREE_SPACE)
 
 local mod = addon:RegisterFilter("FilterOverride", 95, "AceEvent-3.0")
 mod.uiName = L['Manual filtering']
@@ -61,10 +61,11 @@ end
 
 function mod:UpgradeProfile()
 	if self.db.profile.version < 2 then
+		local overrides = self.db.profile.overrides
 		-- Backup the old filters
 		local backup, changed = {}, false
 		-- Convert old section#category "tuple" to a section key using the common utility function
-		for itemId, oldKey in pairs(self.db.profile.overrides) do
+		for itemId, oldKey in pairs(overrides) do
 			backup[itemId] = oldKey
 			local section, category = strsplit('#', oldKey)
 			if addon:GetCategoryOrder(category) == 0 and addon:GetCategoryOrder(section) ~= 0 then
@@ -73,7 +74,7 @@ function mod:UpgradeProfile()
 			end
 			local newKey = BuildSectionKey(section, category)
 			if newKey ~= oldKey then
-				self.db.profile.overrides[itemId] = newKey
+				overrides[itemId] = newKey
 				changed = true
 			end
 		end
@@ -85,6 +86,15 @@ function mod:UpgradeProfile()
 			tinsert(self.db.profile.backups, backup)
 		end
 		self.db.profile.version = 2
+	end
+	if self.db.profile.version < 3 then
+		local overrides = self.db.profile.overrides
+		for itemId, key in pairs(overrides) do
+			if key == FREE_SPACE_KEY then
+				overrides[itemId] = nil
+			end
+		end
+		self.db.profile.version = 3
 	end
 end
 
@@ -135,7 +145,9 @@ function mod:GetOptions()
 
 	local categoryValues = {}
 	for name in addon:IterateCategories() do
-		categoryValues[name] = name
+		if name ~= FREE_SPACE then
+			categoryValues[name] = name
+		end
 	end
 
 	local function GetItemId(str)
@@ -414,7 +426,7 @@ do
 		local itemKey = mod.db.profile.overrides[itemId]
 		for i, key in ipairs(sections) do
 			local _, _, name, category, title = container:GetSectionInfo(key)
-			if name ~= L["Free space"] then
+			if name ~= FREE_SPACE then
 				-- Add an radio button for each section
 				wipe(info)
 				info.text = title
@@ -449,16 +461,20 @@ end
 
 function mod:OnTooltipUpdateSectionHeader(_, header, tooltip)
 	if GetCursorInfo() == "item" then
-		tooltip:AddLine(L["Drop your item there to add it to this section."])
-		tooltip:AddLine(L["Press Alt while doing so to open a dropdown menu."])
-	elseif header.section:GetKey() ~= JUNK_KEY then
+		if header.section.name ~= FREE_SPACE then
+			tooltip:AddLine(L["Drop your item there to add it to this section."])
+			tooltip:AddLine(L["Press Alt while doing so to open a dropdown menu."])
+		end
+	elseif header.section:GetKey() ~= JUNK_KEY  then
 		tooltip:AddLine(L["Alt-right-click to configure manual filtering."])
 	end
 end
 
 function mod:OnClickSectionHeader(_, header, button)
 	if GetCursorInfo() == "item" then
-		self:OnReceiveDragSectionHeader(_, header)
+		if header.section.name ~= FREE_SPACE then
+			self:OnReceiveDragSectionHeader(_, header)
+		end
 	elseif header.section:GetKey() ~= JUNK_KEY and button == "RightButton" and IsAltKeyDown() then
 		self:OpenOptions()
 	end
