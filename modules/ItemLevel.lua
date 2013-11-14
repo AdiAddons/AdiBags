@@ -120,7 +120,7 @@ function mod:GetOptions()
 			desc = L['Do not show levels under this threshold.'],
 			type = 'range',
 			min = 1,
-			max = 500,
+			max = 600,
 			step = 1,
 			bigStep = 5,
 			order = 30,
@@ -258,7 +258,7 @@ do
 		[70] = { 100, 164 },
 		[80] = { 187, 284 },
 		[85] = { 333, 416 },
-		[90] = { 458, 541 }
+		[90] = { 458, 580 }
 	}
 
 	local maxLevelColors = {}
