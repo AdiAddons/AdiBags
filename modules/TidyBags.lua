@@ -72,6 +72,7 @@ function mod:OnEnable()
 
 	self:RegisterMessage('AdiBags_InteractingWindowChanged')
 	self:RegisterMessage('AdiBags_ContainerLayoutDirty', 'RefreshAllBags')
+	self:RegisterMessage('AdiBags_SpellIsTargetingChanged', 'RefreshAllBags')
 	self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2)
 	self:RegisterEvent('PLAYER_REGEN_DISABLED', 'RefreshAllBags')
 	self:RegisterEvent('PLAYER_REGEN_ENABLED')
@@ -111,7 +112,7 @@ function mod:OnBagFrameCreated(bag)
 end
 
 function mod:AutomaticTidy(event)
-	if not self.db.profile.autoTidy or InCombatLockdown() then return end
+	if not self.db.profile.autoTidy or InCombatLockdown() or addon.spellIsTargeting then return end
 	self:Debug('AutomaticTidy on', event)
 	for name, bag in pairs(bags) do
 		bag:Tidy()
@@ -218,7 +219,7 @@ function bagProto:UpdateButton(event)
 		--@debug@
 		self:Debug('UpdateButton on', event, self.running and "(running)" or "", 'GetNextMove:', self:GetNextMove())
 		--@end-debug@
-		if not self.running and (self:GetNextMove() or (self.container and self.container.dirtyLevel > 0)) then
+		if not self.running and not addon.spellIsTargeting and (self:GetNextMove() or (self.container and self.container.dirtyLevel > 0))then
 			self.button:Enable()
 		else
 			self.button:Disable()

@@ -253,6 +253,7 @@ function containerProto:OnShow()
 	PlaySound(self.isBank and "igMainMenuOpen" or "igBackPackOpen")
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "PauseUpdates")
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "ResumeUpdates")
+	self:RegisterMessage('AdiBags_SpellIsTargetingChanged')
 	self:ResumeUpdates()
 	containerParentProto.OnShow(self)
 end
@@ -287,6 +288,12 @@ function containerProto:PauseUpdates()
 	self:Debug('PauseUpdates')
 	self:UnregisterBucket(self.bagUpdateBucket, true)
 	self.paused = true
+end
+
+function containerProto:AdiBags_SpellIsTargetingChanged(event, isTargeting)
+	if not isTargeting and self:CanUpdate() then
+		self:LayoutSections()
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -802,7 +809,7 @@ do
 end
 
 function containerProto:LayoutSections(cleanLevel)
-	if not self.minWidth then return end
+	if not self.minWidth or addon.spellIsTargeting then return end
 
 	local num = 0
 	local dirtyLevel = self.dirtyLevel or 0
