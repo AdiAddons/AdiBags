@@ -253,6 +253,9 @@ function containerProto:OnShow()
 	PlaySound(self.isBank and "igMainMenuOpen" or "igBackPackOpen")
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "PauseUpdates")
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "ResumeUpdates")
+	self:RegisterEvent('AUCTION_MULTISELL_START', "PauseUpdates")
+	self:RegisterEvent('AUCTION_MULTISELL_UPDATE')
+	self:RegisterEvent('AUCTION_MULTISELL_FAILURE', "ResumeUpdates")
 	self:RegisterMessage('AdiBags_SpellIsTargetingChanged')
 	self:ResumeUpdates()
 	containerParentProto.OnShow(self)
@@ -288,6 +291,12 @@ function containerProto:PauseUpdates()
 	self:Debug('PauseUpdates')
 	self:UnregisterBucket(self.bagUpdateBucket, true)
 	self.paused = true
+end
+
+function containerProto:AUCTION_MULTISELL_UPDATE(event, current, total)
+	if current == total then
+		self:ResumeUpdates()
+	end
 end
 
 function containerProto:AdiBags_SpellIsTargetingChanged(event, isTargeting)
