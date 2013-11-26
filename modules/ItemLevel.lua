@@ -32,9 +32,18 @@ local colorSchemes = {
 local texts = {}
 local ItemUpgradeInfo = LibStub('LibItemUpgradeInfo-1.0')
 
+local SyLevel = _G.SyLevel
+local SyLevelBypass
+if SyLevel then
+	function SyLevelBypass() return mod:IsEnabled() and mod.db.profile.useSyLevel end
+else
+	function SyLevelBypass() return false end
+end
+
 function mod:OnInitialize()
 	self.db = addon.db:RegisterNamespace(self.moduleName, {
 		profile = {
+			useSyLevel = false,
 			equippableOnly = true,
 			colorScheme = 'original',
 			minLevel = 1,
@@ -48,6 +57,15 @@ function mod:OnInitialize()
 	elseif self.db.profile.colored == false then
 		self.db.profile.colorScheme = 'none'
 		self.db.profile.colored = nil
+	end
+	if SyLevel then
+		SyLevel:RegisterPipe(
+			'Adibags',
+			function() self.db.profile.useSyLevel = true end,
+			function() self.db.profile.useSyLevel = false end,
+			function() self:SendMessage('AdiBags_UpdateAllButtons') end,
+			'AdiBags'
+		)
 	end
 end
 
@@ -72,8 +90,9 @@ end
 
 function mod:UpdateButton(event, button)
 	local settings = self.db.profile
-	local text = texts[button]
 	local link = button:GetItemLink()
+	local text = texts[button]
+
 	if link then
 		local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
 		local level = ItemUpgradeInfo:GetUpgradedItemLevel(link) or 0 -- Ugly workaround
@@ -82,6 +101,17 @@ function mod:UpdateButton(event, button)
 			and (loc ~= "" or not settings.equippableOnly)
 			and (quality ~= 7 or not settings.ignoreHeirloom)
 		then
+			if SyLevel then
+				if settings.useSyLevel then
+					if text then
+						text:Hide()
+					end
+					SyLevel:CallFilters('Adibags', button, link)
+					return
+				else
+					SyLevel:CallFilters('Adibags', button, nil)
+				end
+			end
 			if not text then
 				text = CreateText(button)
 			end
@@ -89,6 +119,9 @@ function mod:UpdateButton(event, button)
 			text:SetTextColor(colorSchemes[settings.colorScheme](level, quality, reqLevel, (loc ~= "")))
 			return text:Show()
 		end
+	end
+	if SyLevel then
+		SyLevel:CallFilters('Adibags', button, nil)
 	end
 	if text then
 		text:Hide()
@@ -98,6 +131,12 @@ end
 
 function mod:GetOptions()
 	return {
+		useSyLevel = SyLevel and {
+			name = L['Use SyLevel'],
+			desc = L['Let SyLevel handle the the display.'],
+			type = 'toggle',
+			order = 5,
+		} or nil,
 		equippableOnly = {
 			name = L['Only equippable items'],
 			desc = L['Do not show level of items that cannot be equipped.'],
@@ -108,6 +147,7 @@ function mod:GetOptions()
 			name = L['Color scheme'],
 			desc = L['Which color scheme should be used to display the item level ?'],
 			type = 'select',
+			disabled = SyLevelBypass,
 			values = {
 				none     = L['None'],
 				original = L['Same as InventoryItemLevels'],
