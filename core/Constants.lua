@@ -127,6 +127,9 @@ addon.DEFAULT_SETTINGS = {
 		collapsedSections = {
 			['*'] = false,
 		},
-	}
+	},
+	global = {
+		muteBugGrabber = false,
+	},
 }
 
