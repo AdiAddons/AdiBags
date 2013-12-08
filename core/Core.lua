@@ -246,6 +246,25 @@ function addon:UpgradeProfile()
 end
 
 --------------------------------------------------------------------------------
+-- Error reporting
+--------------------------------------------------------------------------------
+
+local BugGrabber = addon.BugGrabber
+if BugGrabber then
+	if BugGrabber.setupCallbacks then
+		BugGrabber.setupCallbacks()
+	end
+	local pattern = "("..addonName.."[^\n]+%.lua):%d+:"
+	BugGrabber.RegisterCallback(addon, 'BugGrabber_BugGrabbed', function(_, errorObject)
+		local ref = strmatch(errorObject.stack, pattern)
+		if ref and not strmatch(ref, '\\libs\\') then
+				print(format('|cffffff00'..L['Error in %s: %s -- details: %s'], addonName, '|r'..errorObject.message, BugGrabber:GetChatLink(errorObject)))
+			addon:Debug('Error:', errorObject.message)
+		end
+	end)
+end
+
+--------------------------------------------------------------------------------
 -- Track spell targeting
 --------------------------------------------------------------------------------
 
