@@ -8,7 +8,7 @@ Configuration is available through Blizzard addon panel, /adibags chat command o
 
 h2. Feedback
 
-*Important notice:* since v1.6.12-beta-1, AdiBags embeds "BugGrabber":http://www.curse.com/addons/wow/bug-grabber, an error catching addon. Please check the error is really about AdiBags before reporting them here.
+*Important notice:* since v1.6.12-beta-1, AdiBags embeds "BugGrabber":http://www.curse.com/addons/wow/bug-grabber, an error catching addon. Please check the error is really about AdiBags before reporting them here. I suggest installing "BugSack":http://www.curse.com/addons/wow/bugsack to catch the errors.
 
 Please report any bug or error using the "wowace bug tracker":http://www.wowace.com/addons/adibags/tickets/ (your Curse account works there). The comments section below is not meant to report and track bugs. *I won't reply to bug reports in the comment section anymore.*
 
