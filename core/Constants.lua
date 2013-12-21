@@ -96,7 +96,7 @@ addon.DEFAULT_SETTINGS = {
 		rowWidth = { ['*'] = 9 },
 		maxHeight = 0.60,
 		maxWidth = 0.40,
-		laxOrdering = 1,
+		laxOrdering = 0,
 		qualityHighlight = true,
 		qualityOpacity = 1.0,
 		dimJunk = true,
@@ -111,7 +111,7 @@ addon.DEFAULT_SETTINGS = {
 			freeSpace = true,
 			notWhenTrading = 1,
 		},
-		automaticLayout = 1,
+		automaticLayout = 0,
 		skin = {
 			background = "Blizzard Tooltip",
 			border = "Blizzard Tooltip",
