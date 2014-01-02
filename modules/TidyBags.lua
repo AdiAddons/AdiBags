@@ -219,7 +219,7 @@ function bagProto:UpdateButton(event)
 		--@debug@
 		self:Debug('UpdateButton on', event, self.running and "(running)" or "", 'GetNextMove:', self:GetNextMove())
 		--@end-debug@
-		if not self.running and not addon.spellIsTargeting and (self:GetNextMove() or (self.container and self.container.dirtyLevel > 0))then
+		if not self.running and not addon.spellIsTargeting and (self:GetNextMove() or (self.container and self.container.dirtyLayout)) then
 			self.button:Enable()
 		else
 			self.button:Disable()
@@ -282,7 +282,7 @@ function bagProto:ProcessInternal()
 	self.running = nil
 	self:UpdateButton("ProcessInternal")
 	if self.container then
-		self.container:LayoutSections(0)
+		self.container:LayoutSections(true)
 	end
 	self:Debug("Done")
 end

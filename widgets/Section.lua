@@ -186,7 +186,7 @@ end
 
 function sectionProto:UpdateTitle()
 	if self.dirtyLevel >= 2 then
-		self.Header:SetText("*"..self.name)
+		self.Header:SetText("*"..(self.name or ""))
 	else
 		self.Header:SetText(self.name)
 	end
@@ -392,9 +392,8 @@ function sectionProto:SetHeaderOverflow(overflow)
 	end
 end
 
-function sectionProto:Layout(cleanLevel)
-	if self.dirtyLevel > cleanLevel  then
-		self:Debug('Layout, cleanLevel=', cleanLevel, 'dirtyLevel=', self.dirtyLevel, '=> reordering buttons')
+function sectionProto:Layout()
+	if self.dirtyLevel > 0 then
 		self:ReorderButtons()
 	end
 end

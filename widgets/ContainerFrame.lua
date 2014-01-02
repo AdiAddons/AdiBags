@@ -193,7 +193,7 @@ function containerProto:OnCreate(name, bagIds, isBank)
 	self:AddWidget(content)
 
 	self:UpdateSkin()
-	self.dirtyLevel = 0
+	self.dirtyLayout = false
 	self.paused = true
 	self.forceLayout = true
 
@@ -226,20 +226,20 @@ function containerProto:CanUpdate()
 end
 
 function containerProto:FiltersChanged(event, forceLayout)
-	if forceLayout then
-		self.forceLayout = true
-	end
 	self.filtersChanged = true
 	if self:CanUpdate() then
 		self:RedispatchAllItems()
-		self:LayoutSections(1)
+		self:LayoutSections(forceLayout)
+	elseif forceLayout then
+		self.forceLayout = forceLayout
 	end
 end
 
 function containerProto:LayoutChanged()
-	self.forceLayout = true
 	if self:CanUpdate() then
-		self:LayoutSections()
+		self:LayoutSections(true)
+	else
+		self.forceLayout = true
 	end
 end
 
@@ -283,7 +283,7 @@ function containerProto:ResumeUpdates()
 	else
 		self:UpdateButtons()
 	end
-	self:LayoutSections(0)
+	self:LayoutSections(true)
 end
 
 function containerProto:PauseUpdates()
@@ -396,7 +396,7 @@ function containerProto:OnLayout()
 	if ceil(currentMinWidth or 0) ~= ceil(minWidth) then
 		self.minWidth = minWidth
 		if not currentMinWidth or ceil(minWidth - currentMinWidth) > 2 * ITEM_SIZE + ITEM_SPACING then
-			return self:LayoutSections(-1)
+			return self:LayoutSections(true)
 		end
 	end
 end
@@ -764,7 +764,7 @@ do
 
 		wipe(sections)
 		for key, section in pairs(self.sections) do
-			if not section:IsCollapsed() then
+			if not section:IsEmpty() and not section:IsCollapsed() then
 				tinsert(sections, section)
 			end
 		end
@@ -817,87 +817,82 @@ do
 	end
 end
 
-function containerProto:LayoutSections(cleanLevel)
-	if not self.minWidth or addon.spellIsTargeting then return end
-
-	local num = 0
-	local dirtyLevel = self.dirtyLevel or 0
-	for key, section in pairs(self.sections) do
-		if section:IsEmpty() then
-			section:Release()
-			self.sections[key] = nil
-			dirtyLevel = max(dirtyLevel, 1)
-		elseif section:IsCollapsed() then
-			if section:IsShown() then
-				section:Hide()
-				dirtyLevel = max(dirtyLevel, 1)
-			end
-		else
-			num = num + 1
-			if not section:IsShown() then
-				section:Show()
-				dirtyLevel = 2
-			else
-				dirtyLevel = max(dirtyLevel, section:GetDirtyLevel())
-			end
-		end
-	end
-
-	if self.forceLayout then
-		cleanLevel = -1
-		self.forceLayout = nil
-	elseif not cleanLevel then
-		local setting = addon.db.profile.automaticLayout
-		if setting == 3 then
-			cleanLevel = 2
-		elseif setting == 2 or (setting == 1 and addon:GetInteractingWindow()) then
-			cleanLevel = 1
-		else
-			cleanLevel = 0
-		end
-	end
-
-	self:Debug('LayoutSections: #sections=', num, 'cleanLevel=', cleanLevel, 'dirtyLevel=', dirtyLevel, '=>', (dirtyLevel > cleanLevel) and "cleanup required" or "NO-OP")
-
-	if dirtyLevel > cleanLevel then
-
-		if num == 0 then
-			self.Content:SetSize(0.5, 0.5)
-
-		else
-			local rowWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.rowWidth[self.name] - ITEM_SPACING
-			local minWidth = max(rowWidth, self.minWidth)
-			local uiScale, uiWidth, uiHeight = UIParent:GetEffectiveScale(), UIParent:GetSize()
-			local selfScale = self:GetEffectiveScale()
-			local maxWidth = addon.db.profile.maxWidth * uiWidth * uiScale / selfScale
-			local maxHeight = addon.db.profile.maxHeight * uiHeight * uiScale / selfScale
-
-			local numColumns = 0
-			local contentWidth, contentHeight, minHeight
-			repeat
-				numColumns = numColumns + 1
-				local tmpMaxWidth = max(minWidth, min(maxWidth, (rowWidth + SECTION_SPACING) * numColumns - SECTION_SPACING))
-				contentWidth, contentHeight, minHeight = DoLayoutSections(self, rowWidth, tmpMaxWidth)
-			until contentHeight <= max(minHeight, maxHeight) or numColumns == 4
-
-			self.Content:SetSize(contentWidth, contentHeight)
-		end
-
-		dirtyLevel = 0
-	end
-
-	for key, section in pairs(self.sections) do
-		if section:IsShown() then
-			section:Layout(cleanLevel)
-			dirtyLevel = max(dirtyLevel, section:GetDirtyLevel())
-		end
-	end
-
-	self.dirtyLevel = dirtyLevel
+function containerProto:SetDirtyLayout(dirtyLevel)
 	local dirtyLayout = dirtyLevel > 0
-	self:Debug('LayoutSections: done, layout is', dirtyLayout and "dirty" or "clean")
+	self:Debug('SetDirtyLayout, layout is', dirtyLayout and "dirty" or "clean")
 	if self.dirtyLayout ~= dirtyLayout then
 		self.dirtyLayout = dirtyLayout
 		self:SendMessage('AdiBags_ContainerLayoutDirty', self, dirtyLayout)
 	end
+end
+
+function containerProto:LayoutSections(forceLayout)
+	self.forceLayout = self.forceLayout or forceLayout
+
+	local numSections, dirtyLevel = 0, 0
+	for key, section in pairs(self.sections) do
+		if section:IsEmpty() or section:IsCollapsed() then
+			if section:IsShown() and dirtyLevel < 1 then
+				dirtyLevel = 1
+			end
+		else
+			numSections = numSections + 1
+			dirtyLevel = max(dirtyLevel, section:IsShown() and section:GetDirtyLevel() or 2)
+		end
+	end
+
+	local doLayout = self.forceLayout
+	if not doLayout and dirtyLevel > 0 then
+		local setting = addon.db.profile.automaticLayout
+		doLayout = (setting == 0)
+			or (setting == 1 and not addon:GetInteractingWindow())
+			or (setting == 2 and dirtyLevel >= 2)
+	end
+
+	if doLayout and self.minWidth and not addon.spellIsTargeting then
+
+		if self.forceLayout or dirtyLevel >= 2 then
+
+			if numSections == 0 then
+				self.Content:SetSize(0.5, 0.5)
+
+			else
+				local rowWidth = (ITEM_SIZE + ITEM_SPACING) * addon.db.profile.rowWidth[self.name] - ITEM_SPACING
+				local minWidth = max(rowWidth, self.minWidth)
+				local uiScale, uiWidth, uiHeight = UIParent:GetEffectiveScale(), UIParent:GetSize()
+				local selfScale = self:GetEffectiveScale()
+				local maxWidth = addon.db.profile.maxWidth * uiWidth * uiScale / selfScale
+				local maxHeight = addon.db.profile.maxHeight * uiHeight * uiScale / selfScale
+
+				local numColumns = 0
+				local contentWidth, contentHeight, minHeight
+				repeat
+					numColumns = numColumns + 1
+					local tmpMaxWidth = max(minWidth, min(maxWidth, (rowWidth + SECTION_SPACING) * numColumns - SECTION_SPACING))
+					contentWidth, contentHeight, minHeight = DoLayoutSections(self, rowWidth, tmpMaxWidth)
+				until contentHeight <= max(minHeight, maxHeight) or numColumns == 4
+
+				self.Content:SetSize(contentWidth, contentHeight)
+			end
+
+			dirtyLevel = 0
+		end
+
+		for key, section in pairs(self.sections) do
+			if section:IsEmpty() then
+				section:Release()
+				self.sections[key] = nil
+			elseif section:IsCollapsed() then
+				section:Hide()
+			else
+				section:Show()
+				section:Layout()
+				dirtyLevel = max(dirtyLevel, section:GetDirtyLevel())
+			end
+		end
+
+		self.forceLayout = nil
+	end
+
+	self:SetDirtyLayout(dirtyLevel)
 end

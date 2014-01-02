@@ -333,7 +333,7 @@ function mod:UpdateBags()
 		if bag.updated and bag.container and bag.obj:CanOpen() then
 			self:Debug(name, 'contains new new items')
 			bag.updated = nil
-			bag.container:FiltersChanged("OnNewItems", true)
+			bag.container:FiltersChanged("OnNewItems")
 		end
 	end
 
@@ -383,7 +383,7 @@ function mod:Reset(name)
 	bag.first = true
 	bag.updated = true
 	self:UpdateBags()
-	bag.container:LayoutSections(0)
+	bag.container:LayoutSections(true)
 end
 
 function mod:IsNew(itemLink, bagName)
