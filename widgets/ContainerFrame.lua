@@ -842,11 +842,11 @@ function containerProto:LayoutSections(forceLayout)
 	end
 
 	local doLayout = self.forceLayout
-	if not doLayout and dirtyLevel > 0 then
+	if not doLayout then
 		local setting = addon.db.profile.automaticLayout
-		doLayout = (setting == 0)
-			or (setting == 1 and not addon:GetInteractingWindow())
-			or (setting == 2 and dirtyLevel >= 2)
+		doLayout = (setting < 3 and dirtyLevel >= 2)
+			or (setting == 0 and dirtyLevel > 0)
+			or (setting == 1 and dirtyLevel > 0 and not addon:GetInteractingWindow())
 	end
 
 	if doLayout and self.minWidth and not addon.spellIsTargeting then

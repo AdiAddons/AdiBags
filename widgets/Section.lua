@@ -363,20 +363,13 @@ function sectionProto:FitInSpace(maxWidth, maxHeight, xOffset)
 end
 
 function sectionProto:SetSizeInSlots(width, height)
-	local oldWidth, oldHeight = self.width, self.height
-	if oldWidth ~= width or oldHeight ~= height then
+	if self.width ~= width or self.height ~= height then
 		self.width, self.height, self.total = width, height, width * height
 		self:SetSize(
 			SLOT_OFFSET * width - ITEM_SPACING,
 			HEADER_SIZE + SLOT_OFFSET * height - ITEM_SPACING
 		)
-		if width < oldWidth or height < oldHeight then
-			self:Debug('Width or height reduced')
-			self:SetDirtyLevel(2)
-		else
-			self:Debug('Width or height changed')
-			self:SetDirtyLevel(1)
-		end
+		self:SetDirtyLevel(1)
 	end
 	return self:GetSize()
 end
