@@ -137,6 +137,8 @@ function addon:OnEnable()
 	self:RegisterEvent('VOID_STORAGE_CLOSE', 'UpdateInteractingWindow')
 	self:RegisterEvent('FORGE_MASTER_OPENED', 'UpdateInteractingWindow')
 	self:RegisterEvent('FORGE_MASTER_CLOSED', 'UpdateInteractingWindow')
+	self:RegisterEvent('SOCKET_INFO_UPDATE', 'UpdateInteractingWindow')
+	self:RegisterEvent('SOCKET_INFO_CLOSE', 'UpdateInteractingWindow')
 
 	self:SetSortingOrder(self.db.profile.sortingOrder)
 
@@ -420,7 +422,7 @@ end
 do
 	local current
 	function addon:UpdateInteractingWindow(event, ...)
-		local new = strmatch(event, '^([_%w]+)_OPEN') or strmatch(event, '^([_%w]+)_SHOW$')
+		local new = strmatch(event, '^([_%w]+)_OPEN') or strmatch(event, '^([_%w]+)_SHOW$') or strmatch(event, '^([_%w]+)_UPDATE$')
 		self:Debug('UpdateInteractingWindow', event, current, '=>', new, '|', ...)
 		if new ~= current then
 			local old = current
