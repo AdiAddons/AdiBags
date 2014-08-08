@@ -1,6 +1,6 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010-2012 Adirelle (adirelle@gmail.com)
+Copyright 2010-2014 Adirelle (adirelle@gmail.com)
 All rights reserved.
 --]]
 
@@ -169,6 +169,17 @@ function addon:SetupDefaultFilters()
 			}, addon:GetOptionHandler(self, true)
 		end
 
+	end
+
+	-- [80] New Items
+	do
+		local newItemFilter = addon:RegisterFilter('NewItem', 80, function(self, slotData)
+			if C_NewItems.IsNewItem(slotData.bag, slotData.slot) then
+				return L["New"]
+			end
+		end)
+		newItemFilter.uiName = L['New items']
+		newItemFilter.uiDesc = L['Putting new items in a special section.']
 	end
 
 	-- [75] Quest Items
