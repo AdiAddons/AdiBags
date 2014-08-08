@@ -173,13 +173,23 @@ function addon:SetupDefaultFilters()
 
 	-- [80] New Items
 	do
-		local newItemFilter = addon:RegisterFilter('NewItem', 80, function(self, slotData)
+		local newItemFilter = addon:RegisterFilter('NewItem', 80)
+		newItemFilter.uiName = L['New items']
+		newItemFilter.uiDesc = L['Putting new items in a special section.']
+
+		function newItemFilter:OnEnable()
+			self:RegisterEvent('BAG_NEW_ITEMS_UPDATED')
+		end
+
+		function newItemFilter:BAG_NEW_ITEMS_UPDATED()
+			self:SendMessage('AdiBags_FiltersChanged', true)
+		end
+
+		function newItemFilter:Filter(slotData)
 			if C_NewItems.IsNewItem(slotData.bag, slotData.slot) then
 				return L["New"]
 			end
-		end)
-		newItemFilter.uiName = L['New items']
-		newItemFilter.uiDesc = L['Putting new items in a special section.']
+		end
 	end
 
 	-- [75] Quest Items
