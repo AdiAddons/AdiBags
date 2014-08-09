@@ -108,7 +108,9 @@ function anchorProto:StartMoving(button)
 	else
 		target:StartMoving()
 	end
-	self.corner:Show()
+	if not addon.db.profile.hideAnchor then
+		self.corner:Show()
+	end
 	if self.OnMovingStarted then
 		self:OnMovingStarted()
 	end

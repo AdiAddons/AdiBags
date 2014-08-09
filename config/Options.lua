@@ -326,6 +326,12 @@ local function GetOptions()
 						order = 120,
 						func = function() addon:ResetBagPositions() end,
 					},
+					hideAnchor = {
+						name = L['Do not show anchor point'],
+						desc = L['Hide the colored corner shown when you move the bag.'],
+						type = 'toggle',
+						order = 125,
+					},
 					scale = {
 						name = L['Scale'],
 						desc = L['Use this to adjust the bag scale.'],
