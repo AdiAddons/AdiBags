@@ -446,8 +446,12 @@ end
 
 function addon:ShouldStack(slotData)
 	local conf = self.db.profile.virtualStacks
+	local hintSuffix = '#'..tostring(slotData.bagFamily)
 	if not slotData.link then
-		return conf.freeSpace, "*Free*"
+		return conf.freeSpace, "*Free*"..hintSuffix
+	end
+	if not self.db.profile.showBagType then
+		hintSuffix = ''
 	end
 	local window, unstack = self:GetInteractingWindow(), 0
 	if window then
@@ -460,13 +464,13 @@ function addon:ShouldStack(slotData)
 	if maxStack > 1 then
 		if conf.stackable then
 			if (slotData.count or 1) == maxStack then
-				return true, slotData.itemId
+				return true, tostring(slotData.itemId)..hintSuffix
 			elseif unstack < 3 then
-				return conf.incomplete, slotData.itemId
+				return conf.incomplete, tostring(slotData.itemId)..hintSuffix
 			end
 		end
 	elseif conf.others and unstack < 2 then
-		return true, self.GetDistinctItemID(slotData.link)
+		return true, tostring(self.GetDistinctItemID(slotData.link))..hintSuffix
 	end
 end
 
