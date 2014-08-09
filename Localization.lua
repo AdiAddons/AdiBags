@@ -290,8 +290,10 @@ L["Put items of poor quality or labeled as junk in the \"Junk\" section."] = tru
 L["Right-click to sell these items."] = true
 
 -- modules/MoneyFrame.lua
+L["Display a smaller money frame. This setting will take effect on next reload."] = true
 L["Display character money at bottom right of the backpack."] = true
 L["Money"] = true
+L["Small"] = true
 
 -- modules/NewItemTracking.lua
 L["Click to reset item status."] = true
@@ -592,6 +594,7 @@ L["Show %s"] = "Afficher %s"
 L["Size"] = "Taille"
 L["Skin"] = "Apparence"
 L["Slot number"] = "Numéro d'emplacement"
+L["Small"] = "Petite"
 L["Sorting order"] = "Ordre de tri"
 L["SOUL_BAG_TAG"] = "Âm"
 L["Space in use"] = "Espace utilisé"
@@ -1322,6 +1325,7 @@ L["Show %s"] = "顯示 %s"
 L["Size"] = "大小" -- Needs review
 L["Skin"] = "皮膚" -- Needs review
 L["Slot number"] = "槽數"
+L["Small"] = "小" -- Needs review
 L["Sorting order"] = "排序"
 L["SOUL_BAG_TAG"] = "靈魂" -- Needs review
 L["Space in use"] = "空間使用"
@@ -1813,6 +1817,7 @@ L["Show %s"] = "%s 보이기"
 L["Size"] = "크기" -- Needs review
 L["Skin"] = "스킨" -- Needs review
 L["Slot number"] = "칸수"
+L["Small"] = "작음" -- Needs review
 L["Sorting order"] = "정리 순서"
 L["SOUL_BAG_TAG"] = "조각"
 L["Space in use"] = "사용된 칸수"
