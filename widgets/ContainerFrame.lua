@@ -544,7 +544,7 @@ function containerProto:DispatchItem(slotData)
 	local slotId = slotData.slotId
 	local sectionName, category, filterName, shouldStack, stackHint = self:FilterSlot(slotData)
 	assert(sectionName, "sectionName is nil, item: "..(slotData.link or "none"))
-	local stackKey = shouldStack and strjoin('#', stackHint, tostring(slotData.bagFamily)) or nil
+	local stackKey = shouldStack and stackHint or nil
 	local button = self.buttons[slotId]
 	if button then
 		if shouldStack then
