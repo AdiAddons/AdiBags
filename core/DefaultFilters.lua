@@ -173,7 +173,7 @@ function addon:SetupDefaultFilters()
 
 	-- [80] New Items
 	do
-		local newItemFilter = addon:RegisterFilter('NewItem', 80)
+		local newItemFilter = addon:RegisterFilter('NewItem', 80, "AceEvent-3.0")
 		newItemFilter.uiName = L['New items']
 		newItemFilter.uiDesc = L['Putting new items in a special section.']
 
