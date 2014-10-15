@@ -135,8 +135,6 @@ function addon:OnEnable()
 	self:RegisterEvent('GUILDBANKFRAME_CLOSED', 'UpdateInteractingWindow')
 	self:RegisterEvent('VOID_STORAGE_OPEN', 'UpdateInteractingWindow')
 	self:RegisterEvent('VOID_STORAGE_CLOSE', 'UpdateInteractingWindow')
-	self:RegisterEvent('FORGE_MASTER_OPENED', 'UpdateInteractingWindow')
-	self:RegisterEvent('FORGE_MASTER_CLOSED', 'UpdateInteractingWindow')
 	self:RegisterEvent('SOCKET_INFO_UPDATE', 'UpdateInteractingWindow')
 	self:RegisterEvent('SOCKET_INFO_CLOSE', 'UpdateInteractingWindow')
 
