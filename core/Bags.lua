@@ -217,6 +217,12 @@ do
 		self:RawHook(BankFrame, "Hide", "Close", true)
 		--self:RawHook(BankFrame, "IsShown", "IsOpen", true)
 
+		if IsReagentBankUnlocked() then
+			self:ReagentBankUnlocked()
+		else
+			self:RegisterEvent('REAGENTBANK_PURCHASED', 'ReagentBankUnlocked')
+		end
+
 		if addon:GetInteractingWindow() == "BANKFRAME" then
 			self:Open()
 		end
@@ -234,6 +240,13 @@ do
 		elseif old == 'BANKFRAME' and self:IsOpen() then
 			self:Close()
 		end
+	end
+
+	function bank:ReagentBankUnlocked()
+		if not IsReagentBankUnlocked() then return end
+		addon.BAG_IDS.BANK[REAGENTBANK_CONTAINER] = REAGENTBANK_CONTAINER
+		addon.BAG_IDS.ALL[REAGENTBANK_CONTAINER] = REAGENTBANK_CONTAINER
+		self:UnregisterEvent('REAGENTBANK_PURCHASED')
 	end
 
 	function bank:CanOpen()
