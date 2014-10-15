@@ -341,44 +341,22 @@ function buttonProto:UpdateNew()
 end
 
 function buttonProto:UpdateBorder(isolatedEvent)
-	if self.hasItem then
-		local texture, r, g, b, a, x1, x2, y1, y2, blendMode = nil, 1, 1, 1, 1, 0, 1, 0, 1, "BLEND"
-		local isQuestItem, questId, isActive = GetContainerItemQuestInfo(self.bag, self.slot)
-		if addon.db.profile.questIndicator and (questId and not isActive) then
-			texture = TEXTURE_ITEM_QUEST_BANG
-		elseif addon.db.profile.questIndicator and (questId or isQuestItem) then
-			texture = TEXTURE_ITEM_QUEST_BORDER
-		elseif addon.db.profile.qualityHighlight then
-			local _, _, quality = GetItemInfo(self.itemId)
-			if quality and quality >= ITEM_QUALITY_UNCOMMON then
-				r, g, b = GetItemQualityColor(quality)
-				a = addon.db.profile.qualityOpacity
-				texture, x1, x2, y1, y2 = [[Interface\Buttons\UI-ActionButton-Border]], 14/64, 49/64, 15/64, 50/64
-				blendMode = "ADD"
-			elseif quality == ITEM_QUALITY_POOR and addon.db.profile.dimJunk then
-				local v = 1 - 0.5 * addon.db.profile.qualityOpacity
-				texture, blendMode, r, g, b = true, "MOD", v, v, v
-			end
-		end
-		if texture then
-			local border = self.IconQuestTexture
-			if texture == true then
-				border:SetVertexColor(1, 1, 1, 1)
-				border:SetTexture(r, g, b, a)
-			else
-				border:SetTexture(texture)
-				border:SetVertexColor(r, g, b, a)
-			end
-			border:SetTexCoord(x1, x2, y1, y2)
-			border:SetBlendMode(blendMode)
-			border:Show()
-			if isolatedEvent then
-				addon:SendMessage('AdiBags_UpdateBorder', self)
-			end
-			return
-		end
+	if self.JunkIcon then
+		self.JunkIcon:Hide()
 	end
-	self.IconQuestTexture:Hide()
+	self.IconBorder:Hide()
+	if self.hasItem then
+		local _, _, quality = GetItemInfo(self.itemId)
+		local color = BAG_ITEM_QUALITY_COLORS[quality]
+		if quality >= LE_ITEM_QUALITY_COMMON and color then
+			self.IconBorder:Show()
+			self.IconBorder:SetVertexColor(color.r, color.g, color.b)
+		end
+		if self.JunkIcon and quality == LE_ITEM_QUALITY_POOR and addon:GetInteractingWindow() == "MERCHANT" then
+			self.JunkIcon:Show()
+		end
+		return
+	end
 	if isolatedEvent then
 		addon:SendMessage('AdiBags_UpdateBorder', self)
 	end
