@@ -514,6 +514,8 @@ local function FilterByBag(slotData)
 		name = L['Backpack']
 	elseif bag == BANK_CONTAINER then
 		name = L['Bank']
+	elseif bag == REAGENTBANK_CONTAINER then
+		name = REAGENT_BANK
 	elseif bag <= NUM_BAG_SLOTS then
 		name = format(L["Bag #%d"], bag)
 	else
