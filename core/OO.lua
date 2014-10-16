@@ -25,6 +25,9 @@ local tostring = _G.tostring
 -- Classes
 --------------------------------------------------------------------------------
 
+-- Required as some "OnLoad" function refers to the frame parent (since 6.0)
+local defaultParent = CreateFrame("Frame")
+
 local classes = {}
 
 local function Meta_ToString(self)
@@ -33,7 +36,8 @@ end
 
 local function Class_Create(class, ...)
 	class.serial = class.serial + 1
-	local self = CreateFrame(class.frameType, addonName..class.name..class.serial, nil, class.frameTemplate)
+	local self = CreateFrame(class.frameType, addonName..class.name..class.serial, defaultParent, class.frameTemplate)
+	self:SetParent(nil) -- Get rid of the parent once the OnLoad handler has been called
 	setmetatable(self, class.metatable)
 	self:ClearAllPoints()
 	self:Hide()
