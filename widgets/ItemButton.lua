@@ -103,6 +103,14 @@ function bankButtonProto:IsLocked()
 	return IsInventoryItemLocked(BankButtonIDToInvSlotID(self.slot))
 end
 
+function bankButtonProto:GetInventorySlot()
+	if self.bag == BANK_CONTAINER then
+		return BankButtonIDToInvSlotID(self.slot)
+	elseif self.bag == REAGENTBANK_CONTAINER then
+		return ReagentBankButtonIDToInvSlotID(self.slot)
+	end
+end
+
 --------------------------------------------------------------------------------
 -- Pools and acquistion
 --------------------------------------------------------------------------------
