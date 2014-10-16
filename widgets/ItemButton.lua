@@ -111,6 +111,10 @@ function bankButtonProto:GetInventorySlot()
 	end
 end
 
+function bankButtonProto:UpdateNew()
+	-- Not supported
+end
+
 --------------------------------------------------------------------------------
 -- Pools and acquistion
 --------------------------------------------------------------------------------
