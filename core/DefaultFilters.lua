@@ -41,6 +41,7 @@ function addon:SetupDefaultFilters()
 
 	-- Define global ordering
 	self:SetCategoryOrders{
+		[L['New']] = 100,
 		[QUEST] = 30,
 		[TRADE_GOODS] = 20,
 		[EQUIPMENT] = 10,
