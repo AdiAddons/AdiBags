@@ -232,12 +232,6 @@ function addon.GetItemFamily(item)
 	end
 end
 
-function addon.CanPutItemInContainer(item, container)
-	local freeSlots, containerFamily = GetContainerNumFreeSlots(container)
-	local itemFamily = addon.GetItemFamily(item)
-	return freeSlots > 0 and (containerFamily == 0 or band(itemFamily, containerFamily) ~= 0), freeSlots, itemFamily, containerFamily
-end
-
 function addon:GetFamilyTag(family)
 	if family and family ~= 0 then
 		for mask, tag in pairs(FAMILY_TAGS) do
