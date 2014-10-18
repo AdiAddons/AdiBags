@@ -207,6 +207,21 @@ end
 
 function containerProto:ToString() return self.name or self:GetName() end
 
+function containerProto:CreateModuleButton(letter, order, onClick, tooltip)
+	local button = CreateFrame("Button", nil, self, "UIPanelButtonTemplate")
+	button:SetText(letter)
+	button:SetSize(20, 20)
+	button:SetScript("OnClick", onClick)
+	button:RegisterForClicks("AnyUp")
+	if order then
+		self:AddHeaderWidget(button, order)
+	end
+	if tooltip then
+		addon.SetupTooltip(button, tooltip, "ANCHOR_TOPLEFT", 0, 8)
+	end
+	return button
+end
+
 --------------------------------------------------------------------------------
 -- Scripts & event handlers
 --------------------------------------------------------------------------------

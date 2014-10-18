@@ -81,16 +81,10 @@ local function Button_OnClick(widget, button)
 end
 
 function mod:OnBagFrameCreated(bag)
-	local container = bag.frame
-	local button = CreateFrame("Button", nil, container, "UIPanelButtonTemplate")
-	button:SetText("T")
-	button:SetSize(20, 20)
-	button:SetScript("OnClick", Button_OnClick)
-	button.bag = bag
-	container:AddHeaderWidget(button, 0)
-	addon.SetupTooltip(button, {
+	button = bag:GetFrame():CreateModuleButton("T", 0, Button_OnClick, {
 		BAG_CLEANUP_BAGS,
 		L["Right-click to configure."]
-	}, "ANCHOR_TOPLEFT", 0, 8)
+	})
+	button.bag = bag
 	buttons[bag] = button
 end

@@ -83,21 +83,12 @@ end
 
 function mod:OnBagFrameCreated(bag)
 	if bag.isBank then return end
-	local container = bag:GetFrame()
-
-	self.button = CreateFrame("Button", nil, container, "UIPanelButtonTemplate")
-	self.button:SetText("N")
-	self.button:SetSize(20, 20)
-	self.button:SetScript("OnClick", ResetButton_OnClick)
-	self.button:RegisterForClicks("AnyUp")
-	self.button:Disable()
-	container:AddHeaderWidget(self.button, 10)
-	addon.SetupTooltip(self.button, {
+	self.button = bag:GetFrame():CreateModuleButton("N", 10, ResetButton_OnClick, {
 		L["Reset new items"],
 		L["Click to reset item status."],
 		L["Right-click to configure."]
-	}, "ANCHOR_TOPLEFT", 0, 8)
-
+	})
+	self.button:Disable()
 	self:SendMessage('AdiBags_FiltersChanged', true)
 end
 

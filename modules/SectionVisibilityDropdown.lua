@@ -45,18 +45,10 @@ function mod:OnDisable()
 end
 
 function mod:OnBagFrameCreated(bag)
-	local container = bag:GetFrame()
-	local button = CreateFrame("Button", nil, container, "UIPanelButtonTemplate")
-	button:SetText("V")
-	button:SetWidth(20)
-	button:SetHeight(20)
-	button:SetScript("OnClick", Button_OnClick)
-	button.container = container
-	container:AddHeaderWidget(button, 5)
-	addon.SetupTooltip(button, {
+	local button = bag:GetFrame():CreateModuleButton("V", 5, Button_OnClick, {
 		L["Section visibility"],
 		L["Click to select which sections should be shown or hidden. Section visibility is common to all bags."]
-	}, "ANCHOR_TOPLEFT", 0, 8)
+	})
 	buttons[button] = true
 end
 
