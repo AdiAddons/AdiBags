@@ -1,6 +1,6 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010-2014 Adirelle (adirelle@gmail.com)
+Copyright 2010-2012 Adirelle (adirelle@gmail.com)
 All rights reserved.
 --]]
 
@@ -41,7 +41,6 @@ function addon:SetupDefaultFilters()
 
 	-- Define global ordering
 	self:SetCategoryOrders{
-		[L['New']] = 100,
 		[QUEST] = 30,
 		[TRADE_GOODS] = 20,
 		[EQUIPMENT] = 10,
@@ -170,27 +169,6 @@ function addon:SetupDefaultFilters()
 			}, addon:GetOptionHandler(self, true)
 		end
 
-	end
-
-	-- [80] New Items
-	do
-		local newItemFilter = addon:RegisterFilter('NewItem', 80, "AceEvent-3.0")
-		newItemFilter.uiName = L['New items']
-		newItemFilter.uiDesc = L['Putting new items in a special section.']
-
-		function newItemFilter:OnEnable()
-			self:RegisterEvent('BAG_NEW_ITEMS_UPDATED')
-		end
-
-		function newItemFilter:BAG_NEW_ITEMS_UPDATED()
-			self:SendMessage('AdiBags_FiltersChanged', true)
-		end
-
-		function newItemFilter:Filter(slotData)
-			if C_NewItems.IsNewItem(slotData.bag, slotData.slot) then
-				return L["New"]
-			end
-		end
 	end
 
 	-- [75] Quest Items

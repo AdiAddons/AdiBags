@@ -322,34 +322,7 @@ function buttonProto:UpdateCooldown()
 end
 
 function buttonProto:UpdateNew()
-	local isNewItem = C_NewItems.IsNewItem(self.bag, self.slot)
-	local isBattlePayItem = IsBattlePayItem(self.bag, self.slot)
-
-	if isNewItem then
-		if isBattlePayItem then
-			self.NewItemTexture:Hide()
-			self.BattlepayItemTexture:Show()
-		else
-			if quality and NEW_ITEM_ATLAS_BY_QUALITY[quality] then
-				self.NewItemTexture:SetAtlas(NEW_ITEM_ATLAS_BY_QUALITY[quality])
-			else
-				self.NewItemTexture:SetAtlas("bags-glow-white")
-			end
-			self.BattlepayItemTexture:Hide()
-			self.NewItemTexture:Show()
-		end
-		if not self.flashAnim:IsPlaying() and not self.newitemglowAnim:IsPlaying() then
-			self.flashAnim:Play()
-			self.newitemglowAnim:Play()
-		end
-	else
-		self.BattlepayItemTexture:Hide()
-		self.NewItemTexture:Hide()
-		if self.flashAnim:IsPlaying() or self.newitemglowAnim:IsPlaying() then
-			self.flashAnim:Stop()
-			self.newitemglowAnim:Stop()
-		end
-	end
+	self.BattlepayItemTexture:SetShown(IsBattlePayItem(self.bag, self.slot))
 end
 
 function buttonProto:UpdateBorder(isolatedEvent)
