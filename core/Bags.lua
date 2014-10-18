@@ -116,7 +116,7 @@ function bagProto:GetFrame()
 end
 
 function bagProto:CreateFrame()
-	return addon:CreateContainerFrame(self.bagName, self.bagIds, self.isBank)
+	return addon:CreateContainerFrame(self.bagName, self.isBank)
 end
 
 --------------------------------------------------------------------------------
@@ -129,11 +129,11 @@ local function CompareBags(a, b)
 	return a.order < b.order
 end
 
-function addon:NewBag(name, order, bagIds, isBank, ...)
-	self:Debug('NewBag', name, order, bagIds, isBank, ...)
+function addon:NewBag(name, order, isBank, ...)
+	self:Debug('NewBag', name, order, isBank, ...)
 	local bag = addon:NewModule(name, bagProto, 'AceEvent-3.0', ...)
 	bag.bagName = name
-	bag.bagIds = bagIds
+	bag.bagIds = addon.BAG_IDS[isBank and "BANK" or "BAGS"]
 	bag.isBank = isBank
 	bag.order = order
 	tinsert(bags, bag)
@@ -177,7 +177,7 @@ end
 
 do
 	-- L["Backpack"]
-	local backpack = addon:NewBag("Backpack", 10, addon.BAG_IDS.BAGS, false, 'AceHook-3.0')
+	local backpack = addon:NewBag("Backpack", 10, false, 'AceHook-3.0')
 
 	function backpack:PostEnable()
 		self:RegisterMessage('AdiBags_InteractingWindowChanged')
@@ -204,7 +204,7 @@ end
 
 do
 	-- L["Bank"]
-	local bank = addon:NewBag("Bank", 20, addon.BAG_IDS.BANK, true, 'AceHook-3.0')
+	local bank = addon:NewBag("Bank", 20, true, 'AceHook-3.0')
 
 	local function NOOP() end
 

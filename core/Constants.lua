@@ -21,16 +21,32 @@ local pairs = _G.pairs
 local BAGS = { [BACKPACK_CONTAINER] = BACKPACK_CONTAINER }
 for i = 1, NUM_BAG_SLOTS do BAGS[i] = i end
 
--- Bank bags
-local BANK = { [BANK_CONTAINER] = BANK_CONTAINER }
-for i = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do BANK[i] = i end
+-- Base nank bags
+local BANK_ONLY = { [BANK_CONTAINER] = BANK_CONTAINER }
+for i = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do BANK_ONLY[i] = i end
+
+--- Reagent bank bags
+local REAGENTBANK_ONLY = { [REAGENTBANK_CONTAINER] = REAGENTBANK_CONTAINER }
+
+-- All bank bags
+local BANK = {}
+for _, bags in ipairs { BANK_ONLY, REAGENTBANK_ONLY } do
+	for id in pairs(bags) do BANK[id] = id end
+end
 
 -- All bags
 local ALL = {}
-for id in pairs(BAGS) do ALL[id] = id end
-for id in pairs(BANK) do ALL[id] = id end
+for _, bags in ipairs { BAGS, BANK } do
+	for id in pairs(bags) do ALL[id] = id end
+end
 
-addon.BAG_IDS = { BAGS = BAGS, BANK = BANK, ALL = ALL }
+addon.BAG_IDS = {
+	BAGS = BAGS,
+	BANK = BANK,
+	BANK_ONLY = BANK_ONLY,
+	REAGENTBANK_ONLY = REAGENTBANK_ONLY,
+	ALL = ALL
+}
 
 addon.FAMILY_TAGS = {
 --@noloc[[

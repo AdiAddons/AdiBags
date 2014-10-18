@@ -55,6 +55,8 @@ local SECTION_SPACING = addon.SECTION_SPACING
 local BAG_INSET = addon.BAG_INSET
 local HEADER_SIZE = addon.HEADER_SIZE
 
+local BAG_IDS = addon.BAG_IDS
+
 --------------------------------------------------------------------------------
 -- Widget scripts
 --------------------------------------------------------------------------------
@@ -74,7 +76,7 @@ function addon:CreateContainerFrame(...) return containerClass:Create(...) end
 local SimpleLayeredRegion = addon:GetClass("SimpleLayeredRegion")
 
 local bagSlots = {}
-function containerProto:OnCreate(name, bagIds, isBank)
+function containerProto:OnCreate(name, isBank)
 	self:SetParent(UIParent)
 	containerParentProto.OnCreate(self)
 
@@ -87,7 +89,6 @@ function containerProto:OnCreate(name, bagIds, isBank)
 	self:SetScript('OnHide', self.OnHide)
 
 	self.name = name
-	self.bagIds = bagIds
 	self.isBank = isBank
 
 	self.buttons = {}
@@ -100,7 +101,8 @@ function containerProto:OnCreate(name, bagIds, isBank)
 	self.removed = {}
 	self.changed = {}
 
-	for bagId in pairs(self.bagIds) do
+	local ids
+	for bagId in pairs(BAG_IDS[isBank and "BANK" or "BAGS"]) do
 		self.content[bagId] = { size = 0 }
 		tinsert(bagSlots, bagId)
 		if not addon.itemParentFrames[bagId] then
@@ -321,9 +323,17 @@ end
 -- Scripts & event handlers
 --------------------------------------------------------------------------------
 
+function containerProto:GetBagIds()
+	return BAG_IDS[
+		self.isBank and "BANK_ONLY" or
+		"BAGS"
+	]
+end
+
 function containerProto:BagsUpdated(bagIds)
+	local showBag = self:GetBagIds()
 	for bag in pairs(bagIds) do
-		if self.bagIds[bag] then
+		if showBag[bag] then
 			self:UpdateContent(bag)
 		end
 	end
@@ -385,7 +395,7 @@ function containerProto:ResumeUpdates()
 	self.paused = false
 	self.bagUpdateBucket = self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, "BagsUpdated")
 	self:Debug('ResumeUpdates')
-	for bag in pairs(self.bagIds) do
+	for bag in pairs(self:GetBagIds()) do
 		self:UpdateContent(bag)
 	end
 	if self.filtersChanged  then
@@ -421,7 +431,7 @@ end
 
 local function FindBagWithRoom(self, itemFamily)
 	local fallback
-	for bag in pairs(self.bagIds) do
+	for bag in pairs(self:GetBagIds()) do
 		local numFree, family = GetContainerNumFreeSlots(bag)
 		if numFree and numFree > 0 then
 			if band(family, itemFamily) ~= 0 then
@@ -538,7 +548,7 @@ function containerProto:UpdateContent(bag)
 	self:Debug('UpdateContent', bag)
 	local added, removed, changed = self.added, self.removed, self.changed
 	local content = self.content[bag]
-	local newSize = GetContainerNumSlots(bag)
+	local newSize = self:GetBagIds()[bag] and GetContainerNumSlots(bag) or 0
 	local _, bagFamily = GetContainerNumFreeSlots(bag)
 	content.family = bagFamily
 	for slot = 1, newSize do
