@@ -45,10 +45,12 @@ function mod:OnDisable()
 end
 
 function mod:OnBagFrameCreated(bag)
-	local button = bag:GetFrame():CreateModuleButton("V", 5, Button_OnClick, {
+	local container = bag:GetFrame()
+	local button = container:CreateModuleButton("V", 5, Button_OnClick, {
 		L["Section visibility"],
 		L["Click to select which sections should be shown or hidden. Section visibility is common to all bags."]
 	})
+	button.container = container
 	buttons[button] = true
 end
 
