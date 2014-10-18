@@ -90,6 +90,7 @@ function containerProto:OnCreate(name, isBank)
 
 	self.name = name
 	self.isBank = isBank
+	self.isReagentBank = false
 
 	self.buttons = {}
 	self.dirtyButtons = {}
@@ -163,6 +164,7 @@ function containerProto:OnCreate(name, isBank)
 	bagSlotButton.panel = bagSlotPanel
 	bagSlotButton:SetWidth(18)
 	bagSlotButton:SetHeight(18)
+	self.BagSlotButton = bagSlotButton
 	addon.SetupTooltip(bagSlotButton, {
 		L["Equipped bags"],
 		L["Click to toggle the equipped bag panel, so you can change them."]
@@ -190,6 +192,7 @@ function containerProto:OnCreate(name, isBank)
 	self.Anchor = anchor
 
 	if self.isBank then
+		self:CreateReagentTabButton()
 		self:CreateDepositButton()
 	end
 	self:CreateSortButton()
@@ -289,6 +292,7 @@ function containerProto:CreateDepositButton()
 		"autoDeposit",
 		DepositReagentBank
 	)
+
 	if not IsReagentBankUnlocked() then
 		button:Hide()
 		button:SetScript('OnEvent', button.Show)
@@ -319,12 +323,56 @@ function containerProto:CreateSortButton()
 			end
 	)
 end
+
+function containerProto:CreateReagentTabButton()
+	local button
+	button = self:CreateModuleButton(
+		"R",
+		0,
+		function()
+			if not IsReagentBankUnlocked() then
+				PlaySound("igMainMenuOption")
+				return StaticPopup_Show("CONFIRM_BUY_REAGENTBANK_TAB")
+			end
+			local previousBags = self:GetBagIds()
+			self.isReagentBank = not self.isReagentBank
+			self.BagSlotButton:SetEnabled(not self.isReagentBank)
+			if self.isReagentBank and self.BagSlotPanel:IsShown() then
+				self.BagSlotPanel:Hide()
+				self.BagSlotButton:SetChecked(False)
+			end
+			self.Title:SetText(self.isReagentBank and REAGENT_BANK or L["Bank"])
+			self:PauseUpdates()
+			for bag in pairs(previousBags) do
+				self:UpdateContent(bag)
+			end
+			self:ResumeUpdates()
+		end,
+		function(_, tooltip)
+			if not IsReagentBankUnlocked() then
+				tooltip:AddLine(BANKSLOTPURCHASE, 1, 1, 1)
+				tooltip:AddLine(REAGENTBANK_PURCHASE_TEXT)
+				SetTooltipMoney(tooltip, GetReagentBankCost(), nil, COSTS_LABEL)
+				return
+			end
+			tooltip:AddLine(
+				format(
+					L['Click to swap between %s and %s.'],
+					REAGENT_BANK:lower(),
+					L["Bank"]:lower()
+				)
+			)
+		end
+	)
+end
+
 --------------------------------------------------------------------------------
 -- Scripts & event handlers
 --------------------------------------------------------------------------------
 
 function containerProto:GetBagIds()
 	return BAG_IDS[
+		self.isReagentBank and "REAGENTBANK_ONLY" or
 		self.isBank and "BANK_ONLY" or
 		"BAGS"
 	]
