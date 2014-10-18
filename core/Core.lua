@@ -102,8 +102,9 @@ function addon:OnEnable()
 	self.globalLock = false
 
 	self:RegisterEvent('BAG_UPDATE')
-	self:RegisterBucketEvent('PLAYERBANKSLOTS_CHANGED', 0, 'BankUpdated')
-	self:RegisterBucketEvent('PLAYERREAGENTBANKSLOTS_CHANGED', 0, 'ReagentBankUpdated')
+	self:RegisterEvent('BAG_UPDATE_DELAYED')
+	self:RegisterBucketEvent('PLAYERBANKSLOTS_CHANGED', 0.01, 'BankUpdated')
+	self:RegisterBucketEvent('PLAYERREAGENTBANKSLOTS_CHANGED', 0.01, 'ReagentBankUpdated')
 
 	self:RegisterEvent('PLAYER_LEAVING_WORLD', 'Disable')
 
@@ -340,16 +341,24 @@ addon:SetDefaultModulePrototype(moduleProto)
 -- Event handlers
 --------------------------------------------------------------------------------
 
+local updatedBags = {}
+local updatedBank = { [BANK_CONTAINER] = true }
+local updatedReagentBank = { [REAGENTBANK_CONTAINER] = true }
+
 function addon:BAG_UPDATE(event, bag)
-	self:SendMessage('AdiBags_BagUpdated', bag)
+	updatedBags[bag] = true
+end
+
+function addon:BAG_UPDATE_DELAYED(event)
+	self:SendMessage('AdiBags_BagUpdated', updatedBags)
+	wipe(updatedBags)
 end
 
 function addon:BankUpdated(slots)
 	-- Wrap several PLAYERBANKSLOTS_CHANGED into one AdiBags_BagUpdated message
 	for slot in pairs(slots) do
 		if slot > 0 and slot <= NUM_BANKGENERIC_SLOTS then
-			self:SendMessage('AdiBags_BagUpdated', BANK_CONTAINER)
-			return
+			return self:SendMessage('AdiBags_BagUpdated', updatedBank)
 		end
 	end
 end
@@ -358,8 +367,7 @@ function addon:ReagentBankUpdated(slots)
 	-- Wrap several PLAYERREAGANBANKSLOTS_CHANGED into one AdiBags_BagUpdated message
 	for slot in pairs(slots) do
 		if slot > 0 and slot <= 98 then
-			self:SendMessage('AdiBags_BagUpdated', REAGENTBANK_CONTAINER)
-			return
+			return self:SendMessage('AdiBags_BagUpdated', updatedReagentBank)
 		end
 	end
 end

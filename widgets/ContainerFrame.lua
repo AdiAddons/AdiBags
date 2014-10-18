@@ -69,7 +69,7 @@ end
 -- Bag creation
 --------------------------------------------------------------------------------
 
-local containerClass, containerProto, containerParentProto = addon:NewClass("Container", "LayeredRegion", "AceEvent-3.0", "AceBucket-3.0")
+local containerClass, containerProto, containerParentProto = addon:NewClass("Container", "LayeredRegion", "AceEvent-3.0")
 
 function addon:CreateContainerFrame(...) return containerClass:Create(...) end
 
@@ -378,7 +378,7 @@ function containerProto:GetBagIds()
 	]
 end
 
-function containerProto:BagsUpdated(bagIds)
+function containerProto:BagsUpdated(event, bagIds)
 	local showBag = self:GetBagIds()
 	for bag in pairs(bagIds) do
 		if showBag[bag] then
@@ -435,13 +435,12 @@ function containerProto:OnHide()
 	self:PauseUpdates()
 	self:UnregisterAllEvents()
 	self:UnregisterAllMessages()
-	self:UnregisterAllBuckets()
 end
 
 function containerProto:ResumeUpdates()
 	if not self.paused then return end
 	self.paused = false
-	self.bagUpdateBucket = self:RegisterBucketMessage('AdiBags_BagUpdated', 0.2, "BagsUpdated")
+	self:RegisterMessage('AdiBags_BagUpdated', 'BagsUpdated')
 	self:Debug('ResumeUpdates')
 	for bag in pairs(self:GetBagIds()) do
 		self:UpdateContent(bag)
@@ -457,7 +456,7 @@ end
 function containerProto:PauseUpdates()
 	if self.paused then return end
 	self:Debug('PauseUpdates')
-	self:UnregisterBucket(self.bagUpdateBucket, true)
+	self:UnregisterMessage('AdiBags_BagUpdated')
 	self.paused = true
 end
 
