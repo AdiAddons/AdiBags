@@ -119,11 +119,6 @@ function bagProto:CreateFrame()
 	return addon:CreateContainerFrame(self.bagName, self.bagIds, self.isBank)
 end
 
-function bagProto:AutoSort()
-	PlaySound("UI_BagSorting_01")
-	SortBags()
-end
-
 --------------------------------------------------------------------------------
 -- Bags methods
 --------------------------------------------------------------------------------
@@ -260,15 +255,6 @@ do
 
 	function bank:PostClose()
 		CloseBankFrame()
-	end
-
-	function bank:AutoSort()
-		PlaySound("UI_BagSorting_01")
-		if IsReagentBankUnlocked() then
-			DepositReagentBank()
-			SortReagentBankBags()
-		end
-		SortBankBags()
 	end
 
 end

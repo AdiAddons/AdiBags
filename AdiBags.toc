@@ -49,7 +49,6 @@ widgets\AnchorWidget.lua
 
 modules\DataSource.lua
 modules\NewItemTracking.lua
-modules\TidyBags.lua
 modules\MoneyFrame.lua
 modules\FilterOverride.lua
 modules\ItemLevel.lua

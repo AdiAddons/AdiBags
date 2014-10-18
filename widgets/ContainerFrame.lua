@@ -187,6 +187,8 @@ function containerProto:OnCreate(name, bagIds, isBank)
 	anchor:SetFrameLevel(self:GetFrameLevel() + 10)
 	self.Anchor = anchor
 
+	self:CreateSortButton()
+
 	local content = CreateFrame("Frame", nil, self)
 	content:SetPoint("TOPLEFT", BAG_INSET, -addon.TOP_PADDING)
 	self.Content = content
@@ -222,6 +224,63 @@ function containerProto:CreateModuleButton(letter, order, onClick, tooltip)
 	return button
 end
 
+ function containerProto:CreateModuleAutoButton(letter, order, title, description, optionName, callback)
+	local button
+	local statusTexts = {
+		[false] = '|cffff0000'..L["disabled"]..'|r',
+		[true]  = '|cff00ff00'..L["enabled"]..'|r'
+	}
+	local Description = description:sub(1, 1):upper() .. description:sub(2)
+
+	button = self:CreateModuleButton(
+		letter,
+		order,
+		function(_, mouseButton)
+			if mouseButton == "RightButton" then
+				local enable = not addon.db.profile[optionName]
+				addon.db.profile[optionName] = enable
+				return PlaySound(enable and "igMainMenuOptionCheckBoxOn" or "igMainMenuOptionCheckBoxOff")
+			end
+			callback()
+		end,
+		function(_, tooltip)
+			tooltip:AddLine(title, 1, 1, 1)
+			tooltip:AddLine(format(L["%s is: %s."], Description, statusTexts[not not addon.db.profile[optionName]]))
+			tooltip:AddLine(format(L["Right-click to toggle %s."], description))
+		end
+	)
+
+	button:SetScript('OnShow', function()
+		if addon.db.profile[optionName] then
+			callback()
+		end
+	end)
+
+	return button
+end
+
+function containerProto:CreateSortButton()
+	self:CreateModuleAutoButton(
+		"S",
+		10,
+		BAG_CLEANUP_BAGS,
+		L["auto-sort"],
+		"autoSort",
+		self.isBank and
+			function()
+				PlaySound("UI_BagSorting_01")
+				SortBankBags()
+				if IsReagentBankUnlocked() then
+					SortReagentBankBags()
+				end
+			end
+		or
+			function()
+				PlaySound("UI_BagSorting_01")
+				SortBags()
+			end
+	)
+end
 --------------------------------------------------------------------------------
 -- Scripts & event handlers
 --------------------------------------------------------------------------------
