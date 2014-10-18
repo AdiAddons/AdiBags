@@ -187,6 +187,9 @@ function containerProto:OnCreate(name, bagIds, isBank)
 	anchor:SetFrameLevel(self:GetFrameLevel() + 10)
 	self.Anchor = anchor
 
+	if self.isBank then
+		self:CreateDepositButton()
+	end
 	self:CreateSortButton()
 
 	local content = CreateFrame("Frame", nil, self)
@@ -257,6 +260,22 @@ end
 	end)
 
 	return button
+end
+
+function containerProto:CreateDepositButton()
+	local button = self:CreateModuleAutoButton(
+		"D",
+		0,
+		REAGENTBANK_DEPOSIT,
+		L["auto-deposit"],
+		"autoDeposit",
+		DepositReagentBank
+	)
+	if not IsReagentBankUnlocked() then
+		button:Hide()
+		button:SetScript('OnEvent', button.Show)
+		button:RegisterEvent('REAGENTBANK_PURCHASED')
+	end
 end
 
 function containerProto:CreateSortButton()
