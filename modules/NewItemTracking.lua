@@ -114,8 +114,10 @@ function mod:IsNew(bag, slot)
 end
 
 function mod:BAG_NEW_ITEMS_UPDATED(event)
-	self.button:Disable()
-	self:SendMessage('AdiBags_FiltersChanged', true)
+	if self.button and self.button:IsVisible() then
+		self.button:Disable()
+		self:SendMessage('AdiBags_FiltersChanged', true)
+	end
 end
 
 function mod:Filter(slotData)
