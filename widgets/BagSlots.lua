@@ -60,6 +60,8 @@ local ITEM_SPACING = addon.ITEM_SPACING
 local BAG_INSET = addon.BAG_INSET
 local TOP_PADDING = addon.TOP_PADDING
 
+local BAG_IDS = addon.BAG_IDS
+
 --------------------------------------------------------------------------------
 -- Swaping process
 --------------------------------------------------------------------------------
@@ -178,7 +180,7 @@ do
 	function EmptyBag(bag)
 		ClearCursor()
 		wipe(otherBags)
-		local bags = addon.BAG_IDS.BANK[bag] and addon.BAG_IDS.BANK or addon.BAG_IDS.BAGS
+		local bags = BAG_IDS[BAG_IDS.BANK[bag] and "BANK_ONLY" or "BAGS"]
 		for otherBag in pairs(bags) do
 			if otherBag ~= bag then
 				tinsert(otherBags, otherBag)
