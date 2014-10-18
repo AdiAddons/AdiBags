@@ -227,13 +227,20 @@ function containerProto:CreateModuleButton(letter, order, onClick, tooltip)
 	return button
 end
 
- function containerProto:CreateModuleAutoButton(letter, order, title, description, optionName, callback)
+ function containerProto:CreateModuleAutoButton(letter, order, title, description, optionName, onShow, onHide)
 	local button
 	local statusTexts = {
 		[false] = '|cffff0000'..L["disabled"]..'|r',
 		[true]  = '|cff00ff00'..L["enabled"]..'|r'
 	}
 	local Description = description:sub(1, 1):upper() .. description:sub(2)
+
+	local onClick
+	if onShow and onHide then
+		onClick = function() onShow() onHide() end
+	else
+		onClick = onShow or onHide
+	end
 
 	button = self:CreateModuleButton(
 		letter,
@@ -244,7 +251,7 @@ end
 				addon.db.profile[optionName] = enable
 				return PlaySound(enable and "igMainMenuOptionCheckBoxOn" or "igMainMenuOptionCheckBoxOff")
 			end
-			callback()
+			onClick()
 		end,
 		function(_, tooltip)
 			tooltip:AddLine(title, 1, 1, 1)
@@ -253,11 +260,20 @@ end
 		end
 	)
 
-	button:SetScript('OnShow', function()
-		if addon.db.profile[optionName] then
-			callback()
-		end
-	end)
+	if onShow then
+		button:SetScript('OnShow', function()
+			if addon.db.profile[optionName] then
+				onShow()
+			end
+		end)
+	end
+	if onHide then
+		button:SetScript('OnHide', function()
+			if addon.db.profile[optionName] then
+				onHide()
+			end
+		end)
+	end
 
 	return button
 end
@@ -285,6 +301,7 @@ function containerProto:CreateSortButton()
 		BAG_CLEANUP_BAGS,
 		L["auto-sort"],
 		"autoSort",
+		nil,
 		self.isBank and
 			function()
 				PlaySound("UI_BagSorting_01")
