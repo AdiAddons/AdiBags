@@ -39,6 +39,7 @@ function bagProto:OnEnable()
 		end
 		hookedBags[id] = self
 	end
+	self:RegisterMessage('AdiBags_BagUpdated')
 	if self.PostEnable then
 		self:PostEnable()
 	end
@@ -68,6 +69,9 @@ function bagProto:Open()
 	local frame = self:GetFrame()
 	if not frame:IsShown() then
 		self:Debug('Open')
+		if self.PreOpen then
+			self:PreOpen()
+		end
 		frame:Show()
 		addon:SendMessage('AdiBags_BagOpened', self.bagName, self)
 		return true
@@ -78,6 +82,9 @@ function bagProto:Close()
 	if self.frame and self.frame:IsShown() then
 		self:Debug('Close')
 		self.frame:Hide()
+		if self.needSorting and addon.db.profile.autoSort then
+			self:Sort()
+		end
 		addon:SendMessage('AdiBags_BagClosed', self.bagName, self)
 		if self.PostClose then
 			self:PostClose()
@@ -116,7 +123,23 @@ function bagProto:GetFrame()
 end
 
 function bagProto:CreateFrame()
-	return addon:CreateContainerFrame(self.bagName, self.isBank)
+	return addon:CreateContainerFrame(self.bagName, self.isBank, self)
+end
+
+function bagProto:AdiBags_BagUpdated(event, ids)
+	if self.sorting then
+ 		self.sorting = false
+		return
+	end
+
+	if self.needSorting then return end
+	
+	for id in pairs(ids) do
+		if self.bagIds[id] then
+			self.needSorting = true
+			return
+		end
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -195,7 +218,13 @@ do
 			self:Close()
 		end
 	end
-
+	
+	function backpack:Sort()
+		PlaySound("UI_BagSorting_01")
+		self.sorting = true
+		self.needSorting = false
+		SortBags()
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -239,9 +268,25 @@ do
 	function bank:CanOpen()
 		return self:IsEnabled() and addon:GetInteractingWindow() == "BANKFRAME"
 	end
+	
+	function bank:PreOpen()
+		if addon.db.profile.autoDeposit then
+			DepositReagentBank()
+		end
+	end
 
 	function bank:PostClose()
 		CloseBankFrame()
+	end
+	
+	function bank:Sort()
+		PlaySound("UI_BagSorting_01")
+		self.sorting = true
+		self.needSorting = false
+		SortBankBags()
+		if IsReagentBankUnlocked() then
+			SortReagentBankBags()
+		end
 	end
 
 end

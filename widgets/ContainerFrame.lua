@@ -76,7 +76,7 @@ function addon:CreateContainerFrame(...) return containerClass:Create(...) end
 local SimpleLayeredRegion = addon:GetClass("SimpleLayeredRegion")
 
 local bagSlots = {}
-function containerProto:OnCreate(name, isBank)
+function containerProto:OnCreate(name, isBank, bagObject)
 	self:SetParent(UIParent)
 	containerParentProto.OnCreate(self)
 
@@ -89,6 +89,7 @@ function containerProto:OnCreate(name, isBank)
 	self:SetScript('OnHide', self.OnHide)
 
 	self.name = name
+	self.bagObject = bagObject
 	self.isBank = isBank
 	self.isReagentBank = false
 
@@ -232,20 +233,13 @@ function containerProto:CreateModuleButton(letter, order, onClick, tooltip)
 	return button
 end
 
- function containerProto:CreateModuleAutoButton(letter, order, title, description, optionName, onShow, onHide)
+ function containerProto:CreateModuleAutoButton(letter, order, title, description, optionName, onClick)
 	local button
 	local statusTexts = {
 		[false] = '|cffff0000'..L["disabled"]..'|r',
 		[true]  = '|cff00ff00'..L["enabled"]..'|r'
 	}
 	local Description = description:sub(1, 1):upper() .. description:sub(2)
-
-	local onClick
-	if onShow and onHide then
-		onClick = function() onShow() onHide() end
-	else
-		onClick = onShow or onHide
-	end
 
 	button = self:CreateModuleButton(
 		letter,
@@ -264,21 +258,6 @@ end
 			tooltip:AddLine(format(L["Right-click to toggle %s."], description))
 		end
 	)
-
-	if onShow then
-		button:SetScript('OnShow', function()
-			if addon.db.profile[optionName] then
-				onShow()
-			end
-		end)
-	end
-	if onHide then
-		button:SetScript('OnHide', function()
-			if addon.db.profile[optionName] then
-				onHide()
-			end
-		end)
-	end
 
 	return button
 end
@@ -307,20 +286,7 @@ function containerProto:CreateSortButton()
 		BAG_CLEANUP_BAGS,
 		L["auto-sort"],
 		"autoSort",
-		nil,
-		self.isBank and
-			function()
-				PlaySound("UI_BagSorting_01")
-				SortBankBags()
-				if IsReagentBankUnlocked() then
-					SortReagentBankBags()
-				end
-			end
-		or
-			function()
-				PlaySound("UI_BagSorting_01")
-				SortBags()
-			end
+		function() self.bagObject:Sort() end
 	)
 end
 

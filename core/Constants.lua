@@ -140,6 +140,8 @@ addon.DEFAULT_SETTINGS = {
 		rightClickConfig = true,
 		autoOpen = true,
 		hideAnchor = false,
+		autoSort = false,
+		autoDeposit = false,
 	},
 	char = {
 		collapsedSections = {
