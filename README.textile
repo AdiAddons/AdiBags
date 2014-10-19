@@ -31,13 +31,12 @@ Most of these features may be configured. Check out the configuration panel ! (u
 ** Equipment (items your character can wear),
 ** Sections based on item category: trade goods, consumables, recipes, ...
 ** Manual filtering (drag and drop items on section header, or add new section from the configuration panel),
-** Ammunition and warlocks' soul shards,
 ** Free space.
 * Smart item sorting inside each section.
-* Smart section layout ; change the setting "Automatic layout update" to control the frequency of updates.
-* Track new items ; use the [N] button resets the "new" flag.
+* Smart section layout; change the setting "Automatic layout update" to control the frequency of updates.
+* Track new items; use the [N] button resets the "new" flag.
 * Display slot type.
-* Bag tidy ; click on the [T] button.
+* Bag sorting: left-click on the [S] button; right-click toggles auto-sorting, which sorts the bag on close.
 * Hide some sections, using the [V] button.
 * Name-based search.
 * Equipped bags (click on the bag icon in the top left corner),
@@ -61,7 +60,9 @@ h2. Tips & tricks
 
 h2. Known issues
 
-* *All items are always news / new items are not detected / item sets are not working:* AdiBags is (ab)using the game API to emulate some features that is was not meant to do. It relies on some timings that depend on your computer speed, your realm server and/or your network connection (because the game is inherently asynchronous). In some cases, it just does not work and there is almost nothing I can do because I cannot reproduce the bug to diagnose it and to try to fix it. *So basically, if the new item or item set filters are not working for you, there is little chance I can fix it.*
+* *New items detection does not work like it did before 1.8*: Ihis is normal. I switched to the NewItems API that Blizzard has added in patch 6.0. This API does not work for bank nor items coming from the bank or the mailbox, but it does not having the timing issue my code had.
+
+* *Opening the bank or closing my bag cause lag spike*: this is an know issue with Blizzard bag sorting. For now, it is called every time you close your bag with auto-sorting enabled. I am working on a solution to sort bags only if their content actually changed.
 
 * *Protected action/addon blocked error:* they sometimes happen with AdiBags. Even though my effort, I can not reproduce these. Blizzard taint reports are very buggy, often blaming the wrong addon. As such they are pretty much useless.
 
