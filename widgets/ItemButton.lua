@@ -332,15 +332,14 @@ function buttonProto:UpdateBorder(isolatedEvent)
 	self.IconBorder:Hide()
 	if self.hasItem then
 		local _, _, quality = GetItemInfo(self.itemId)
-		local color = BAG_ITEM_QUALITY_COLORS[quality]
-		if quality >= LE_ITEM_QUALITY_COMMON and color then
+		if quality and quality >= LE_ITEM_QUALITY_COMMON and BAG_ITEM_QUALITY_COLORS[quality] then
+			local color = BAG_ITEM_QUALITY_COLORS[quality]
 			self.IconBorder:Show()
 			self.IconBorder:SetVertexColor(color.r, color.g, color.b)
 		end
 		if self.JunkIcon and quality == LE_ITEM_QUALITY_POOR and addon:GetInteractingWindow() == "MERCHANT" then
 			self.JunkIcon:Show()
 		end
-		return
 	end
 	if isolatedEvent then
 		addon:SendMessage('AdiBags_UpdateBorder', self)
