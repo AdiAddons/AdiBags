@@ -88,7 +88,7 @@ function mod:UpdateButton(event, button)
 end
 
 function mod:ShowGlow(button)
-	if not glows[button] then
+	if not glows[button] and button.hasItem then
 		glowPool:Acquire(button)
 	end
 end
