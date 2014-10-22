@@ -71,9 +71,7 @@ function mod:UpdateButton(event, button)
 		button:HookScript('OnHide', Button_OnHide)
 		knownButtons[button] = true
 	end
-	local state = format('%d:%d:%s:%d:%s', 
-		button.bag,
-		button.slot,
+	local state = format('%s:%d:%s',
 		tostring(button.IconTexture:GetTexture() or "nil"),
 		tonumber(button.Count:GetText()) or 1,
 		tostring(button.Stock:GetText() or "-")
