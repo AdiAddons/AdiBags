@@ -341,7 +341,7 @@ local function GetBorder(bag, slot, itemId, settings)
 	local _, _, quality = GetItemInfo(itemId)
 	if quality == LE_ITEM_QUALITY_POOR and settings.dimJunk then
 		local v = 1 - 0.5 * settings.qualityOpacity
-		return true, v, v, v, nil, nil, nil, nil, "MOD"
+		return true, v, v, v, 1, nil, nil, nil, nil, "MOD"
 	end
 	local color = quality ~= LE_ITEM_QUALITY_COMMON and BAG_ITEM_QUALITY_COLORS[quality]
 	if color then
