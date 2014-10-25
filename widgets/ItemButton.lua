@@ -99,20 +99,21 @@ end
 local bankButtonClass, bankButtonProto = addon:NewClass("BankItemButton", "ItemButton")
 bankButtonClass.frameTemplate = "BankItemButtonGenericTemplate"
 
-function bankButtonProto:IsLocked()
-	return IsInventoryItemLocked(BankButtonIDToInvSlotID(self.slot))
+function bankButtonClass:OnAcquire(container, bag, slot)
+	self.inventorySlot = bag == REAGENTBANK_CONTAINER and ReagentBankButtonIDToInvSlotID(slot) or BankButtonIDToInvSlotID(slot)
+	return buttonProto.OnAcquire(self, container, bag, slot)
 end
 
-function bankButtonProto:GetInventorySlot()
-	if self.bag == BANK_CONTAINER then
-		return BankButtonIDToInvSlotID(self.slot)
-	elseif self.bag == REAGENTBANK_CONTAINER then
-		return ReagentBankButtonIDToInvSlotID(self.slot)
-	end
+function bankButtonProto:IsLocked()
+	return IsInventoryItemLocked(self.inventorySlot)
 end
 
 function bankButtonProto:UpdateNew()
 	-- Not supported
+end
+
+function bankButtonClass:GetInventorySlot()
+	return self.inventorySlot
 end
 
 --------------------------------------------------------------------------------
@@ -123,7 +124,7 @@ local containerButtonPool = addon:CreatePool(buttonClass)
 local bankButtonPool = addon:CreatePool(bankButtonClass)
 
 function addon:AcquireItemButton(container, bag, slot)
-	if bag == BANK_CONTAINER then
+	if bag == BANK_CONTAINER or bag == REAGENTBANK_CONTAINER then
 		return bankButtonPool:Acquire(container, bag, slot)
 	else
 		return containerButtonPool:Acquire(container, bag, slot)
