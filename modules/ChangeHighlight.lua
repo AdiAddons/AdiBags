@@ -21,7 +21,6 @@ mod.uiName = L['Highlight changes']
 mod.uiDesc = L['Highlight what changes in bags with a little sparkle.']
 
 local states = {}
-local changed = {}
 local glows = {}
 local knownContainers = {}
 local knownButtons = {}
@@ -38,7 +37,7 @@ function mod:OnDisable()
 	for _, glow in pairs(glows) do
 		glowPool:Release(glow)
 	end
-	wipe(states, changed)
+	wipe(states)
 end
 
 function mod:PreContentUpdate(event, container, _, removed)
@@ -55,19 +54,12 @@ function mod:PreContentUpdate(event, container, _, removed)
 	end
 end
 
-local function Button_OnShow(button)
-	if changed[button] then
-		mod:ShowGlow(button)
-	end
-end
-
 local function Button_OnHide(button)
 	mod:HideGlow(button)
 end
 
 function mod:UpdateButton(event, button)
 	if not knownButtons[button] then
-		button:HookScript('OnShow', Button_OnShow)
 		button:HookScript('OnHide', Button_OnHide)
 		knownButtons[button] = true
 	end
@@ -83,7 +75,6 @@ function mod:UpdateButton(event, button)
 	if not knownContainers[button.container] then
 		return
 	end
-	changed[button] = true
 	self:ShowGlow(button)
 end
 
@@ -114,7 +105,6 @@ function glowProto:OnCreate()
 
 	local group = self:CreateAnimationGroup()
 	group:SetScript('OnFinished', function() 
-		changed[self.button] = false
 		mod:HideGlow(self.button)
 	end)
 	self.Group = group
