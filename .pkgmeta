@@ -3,40 +3,58 @@ package-as: AdiBags
 externals:
   libs/LibStub:
     url: svn://svn.wowace.com/wow/libstub/mainline/trunk
+    tag: latest
   libs/CallbackHandler-1.0:
     url: svn://svn.wowace.com/wow/callbackhandler/mainline/trunk/CallbackHandler-1.0
+    tag: latest
   libs/AceAddon-3.0:
     url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceAddon-3.0
+    tag: latest
   libs/AceDB-3.0:
     url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDB-3.0
+    tag: latest
   libs/AceDBOptions-3.0:
     url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDBOptions-3.0
+    tag: latest
   libs/AceEvent-3.0:
     url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceEvent-3.0
+    tag: latest
   libs/AceTimer-3.0:
     url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceTimer-3.0
+    tag: latest
   libs/AceHook-3.0:
     url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceHook-3.0
+    tag: latest
   libs/AceBucket-3.0:
     url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceBucket-3.0
+    tag: latest
   libs/AceGUI-3.0:
     url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceGUI-3.0
+    tag: latest
   libs/AceConsole-3.0:
     url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceConsole-3.0
+    tag: latest
   libs/AceConfig-3.0:
     url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceConfig-3.0
+    tag: latest
   libs/LibDataBroker-1.1:
     url: http://github.com/tekkub/libdatabroker-1-1.git
+    tag: latest
   libs/LibBabble-Inventory-3.0:
     url: svn://svn.wowace.com/wow/libbabble-inventory-3-0/mainline/trunk
+    tag: latest
   libs/LibSharedMedia-3.0:
     url: svn://svn.wowace.com/wow/libsharedmedia-3-0/mainline/trunk/LibSharedMedia-3.0
+    tag: latest
   libs/AceGUI-3.0-SharedMediaWidgets:
     url: svn://svn.wowace.com/wow/ace-gui-3-0-shared-media-widgets/mainline/trunk/AceGUI-3.0-SharedMediaWidgets
+    tag: latest
   libs/LibItemUpgradeInfo-1.0:
     url: git://git.wowace.com/wow/libitemupgradeinfo-1-0/mainline.git
+    tag: latest
   libs/BugGrabber:
     url: svn://svn.wowace.com/wow/bug-grabber/mainline/trunk
+    tag: latest
 
 move-folders:
   AdiBags/AdiBags_Config: AdiBags_Config
