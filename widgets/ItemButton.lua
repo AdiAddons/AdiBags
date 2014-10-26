@@ -99,7 +99,8 @@ end
 local bankButtonClass, bankButtonProto = addon:NewClass("BankItemButton", "ItemButton")
 bankButtonClass.frameTemplate = "BankItemButtonGenericTemplate"
 
-function bankButtonClass:OnAcquire(container, bag, slot)
+function bankButtonProto:OnAcquire(container, bag, slot)
+	self.GetInventorySlot = nil -- Remove the method added by the template
 	self.inventorySlot = bag == REAGENTBANK_CONTAINER and ReagentBankButtonIDToInvSlotID(slot) or BankButtonIDToInvSlotID(slot)
 	return buttonProto.OnAcquire(self, container, bag, slot)
 end
@@ -112,7 +113,7 @@ function bankButtonProto:UpdateNew()
 	-- Not supported
 end
 
-function bankButtonClass:GetInventorySlot()
+function bankButtonProto:GetInventorySlot()
 	return self.inventorySlot
 end
 
