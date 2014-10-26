@@ -66,11 +66,16 @@ function mod:OnInitialize()
 			function() self:SendMessage('AdiBags_UpdateAllButtons') end,
 			'AdiBags'
 		)
+		SyLevel:RegisterFilterOnPipe('Adibags', 'Item level text')
+		SyLevelDB.EnabledFilters['Item level text']['Adibags'] = true
 	end
 end
 
 function mod:OnEnable()
 	self:RegisterMessage('AdiBags_UpdateButton', 'UpdateButton')
+	if SyLevel and self.db.profile.useSyLevel and not SyLevel:IsPipeEnabled('Adibags') then
+		SyLevel:EnablePipe('Adibags')
+	end
 	self:SendMessage('AdiBags_UpdateAllButtons')
 end
 
