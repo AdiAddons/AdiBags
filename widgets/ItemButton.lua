@@ -45,12 +45,14 @@ local ITEM_SIZE = addon.ITEM_SIZE
 
 local buttonClass, buttonProto = addon:NewClass("ItemButton", "Button", "ContainerFrameItemButtonTemplate", "AceEvent-3.0")
 
-local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture" }
+local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture", "NewItemTexture" }
 
 function buttonProto:OnCreate()
 	local name = self:GetName()
 	for i, childName in pairs(childrenNames ) do
-		self[childName] = _G[name..childName]
+		if not self[childName] then
+			self[childName] = _G[name..childName]
+		end
 	end
 	self:RegisterForDrag("LeftButton")
 	self:RegisterForClicks("LeftButtonUp","RightButtonUp")
@@ -356,22 +358,20 @@ function buttonProto:UpdateBorder(isolatedEvent)
 	if self.hasItem then
 		texture, r, g, b, a, x1, x2, y1, y2, blendMode = GetBorder(self.bag, self.slot, self.itemId, addon.db.profile)
 	end
-	if self.IconQuestTexture then
-		if not texture then
-			self.IconQuestTexture:Hide()
+	if not texture then
+		self.IconQuestTexture:Hide()
+	else
+		local border = self.IconQuestTexture
+		if texture == true then
+			border:SetVertexColor(1, 1, 1, 1)
+			border:SetTexture(r or 1, g or 1, b or 1, a or 1)
 		else
-			local border = self.IconQuestTexture
-			if texture == true then
-				border:SetVertexColor(1, 1, 1, 1)
-				border:SetTexture(r or 1, g or 1, b or 1, a or 1)
-			else
-				border:SetTexture(texture)
-				border:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
-			end
-			border:SetTexCoord(x1 or 0, x2 or 1, y1 or 0, y2 or 1)
-			border:SetBlendMode(blendMode or "BLEND")
-			border:Show()
+			border:SetTexture(texture)
+			border:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
 		end
+		border:SetTexCoord(x1 or 0, x2 or 1, y1 or 0, y2 or 1)
+		border:SetBlendMode(blendMode or "BLEND")
+		border:Show()
 	end
 	if self.JunkIcon then
 		local quality = self.hasItem and select(3, GetItemInfo(self.itemId))
