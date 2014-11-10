@@ -119,6 +119,25 @@ function addon:CloseAllBags(requesterFrame)
 	return found
 end
 
+function addon:OpenBag(id)
+	local ourBag = hookedBags[id]
+	if ourBag then
+		return ourBag:Open()
+	else
+		local frame = self:GetContainerFrame(id, true)
+		if frame then
+			frame:Hide()
+		end
+	end
+end
+
+function addon:CloseBag(id)
+	local ourBag = hookedBags[id]
+	if ourBag then
+		return ourBag:Close()
+	end
+end
+
 function addon:ToggleBag(id)
 	local ourBag = hookedBags[id]
 	if ourBag then
