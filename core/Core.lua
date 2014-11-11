@@ -94,6 +94,8 @@ function addon:OnInitialize()
 		addon:OpenOptions(strsplit(' ', cmd or ""))
 	end, true)
 
+	self:UpdateFilters()
+
 	self:Debug('Initialized')
 end
 

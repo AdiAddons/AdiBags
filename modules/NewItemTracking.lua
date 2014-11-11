@@ -56,15 +56,12 @@ function mod:OnEnable()
 
 	self:RegisterMessage('AdiBags_UpdateButton', 'UpdateButton')
 	self:RegisterEvent('BAG_NEW_ITEMS_UPDATED')
-
-	addon.filterProto.OnEnable(self)
 end
 
 function mod:OnDisable()
 	if self.button then
 		self.button:Hide()
 	end
-	addon.filterProto.OnDisable(self)
 end
 
 --------------------------------------------------------------------------------

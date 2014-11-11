@@ -146,6 +146,7 @@ do
 					set = function(info, value)
 						addon.db.profile[data.dbKey][name] = value
 						if value then module:Enable() else module:Disable() end
+						self:UpdateFilters()
 					end,
 				},
 			}
@@ -633,9 +634,9 @@ local function GetOptions()
 		},
 		plugins = {}
 	}
-	addon.OnModuleCreated = OnModuleCreated
+	hooksecurefunc(addon, "OnModuleCreated", OnModuleCreated)
 	for name, module in addon:IterateModules() do
-		addon:OnModuleCreated(module)
+		OnModuleCreated(addon, module)
 	end
 	UpdateFilterOrder()
 

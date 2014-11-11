@@ -31,14 +31,6 @@ local filterProto = setmetatable({
 }, { __index = addon.moduleProto })
 addon.filterProto = filterProto
 
-function filterProto:OnEnable()
-	addon:UpdateFilters()
-end
-
-function filterProto:OnDisable()
-	addon:UpdateFilters()
-end
-
 function filterProto:GetPriority()
 	return addon.db.profile.filterPriorities[self.filterName] or self.priority or 0
 end
@@ -68,9 +60,10 @@ local function CompareFilters(a, b)
 	end
 end
 
-local activeFilters = {}
+local activeFilters
 local allFilters = {}
 function addon:UpdateFilters()
+	if not self.db then return end
 	wipe(allFilters)
 	for name, filter in self:IterateModules() do
 		if filter.isFilter then
@@ -78,7 +71,16 @@ function addon:UpdateFilters()
 		end
 	end
 	tsort(allFilters, CompareFilters)
-	wipe(activeFilters)
+	self:UpdateActiveFilters()
+	self:SendMessage('AdiBags_FiltersChanged')
+end
+
+function addon:UpdateActiveFilters()
+	if activeFilters then
+		wipe(activeFilters)
+	else
+		activeFilters = {}
+	end
 	for i, filter in ipairs(allFilters) do
 		if filter:IsEnabled() then
 			tinsert(activeFilters, filter)
@@ -106,12 +108,19 @@ function addon:RegisterFilter(name, priority, Filter, ...)
 	return filter
 end
 
+function addon:OnModuleCreated(module)
+	activeFilters = nil
+end
+
 --------------------------------------------------------------------------------
 -- Filtering process
 --------------------------------------------------------------------------------
 
 local safecall = addon.safecall
 function addon:Filter(slotData, defaultSection, defaultCategory)
+	if not activeFilters then
+		self:UpdateActiveFilters()
+	end
 	for i, filter in ipairs(activeFilters) do
 		local sectionName, category = safecall(filter.Filter, filter, slotData)
 		if sectionName then
