@@ -60,37 +60,46 @@ local function CompareFilters(a, b)
 	end
 end
 
-local activeFilters
-local allFilters = {}
-function addon:UpdateFilters()
-	if not self.db then return end
-	wipe(allFilters)
-	for name, filter in self:IterateModules() do
-		if filter.isFilter then
-			tinsert(allFilters, filter)
-		end
-	end
-	tsort(allFilters, CompareFilters)
-	self:UpdateActiveFilters()
-	self:SendMessage('AdiBags_FiltersChanged')
-end
+local GetAllFilters, GetActiveFilters
+do
+	local activeFilters
+	local allFilters
 
-function addon:UpdateActiveFilters()
-	if activeFilters then
-		wipe(activeFilters)
-	else
-		activeFilters = {}
+	function addon:UpdateFilters()
+		activeFilters, allFilters = nil, nil
+		self:SendMessage('AdiBags_FiltersChanged')
 	end
-	for i, filter in ipairs(allFilters) do
-		if filter:IsEnabled() then
-			tinsert(activeFilters, filter)
+
+	function GetAllFilters()
+		if allFilters then
+			return allFilters
 		end
+		allFilters = {}
+		for name, filter in addon:IterateModules() do
+			if filter.isFilter then
+				tinsert(allFilters, filter)
+			end
+		end
+		tsort(allFilters, CompareFilters)
+		return allFilters
 	end
-	self:SendMessage('AdiBags_FiltersChanged')
+
+	function GetActiveFilters()
+		if activeFilters then
+			return activeFilters
+		end
+		activeFilters = {}
+		for i, filter in ipairs(GetAllFilters()) do
+			if filter:IsEnabled() then
+				tinsert(activeFilters, filter)
+			end
+		end
+		return activeFilters
+	end
 end
 
 function addon:IterateFilters()
-	return ipairs(allFilters)
+	return ipairs(GetAllFilters())
 end
 
 function addon:RegisterFilter(name, priority, Filter, ...)
@@ -109,7 +118,7 @@ function addon:RegisterFilter(name, priority, Filter, ...)
 end
 
 function addon:OnModuleCreated(module)
-	activeFilters = nil
+	self:UpdateFilters()
 end
 
 --------------------------------------------------------------------------------
@@ -118,10 +127,7 @@ end
 
 local safecall = addon.safecall
 function addon:Filter(slotData, defaultSection, defaultCategory)
-	if not activeFilters then
-		self:UpdateActiveFilters()
-	end
-	for i, filter in ipairs(activeFilters) do
+	for i, filter in ipairs(GetActiveFilters()) do
 		local sectionName, category = safecall(filter.Filter, filter, slotData)
 		if sectionName then
 			--@alpha@
