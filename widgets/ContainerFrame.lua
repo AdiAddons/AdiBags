@@ -308,11 +308,7 @@ function containerProto:CreateReagentTabButton()
 				self.BagSlotButton:SetChecked(False)
 			end
 			self.Title:SetText(self.isReagentBank and REAGENT_BANK or L["Bank"])
-			self:PauseUpdates()
-			for bag in pairs(previousBags) do
-				self:UpdateContent(bag)
-			end
-			self:ResumeUpdates()
+			addon:SendMessage('AdiBags_BagSetupChanged')
 		end,
 		function(_, tooltip)
 			if not IsReagentBankUnlocked() then
@@ -391,6 +387,7 @@ function containerProto:OnShow()
 	self:RegisterEvent('AUCTION_MULTISELL_UPDATE')
 	self:RegisterEvent('AUCTION_MULTISELL_FAILURE', "ResumeUpdates")
 	self:RegisterMessage('AdiBags_SpellIsTargetingChanged')
+	self:RegisterMessage('AdiBags_BagSetupChanged')
 	self:ResumeUpdates()
 	containerParentProto.OnShow(self)
 end
@@ -408,7 +405,19 @@ function containerProto:ResumeUpdates()
 	self.paused = false
 	self:RegisterMessage('AdiBags_BagUpdated', 'BagsUpdated')
 	self:Debug('ResumeUpdates')
-	for bag in pairs(self:GetBagIds()) do
+	return self:AdiBags_BagSetupChanged()
+end
+
+function containerProto:PauseUpdates()
+	if self.paused then return end
+	self:Debug('PauseUpdates')
+	self:UnregisterMessage('AdiBags_BagUpdated')
+	self.paused = true
+end
+
+function containerProto:AdiBags_BagSetupChanged()
+	self:Debug('BagSetupChanged')
+	for bag in pairs(self.content) do
 		self:UpdateContent(bag)
 	end
 	if self.filtersChanged  then
@@ -417,13 +426,6 @@ function containerProto:ResumeUpdates()
 		self:UpdateButtons()
 	end
 	self:LayoutSections(true)
-end
-
-function containerProto:PauseUpdates()
-	if self.paused then return end
-	self:Debug('PauseUpdates')
-	self:UnregisterMessage('AdiBags_BagUpdated')
-	self.paused = true
 end
 
 function containerProto:AUCTION_MULTISELL_UPDATE(event, current, total)
