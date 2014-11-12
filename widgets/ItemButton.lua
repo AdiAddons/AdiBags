@@ -63,6 +63,7 @@ function buttonProto:OnCreate()
 	if self.NewItemTexture then
 		self.NewItemTexture:Hide()
 	end
+	self.SplitStack = nil -- Remove the function set up by the template
 end
 
 function buttonProto:OnAcquire(container, bag, slot)
@@ -92,6 +93,10 @@ end
 
 function buttonProto:IsLocked()
 	return select(3, GetContainerItemInfo(self.bag, self.slot))
+end
+
+function buttonProto:SplitStack(split)
+	SplitContainerItem(self.bag, self.slot, split)
 end
 
 --------------------------------------------------------------------------------
