@@ -361,7 +361,7 @@ end
 function buttonProto:UpdateBorder(isolatedEvent)
 	local texture, r, g, b, a, x1, x2, y1, y2, blendMode
 	if self.hasItem then
-		texture, r, g, b, a, x1, x2, y1, y2, blendMode = GetBorder(self.bag, self.slot, self.itemId, addon.db.profile)
+		texture, r, g, b, a, x1, x2, y1, y2, blendMode = GetBorder(self.bag, self.slot, self.link or self.itemId, addon.db.profile)
 	end
 	if not texture then
 		self.IconQuestTexture:Hide()
