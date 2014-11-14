@@ -591,7 +591,7 @@ function containerProto:UpdateContent(bag)
 				link, count = false, 0
 			end
 
-			if GetDistinctItemID(slotData.link) ~= GetDistinctItemID(link) then
+			if slotData.link ~= link then
 				removed[slotData.slotId] = slotData.link
 				slotData.count = count
 				slotData.link = link
