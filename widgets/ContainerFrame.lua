@@ -556,9 +556,6 @@ end
 -- Bag content scanning
 --------------------------------------------------------------------------------
 
-local GetDistinctItemID = addon.GetDistinctItemID
-local IsValidItemLink = addon.IsValidItemLink
-
 function containerProto:UpdateContent(bag)
 	self:Debug('UpdateContent', bag)
 	local added, removed, changed = self.added, self.removed, self.changed

@@ -489,7 +489,7 @@ function addon:ShouldStack(slotData)
 			end
 		end
 	elseif conf.others and unstack < 2 then
-		return true, tostring(self.GetDistinctItemID(slotData.link))..hintSuffix
+		return true, tostring(slotData.link)..hintSuffix
 	end
 end
 
