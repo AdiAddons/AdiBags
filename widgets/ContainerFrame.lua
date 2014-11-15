@@ -566,7 +566,7 @@ function containerProto:UpdateContent(bag)
 	for slot = 1, newSize do
 		local itemId = GetContainerItemID(bag, slot)
 		local link = GetContainerItemLink(bag, slot)
-		if not itemId or (link and IsValidItemLink(link)) then
+		if not itemId or (link and addon.IsValidItemLink(link)) then
 			local slotData = content[slot]
 			if not slotData then
 				slotData = {
