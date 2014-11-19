@@ -341,27 +341,6 @@ function sectionProto:PutButtonAt(button, index, clean)
 	button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
 end
 
-function sectionProto:FitInSpace(maxWidth, maxHeight, xOffset)
-	maxWidth, maxHeight = ceil(maxWidth), ceil(maxHeight)
-	local maxColumns = floor((maxWidth + ITEM_SPACING) / SLOT_OFFSET)
-	local count = self.count
-
-	local maxRows = floor((maxHeight - HEADER_SIZE + ITEM_SPACING) / SLOT_OFFSET)
-	local numColumns = min(count, maxColumns)
-	local numRows = max(ceil(count / numColumns), maxRows)
-	numColumns = ceil(count / numRows)
-
-	local width = numColumns * SLOT_OFFSET - ITEM_SPACING
-	local height = numRows * SLOT_OFFSET - ITEM_SPACING + HEADER_SIZE
-
-	local occupation = width * height - ((SLOT_OFFSET * ITEM_SIZE) * (numColumns * numRows - count) - ITEM_SPACING)
-	local gap = max(0, height - maxHeight) * xOffset
-	if gap < occupation then
-		local area = height * max(height, maxHeight)
-		return true, numColumns, numRows, gap + area - occupation
-	end
-end
-
 function sectionProto:SetSizeInSlots(width, height)
 	if self.width ~= width or self.height ~= height then
 		self.width, self.height, self.total = width, height, width * height
@@ -371,7 +350,6 @@ function sectionProto:SetSizeInSlots(width, height)
 		)
 		self:SetDirtyLevel(1)
 	end
-	return self:GetSize()
 end
 
 function sectionProto:SetHeaderOverflow(overflow)
