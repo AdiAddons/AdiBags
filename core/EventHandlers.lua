@@ -120,8 +120,10 @@ function bucketLib:UnregisterBucket(bucket)
 end
 
 function bucketLib:UnregisterAllBuckets()
-	for bucket in pairs(buckets[self]) do
-		self:UnregisterBucket(bucket)
+	if buckets[self] then
+		for bucket in pairs(buckets[self]) do
+			self:UnregisterBucket(bucket)
+		end
 	end
 end
 
