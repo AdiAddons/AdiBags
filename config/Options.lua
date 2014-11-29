@@ -93,7 +93,7 @@ local handlers = {}
 function addon:GetOptionHandler(dbHolder, isFilter, postSet)
 	if not handlers[dbHolder] then
 		handlers[dbHolder] = setmetatable({dbHolder = dbHolder, isFilter = isFilter, PostSet = postSet}, handlerMeta)
-		dbHolder.SendMessage = LibStub('AceEvent-3.0').SendMessage
+		dbHolder.SendMessage = LibStub('ABEvent-1.0').SendMessage
 	end
 	return handlers[dbHolder]
 end
@@ -640,7 +640,7 @@ local function GetOptions()
 	end
 	UpdateFilterOrder()
 
-	LibStub('AceEvent-3.0').RegisterMessage(addonName.."_Config", 'AdiBags_FiltersChanged', UpdateFilterOrder)
+	LibStub('ABEvent-1.0').RegisterMessage(addonName.."_Config", 'AdiBags_FiltersChanged', UpdateFilterOrder)
 
 	return options
 end

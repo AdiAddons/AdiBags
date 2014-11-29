@@ -17,7 +17,7 @@ local UIParent = _G.UIParent
 -- Basic anchor
 --------------------------------------------------------------------------------
 
-local anchorClass, anchorProto, anchorParentProto = addon:NewClass("Anchor", "Button", "AceEvent-3.0")
+local anchorClass, anchorProto, anchorParentProto = addon:NewClass("Anchor", "Button", "ABEvent-1.0")
 
 function addon:CreateAnchorWidget(...) return anchorClass:Create(...) end
 

@@ -42,7 +42,7 @@ local SplitSectionKey = addon.SplitSectionKey
 local JUNK, FREE_SPACE = addon.BI['Junk'], L["Free space"]
 local JUNK_KEY, FREE_SPACE_KEY = BuildSectionKey(JUNK, JUNK), BuildSectionKey(FREE_SPACE, FREE_SPACE)
 
-local mod = addon:RegisterFilter("FilterOverride", 95, "AceEvent-3.0")
+local mod = addon:RegisterFilter("FilterOverride", 95, "ABEvent-1.0")
 mod.uiName = L['Manual filtering']
 mod.uiDesc = L['Allow you manually redefine the section in which an item should be put. Simply drag an item on the section title.']
 

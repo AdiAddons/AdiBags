@@ -27,7 +27,7 @@ local wipe = _G.wipe
 
 local UpdateTable = addon.UpdateTable
 
-local mod = addon:NewModule('CurrencyFrame', 'AceEvent-3.0')
+local mod = addon:NewModule('CurrencyFrame', 'ABEvent-1.0')
 mod.uiName = L['Currency']
 mod.uiDesc = L['Display character currency at bottom left of the backpack.']
 

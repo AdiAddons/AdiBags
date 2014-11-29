@@ -12,7 +12,7 @@ local _G = _G
 local CreateFrame = _G.CreateFrame
 --GLOBALS>
 
-local mod = addon:NewModule('MoneyFrame', 'AceEvent-3.0')
+local mod = addon:NewModule('MoneyFrame', 'ABEvent-1.0')
 mod.uiName = L['Money']
 mod.uiDesc = L['Display character money at bottom right of the backpack.']
 

@@ -154,7 +154,7 @@ end
 
 function addon:NewBag(name, order, isBank, ...)
 	self:Debug('NewBag', name, order, isBank, ...)
-	local bag = addon:NewModule(name, bagProto, 'AceEvent-3.0', ...)
+	local bag = addon:NewModule(name, bagProto, 'ABEvent-1.0', ...)
 	bag.bagName = name
 	bag.bagIds = addon.BAG_IDS[isBank and "BANK" or "BAGS"]
 	bag.isBank = isBank

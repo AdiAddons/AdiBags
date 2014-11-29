@@ -67,7 +67,7 @@ end
 -- Initialization and release
 --------------------------------------------------------------------------------
 
-local sectionClass, sectionProto = addon:NewClass("Section", "Frame", "AceEvent-3.0")
+local sectionClass, sectionProto = addon:NewClass("Section", "Frame", "ABEvent-1.0")
 local sectionPool = addon:CreatePool(sectionClass, "AcquireSection")
 
 function sectionProto:OnCreate()

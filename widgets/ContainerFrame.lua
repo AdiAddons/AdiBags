@@ -69,7 +69,7 @@ end
 -- Bag creation
 --------------------------------------------------------------------------------
 
-local containerClass, containerProto, containerParentProto = addon:NewClass("Container", "LayeredRegion", "AceEvent-3.0")
+local containerClass, containerProto, containerParentProto = addon:NewClass("Container", "LayeredRegion", "ABEvent-1.0")
 
 function addon:CreateContainerFrame(...) return containerClass:Create(...) end
 
@@ -210,7 +210,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 
 	-- Register persitent listeners
 	local name = self:GetName()
-	local RegisterMessage = LibStub('AceEvent-3.0').RegisterMessage
+	local RegisterMessage = LibStub('ABEvent-1.0').RegisterMessage
 	RegisterMessage(name, 'AdiBags_FiltersChanged', self.FiltersChanged, self)
 	RegisterMessage(name, 'AdiBags_LayoutChanged', self.LayoutChanged, self)
 	RegisterMessage(name, 'AdiBags_ConfigChanged', self.ConfigChanged, self)

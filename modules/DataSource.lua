@@ -20,7 +20,7 @@ local tinsert = _G.tinsert
 local wipe = _G.wipe
 --GLOBALS>
 
-local mod = addon:NewModule('DataSource', 'AceEvent-3.0', 'AceBucket-3.0')
+local mod = addon:NewModule('DataSource', 'ABEvent-1.0', 'ABBucket-1.0')
 mod.uiName = L['LDB Plugin']
 mod.uiDesc = L['Provides a LDB data source to be displayed by LDB display addons.']
 mod.cannotDisable = true
