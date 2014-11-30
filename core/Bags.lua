@@ -235,16 +235,21 @@ do
 	-- L["Bank"]
 	local bank = addon:NewBag("Bank", 20, true, 'AceHook-3.0')
 
+	local UIHider = CreateFrame("Frame")
+	UIHider:Hide()
+
 	local function NOOP() end
 
 	function bank:PostEnable()
 		self:RegisterMessage('AdiBags_InteractingWindowChanged')
 
-		BankFrame:Hide()
 		self:RawHookScript(BankFrame, "OnEvent", NOOP, true)
-		self:RawHook(BankFrame, "Show", "Open", true)
-		self:RawHook(BankFrame, "Hide", "Close", true)
-		--self:RawHook(BankFrame, "IsShown", "IsOpen", true)
+		self:RawHookScript(BankFrame, "OnShow", NOOP, true)
+		self:RawHookScript(BankFrame, "OnHide", NOOP, true)
+		self:Hook(BankFrame, "Show", "Open", true)
+		self:Hook(BankFrame, "Hide", "Close", true)
+
+		BankFrame:SetParent(UIHider)
 
 		if addon:GetInteractingWindow() == "BANKFRAME" then
 			self:Open()
@@ -255,6 +260,7 @@ do
 		if addon:GetInteractingWindow() == "BANKFRAME" then
 			self.hooks[BankFrame].Show(BankFrame)
 		end
+		BankFrame:SetParent(UIParent)
 	end
 
 	function bank:AdiBags_InteractingWindowChanged(event, new, old)
@@ -270,12 +276,14 @@ do
 	end
 	
 	function bank:PreOpen()
+		self.hooks[BankFrame].Show(BankFrame)
 		if addon.db.profile.autoDeposit then
 			DepositReagentBank()
 		end
 	end
 
 	function bank:PostClose()
+		self.hooks[BankFrame].Hide(BankFrame)
 		CloseBankFrame()
 	end
 	

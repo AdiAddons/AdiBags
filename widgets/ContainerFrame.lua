@@ -302,6 +302,7 @@ function containerProto:CreateReagentTabButton()
 			end
 			local previousBags = self:GetBagIds()
 			self.isReagentBank = not self.isReagentBank
+			BankFrame.selectedTab = self.isReagentBank and 2 or 1
 			self.BagSlotButton:SetEnabled(not self.isReagentBank)
 			if self.isReagentBank and self.BagSlotPanel:IsShown() then
 				self.BagSlotPanel:Hide()
