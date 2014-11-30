@@ -51,6 +51,7 @@ local buckets = {}
 local function RegisterBucket(target, event, delay, callback, regFunc, unregFunc)
 
 	local received, timer, cancelled = {}, false, false
+	local handle = tostring(received):sub(8)
 
 	local actualCallback
 	if type(callback) == "string" then
@@ -58,7 +59,7 @@ local function RegisterBucket(target, event, delay, callback, regFunc, unregFunc
 	else
 		actualCallback = function() return callback(received) end
 	end
-	
+
 	local function Fire()
 		timer = nil
 		if not cancelled and next(received) then
@@ -77,7 +78,13 @@ local function RegisterBucket(target, event, delay, callback, regFunc, unregFunc
 			C_Timer.After(delay, Fire)
 		end
 	end
-	
+
+	local function Cancel()
+		unregFunc(received)
+		cancelled = true
+		buckets[target][handle] = nil
+	end
+
 	if type(event) == "table" then
 		for _, ev in ipairs(event) do
 			regFunc(received, ev, Handler)
@@ -85,17 +92,11 @@ local function RegisterBucket(target, event, delay, callback, regFunc, unregFunc
 	else
 		regFunc(received, event, Handler)
 	end
-	
-	local handle = function()
-		unregFunc(received)
-		cancelled = true
-		buckets[target][handle] = nil
-	end
 
 	if not buckets[target] then
 		buckets[target] = {}
 	end
-	buckets[target][handle] = true
+	buckets[target][handle] = Cancel
 
 	return handle
 end
@@ -109,14 +110,16 @@ function bucketLib:RegisterBucketMessage(event, delay, callback)
 end
 
 function bucketLib:UnregisterBucket(handle)
-	return handle()
+	local cancel = buckets[self] and buckets[self][handle]
+	if cancel then
+		xpcall(cancel, geterrorhandler())
+	end
 end
 
 function bucketLib:UnregisterAllBuckets()
-	if buckets[self] then
-		for handle in pairs(buckets[self]) do
-			handle()
-		end
+	if not buckets[self] then return end
+	for _, cancel in pairs(buckets[self]) do
+		xpcall(cancel, geterrorhandler())
 	end
 end
 
