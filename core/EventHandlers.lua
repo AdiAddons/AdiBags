@@ -89,7 +89,7 @@ local function RegisterBucket(target, event, delay, callback, regFunc, unregFunc
 	local handle = function()
 		unregFunc(received)
 		cancelled = true
-		buckets[self][handle] = nil
+		buckets[target][handle] = nil
 	end
 
 	if not buckets[target] then
