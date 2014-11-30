@@ -13,7 +13,7 @@ local GameTooltip = _G.GameTooltip
 local UseContainerItem = _G.UseContainerItem
 --GLOBALS>
 
-local mod = addon:NewModule('BankSwitcher', 'AceEvent-3.0')
+local mod = addon:NewModule('BankSwitcher', 'ABEvent-1.0')
 mod.uiName = L['Bank Switcher']
 mod.uiDesc = L['Move items from and to the bank by right-clicking on section headers.']
 

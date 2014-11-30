@@ -52,7 +52,7 @@ function addon:SetupDefaultFilters()
 
 	-- [90] Parts of an equipment set
 	do
-		local setFilter = addon:RegisterFilter("ItemSets", 90, "AceEvent-3.0", "AceBucket-3.0")
+		local setFilter = addon:RegisterFilter("ItemSets", 90, "ABEvent-1.0", "ABBucket-1.0")
 		setFilter.uiName = L['Gear manager item sets']
 		setFilter.uiDesc = L['Put items belonging to one or more sets of the built-in gear manager in specific sections.']
 

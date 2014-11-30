@@ -43,7 +43,7 @@ local ITEM_SIZE = addon.ITEM_SIZE
 -- Button initialization
 --------------------------------------------------------------------------------
 
-local buttonClass, buttonProto = addon:NewClass("ItemButton", "Button", "ContainerFrameItemButtonTemplate", "AceEvent-3.0")
+local buttonClass, buttonProto = addon:NewClass("ItemButton", "Button", "ContainerFrameItemButtonTemplate", "ABEvent-1.0")
 
 local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture", "NewItemTexture" }
 
@@ -391,7 +391,7 @@ end
 -- Item stack button
 --------------------------------------------------------------------------------
 
-local stackClass, stackProto = addon:NewClass("StackButton", "Frame", "AceEvent-3.0")
+local stackClass, stackProto = addon:NewClass("StackButton", "Frame", "ABEvent-1.0")
 addon:CreatePool(stackClass, "AcquireStackButton")
 
 function stackProto:OnCreate()

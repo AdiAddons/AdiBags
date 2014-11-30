@@ -26,7 +26,7 @@ local wipe = _G.wipe
 local JUNK = addon.BI['Junk']
 local JUNK_KEY = addon.BuildSectionKey(JUNK, JUNK)
 
-local mod = addon:RegisterFilter("Junk", 85, "AceEvent-3.0", "AceHook-3.0")
+local mod = addon:RegisterFilter("Junk", 85, "ABEvent-1.0", "AceHook-3.0")
 mod.uiName = JUNK
 mod.uiDesc = L['Put items of poor quality or labeled as junk in the "Junk" section.']
 

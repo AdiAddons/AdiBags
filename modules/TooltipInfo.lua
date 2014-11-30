@@ -23,7 +23,7 @@ local tsort = _G.table.sort
 local wipe = _G.wipe
 --GLOBALS>
 
-local mod = addon:NewModule('TooltipInfo', 'AceEvent-3.0', 'AceHook-3.0')
+local mod = addon:NewModule('TooltipInfo', 'ABEvent-1.0', 'AceHook-3.0')
 mod.uiName = L['Tooltip information']
 mod.uiDesc = L['Add more information in tooltips related to items in your bags.']
 

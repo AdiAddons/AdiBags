@@ -21,7 +21,7 @@ local select = _G.select
 local unpack = _G.unpack
 --GLOBALS>
 
-local mod = addon:NewModule('ItemLevel', 'AceEvent-3.0')
+local mod = addon:NewModule('ItemLevel', 'ABEvent-1.0')
 mod.uiName = L['Item level']
 mod.uiDesc = L['Display the level of equippable item in the top left corner of the button.']
 

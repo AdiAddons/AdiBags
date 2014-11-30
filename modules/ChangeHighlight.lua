@@ -16,7 +16,7 @@ local tostring = _G.tostring
 local wipe = _G.wipe
 --GLOBALS>
 
-local mod = addon:NewModule('ChangeHighlight', 'AceEvent-3.0')
+local mod = addon:NewModule('ChangeHighlight', 'ABEvent-1.0')
 mod.uiName = L['Highlight changes']
 mod.uiDesc = L['Highlight what changes in bags with a little sparkle.']
 

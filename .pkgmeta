@@ -16,17 +16,8 @@ externals:
   libs/AceDBOptions-3.0:
     url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDBOptions-3.0
     tag: latest
-  libs/AceEvent-3.0:
-    url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceEvent-3.0
-    tag: latest
-  libs/AceTimer-3.0:
-    url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceTimer-3.0
-    tag: latest
   libs/AceHook-3.0:
     url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceHook-3.0
-    tag: latest
-  libs/AceBucket-3.0:
-    url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceBucket-3.0
     tag: latest
   libs/AceGUI-3.0:
     url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceGUI-3.0

@@ -29,7 +29,7 @@ local type = _G.type
 local unpack = _G.unpack
 --GLOBALS>
 
-LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'AceEvent-3.0', 'AceBucket-3.0', 'AceHook-3.0', 'AceConsole-3.0')
+LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'ABEvent-1.0', 'ABBucket-1.0', 'AceHook-3.0', 'AceConsole-3.0')
 --@debug@
 _G[addonName] = addon
 --@end-debug@

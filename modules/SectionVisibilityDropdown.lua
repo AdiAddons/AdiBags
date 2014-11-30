@@ -23,7 +23,7 @@ local wipe = _G.wipe
 
 local SplitSectionKey = addon.SplitSectionKey
 
-local mod = addon:NewModule('SectionVisibilityDropdown', 'AceEvent-3.0')
+local mod = addon:NewModule('SectionVisibilityDropdown', 'ABEvent-1.0')
 mod.uiName = L['Section visibility button']
 mod.uiDesc = L['Add a dropdown menu to bags that allow to hide the sections.']
 
