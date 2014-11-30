@@ -46,83 +46,76 @@ end
 -- Event/message bucketing
 
 local bucketLib = LibStub:NewLibrary("ABBucket-1.0", 1)
-local buckets, bucketHeap = {}, {}
+local buckets = {}
 
-local function BucketFire(self)
-	self.timer = nil
-	if not self.cancelled and next(self.received) then
-		xpcall(self.callback, geterrorhandler())
-	end
-	wipe(self.received)
-end
+local function RegisterBucket(target, event, delay, callback, regFunc, unregFunc)
 
-local function BucketHandler(self, event, arg)
-	if arg == nil then
-		arg = "nil"
-	end
-	self.received[arg] = (self.received[arg] or 0) + 1
-	if not self.timer and not self.cancelled then
-		self.timer = true
-		C_Timer.After(self.delay, function() return BucketFire(self) end)
-	end
-end
+	local received, timer, cancelled = {}, false, false
 
-local function RegisterBucket(target, event, delay, callback, regFunc)
-	local bucket = next(bucketHeap)
-	if bucket then
-		bucketHeap[bucket] = nil
-	else
-		bucket = { received = {}, handler = BucketHandler }
-	end
-	wipe(bucket.received)
-	bucket.delay, bucket.cancelled, bucket.timer = delay
-
+	local actualCallback
 	if type(callback) == "string" then
-		bucket.callback = function() return target[callback](target, bucket.received) end
+		actualCallback = function() return target[callback](target, received) end
 	else
-		bucket.callback = function() return callback(target, bucket.received) end
+		actualCallback = function() return callback(received) end
+	end
+	
+	local function Fire()
+		timer = nil
+		if not cancelled and next(received) then
+			xpcall(actualCallback, geterrorhandler())
+		end
+		wipe(received)
 	end
 
+	local function Handler(event, arg)
+		if arg == nil then
+			arg = "nil"
+		end
+		received[arg] = (received[arg] or 0) + 1
+		if not timer then
+			timer = true
+			C_Timer.After(delay, Fire)
+		end
+	end
+	
 	if type(event) == "table" then
-		for _, e in ipairs(event) do
-			regFunc(bucket, e, "handler")
+		for _, ev in ipairs(event) do
+			regFunc(received, ev, Handler)
 		end
 	else
-		regFunc(bucket, event, "handler")
+		regFunc(received, event, Handler)
+	end
+	
+	local handle = function()
+		unregFunc(received)
+		cancelled = true
+		buckets[self][handle] = nil
 	end
 
-	if buckets[target] then
-		buckets[target][bucket] = true
-	else
-		buckets[target] = { [bucket] = true }
+	if not buckets[target] then
+		buckets[target] = {}
 	end
-	return bucket
+	buckets[target][handle] = true
+
+	return handle
 end
 
 function bucketLib:RegisterBucketEvent(event, delay, callback)
-	return RegisterBucket(self, event, delay, callback, eventLib.RegisterEvent)
+	return RegisterBucket(self, event, delay, callback, eventLib.RegisterEvent, eventLib.UnregisterAllEvents)
 end
 
 function bucketLib:RegisterBucketMessage(event, delay, callback)
-	return RegisterBucket(self, event, delay, callback, eventLib.RegisterMessage)
+	return RegisterBucket(self, event, delay, callback, eventLib.RegisterMessage, eventLib.UnregisterAllMessages)
 end
 
-function bucketLib:UnregisterBucket(bucket)
-	if not buckets[self][bucket] then
-		return
-	end
-	eventLib.UnregisterAllEvents(bucket)
-	eventLib.UnregisterAllMessages(bucket)
-	bucket.cancelled = true
-	wipe(bucket.received)
-	buckets[self][bucket] = nil
-	bucketHeap[bucket] = true
+function bucketLib:UnregisterBucket(handle)
+	return handle()
 end
 
 function bucketLib:UnregisterAllBuckets()
 	if buckets[self] then
-		for bucket in pairs(buckets[self]) do
-			self:UnregisterBucket(bucket)
+		for handle in pairs(buckets[self]) do
+			handle()
 		end
 	end
 end
