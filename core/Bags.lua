@@ -277,7 +277,7 @@ do
 	
 	function bank:PreOpen()
 		self.hooks[BankFrame].Show(BankFrame)
-		if addon.db.profile.autoDeposit then
+		if addon.db.profile.autoDeposit and not IsModifierKeyDown() then
 			DepositReagentBank()
 		end
 	end
