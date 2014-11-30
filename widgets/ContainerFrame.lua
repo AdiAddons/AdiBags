@@ -233,7 +233,7 @@ function containerProto:CreateModuleButton(letter, order, onClick, tooltip)
 	return button
 end
 
- function containerProto:CreateModuleAutoButton(letter, order, title, description, optionName, onClick)
+ function containerProto:CreateModuleAutoButton(letter, order, title, description, optionName, onClick, moreTooltip)
 	local button
 	local statusTexts = {
 		[false] = '|cffff0000'..L["disabled"]..'|r',
@@ -255,6 +255,9 @@ end
 		function(_, tooltip)
 			tooltip:AddLine(title, 1, 1, 1)
 			tooltip:AddLine(format(L["%s is: %s."], Description, statusTexts[not not addon.db.profile[optionName]]))
+			if moreTooltip then
+				tooltip:AddLine(moreTooltip)
+			end
 			tooltip:AddLine(format(L["Right-click to toggle %s."], description))
 		end
 	)
@@ -269,7 +272,8 @@ function containerProto:CreateDepositButton()
 		REAGENTBANK_DEPOSIT,
 		L["auto-deposit"],
 		"autoDeposit",
-		DepositReagentBank
+		DepositReagentBank,
+		L["You can block auto-deposit ponctually by pressing a modified key while talking to the banker."]
 	)
 
 	if not IsReagentBankUnlocked() then
@@ -286,7 +290,8 @@ function containerProto:CreateSortButton()
 		BAG_CLEANUP_BAGS,
 		L["auto-sort"],
 		"autoSort",
-		function() self.bagObject:Sort() end
+		function() self.bagObject:Sort() end,
+		'|cffff7700'..L["Auto-sort can cause freeze when the bag is closed."]..'|r'
 	)
 end
 
