@@ -112,8 +112,6 @@ addon.DEFAULT_SETTINGS = {
 		scale = 0.8,
 		rowWidth = { ['*'] = 9 },
 		maxHeight = 0.60,
-		maxWidth = 0.40,
-		laxOrdering = 0,
 		qualityHighlight = true,
 		qualityOpacity = 1.0,
 		dimJunk = true,

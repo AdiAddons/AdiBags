@@ -862,91 +862,66 @@ do
 		end
 	end
 
-	local sections = {}
+	local sections, heights, rows = {}, { 0 }, {}
 
-	local function SectionFit(section, maxHeight)
-		local wasted = maxHeight - floor(section:GetHeight())
-		return wasted >= 0.0, wasted
-	end
-
-	local function GetBestSection(maxHeight, category)
-		local bestIndex, leastWasted
-		for index, section in ipairs(sections) do
-			if category and section.category ~= category then
-				break
-			end
-			local fit, wasted = SectionFit(section, maxHeight)
-			if fit and (not bestIndex or wasted < leastWasted) then
-				bestIndex, leastWasted = index, wasted
-			end
-		end
-		return bestIndex, leastWasted
-	end
-
-	local getNextSection = {
-		-- 0: keep section of the same category together and in the same exact order
-		[0] = function(maxHeight)
-			if SectionFit(sections[1], maxHeight) then
-				return 1
-			end
-		end,
-		-- 1: keep categories together
-		[1] = function(maxHeight)
-			return GetBestSection(maxHeight, sections[1].category)
-		end,
-		-- 2: do not care about ordering
-		[2] = GetBestSection,
-	}
-
-	local row = {}
+	local COLUMN_SPACING = ceil((ITEM_SIZE + ITEM_SPACING) / 2)
 
 	function DoLayoutSections(self, maxHeight, rowWidth, minWidth)
 
-		local estimatedHeight, maxSectionHeight = 0, 0
 		wipe(sections)
+		local halfWidth = floor(rowWidth / 2)
 		for key, section in pairs(self.sections) do
 			if not section:IsEmpty() and not section:IsCollapsed() then
 				tinsert(sections, section)
-				local h = ceil(section.count / rowWidth)
-				estimatedHeight = estimatedHeight + (ITEM_SIZE + ITEM_SPACING) * h + HEADER_SIZE
-				section:SetSizeInSlots(rowWidth, h)
-				maxSectionHeight = max(maxSectionHeight, section:GetHeight())
+				local w, h = halfWidth, 1
+				if section.count > w then
+					w, h = rowWidth, ceil(section.count / rowWidth)
+				end
+				section:SetSizeInSlots(w, h)
 			end
 		end
 		tsort(sections, CompareSections)
 
-		estimatedHeight = estimatedHeight - HEADER_SIZE - ITEM_SPACING
-		local columnWidth = (ITEM_SIZE + ITEM_SPACING) * rowWidth + SECTION_SPACING - ITEM_SPACING
-		local numCols = max(ceil(estimatedHeight / maxHeight), ceil(max(1, minWidth) / columnWidth))
-		local leftover = max(0, (numCols * maxHeight) - estimatedHeight)
-		maxHeight = ceil(max(maxSectionHeight, (estimatedHeight - leftover) / numCols)) + ITEM_SIZE
-
 		local content = self.Content
-		local getNext = getNextSection[addon.db.profile.laxOrdering]
+		local columnWidth = (ITEM_SIZE + ITEM_SPACING) * rowWidth + COLUMN_SPACING - ITEM_SPACING
 
-		local x, contentHeight = 0, 0
-		while #sections > 0 do
-			local y, maxWidth = 0, 0
-			while #sections > 0 do
-				local availableHeight = maxHeight - y
-				local index
-				if not SectionFit(sections[1], availableHeight) or availableHeight < maxSectionHeight then
-					index = getNext(availableHeight)
+		local numRows, x, y = 0, 0, 0
+		for index, section in ipairs(sections) do
+			if x > 0 then
+				if x + section:GetWidth() <= columnWidth then
+					section:SetPoint('TOPLEFT', sections[index-1], 'TOPRIGHT', ITEM_SPACING*2, 0)
 				else
-					index = 1
+					x, y = 0, heights[numRows + 1]
 				end
-				if not index then
-					break
-				end
-				local section = tremove(sections, index)
-				section:SetPoint("TOPLEFT", content, x, -y)
-				y = y + section:GetHeight() + ITEM_SPACING
-				maxWidth = max(maxWidth, section:GetWidth())
 			end
-			x = x + maxWidth + SECTION_SPACING
-			contentHeight = max(contentHeight, y)
+			if x == 0 then
+				numRows = numRows + 1
+				rows[numRows] = section
+				if numRows > 1 then
+					section:SetPoint('TOPLEFT', rows[numRows-1], 'BOTTOMLEFT', 0, -ITEM_SPACING)
+				end
+			end
+			heights[numRows + 1] = y + section:GetHeight() + ITEM_SPACING
+			x = x + section:GetWidth() + ITEM_SPACING * 2
 		end
-		return x - SECTION_SPACING, contentHeight - ITEM_SPACING
+
+		local totalHeight = (heights[numRows + 1] - ITEM_SPACING)
+		local numColumns = max(floor(minWidth / (columnWidth - COLUMN_SPACING)), ceil(totalHeight / maxHeight))
+		local columnHeight = ceil(totalHeight / numColumns)
+
+		local row, x, contentHeight = 1, 0, 0
+		for col = 1, numColumns do
+			local yOffset, section = heights[row], rows[row]
+			section:SetPoint('TOPLEFT', content, x, 0)
+			local maxY = yOffset + columnHeight - ITEM_SIZE
+			repeat
+				row = row + 1
+			until row > numRows or heights[row] > maxY
+			contentHeight = max(contentHeight, heights[row] - yOffset)
+			x = x + columnWidth
+		end
+
+		return x - COLUMN_SPACING, contentHeight
 	end
 end
 

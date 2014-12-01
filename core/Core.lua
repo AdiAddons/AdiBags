@@ -186,9 +186,7 @@ function addon:UpgradeProfile()
 	local profile = self.db.profile
 
 	-- Convert old ordering setting
-	if profile.laxOrdering == true then
-		profile.laxOrdering = 1
-	end
+	profile.laxOrdering = nil
 
 	-- Convert old anchor settings
 	local oldData = profile.anchor
@@ -411,7 +409,7 @@ function addon:ConfigChanged(vars)
 	end
 	if vars.sortingOrder then
 		return self:SetSortingOrder(self.db.profile.sortingOrder)
-	elseif vars.maxHeight or vars.maxWidth or vars.laxOrdering then
+	elseif vars.maxHeight then
 		return self:SendMessage('AdiBags_LayoutChanged')
 	elseif vars.scale then
 		return self:LayoutBags()

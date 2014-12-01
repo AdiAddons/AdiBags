@@ -373,16 +373,6 @@ local function GetOptions()
 							},
 						},
 					},
-					maxWidth = {
-						name = L['Maximum bag width'],
-						desc = L['Adjust the maximum width of the bags, relative to screen size.\nNote: due to the layout constraints, this is a soft cap.'],
-						type = 'range',
-						order = 145,
-						isPercent = true,
-						min = 0.30,
-						max = 1.00,
-						step = 0.05,
-					},
 					maxHeight = {
 						name = L['Maximum bag height'],
 						desc = L['Adjust the maximum height of the bags, relative to screen size.'],
@@ -392,18 +382,6 @@ local function GetOptions()
 						min = 0.30,
 						max = 0.90,
 						step = 0.01,
-					},
-					laxOrdering = {
-						name = L['Layout priority'],
-						desc = L['Select the top objective of the layout algorithm.'],
-						type = 'select',
-						width = 'double',
-						order = 160,
-						values = {
-							[0] = L['Strictly keep ordering'],
-							[1] = L['Group sections of same category'],
-							[2] = L['Fill lines at most'],
-						}
 					},
 					automaticLayout = {
 						name = L['Automatic layout update'],
