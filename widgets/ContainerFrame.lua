@@ -311,7 +311,7 @@ function containerProto:CreateReagentTabButton()
 			self.BagSlotButton:SetEnabled(not self.isReagentBank)
 			if self.isReagentBank and self.BagSlotPanel:IsShown() then
 				self.BagSlotPanel:Hide()
-				self.BagSlotButton:SetChecked(False)
+				self.BagSlotButton:SetChecked(false)
 			end
 			self.Title:SetText(self.isReagentBank and REAGENT_BANK or L["Bank"])
 			addon:SendMessage('AdiBags_BagSetupChanged')
