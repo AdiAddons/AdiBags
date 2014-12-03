@@ -309,16 +309,7 @@ function containerProto:CreateReagentTabButton()
 				PlaySound("igMainMenuOption")
 				return StaticPopup_Show("CONFIRM_BUY_REAGENTBANK_TAB")
 			end
-			local previousBags = self:GetBagIds()
-			self.isReagentBank = not self.isReagentBank
-			BankFrame.selectedTab = self.isReagentBank and 2 or 1
-			self.BagSlotButton:SetEnabled(not self.isReagentBank)
-			if self.isReagentBank and self.BagSlotPanel:IsShown() then
-				self.BagSlotPanel:Hide()
-				self.BagSlotButton:SetChecked(false)
-			end
-			self.Title:SetText(self.isReagentBank and REAGENT_BANK or L["Bank"])
-			addon:SendMessage('AdiBags_BagSetupChanged')
+			self:ShowReagentTab(not self.isReagentBank)
 		end,
 		function(_, tooltip)
 			if not IsReagentBankUnlocked() then
@@ -379,7 +370,6 @@ function containerProto:OnShow()
 	self:RegisterEvent('AUCTION_MULTISELL_START', "PauseUpdates")
 	self:RegisterEvent('AUCTION_MULTISELL_UPDATE')
 	self:RegisterEvent('AUCTION_MULTISELL_FAILURE', "ResumeUpdates")
-	self:RegisterMessage('AdiBags_BagSetupChanged')
 	self:ResumeUpdates()
 	containerParentProto.OnShow(self)
 end
@@ -419,9 +409,25 @@ function containerProto:RefreshContents()
 	end
 end
 
-function containerProto:AdiBags_BagSetupChanged()
-	self:Debug('AdiBags_BagSetupChanged')
-	self:FullUpdate()
+function containerProto:ShowReagentTab(show)
+	self:Debug('ShowReagentTab', show)
+
+	self.Title:SetText(show and REAGENT_BANK or L["Bank"])
+	self.BagSlotButton:SetEnabled(not show)
+	if show and self.BagSlotPanel:IsShown() then
+		self.BagSlotPanel:Hide()
+		self.BagSlotButton:SetChecked(false)
+	end
+	BankFrame.selectedTab = show and 2 or 1
+
+	local previousBags = self:GetBagIds()
+	self.isReagentBank = show
+
+	for bag in pairs(previousBags) do
+		self:UpdateContent(bag)
+	end
+	self.forceLayout = true
+	self:RefreshContents()
 end
 
 function containerProto:AUCTION_MULTISELL_UPDATE(event, current, total)
@@ -812,6 +818,7 @@ end
 
 function containerProto:RedispatchAllItems()
 	self:Debug('RedispatchAllItems')
+	self:UpdateButtons()
 	self:SendMessage('AdiBags_PreFilter', self)
 	for bag, content in pairs(self.content) do
 		for slotId, slotData in ipairs(content) do
