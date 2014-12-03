@@ -111,8 +111,6 @@ function addon:OnEnable()
 	self:RegisterMessage('AdiBags_BagOpened', 'LayoutBags')
 	self:RegisterMessage('AdiBags_BagClosed', 'LayoutBags')
 
-	self:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
-
 	self:RawHook("OpenAllBags", true)
 	self:RawHook("CloseAllBags", true)
 	self:RawHook("ToggleAllBags", true)
@@ -157,8 +155,6 @@ function addon:OnEnable()
 	self.bagFont:ApplySettings()
 	self.sectionFont:ApplySettings()
 	self:UpdatePositionMode()
-
-	self:CURRENT_SPELL_CAST_CHANGED('OnEnable')
 
 	self:Debug('Enabled')
 end
@@ -266,18 +262,6 @@ if BugGrabber then
 			addon:Debug('Error:', errorObject.message)
 		end
 	end)
-end
-
---------------------------------------------------------------------------------
--- Track spell targeting
---------------------------------------------------------------------------------
-
-function addon:CURRENT_SPELL_CAST_CHANGED(event)
-	local spellIsTargeting = SpellIsTargeting()
-	if self.spellIsTargeting ~= spellIsTargeting then
-		self.spellIsTargeting = spellIsTargeting
-		self:SendMessage('AdiBags_SpellIsTargetingChanged', spellIsTargeting)
-	end
 end
 
 --------------------------------------------------------------------------------

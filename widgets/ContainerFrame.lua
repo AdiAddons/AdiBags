@@ -215,8 +215,8 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	-- Register persitent listeners
 	local name = self:GetName()
 	local RegisterMessage = LibStub('ABEvent-1.0').RegisterMessage
-	RegisterMessage(name, 'AdiBags_FiltersChanged', self.FiltersChanged, self)
-	RegisterMessage(name, 'AdiBags_LayoutChanged', self.LayoutChanged, self)
+	RegisterMessage(name, 'AdiBags_FiltersChanged', self.FullUpdate, self)
+	RegisterMessage(name, 'AdiBags_LayoutChanged', self.FullUpdate, self)
 	RegisterMessage(name, 'AdiBags_ConfigChanged', self.ConfigChanged, self)
 end
 
@@ -365,16 +365,6 @@ function containerProto:CanUpdate()
 	return not addon.holdYourBreath and not addon.globalLock and not self.paused and self:IsVisible()
 end
 
-function containerProto:FiltersChanged()
-	self:Debug('FiltersChanged')
-	self:FullUpdate()
-end
-
-function containerProto:LayoutChanged()
-	self:Debug('LayoutChanged')
-	self:FullUpdate()
-end
-
 function containerProto:ConfigChanged(event, name)
 	if strsplit('.', name) == 'skin' then
 		self:UpdateSkin()
@@ -389,7 +379,6 @@ function containerProto:OnShow()
 	self:RegisterEvent('AUCTION_MULTISELL_START', "PauseUpdates")
 	self:RegisterEvent('AUCTION_MULTISELL_UPDATE')
 	self:RegisterEvent('AUCTION_MULTISELL_FAILURE', "ResumeUpdates")
-	self:RegisterMessage('AdiBags_SpellIsTargetingChanged')
 	self:RegisterMessage('AdiBags_BagSetupChanged')
 	self:ResumeUpdates()
 	containerParentProto.OnShow(self)
@@ -439,10 +428,6 @@ function containerProto:AUCTION_MULTISELL_UPDATE(event, current, total)
 	if current == total then
 		self:ResumeUpdates()
 	end
-end
-
-function containerProto:AdiBags_SpellIsTargetingChanged(event, isTargeting)
-	self:Debug(event, isTargeting)
 end
 
 --------------------------------------------------------------------------------
