@@ -383,19 +383,6 @@ local function GetOptions()
 						max = 0.90,
 						step = 0.01,
 					},
-					automaticLayout = {
-						name = L['Automatic layout update'],
-						desc = L['This setting allows to tone down what some people calls "section dancing" when moving/selling/milling items.'],
-						type = 'select',
-						width = 'double',
-						order = 170,
-						values = {
-							[0] = L['As soon as possible'],
-							[1] = L["Not at merchants', bank, ..."],
-							[2] = L['Only when required'],
-							[3] = L['Never'],
-						}
-					},
 				},
 			},
 			skin = {

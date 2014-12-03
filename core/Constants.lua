@@ -126,7 +126,6 @@ addon.DEFAULT_SETTINGS = {
 			freeSpace = true,
 			notWhenTrading = 1,
 		},
-		automaticLayout = 0,
 		skin = {
 			background = "Blizzard Tooltip",
 			border = "Blizzard Tooltip",
