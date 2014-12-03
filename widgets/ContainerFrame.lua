@@ -94,7 +94,6 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.isReagentBank = false
 
 	self.buttons = {}
-	self.dirtyButtons = {}
 	self.content = {}
 	self.stacks = {}
 	self.sections = {}
@@ -198,13 +197,18 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	end
 	self:CreateSortButton()
 
+	local toSortSection = addon:AcquireSection(self, "To sort", self.name)
+	toSortSection:SetPoint("TOPLEFT", BAG_INSET, -addon.TOP_PADDING)
+	toSortSection:Show()
+	self.ToSortSection = toSortSection
+	self:AddWidget(toSortSection)
+
 	local content = CreateFrame("Frame", nil, self)
-	content:SetPoint("TOPLEFT", BAG_INSET, -addon.TOP_PADDING)
+	content:SetPoint("TOPLEFT", toSortSection, "BOTTOMLEFT", 0, -ITEM_SPACING)
 	self.Content = content
 	self:AddWidget(content)
 
 	self:UpdateSkin()
-	self.dirtyLayout = false
 	self.paused = true
 	self.forceLayout = true
 
@@ -347,6 +351,7 @@ function containerProto:GetBagIds()
 end
 
 function containerProto:BagsUpdated(event, bagIds)
+	self:Debug('BagsUpdated')
 	local showBag = self:GetBagIds()
 	for bag in pairs(bagIds) do
 		if showBag[bag] then
@@ -354,38 +359,30 @@ function containerProto:BagsUpdated(event, bagIds)
 		end
 	end
 	self:UpdateButtons()
-	self:LayoutSections()
 end
 
 function containerProto:CanUpdate()
 	return not addon.holdYourBreath and not addon.globalLock and not self.paused and self:IsVisible()
 end
 
-function containerProto:FiltersChanged(event, forceLayout)
-	self.filtersChanged = true
-	if self:CanUpdate() then
-		self:RedispatchAllItems()
-		self:LayoutSections(forceLayout)
-	elseif forceLayout then
-		self.forceLayout = forceLayout
-	end
+function containerProto:FiltersChanged()
+	self:Debug('FiltersChanged')
+	self:FullUpdate()
 end
 
 function containerProto:LayoutChanged()
-	if self:CanUpdate() then
-		self:LayoutSections(true)
-	else
-		self.forceLayout = true
-	end
+	self:Debug('LayoutChanged')
+	self:FullUpdate()
 end
 
 function containerProto:ConfigChanged(event, name)
 	if strsplit('.', name) == 'skin' then
-		return self:UpdateSkin()
+		self:UpdateSkin()
 	end
 end
 
 function containerProto:OnShow()
+	self:Debug('OnShow')
 	PlaySound(self.isBank and "igMainMenuOpen" or "igBackPackOpen")
 	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "PauseUpdates")
 	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "ResumeUpdates")
@@ -411,7 +408,7 @@ function containerProto:ResumeUpdates()
 	self.paused = false
 	self:RegisterMessage('AdiBags_BagUpdated', 'BagsUpdated')
 	self:Debug('ResumeUpdates')
-	return self:AdiBags_BagSetupChanged()
+	self:RefreshContents()
 end
 
 function containerProto:PauseUpdates()
@@ -421,17 +418,21 @@ function containerProto:PauseUpdates()
 	self.paused = true
 end
 
-function containerProto:AdiBags_BagSetupChanged()
-	self:Debug('BagSetupChanged')
-	for bag in pairs(self.content) do
+function containerProto:RefreshContents()
+	self:Debug('RefreshContents')
+	for bag in pairs(self:GetBagIds()) do
 		self:UpdateContent(bag)
 	end
-	if self.filtersChanged  then
-		self:RedispatchAllItems()
+	if self.forceLayout then
+		self:FullUpdate()
 	else
 		self:UpdateButtons()
 	end
-	self:LayoutSections(true)
+end
+
+function containerProto:AdiBags_BagSetupChanged()
+	self:Debug('AdiBags_BagSetupChanged')
+	self:FullUpdate()
 end
 
 function containerProto:AUCTION_MULTISELL_UPDATE(event, current, total)
@@ -441,9 +442,7 @@ function containerProto:AUCTION_MULTISELL_UPDATE(event, current, total)
 end
 
 function containerProto:AdiBags_SpellIsTargetingChanged(event, isTargeting)
-	if not isTargeting and self:CanUpdate() then
-		self:LayoutSections()
-	end
+	self:Debug(event, isTargeting)
 end
 
 --------------------------------------------------------------------------------
@@ -529,17 +528,15 @@ function containerProto:OnLayout()
 		blr:IsShown() and (BAG_INSET + blr:GetHeight()) or 0,
 		brr:IsShown() and (BAG_INSET + brr:GetHeight()) or 0
 	)
+	self.minWidth = minWidth
+	if self.forceLayout then
+		self:FullUpdate()
+	end
+	self:Debug('OnLayout', self.ToSortSection:GetHeight())
 	self:SetSize(
 		BAG_INSET * 2 + max(minWidth, self.Content:GetWidth()),
-		addon.TOP_PADDING + BAG_INSET + bottomHeight + self.Content:GetHeight()
+		addon.TOP_PADDING + BAG_INSET + bottomHeight + self.Content:GetHeight() + self.ToSortSection:GetHeight() + ITEM_SPACING
 	)
-	local currentMinWidth = self.minWidth
-	if ceil(currentMinWidth or 0) ~= ceil(minWidth) then
-		self.minWidth = minWidth
-		if not currentMinWidth or ceil(minWidth - currentMinWidth) > 2 * ITEM_SIZE + ITEM_SPACING then
-			return self:LayoutSections(true)
-		end
-	end
 end
 
 --------------------------------------------------------------------------------
@@ -680,55 +677,70 @@ function containerProto:FilterSlot(slotData)
 	end
 end
 
-function containerProto:DispatchItem(slotData)
+function containerProto:FindExistingButton(slotId, stackKey)
+	local button = self.buttons[slotId]
+
+	if not button then
+		return
+	elseif stackKey then
+		if not button:IsStack() or button:GetKey() ~= stackKey then
+			return self:RemoveSlot(slotId)
+		end
+	elseif button:IsStack() then
+		return self:RemoveSlot(slotId)
+	end
+
+	return button
+end
+
+function containerProto:CreateItemButton(stackKey, slotData)
+	if not stackKey then
+		return addon:AcquireItemButton(self, slotData.bag, slotData.slot)
+	end
+	local stack = self:GetStackButton(stackKey)
+	stack:AddSlot(slotData.slotId)
+	return stack
+end
+
+function containerProto:DispatchItem(slotData, fullUpdate)
 	local slotId = slotData.slotId
 	local sectionName, category, filterName, shouldStack, stackHint = self:FilterSlot(slotData)
 	assert(sectionName, "sectionName is nil, item: "..(slotData.link or "none"))
 	local stackKey = shouldStack and stackHint or nil
-	local button = self.buttons[slotId]
+
+	local button = self:FindExistingButton(slotId, stackKey)
 	if button then
-		if shouldStack then
-			if not button:IsStack() or button:GetKey() ~= stackKey then
-				self:RemoveSlot(slotId)
-				button = nil
-			end
-		elseif button:IsStack() then
-			self:RemoveSlot(slotId)
-			button = nil
-		end
-	end
-	if not button then
-		if shouldStack then
-			button = self:GetStackButton(stackKey)
-			button:AddSlot(slotId)
-		else
-			button = addon:AcquireItemButton(self, slotData.bag, slotData.slot)
-		end
-	else
 		button:FullUpdate()
-	end
-	local section = self:GetSection(sectionName, category or sectionName)
-	if button:GetSection() ~= section then
-		section:AddItemButton(slotId, button)
+	else
+		button = self:CreateItemButton(stackKey, slotData)
 	end
 	button.filterName = filterName
 	self.buttons[slotId] = button
+
+	if button:GetSection() and not fullUpdate then
+		return
+	end
+
+	local section = fullUpdate and self:GetSection(sectionName, category or sectionName) or self.ToSortSection
+	if button:GetSection() ~= section then
+		section:AddItemButton(slotId, button)
+	end
 end
 
 function containerProto:RemoveSlot(slotId)
 	local button = self.buttons[slotId]
-	if button then
-		self.buttons[slotId] = nil
-		if button:IsStack() then
-			button:RemoveSlot(slotId)
-			if button:IsEmpty() then
-				self.stacks[button:GetKey()] = nil
-				button:Release()
-			end
-		else
-			button:Release()
+	if not button then return end
+	self.buttons[slotId] = nil
+
+	if button:IsStack() then
+		button:RemoveSlot(slotId)
+		if not button:IsEmpty() then
+			return
 		end
+		self.stacks[button:GetKey()] = nil
 	end
+
+	button:Release()
 end
 
 function containerProto:UpdateButtons()
@@ -738,61 +750,28 @@ function containerProto:UpdateButtons()
 	local added, removed, changed = self.added, self.removed, self.changed
 	self:SendMessage('AdiBags_PreContentUpdate', self, added, removed, changed)
 
-	--@debug@
-	local numAdded, numRemoved, numChanged = 0, 0, 0
-	--@end-debug@
-
 	for slotId in pairs(removed) do
 		self:RemoveSlot(slotId)
-		--@debug@
-		numRemoved = numRemoved + 1
-		--@end-debug@
 	end
 
 	if next(added) then
 		self:SendMessage('AdiBags_PreFilter', self)
 		for slotId, slotData in pairs(added) do
 			self:DispatchItem(slotData)
-			--@debug@
-			numAdded = numAdded + 1
-			--@end-debug@
 		end
 		self:SendMessage('AdiBags_PostFilter', self)
 	end
 
-	-- Just push the buttons into dirtyButtons
 	local buttons = self.buttons
 	for slotId in pairs(changed) do
 		buttons[slotId]:FullUpdate()
-		--@debug@
-		numChanged = numChanged + 1
-		--@end-debug@
 	end
 
 	self:SendMessage('AdiBags_PostContentUpdate', self, added, removed, changed)
 
-	--@debug@
-	self:Debug(numRemoved, 'slot(s) removed', numAdded, 'slot(s) added and', numChanged, 'slot(s) changed')
-	--@end-debug@
-
 	wipe(added)
 	wipe(removed)
 	wipe(changed)
-end
-
-function containerProto:RedispatchAllItems()
-	self:UpdateButtons()
-	if self.filtersChanged then
-		self:Debug('RedispatchAllItems')
-		self:SendMessage('AdiBags_PreFilter', self)
-		for bag, content in pairs(self.content) do
-			for slotId, slotData in ipairs(content) do
-				self:DispatchItem(slotData)
-			end
-		end
-		self:SendMessage('AdiBags_PostFilter', self)
-		self.filtersChanged = nil
-	end
 end
 
 --------------------------------------------------------------------------------
@@ -843,155 +822,134 @@ do
 end
 
 --------------------------------------------------------------------------------
--- Section layout
+-- Full Layout
 --------------------------------------------------------------------------------
 
-local DoLayoutSections
+function containerProto:RedispatchAllItems()
+	self:Debug('RedispatchAllItems')
+	self:SendMessage('AdiBags_PreFilter', self)
+	for bag, content in pairs(self.content) do
+		for slotId, slotData in ipairs(content) do
+			self:DispatchItem(slotData, true)
+		end
+	end
+	self:SendMessage('AdiBags_PostFilter', self)
+end
 
-do
-	local function CompareSections(a, b)
-		local orderA, orderB = a:GetOrder(), b:GetOrder()
-		if orderA == orderB then
-			if a.category == b.category then
-				return a.name < b.name
-			else
-				return a.category < b.category
-			end
+local sections = {}
+
+local function CompareSections(a, b)
+	local orderA, orderB = a:GetOrder(), b:GetOrder()
+	if orderA == orderB then
+		if a.category == b.category then
+			return a.name < b.name
 		else
-			return orderA > orderB
+			return a.category < b.category
 		end
-	end
-
-	local sections, heights, rows = {}, { 0 }, {}
-
-	local COLUMN_SPACING = ceil((ITEM_SIZE + ITEM_SPACING) / 2)
-
-	function DoLayoutSections(self, maxHeight, rowWidth, minWidth)
-
-		wipe(sections)
-		local halfWidth = floor(rowWidth / 2)
-		for key, section in pairs(self.sections) do
-			if not section:IsEmpty() and not section:IsCollapsed() then
-				tinsert(sections, section)
-				local w, h = halfWidth, 1
-				if section.count > w then
-					w, h = rowWidth, ceil(section.count / rowWidth)
-				end
-				section:SetSizeInSlots(w, h)
-			end
-		end
-		tsort(sections, CompareSections)
-
-		local content = self.Content
-		local columnWidth = (ITEM_SIZE + ITEM_SPACING) * rowWidth + COLUMN_SPACING - ITEM_SPACING
-
-		local numRows, x, y = 0, 0, 0
-		for index, section in ipairs(sections) do
-			if x > 0 then
-				if x + section:GetWidth() <= columnWidth then
-					section:SetPoint('TOPLEFT', sections[index-1], 'TOPRIGHT', ITEM_SPACING*2, 0)
-				else
-					x, y = 0, heights[numRows + 1]
-				end
-			end
-			if x == 0 then
-				numRows = numRows + 1
-				rows[numRows] = section
-				if numRows > 1 then
-					section:SetPoint('TOPLEFT', rows[numRows-1], 'BOTTOMLEFT', 0, -ITEM_SPACING)
-				end
-			end
-			heights[numRows + 1] = y + section:GetHeight() + ITEM_SPACING
-			x = x + section:GetWidth() + ITEM_SPACING * 2
-		end
-
-		local totalHeight = (heights[numRows + 1] - ITEM_SPACING)
-		local numColumns = max(floor(minWidth / (columnWidth - COLUMN_SPACING)), ceil(totalHeight / maxHeight))
-		local columnHeight = ceil(totalHeight / numColumns)
-
-		local row, x, contentHeight = 1, 0, 0
-		for col = 1, numColumns do
-			local yOffset, section = heights[row], rows[row]
-			section:SetPoint('TOPLEFT', content, x, 0)
-			local maxY = yOffset + columnHeight - ITEM_SIZE
-			repeat
-				row = row + 1
-			until row > numRows or heights[row] > maxY
-			contentHeight = max(contentHeight, heights[row] - yOffset)
-			x = x + columnWidth
-		end
-
-		return x - COLUMN_SPACING, contentHeight
+	else
+		return orderA > orderB
 	end
 end
 
-function containerProto:SetDirtyLayout(dirtyLevel)
-	local dirtyLayout = dirtyLevel > 0
-	self:Debug('SetDirtyLayout, layout is', dirtyLayout and "dirty" or "clean")
-	if self.dirtyLayout ~= dirtyLayout then
-		self.dirtyLayout = dirtyLayout
-		self:SendMessage('AdiBags_ContainerLayoutDirty', self, dirtyLayout)
-	end
-end
-
-function containerProto:LayoutSections(forceLayout)
-	self.forceLayout = self.forceLayout or forceLayout
-
-	local numSections, dirtyLevel = 0, 0
+function containerProto:PrepareSections(rowWidth)
+	wipe(sections)
+	local halfWidth = floor(rowWidth / 2)
 	for key, section in pairs(self.sections) do
 		if section:IsEmpty() or section:IsCollapsed() then
-			if section:IsShown() and dirtyLevel < 1 then
-				dirtyLevel = 1
-			end
+			section:Hide()
 		else
-			numSections = numSections + 1
-			dirtyLevel = max(dirtyLevel, section:IsShown() and section:GetDirtyLevel() or 2)
+			tinsert(sections, section)
+			local w, h = halfWidth, 1
+			if section.count > w then
+				w, h = rowWidth, ceil(section.count / rowWidth)
+			end
+			section:SetSizeInSlots(w, h)
+			section:Show()
+			section:FullLayout()
 		end
 	end
+	tsort(sections, CompareSections)
+	self:Debug('PrepareSections', rowWidth, '=>', #sections)
+end
+
+local heights, rows = { 0 }, {}
+
+local COLUMN_SPACING = ceil((ITEM_SIZE + ITEM_SPACING) / 2)
+
+function containerProto:LayoutSections(maxHeight, rowWidth, minWidth)
+	self:Debug('LayoutSections', maxHeight, rowWidth, minWidth)
+
+	local content = self.Content
+	local columnWidth = (ITEM_SIZE + ITEM_SPACING) * rowWidth + COLUMN_SPACING - ITEM_SPACING
+
+	local numRows, x, y = 0, 0, 0
+	for index, section in ipairs(sections) do
+		if x > 0 then
+			if x + section:GetWidth() <= columnWidth then
+				section:SetPoint('TOPLEFT', sections[index-1], 'TOPRIGHT', ITEM_SPACING*2, 0)
+			else
+				x, y = 0, heights[numRows + 1]
+			end
+		end
+		if x == 0 then
+			numRows = numRows + 1
+			rows[numRows] = section
+			if numRows > 1 then
+				section:SetPoint('TOPLEFT', rows[numRows-1], 'BOTTOMLEFT', 0, -ITEM_SPACING)
+			end
+		end
+		heights[numRows + 1] = y + section:GetHeight() + ITEM_SPACING
+		x = x + section:GetWidth() + ITEM_SPACING * 2
+	end
+
+	local totalHeight = (heights[numRows + 1] - ITEM_SPACING)
+	local numColumns = max(floor(minWidth / (columnWidth - COLUMN_SPACING)), ceil(totalHeight / maxHeight))
+	local maxColumnHeight = ceil(totalHeight / numColumns)
+
+	local row, x, contentHeight = 1, 0, 0
+	for col = 1, numColumns do
+		local yOffset, section = heights[row], rows[row]
+		section:SetPoint('TOPLEFT', content, x, 0)
+		local maxY = yOffset + maxColumnHeight
+		repeat
+			row = row + 1
+		until row > numRows or (col < numColumns and heights[row] > maxY)
+		contentHeight = max(contentHeight, heights[row] - yOffset)
+		x = x + columnWidth
+	end
+
+	return x - COLUMN_SPACING, contentHeight - ITEM_SPACING
+end
+
+function containerProto:FullUpdate()
+	self:Debug('FullUpdate', self:CanUpdate(), self.minWidth)
+	if not self:CanUpdate() or not self.minWidth then
+		self.forceLayout = true
+		return
+	end
+	self.forceLayout = false
+	self:Debug('Do FullUpdate')
 
 	local settings = addon.db.profile
+	local rowWidth = settings.rowWidth[self.name]
 
-	local doLayout = self.forceLayout
-	if not doLayout then
-		local setting = settings.automaticLayout
-		doLayout = (setting < 3 and dirtyLevel >= 2)
-			or (setting == 0 and dirtyLevel > 0)
-			or (setting == 1 and dirtyLevel > 0 and not addon:GetInteractingWindow())
+	self:RedispatchAllItems()
+	self:PrepareSections(rowWidth)
+
+	if #sections == 0 then
+		self.Content:SetSize(self.minWidth, 0.5)
+		return
 	end
 
-	if doLayout and self.minWidth and not addon.spellIsTargeting then
+	local uiScale, uiWidth, uiHeight = UIParent:GetEffectiveScale(), UIParent:GetSize()
+	local selfScale = self:GetEffectiveScale()
+	local maxHeight = settings.maxHeight * uiHeight * uiScale / selfScale - (ITEM_SIZE + ITEM_SPACING + HEADER_SIZE)
 
-		if self.forceLayout or dirtyLevel >= 2 then
+	local contentWidth, contentHeight = self:LayoutSections(maxHeight, rowWidth, self.minWidth)
+	self:Debug('LayoutSections =>', contentWidth, contentHeight)
 
-			if numSections == 0 then
-				self.Content:SetSize(0.5, 0.5)
-			else
-				local uiScale, uiWidth, uiHeight = UIParent:GetEffectiveScale(), UIParent:GetSize()
-				local selfScale = self:GetEffectiveScale()
-				local maxHeight = settings.maxHeight * uiHeight * uiScale / selfScale
+	self.ToSortSection:SetSizeInSlots(floor((contentWidth + ITEM_SPACING) / (ITEM_SIZE + ITEM_SPACING)), 1)
+	self.ToSortSection:FullLayout()
 
-				local contentWidth, contentHeight = DoLayoutSections(self, maxHeight, settings.rowWidth[self.name], self.minWidth)
-				self.Content:SetSize(contentWidth, contentHeight)
-			end
-
-			dirtyLevel = 0
-		end
-
-		for key, section in pairs(self.sections) do
-			if section:IsEmpty() then
-				section:Release()
-				self.sections[key] = nil
-			elseif section:IsCollapsed() then
-				section:Hide()
-			else
-				section:Show()
-				section:Layout()
-				dirtyLevel = max(dirtyLevel, section:GetDirtyLevel())
-			end
-		end
-
-		self.forceLayout = nil
-	end
-
-	self:SetDirtyLayout(dirtyLevel)
+	self.Content:SetSize(contentWidth, contentHeight)
 end
