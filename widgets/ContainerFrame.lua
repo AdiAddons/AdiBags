@@ -734,7 +734,11 @@ function containerProto:RemoveSlot(slotId)
 end
 
 function containerProto:UpdateButtons()
-	if not self:HasContentChanged() then return end
+	if self.forceLayout then
+		return self:FullUpdate()
+	elseif not self:HasContentChanged() then
+		return
+	end
 	self:Debug('UpdateButtons')
 
 	local added, removed, changed = self.added, self.removed, self.changed
@@ -758,14 +762,9 @@ function containerProto:UpdateButtons()
 	end
 
 	self:SendMessage('AdiBags_PostContentUpdate', self, added, removed, changed)
-
 	wipe(added)
 	wipe(removed)
 	wipe(changed)
-
-	if self.forceLayout then
-		self:FullUpdate()
-	end
 end
 
 --------------------------------------------------------------------------------
