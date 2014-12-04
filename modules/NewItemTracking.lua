@@ -29,6 +29,8 @@ local mod = addon:RegisterFilter('NewItem', 80, 'ABEvent-1.0')
 mod.uiName = L['Track new items']
 mod.uiDesc = L['Track new items in each bag, displaying a glowing aura over them and putting them in a special section. "New" status can be reset by clicking on the small "N" button at top left of bags.']
 
+local newItems = {}
+
 function mod:OnInitialize()
 	self.db = addon.db:RegisterNamespace(self.moduleName, {
 		profile = {
@@ -74,6 +76,7 @@ local function ResetButton_OnClick(widget, button)
 	end
 	PlaySound("igMainMenuOptionCheckBoxOn")
 	C_NewItems.ClearAll()
+	wipe(newItems)
 	mod.button:Disable()
 	mod:SendMessage('AdiBags_FiltersChanged', true)
 end
@@ -91,7 +94,7 @@ end
 
 function mod:UpdateButton(event, button)
 	if addon.BAG_IDS.BANK[button.bag] then return end
-	local isNew = self:IsNew(button.bag, button.slot)
+	local isNew = self:IsNew(button.bag, button.slot, button.itemLink)
 	if isNew then
 		self.button:Enable()
 	end
@@ -103,11 +106,19 @@ end
 -- Filtering
 --------------------------------------------------------------------------------
 
-function mod:IsNew(bag, slot)
-	return not addon.BAG_IDS.BANK[bag]
+function mod:IsNew(bag, slot, link)
+	if newItems[link] then
+		return true
+	end
+	if not addon.BAG_IDS.BANK[bag]
 		and C_NewItems.IsNewItem(bag, slot)
 		and not IsBattlePayItem(bag, slot)
 		and (not self.db.profile.ignoreJunk or select(4, GetContainerItemInfo(bag, slot)) ~= LE_ITEM_QUALITY_POOR)
+	then
+		newItems[link] = true
+		return true
+	end
+	return false
 end
 
 function mod:BAG_NEW_ITEMS_UPDATED(event)
@@ -118,7 +129,7 @@ function mod:BAG_NEW_ITEMS_UPDATED(event)
 end
 
 function mod:Filter(slotData)
-	if self:IsNew(slotData.bag, slotData.slot) then
+	if self:IsNew(slotData.bag, slotData.slot, slotData.link) then
 		self.button:Enable()
 		return L["New"]
 	end
