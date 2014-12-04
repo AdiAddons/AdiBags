@@ -707,14 +707,18 @@ function containerProto:DispatchItem(slotData, fullUpdate)
 	button.filterName = filterName
 	self.buttons[slotId] = button
 
-	if button:GetSection() and not fullUpdate then
+	if button:GetSection() == self.ToSortSection then
 		return
 	end
 
-	local section = fullUpdate and self:GetSection(sectionName, category or sectionName) or self.ToSortSection
-	if button:GetSection() ~= section then
-		section:AddItemButton(slotId, button)
+	if not fullUpdate then
+		self:ResizeToSortSection(1)
+		self.ToSortSection:AddItemButton(slotId, button)
+		return
 	end
+
+	local section = self:GetSection(sectionName, category or sectionName)
+	section:AddItemButton(slotId, button)
 end
 
 function containerProto:RemoveSlot(slotId)
@@ -956,6 +960,8 @@ function containerProto:FullUpdate()
 
 	local settings = addon.db.profile
 	local rowWidth = settings.rowWidth[self.name]
+
+	self.ToSortSection:Clear()
 
 	self:RedispatchAllItems()
 	self:PrepareSections(rowWidth)
