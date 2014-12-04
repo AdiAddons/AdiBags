@@ -698,9 +698,9 @@ function containerProto:DispatchItem(slotData, fullUpdate)
 	assert(sectionName, "sectionName is nil, item: "..(slotData.link or "none"))
 	local stackKey = shouldStack and stackHint or nil
 
-	local button = self:FindExistingButton(slotId, stackKey)
-	if button then
-		button:FullUpdate()
+	local existing, button = self:FindExistingButton(slotId, stackKey)
+	if existing then
+		button = existing
 	else
 		button = self:CreateItemButton(stackKey, slotData)
 	end
@@ -711,7 +711,7 @@ function containerProto:DispatchItem(slotData, fullUpdate)
 		return
 	end
 
-	if not fullUpdate and slotData.link then
+	if not existing and not fullUpdate and slotData.link then
 		self:ResizeToSortSection(1)
 		self.ToSortSection:AddItemButton(slotId, button)
 		return
