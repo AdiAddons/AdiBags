@@ -818,6 +818,25 @@ end
 -- Full Layout
 --------------------------------------------------------------------------------
 
+function containerProto:ResizeToSortSection(increment)
+	local section = self.ToSortSection
+	local count = section.count + (increment or 0)
+	if count == 0 then
+		self:Debug('ResizeToSortSection', 'empty')
+		section:SetSize(0.5,0.5)
+		section:Hide()
+		return
+	end
+	local width = max(self.Content:GetWidth(), self.minWidth or 0)
+	local numCols = floor((width + ITEM_SPACING) / (ITEM_SIZE + ITEM_SPACING))
+	self:Debug('ResizeToSortSection', count, width, '=>', numCols)
+	section:SetSizeInSlots(numCols, ceil(count / numCols))
+	if not section:IsShown() then
+		section:Show()
+		section:FullLayout()
+	end
+end
+
 function containerProto:RedispatchAllItems()
 	self:Debug('RedispatchAllItems')
 
@@ -943,18 +962,15 @@ function containerProto:FullUpdate()
 
 	if #sections == 0 then
 		self.Content:SetSize(self.minWidth, 0.5)
-		return
+	else
+		local uiScale, uiWidth, uiHeight = UIParent:GetEffectiveScale(), UIParent:GetSize()
+		local selfScale = self:GetEffectiveScale()
+		local maxHeight = settings.maxHeight * uiHeight * uiScale / selfScale - (ITEM_SIZE + ITEM_SPACING + HEADER_SIZE)
+
+		local contentWidth, contentHeight = self:LayoutSections(maxHeight, rowWidth, self.minWidth)
+		self.Content:SetSize(contentWidth, contentHeight)
 	end
 
-	local uiScale, uiWidth, uiHeight = UIParent:GetEffectiveScale(), UIParent:GetSize()
-	local selfScale = self:GetEffectiveScale()
-	local maxHeight = settings.maxHeight * uiHeight * uiScale / selfScale - (ITEM_SIZE + ITEM_SPACING + HEADER_SIZE)
-
-	local contentWidth, contentHeight = self:LayoutSections(maxHeight, rowWidth, self.minWidth)
-	self:Debug('LayoutSections =>', contentWidth, contentHeight)
-
-	self.ToSortSection:SetSizeInSlots(floor((contentWidth + ITEM_SPACING) / (ITEM_SIZE + ITEM_SPACING)), 1)
+	self:ResizeToSortSection()
 	self.ToSortSection:FullLayout()
-
-	self.Content:SetSize(contentWidth, contentHeight)
 end
