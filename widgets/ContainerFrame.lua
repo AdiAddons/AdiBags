@@ -294,7 +294,10 @@ function containerProto:CreateSortButton()
 		BAG_CLEANUP_BAGS,
 		L["auto-sort"],
 		"autoSort",
-		function() self.bagObject:Sort() end,
+		function()
+			self.bagObject:Sort()
+			self.forceLayout = true
+		end,
 		'|cffff7700'..L["Auto-sort can cause freeze when the bag is closed."]..'|r'
 	)
 end
@@ -402,11 +405,7 @@ function containerProto:RefreshContents()
 	for bag in pairs(self:GetBagIds()) do
 		self:UpdateContent(bag)
 	end
-	if self.forceLayout then
-		self:FullUpdate()
-	else
-		self:UpdateButtons()
-	end
+	self:UpdateButtons()
 end
 
 function containerProto:ShowReagentTab(show)
@@ -763,6 +762,10 @@ function containerProto:UpdateButtons()
 	wipe(added)
 	wipe(removed)
 	wipe(changed)
+
+	if self.forceLayout then
+		self:FullUpdate()
+	end
 end
 
 --------------------------------------------------------------------------------
