@@ -905,7 +905,7 @@ function containerProto:LayoutSections(maxHeight, rowWidth, minWidth)
 	for col = 1, numColumns do
 		local yOffset, section = heights[row], rows[row]
 		section:SetPoint('TOPLEFT', content, x, 0)
-		local maxY = yOffset + maxColumnHeight
+		local maxY = yOffset + maxColumnHeight - ITEM_SIZE
 		repeat
 			row = row + 1
 		until row > numRows or (col < numColumns and heights[row] > maxY)
