@@ -248,6 +248,15 @@ function sectionProto:RemoveItemButton(button)
 	self.count = self.count - 1
 	self.slots[button] = nil
 	self.buttons[button] = nil
+	if button:GetSection() == self then
+		button:SetSection(nil)
+	end
+end
+
+function sectionProto:Clear()
+	for button in pairs(self.buttons) do
+		button:SetSection(nil)
+	end
 end
 
 function sectionProto:IsEmpty()

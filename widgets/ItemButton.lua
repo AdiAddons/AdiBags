@@ -153,10 +153,10 @@ end)
 function buttonProto:SetSection(section)
 	local oldSection = self.section
 	if oldSection ~= section then
+		self.section = section
 		if oldSection then
 			oldSection:RemoveItemButton(self)
 		end
-		self.section = section
 		return true
 	end
 end
