@@ -821,14 +821,25 @@ end
 
 function containerProto:RedispatchAllItems()
 	self:Debug('RedispatchAllItems')
-	self:UpdateButtons()
+
+	local content = self.content
+	for slotId in pairs(self.buttons) do
+		local bag, slot = GetBagSlotFromId(slotId)
+		if not content[bag][slot] then
+			self:RemoveSlot(slotId)
+		end
+	end
+
 	self:SendMessage('AdiBags_PreFilter', self)
 	for bag, content in pairs(self.content) do
-		for slotId, slotData in ipairs(content) do
+		for slot, slotData in ipairs(content) do
 			self:DispatchItem(slotData, true)
 		end
 	end
 	self:SendMessage('AdiBags_PostFilter', self)
+	wipe(self.added)
+	wipe(self.removed)
+	wipe(self.changed)
 end
 
 local sections = {}
