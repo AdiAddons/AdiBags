@@ -711,7 +711,7 @@ function containerProto:DispatchItem(slotData, fullUpdate)
 		return
 	end
 
-	if not fullUpdate then
+	if not fullUpdate and slotData.link then
 		self:ResizeToSortSection(1)
 		self.ToSortSection:AddItemButton(slotId, button)
 		return
