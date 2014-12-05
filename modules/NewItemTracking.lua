@@ -124,7 +124,7 @@ end
 function mod:BAG_NEW_ITEMS_UPDATED(event)
 	if self.button and self.button:IsVisible() then
 		self.button:Disable()
-		self:SendMessage('AdiBags_FiltersChanged', true)
+		self:SendMessage('AdiBags_UpdateAllButtons', true)
 	end
 end
 
