@@ -827,7 +827,7 @@ function containerProto:ResizeToSortSection(increment)
 	local count = section.count + (increment or 0)
 	if count == 0 then
 		self:Debug('ResizeToSortSection', 'empty')
-		section:SetSize(0.5,0.5)
+		section:SetSizeInSlots(0, 0)
 		section:Hide()
 		return
 	end
@@ -839,6 +839,7 @@ function containerProto:ResizeToSortSection(increment)
 		section:Show()
 		section:FullLayout()
 	end
+	--self:Layout()
 end
 
 function containerProto:RedispatchAllItems()
@@ -897,7 +898,7 @@ function containerProto:PrepareSections(rowWidth)
 		end
 	end
 	tsort(sections, CompareSections)
-	self:Debug('PrepareSections', rowWidth, '=>', #sections)
+	self:Debug('PrepareSections', 'rowWidth=', rowWidth, '=>', #sections, 'sections')
 end
 
 local heights, rows = { 0 }, {}

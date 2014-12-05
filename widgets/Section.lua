@@ -113,10 +113,8 @@ function sectionProto:OnAcquire(container, name, category)
 	self.name = name
 	self.category = category or name
 	self.key = BuildSectionKey(name, category)
-	self.width = 0
-	self.height = 0
+	self:SetSizeInSlots(0, 0)
 	self.count = 0
-	self.total = 0
 	self.container = container
 	self:RegisterMessage('AdiBags_OrderChanged', 'FullLayout')
 	self.Header:SetText(self.name)
@@ -300,18 +298,24 @@ function sectionProto:PutButtonAt(button, index)
 		self.slots[button] = index
 		self.freeSlots[index] = nil
 	end
+	if self.width == 0 then return end
 	local row, col = floor((index-1) / self.width), (index-1) % self.width
 	button:SetPoint("TOPLEFT", self, "TOPLEFT", col * SLOT_OFFSET, - HEADER_SIZE - row * SLOT_OFFSET)
 end
 
 function sectionProto:SetSizeInSlots(width, height)
-	if self.width ~= width or self.height ~= height then
-		self.width, self.height, self.total = width, height, width * height
+	if self.width == width and self.height == height then return end
+	self.width, self.height, self.total = width, height, width * height
+
+	if width == 0 or height == 0 then
+		self:SetSize(0.5, 0.5)
+	else
 		self:SetSize(
 			SLOT_OFFSET * width - ITEM_SPACING,
 			HEADER_SIZE + SLOT_OFFSET * height - ITEM_SPACING
 		)
 	end
+	self:Debug('SetSizeInSlots', width, height, '=>', self:GetSize())
 end
 
 function sectionProto:SetHeaderOverflow(overflow)
@@ -343,6 +347,8 @@ function sectionProto:FullLayout()
 		tinsert(buttonOrder, button)
 	end
 	tsort(buttonOrder, CompareButtons)
+
+	self:Debug('FullLayout', #buttonOrder, 'buttons')
 
 	local slots, freeSlots = self.slots, self.freeSlots
 	wipe(freeSlots)
