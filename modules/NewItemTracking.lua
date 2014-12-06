@@ -108,10 +108,11 @@ end
 --------------------------------------------------------------------------------
 
 function mod:IsNew(bag, slot, link)
-	if newItems[link] then
+	if not link then
+		return false
+	elseif newItems[link] then
 		return true
-	end
-	if not addon.BAG_IDS.BANK[bag]
+	elseif not addon.BAG_IDS.BANK[bag]
 		and C_NewItems.IsNewItem(bag, slot)
 		and not IsBattlePayItem(bag, slot)
 		and (not self.db.profile.ignoreJunk or select(4, GetContainerItemInfo(bag, slot)) ~= LE_ITEM_QUALITY_POOR)
