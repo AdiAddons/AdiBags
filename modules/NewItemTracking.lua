@@ -79,6 +79,7 @@ local function ResetButton_OnClick(widget, button)
 	wipe(newItems)
 	mod.button:Disable()
 	mod:SendMessage('AdiBags_FiltersChanged', true)
+	mod:SendMessage('AdiBags_UpdateAllButtons', true)
 end
 
 function mod:OnBagFrameCreated(bag)
