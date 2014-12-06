@@ -84,23 +84,27 @@ end
 
 function mod:OnBagFrameCreated(bag)
 	if bag.isBank then return end
-	self.button = bag:GetFrame():CreateModuleButton("N", 10, ResetButton_OnClick, {
+	self.container = bag:GetFrame()
+	self.button = self.container:CreateModuleButton("N", 10, ResetButton_OnClick, {
 		L["Reset new items"],
 		L["Click to reset item status."],
 		L["Right-click to configure."]
 	})
 	self.button:Disable()
 	self:SendMessage('AdiBags_FiltersChanged', true)
+	self:UpdateModuleButton()
 end
 
 function mod:UpdateButton(event, button)
 	if addon.BAG_IDS.BANK[button.bag] then return end
 	local isNew = self:IsNew(button.bag, button.slot, button.itemLink)
-	if isNew then
-		self.button:Enable()
-	end
 	self:ShowLegacyGlow(button, isNew and mod.db.profile.highlight == "legacy")
 	self:ShowBlizzardGlow(button, isNew and mod.db.profile.highlight == "blizzard")
+	self:UpdateModuleButton()
+end
+
+function mod:UpdateModuleButton()
+	self.button:SetEnabled(next(newItems) or self.container.ToSortSection:IsShown())
 end
 
 --------------------------------------------------------------------------------
@@ -125,14 +129,14 @@ end
 
 function mod:BAG_NEW_ITEMS_UPDATED(event)
 	if self.button and self.button:IsVisible() then
-		self.button:Disable()
 		self:SendMessage('AdiBags_UpdateAllButtons', true)
+		self:UpdateModuleButton()
 	end
 end
 
 function mod:Filter(slotData)
 	if self:IsNew(slotData.bag, slotData.slot, slotData.link) then
-		self.button:Enable()
+		self:UpdateModuleButton()
 		return L["Recent Items"]
 	end
 end
