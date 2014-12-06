@@ -769,6 +769,8 @@ function containerProto:UpdateButtons()
 	wipe(added)
 	wipe(removed)
 	wipe(changed)
+
+	self:ResizeToSortSection()
 end
 
 --------------------------------------------------------------------------------
@@ -834,10 +836,12 @@ function containerProto:ResizeToSortSection(increment)
 	local width = max(self.Content:GetWidth(), self.minWidth or 0)
 	local numCols = floor((width + ITEM_SPACING) / (ITEM_SIZE + ITEM_SPACING))
 	self:Debug('ResizeToSortSection', count, width, '=>', numCols)
-	section:SetSizeInSlots(numCols, ceil(count / numCols))
+	local resized = section:SetSizeInSlots(numCols, ceil(count / numCols))
 	if not section:IsShown() then
 		section:Show()
 		section:FullLayout()
+	elseif resized then
+		section:ShowMissingButtons()
 	end
 	--self:Layout()
 end
@@ -863,6 +867,8 @@ function containerProto:RedispatchAllItems()
 	wipe(self.added)
 	wipe(self.removed)
 	wipe(self.changed)
+
+	self:ResizeToSortSection()
 end
 
 local sections = {}

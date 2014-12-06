@@ -316,6 +316,7 @@ function sectionProto:SetSizeInSlots(width, height)
 		)
 	end
 	self:Debug('SetSizeInSlots', width, height, '=>', self:GetSize())
+	return true
 end
 
 function sectionProto:SetHeaderOverflow(overflow)
@@ -361,6 +362,19 @@ function sectionProto:FullLayout()
 	end
 
 	wipe(buttonOrder)
+end
+
+function sectionProto:ShowMissingButtons()
+	local total, slots, freeSlots = self.total, self.slots, self.freeSlots
+	for button in pairs(self.buttons) do
+		local index = slots[button]
+		if not index or index > total then
+			local newIndex = next(freeSlots)
+			if newIndex then
+				self:PutButtonAt(button, newIndex)
+			end
+		end
+	end
 end
 
 --------------------------------------------------------------------------------
