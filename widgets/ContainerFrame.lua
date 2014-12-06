@@ -197,7 +197,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	end
 	self:CreateSortButton()
 
-	local toSortSection = addon:AcquireSection(self, "To sort", self.name)
+	local toSortSection = addon:AcquireSection(self, L["Recent Items"], self.name)
 	toSortSection:SetPoint("TOPLEFT", BAG_INSET, -addon.TOP_PADDING)
 	toSortSection:Show()
 	self.ToSortSection = toSortSection
@@ -711,8 +711,7 @@ function containerProto:DispatchItem(slotData, fullUpdate)
 		return
 	end
 
-	if not existing and not fullUpdate and slotData.link then
-		self:ResizeToSortSection(1)
+	if sectionName == L["Recent Items"] or (not existing and not fullUpdate and slotData.link) then
 		self.ToSortSection:AddItemButton(slotId, button)
 		return
 	end

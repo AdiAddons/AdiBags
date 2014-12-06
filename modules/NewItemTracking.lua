@@ -132,7 +132,7 @@ end
 function mod:Filter(slotData)
 	if self:IsNew(slotData.bag, slotData.slot, slotData.link) then
 		self.button:Enable()
-		return L["New"]
+		return L["Recent Items"]
 	end
 end
 
