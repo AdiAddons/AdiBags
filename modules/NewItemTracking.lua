@@ -180,7 +180,8 @@ function mod:GetOptions()
 			order = 40,
 			set = function(info, ...)
 				info.handler:Set(info, ...)
-				self:UpdateBags()
+				self:SendMessage('AdiBags_FiltersChanged', true)
+				self:SendMessage('AdiBags_UpdateAllButtons', true)
 			end,
 			width = 'double',
 		},
