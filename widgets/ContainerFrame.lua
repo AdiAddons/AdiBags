@@ -823,26 +823,20 @@ end
 -- Full Layout
 --------------------------------------------------------------------------------
 
-function containerProto:ResizeToSortSection(increment)
+function containerProto:ResizeToSortSection(forceLayout)
 	local section = self.ToSortSection
-	local count = section.count + (increment or 0)
-	if count == 0 then
-		self:Debug('ResizeToSortSection', 'empty')
+	if section.count == 0 then
 		section:SetSizeInSlots(0, 0)
 		section:Hide()
 		return
 	end
 	local width = max(self.Content:GetWidth(), self.minWidth or 0)
 	local numCols = floor((width + ITEM_SPACING) / (ITEM_SIZE + ITEM_SPACING))
-	self:Debug('ResizeToSortSection', count, width, '=>', numCols)
-	local resized = section:SetSizeInSlots(numCols, ceil(count / numCols))
-	if not section:IsShown() then
-		section:Show()
+	local resized = section:SetSizeInSlots(numCols, ceil(section.count / numCols))
+	section:Show()
+	if forceLayout or resized or not section:IsShown() then
 		section:FullLayout()
-	elseif resized then
-		section:ShowMissingButtons()
 	end
-	--self:Layout()
 end
 
 function containerProto:RedispatchAllItems()
@@ -983,6 +977,5 @@ function containerProto:FullUpdate()
 		self.Content:SetSize(contentWidth, contentHeight)
 	end
 
-	self:ResizeToSortSection()
-	self.ToSortSection:FullLayout()
+	self:ResizeToSortSection(true)
 end
