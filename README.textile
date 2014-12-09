@@ -12,11 +12,11 @@ h3. Upcoming 1.8.0
 
 These changes are coming in 1.8.0:
 
-* A new bag layout, which should be more readable and avoid the "section dancing" effect and works as follow, at the expense of some wasted space.
+* A new bag layout, which should be more readable and avoid the "section dancing" effect and works as follows:
 ** Sections are dispatched in fixed-width columns.
-** Section width is either half or the same as the column width, i.e. at most two section on the same column row.
-** Sections are not updated will the bag is open: new items goes to a special section titled "recent items", which is separated from the normal sections.
-** The "recent items" is flushed manually by clicking  the "N" button or automatically when massive bag changes happen.
+** Section width is either half or the same as the column width, i.e. at most two sections on the same column row.
+** Sections are not updated while the bag is open: new items go to a special section titled "recent items", which is separated from the normal sections.
+** The "recent items" is flushed manually by clicking the "N" button or automatically when massive bag changes happen.
 * The "new" flag is sticky and is only reset by clicking on the "N" button.
 * Issue tracking will move from Wowace to github.
 * Curse and Wowace comment sections will be closed.
