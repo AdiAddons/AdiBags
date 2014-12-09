@@ -218,6 +218,15 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	RegisterMessage(name, 'AdiBags_FiltersChanged', self.FullUpdate, self)
 	RegisterMessage(name, 'AdiBags_LayoutChanged', self.FullUpdate, self)
 	RegisterMessage(name, 'AdiBags_ConfigChanged', self.ConfigChanged, self)
+
+	-- Force full layout on sort
+	local ForceFullLayout = function() self.forceLayout = true end
+	if isBank then
+		hooksecurefunc('SortBankBags', ForceFullLayout)
+		hooksecurefunc('SortReagentBankBags', ForceFullLayout)
+	else
+		hooksecurefunc('SortBags', ForceFullLayout)
+	end
 end
 
 function containerProto:ToString() return self.name or self:GetName() end
