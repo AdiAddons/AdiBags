@@ -110,7 +110,10 @@ addon.DEFAULT_SETTINGS = {
 			Bank = { point = "TOPLEFT", xOffset = 32, yOffset = -104 },
 		},
 		scale = 0.8,
-		rowWidth = { ['*'] = 6 },
+		rowWidth = {
+			Backpack = 4,
+			Bank = 6,
+		},
 		maxHeight = 0.60,
 		qualityHighlight = true,
 		qualityOpacity = 1.0,
