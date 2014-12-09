@@ -182,7 +182,15 @@ function addon:UpgradeProfile()
 	local profile = self.db.profile
 
 	-- Convert old ordering setting
-	profile.laxOrdering = nil
+	if profile.laxOrdering or profile.maxWidth or profile.automaticLayout then
+		profile.laxOrdering = nil
+		profile.maxWidth = nil
+		profile.automaticLayout = nil
+		wipe(profile.rowWidth)
+		for k,v in pairs(addon.DEFAULT_SETTINGS.profile.rowWidth) do
+			profile.rowWidth[k] = v
+		end
+	end
 
 	-- Convert old anchor settings
 	local oldData = profile.anchor
