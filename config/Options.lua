@@ -349,8 +349,8 @@ local function GetOptions()
 						end,
 					},
 					rowWidth = {
-						name = L['Maximum row width'],
-						desc = L['Adjust the maximum number of items per row.'],
+						name = L['Column width'],
+						desc = L['Adjust the width of the bag columns.'],
 						type = 'group',
 						inline = true,
 						order = 140,
