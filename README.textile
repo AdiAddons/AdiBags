@@ -6,7 +6,25 @@ Configuration is available through Blizzard addon panel, /adibags chat command o
 
 *Important note about localized filters*: some filters rely on translations from "LibBabble-Inventory-3.0":http://www.wowace.com/addons/libbabble-inventory-3-0/ so if some of them behave strangely in your locale, please take a look at the "library translation status":http://www.wowace.com/addons/libbabble-inventory-3-0/localization/.
 
-h2. About patch 6.0.2
+h2. News
+
+h3. Upcoming 1.8.0
+
+These changes are coming in 1.8.0:
+
+* A new bag layout, which should be more readable and avoid the "section dancing" effect and works as follow, at the expense of some wasted space.
+** Sections are dispatched in fixed-width columns.
+** Section width is either half or the same as the column width, i.e. at most two section on the same column row.
+** Sections are not updated will the bag is open: new items goes to a special section titled "recent items", which is separated from the normal sections.
+** The "recent items" is flushed manually by clicking  the "N" button or automatically when massive bag changes happen.
+* The "new" flag is sticky and is only reset by clicking on the "N" button.
+* Issue tracking will move from Wowace to github.
+* Curse and Wowace comment sections will be closed.
+* AdiBags gets licensed with the GPL v3.0, a fully open-source license.
+
+You can test these changes by installing the latest alpha, which may contain bugs.
+
+h3. About patch 6.0.2
 
 Blizzard has introduced a lot of new inventory features with the patch 6.0.2. I (Adirelle, AdiBags' author) have absolutely no control over the way these built-in features work. It is all or nothing: either AdiBags uses a feature as is, either I have to code it myself. I had some of these features built into AdiBags in the past, but this was clumsy, using the API in a way that it was not meant to, and ultimately buggy for some users. So I decided to remove my code in favor of the built-in ones, even if it meant a minor degration of the original feature. If Blizzard improves some of these features in the future, AdiBags will automatically benefit from these improvements.
 
@@ -26,7 +44,7 @@ Some words about submitting bug reports:
 * Bug reports are not in the "fire and forget" kind of things. I may have to ask you some details.
 * Please check all existing tickets and the "known issues" section below before submitting new ones. Duplicate reports will be rejected on sight.
 
-"Bug tracker":http://www.wowace.com/addons/adibags/tickets/
+"Bug tracker":https://github.com/Adirelle/AdiBags/issues
 "WoWace forum thread":http://forums.wowace.com/showthread.php?p=301168
 
 h2. Features
@@ -42,10 +60,10 @@ Most of these features may be configured. Check out the configuration panel ! (u
 ** Manual filtering (drag and drop items on section header, or add new section from the configuration panel),
 ** Free space.
 * Smart item sorting inside each section.
-* Smart section layout; change the setting "Automatic layout update" to control the frequency of updates.
+* Smart section layout.
 * Track new items; use the [N] button resets the "new" flag.
 * Display slot type.
-* Bag sorting: left-click on the [S] button; right-click toggles auto-sorting, which sorts the bag on close.
+* Bag sorting: left-click on the [S] button; right-click toggles auto-sorting, which sorts the bag on close (may freeze the game for a few seconds).
 * Hide some sections, using the [V] button.
 * Name-based search.
 * Equipped bags (click on the bag icon in the top left corner),
@@ -106,3 +124,7 @@ Basic skinning is available using LibSharedMedia-1.0: you can choose the bag fon
 h3. Comprehensive in-game filter/section editor
 
 According to my experience with Baggins, comprehensive editor is awful to write as an author and awful to use as an user. Hence I focus on creating filters that have a smart built-in behavior and only a few options. I try to avoid the 20% of features that would require 80% of development effort.
+
+h2. License
+
+AdiButtonAuras is licensed under the GNU General Public License version 3.
