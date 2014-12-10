@@ -959,13 +959,13 @@ function containerProto:LayoutSections(maxHeight, rowWidth, minWidth)
 	local maxColumnHeight = ceil(totalHeight / numColumns)
 
 	local row, x, contentHeight = 1, 0, 0
-	for col = 1, numColumns do
+	while row <= numRows do
 		local yOffset, section = heights[row], rows[row]
 		section:SetPoint('TOPLEFT', content, x, 0)
-		local maxY = yOffset + maxColumnHeight - ITEM_SIZE
+		local maxY = yOffset + maxColumnHeight
 		repeat
 			row = row + 1
-		until row > numRows or (col < numColumns and heights[row] > maxY)
+		until row > numRows or heights[row] > maxY
 		contentHeight = max(contentHeight, heights[row] - yOffset)
 		x = x + columnWidth
 	end
