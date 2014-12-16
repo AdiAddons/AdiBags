@@ -79,8 +79,6 @@ h2. Known issues
 
 * *Protected action/addon blocked error:* they sometimes happen with AdiBags. Even though my effort, I can not reproduce these. Blizzard taint reports are very buggy, often blaming the wrong addon. As such they are pretty much useless.
 
-* Please note that *prospecting, disenchanting or milling* can create new items (e.g. that were not in your inventory yet). This can cause the whole bag to be updated. In this case, *the items that were under your mouse cursor may move around*. There is no easy solution for this so be cautious.
-
 h2. Things that likely will not be implemented
 
 h3. Anything else than the existing "all-in-one" views
