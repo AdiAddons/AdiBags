@@ -318,85 +318,100 @@ local function GetOptions()
 						order = 90,
 						values = bagList,
 					},
-					autoOpen = {
-						name = L["Open automatically"],
-						desc = L["Automatically open the bags at merchant's, bank, ..."],
-						type = 'toggle',
-						order = 95,
-					},
-					positionMode = {
-						name = L['Position mode'],
-						desc = L['Select how the bags are positionned.'],
-						type = 'select',
-						order = 100,
-						values = {
-							anchored = L['Anchored'],
-							manual = L['Manual'],
-						}
-					},
-					toggleAnchor = lockOption,
-					reset = {
-						name = L['Reset position'],
-						desc = L['Click there to reset the bag positions and sizes.'],
-						type = 'execute',
-						order = 120,
-						func = function() addon:ResetBagPositions() end,
-					},
-					hideAnchor = {
-						name = L['Do not show anchor point'],
-						desc = L['Hide the colored corner shown when you move the bag.'],
-						type = 'toggle',
-						order = 125,
-					},
-					scale = {
-						name = L['Scale'],
-						desc = L['Use this to adjust the bag scale.'],
-						type = 'range',
-						order = 130,
-						isPercent = true,
-						min = 0.1,
-						max = 3.0,
-						step = 0.1,
-						set = function(info, newScale)
-							addon.db.profile.scale = newScale
-							addon:LayoutBags()
-							addon:SendMessage('AdiBags_LayoutChanged')
-						end,
-					},
-					rowWidth = {
-						name = L['Column width'],
-						desc = L['Adjust the width of the bag columns.'],
+					automatically = {
+						name = L['Automatically...'],
 						type = 'group',
 						inline = true,
-						order = 140,
+						order = 95,
 						args = {
-							Backpack = {
-								name = L['Backpack'],
-								type = 'range',
-								min = 4,
-								max = 10,
-								step = 2,
-								arg = { "rowWidth", "Backpack" },
+							autoOpen = {
+								name = L["Open"],
+								desc = L["Automatically open the bags at merchant's, bank, ..."],
+								type = 'toggle',
+								order = 95,
 							},
-							Bank = {
-								name = L['Bank'],
+							autoSort = {
+								name = L["Sort the items"],
+								desc = L["Automatically sort the bag contents when you close them. As AdiBags already show you a sorted view anyway, this only ensures that items are properly stacked and stored in the right bags."],
+								type = 'toggle',
+								order = 100,
+								confirm = function(info, value)
+									if value then
+										return L["Please notice that auto-sort could cause the game to freeze when the bags are closed. If it happens, just disable this option."]
+									end
+								end
+							},
+							autoDeposit = {
+								name = L["Deposit reagents"],
+								desc = L["Automtically deposit all reagents into the reagent bank when you talk to the banker."],
+								type = 'toggle',
+								order = 110,
+								disabled = function() return not IsReagentBankUnlocked() end,
+							},
+						}
+					},
+					position = {
+						name = L['Position & size'],
+						type = 'group',
+						order = 100,
+						inline = true,
+						args = {
+							positionMode = {
+								name = L['Position mode'],
+								desc = L['Select how the bags are positionned.'],
+								type = 'select',
+								order = 100,
+								values = {
+									anchored = L['Anchored'],
+									manual = L['Manual'],
+								}
+							},
+							toggleAnchor = lockOption,
+							reset = {
+								name = L['Reset position'],
+								desc = L['Click there to reset the bag positions and sizes.'],
+								type = 'execute',
+								order = 120,
+								func = function() addon:ResetBagPositions() end,
+							},
+							hideAnchor = {
+								name = L['Do not show anchor point'],
+								desc = L['Hide the colored corner shown when you move the bag.'],
+								type = 'toggle',
+								order = 125,
+							},
+							scale = {
+								name = L['Scale'],
+								desc = L['Use this to adjust the bag scale.'],
 								type = 'range',
-								min = 4,
-								max = 10,
-								step = 2,
-								arg = { "rowWidth", "Bank" },
+								order = 130,
+								isPercent = true,
+								min = 0.1,
+								max = 3.0,
+								step = 0.1,
+								set = function(info, newScale)
+									addon.db.profile.scale = newScale
+									addon:LayoutBags()
+									addon:SendMessage('AdiBags_LayoutChanged')
+								end,
+							},
+							maxHeight = {
+								name = L['Maximum bag height'],
+								desc = L['Adjust the maximum height of the bags, relative to screen size.'],
+								type = 'range',
+								order = 150,
+								isPercent = true,
+								min = 0.30,
+								max = 0.90,
+								step = 0.01,
 							},
 						},
 					},
-					maxHeight = {
-						name = L['Maximum bag height'],
-						desc = L['Adjust the maximum height of the bags, relative to screen size.'],
-						type = 'range',
-						order = 150,
-						isPercent = true,
-						min = 0.30,
-						max = 0.90,
-						step = 0.01,
+					sections = {
+						name = L['Section layout'],
+						type = 'group',
+						inline = true,
+						args = {
 							compactLayout = {
 								name = L['Compact layout'],
 								desc = L['When enabled, AdiBags reorder the section to achieve a more compact layout.'],
@@ -407,6 +422,32 @@ local function GetOptions()
 									addon:SendMessage('AdiBags_LayoutChanged')
 								end,
 							},
+							rowWidth = {
+								name = L['Column width'],
+								desc = L['Adjust the width of the bag columns.'],
+								type = 'group',
+								inline = true,
+								order = 140,
+								args = {
+									Backpack = {
+										name = L['Backpack'],
+										type = 'range',
+										min = 4,
+										max = 10,
+										step = 2,
+										arg = { "rowWidth", "Backpack" },
+									},
+									Bank = {
+										name = L['Bank'],
+										type = 'range',
+										min = 4,
+										max = 10,
+										step = 2,
+										arg = { "rowWidth", "Bank" },
+									},
+								},
+							},
+						},
 					},
 				},
 			},
