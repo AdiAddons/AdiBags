@@ -157,6 +157,7 @@ addon.DEFAULT_SETTINGS = {
 		hideAnchor = false,
 		autoSort = false,
 		autoDeposit = false,
+		compactLayout = false,
 	},
 	char = {
 		collapsedSections = {

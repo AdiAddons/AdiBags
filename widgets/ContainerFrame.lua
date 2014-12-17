@@ -937,7 +937,13 @@ local function FindFittingSection(maxWidth)
 			bestScore, bestIndex = wasted, index
 		end
 	end
-	return bestIndex and table.remove(sections, bestIndex)
+	return bestIndex and tremove(sections, bestIndex)
+end
+
+local function GetNextSection(maxWidth)
+	if sections[1] and sections[1]:GetWidth() <= maxWidth then
+		return tremove(sections, 1)
+	end
 end
 
 local ROW_SPACING = ITEM_SPACING*2
@@ -947,12 +953,13 @@ function containerProto:LayoutSections(maxHeight, rowWidth, minWidth)
 	self:Debug('LayoutSections', maxHeight, rowWidth, minWidth)
 
 	local columnWidth = (ITEM_SIZE + ITEM_SPACING) * rowWidth - ITEM_SPACING + SECTION_SPACING
+	local getSection = addon.db.profile.compactLayout and FindFittingSection or GetNextSection
 
 	local numRows, x, y, rowHeight, previous = 0, 0, 0, 0
 	while next(sections) do
 		local section
 		if x > 0 then
-			section = FindFittingSection(columnWidth - x)
+			section = getSection(columnWidth - x)
 			if section then
 				section:SetPoint('TOPLEFT', previous, 'TOPRIGHT', SECTION_SPACING, 0)
 			else

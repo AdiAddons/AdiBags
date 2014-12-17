@@ -397,6 +397,16 @@ local function GetOptions()
 						min = 0.30,
 						max = 0.90,
 						step = 0.01,
+							compactLayout = {
+								name = L['Compact layout'],
+								desc = L['When enabled, AdiBags reorder the section to achieve a more compact layout.'],
+								type = 'toggle',
+								order = 135,
+								set = function(info, compactLayout)
+									addon.db.profile.compactLayout = compactLayout
+									addon:SendMessage('AdiBags_LayoutChanged')
+								end,
+							},
 					},
 				},
 			},
