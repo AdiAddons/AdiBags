@@ -924,10 +924,6 @@ function containerProto:PrepareSections(columnWidth)
 	self:Debug('PrepareSections', 'columnWidth=', columnWidth, '=>', #sections, 'sections')
 end
 
-local heights, rows = { 0 }, {}
-
-local COLUMN_SPACING = ceil((ITEM_SIZE + ITEM_SPACING) / 2)
-
 local function FindFittingSection(maxWidth)
 	local bestScore, bestIndex = math.huge
 	for index, section in ipairs(sections) do
@@ -945,6 +941,9 @@ local function GetNextSection(maxWidth)
 	end
 end
 
+local heights, widths, rows = { 0 }, {}, {}
+
+local COLUMN_SPACING = ceil((ITEM_SIZE + ITEM_SPACING) / 2)
 local ROW_SPACING = ITEM_SPACING*2
 local SECTION_SPACING = COLUMN_SPACING / 2
 
@@ -977,6 +976,7 @@ function containerProto:LayoutSections(maxHeight, columnWidth, minWidth)
 			end
 		end
 		x = x + section:GetWidth() + SECTION_SPACING
+		widths[numRows] = x - SECTION_SPACING
 		previous = section
 		rowHeight = max(rowHeight, section:GetHeight())
 	end
@@ -991,12 +991,13 @@ function containerProto:LayoutSections(maxHeight, columnWidth, minWidth)
 	while row <= numRows do
 		local yOffset, section = heights[row], rows[row]
 		section:SetPoint('TOPLEFT', content, x, 0)
-		local maxY = yOffset + maxColumnHeight
+		local maxY, thisColumnWidth = yOffset + maxColumnHeight, 0
 		repeat
+			thisColumnWidth = max(thisColumnWidth, widths[row])
 			row = row + 1
 		until row > numRows or heights[row] > maxY
 		contentHeight = max(contentHeight, heights[row] - yOffset)
-		x = x + columnWidth + COLUMN_SPACING
+		x = x + thisColumnWidth + COLUMN_SPACING
 	end
 
 	return x - COLUMN_SPACING, contentHeight - ITEM_SPACING
