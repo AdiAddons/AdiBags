@@ -903,17 +903,16 @@ local function CompareSections(a, b)
 	end
 end
 
-function containerProto:PrepareSections(rowWidth)
+function containerProto:PrepareSections(columnWidth)
 	wipe(sections)
-	local halfWidth = floor(rowWidth / 2)
 	for key, section in pairs(self.sections) do
 		if section:IsEmpty() or section:IsCollapsed() then
 			section:Hide()
 		else
 			tinsert(sections, section)
 			local count = section.count
-			if count > rowWidth then
-				section:SetSizeInSlots(rowWidth, ceil(count / rowWidth))
+			if count > columnWidth then
+				section:SetSizeInSlots(columnWidth, ceil(count / columnWidth))
 			else
 				section:SetSizeInSlots(count, 1)
 			end
@@ -922,7 +921,7 @@ function containerProto:PrepareSections(rowWidth)
 		end
 	end
 	tsort(sections, CompareSections)
-	self:Debug('PrepareSections', 'rowWidth=', rowWidth, '=>', #sections, 'sections')
+	self:Debug('PrepareSections', 'columnWidth=', columnWidth, '=>', #sections, 'sections')
 end
 
 local heights, rows = { 0 }, {}
@@ -949,17 +948,17 @@ end
 local ROW_SPACING = ITEM_SPACING*2
 local SECTION_SPACING = COLUMN_SPACING / 2
 
-function containerProto:LayoutSections(maxHeight, rowWidth, minWidth)
-	self:Debug('LayoutSections', maxHeight, rowWidth, minWidth)
+function containerProto:LayoutSections(maxHeight, columnWidth, minWidth)
+	self:Debug('LayoutSections', maxHeight, columnWidth, minWidth)
 
-	local columnWidth = (ITEM_SIZE + ITEM_SPACING) * rowWidth - ITEM_SPACING + SECTION_SPACING
+	local columnPixelWidth = (ITEM_SIZE + ITEM_SPACING) * columnWidth - ITEM_SPACING + SECTION_SPACING
 	local getSection = addon.db.profile.compactLayout and FindFittingSection or GetNextSection
 
 	local numRows, x, y, rowHeight, previous = 0, 0, 0, 0
 	while next(sections) do
 		local section
 		if x > 0 then
-			section = getSection(columnWidth - x)
+			section = getSection(columnPixelWidth - x)
 			if section then
 				section:SetPoint('TOPLEFT', previous, 'TOPRIGHT', SECTION_SPACING, 0)
 			else
@@ -984,7 +983,7 @@ function containerProto:LayoutSections(maxHeight, rowWidth, minWidth)
 
 	local totalHeight = y + rowHeight
 	heights[numRows+1] = totalHeight
-	local numColumns = max(floor(minWidth / (columnWidth - COLUMN_SPACING)), ceil(totalHeight / maxHeight))
+	local numColumns = max(floor(minWidth / (columnPixelWidth - COLUMN_SPACING)), ceil(totalHeight / maxHeight))
 	local maxColumnHeight = ceil(totalHeight / numColumns)
 
 	local content = self.Content
@@ -1013,12 +1012,12 @@ function containerProto:FullUpdate()
 	self:Debug('Do FullUpdate')
 
 	local settings = addon.db.profile
-	local rowWidth = settings.rowWidth[self.name]
+	local columnWidth = settings.columnWidth[self.name]
 
 	self.ToSortSection:Clear()
-
 	self:RedispatchAllItems()
-	self:PrepareSections(rowWidth)
+
+	local maxSectionHeight = self:PrepareSections(columnWidth)
 
 	if #sections == 0 then
 		self.Content:SetSize(self.minWidth, 0.5)
@@ -1027,7 +1026,7 @@ function containerProto:FullUpdate()
 		local selfScale = self:GetEffectiveScale()
 		local maxHeight = settings.maxHeight * uiHeight * uiScale / selfScale - (ITEM_SIZE + ITEM_SPACING + HEADER_SIZE)
 
-		local contentWidth, contentHeight = self:LayoutSections(maxHeight, rowWidth, self.minWidth)
+		local contentWidth, contentHeight = self:LayoutSections(maxHeight, columnWidth, self.minWidth)
 		self.Content:SetSize(contentWidth, contentHeight)
 	end
 

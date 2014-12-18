@@ -422,7 +422,7 @@ local function GetOptions()
 									addon:SendMessage('AdiBags_LayoutChanged')
 								end,
 							},
-							rowWidth = {
+							columnWidth = {
 								name = L['Column width'],
 								desc = L['Adjust the width of the bag columns.'],
 								type = 'group',
@@ -433,17 +433,17 @@ local function GetOptions()
 										name = L['Backpack'],
 										type = 'range',
 										min = 4,
-										max = 10,
-										step = 2,
-										arg = { "rowWidth", "Backpack" },
+										max = 20,
+										step = 1,
+										arg = { "columnWidth", "Backpack" },
 									},
 									Bank = {
 										name = L['Bank'],
 										type = 'range',
 										min = 4,
-										max = 10,
-										step = 2,
-										arg = { "rowWidth", "Bank" },
+										max = 20,
+										step = 1,
+										arg = { "columnWidth", "Bank" },
 									},
 								},
 							},

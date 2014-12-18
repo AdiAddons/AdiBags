@@ -196,16 +196,11 @@ end
 function addon:UpgradeProfile()
 	local profile = self.db.profile
 
-	-- Convert old ordering setting
-	if profile.laxOrdering or profile.maxWidth or profile.automaticLayout then
-		profile.laxOrdering = nil
-		profile.maxWidth = nil
-		profile.automaticLayout = nil
-		wipe(profile.rowWidth)
-		for k,v in pairs(addon.DEFAULT_SETTINGS.profile.rowWidth) do
-			profile.rowWidth[k] = v
-		end
-	end
+	-- Remove old settings
+	profile.laxOrdering = nil
+	profile.maxWidth = nil
+	profile.automaticLayout = nil
+	profile.rowWidth = nil
 
 	-- Convert old anchor settings
 	local oldData = profile.anchor
@@ -224,12 +219,6 @@ function addon:UpgradeProfile()
 	-- Convert old "notWhenTrading" setting
 	if profile.virtualStacks.notWhenTrading == true then
 		profile.virtualStacks.notWhenTrading = 3
-	end
-
-	-- Convert old "rowWidth"
-	if type(profile.rowWidth) == "number" then
-		local rowWidth = profile.rowWidth
-		profile.rowWidth = { Bank = rowWidth, Backpack = rowWidth }
 	end
 
 	-- Convert old "backgroundColors"
@@ -407,7 +396,7 @@ function addon:ConfigChanged(vars)
 				elseif not enabled and bag:IsEnabled() then
 					bag:Disable()
 				end
-			elseif strmatch(name, 'rowWidth') then
+			elseif strmatch(name, 'columnWidth') then
 				return self:SendMessage('AdiBags_LayoutChanged')
 			elseif strmatch(name, '^skin%.font') then
 				return self:UpdateFonts()

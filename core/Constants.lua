@@ -125,7 +125,7 @@ addon.DEFAULT_SETTINGS = {
 			Bank = { point = "TOPLEFT", xOffset = 32, yOffset = -104 },
 		},
 		scale = 0.8,
-		rowWidth = {
+		columnWidth = {
 			Backpack = 4,
 			Bank = 6,
 		},
