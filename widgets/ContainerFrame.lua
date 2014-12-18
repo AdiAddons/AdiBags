@@ -905,6 +905,7 @@ end
 
 function containerProto:PrepareSections(columnWidth)
 	wipe(sections)
+	local maxHeight = 0
 	for key, section in pairs(self.sections) do
 		if section:IsEmpty() or section:IsCollapsed() then
 			section:Hide()
@@ -918,10 +919,12 @@ function containerProto:PrepareSections(columnWidth)
 			end
 			section:Show()
 			section:FullLayout()
+			maxHeight = max(maxHeight, section:GetHeight())
 		end
 	end
 	tsort(sections, CompareSections)
 	self:Debug('PrepareSections', 'columnWidth=', columnWidth, '=>', #sections, 'sections')
+	return maxHeight
 end
 
 local function FindFittingSection(maxWidth)
@@ -1025,7 +1028,7 @@ function containerProto:FullUpdate()
 	else
 		local uiScale, uiWidth, uiHeight = UIParent:GetEffectiveScale(), UIParent:GetSize()
 		local selfScale = self:GetEffectiveScale()
-		local maxHeight = settings.maxHeight * uiHeight * uiScale / selfScale - (ITEM_SIZE + ITEM_SPACING + HEADER_SIZE)
+		local maxHeight = max(maxSectionHeight, settings.maxHeight * uiHeight * uiScale / selfScale - (ITEM_SIZE + ITEM_SPACING + HEADER_SIZE))
 
 		local contentWidth, contentHeight = self:LayoutSections(maxHeight, columnWidth, self.minWidth)
 		self.Content:SetSize(contentWidth, contentHeight)
