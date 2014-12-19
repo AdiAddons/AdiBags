@@ -867,6 +867,8 @@ end
 function containerProto:RedispatchAllItems()
 	self:Debug('RedispatchAllItems')
 
+	self:SendMessage('AdiBags_PreContentUpdate', self, self.added, self.removed, self.changed)
+
 	local content = self.content
 	for slotId in pairs(self.buttons) do
 		local bag, slot = GetBagSlotFromId(slotId)
@@ -882,6 +884,8 @@ function containerProto:RedispatchAllItems()
 		end
 	end
 	self:SendMessage('AdiBags_PostFilter', self)
+
+	self:SendMessage('AdiBags_PostContentUpdate', self, self.added, self.removed, self.changed)
 	wipe(self.added)
 	wipe(self.removed)
 	wipe(self.changed)
