@@ -147,7 +147,7 @@ do
 	end
 end
 
-local ICON_STRING = "\124T%s:0:0:0:0:64:64:5:59:5:59\124t "
+local ICON_STRING = "\124T%s:0:0:0:0:64:64:5:59:5:59\124t  "
 
 local values = {}
 local updating
@@ -168,7 +168,7 @@ function mod:Update()
 		fs:SetText(tconcat(values, ""))
 		widget:Show()
 		widget:SetSize(
-			fs:GetStringWidth() + 4 * #values,
+			fs:GetStringWidth(),
 			ceil(fs:GetStringHeight()) + 3
 		)
 		wipe(values)
