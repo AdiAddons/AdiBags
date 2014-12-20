@@ -961,7 +961,7 @@ function containerProto:LayoutSections(maxHeight, columnWidth, minWidth)
 	local columnPixelWidth = (ITEM_SIZE + ITEM_SPACING) * columnWidth - ITEM_SPACING + SECTION_SPACING
 	local getSection = addon.db.profile.compactLayout and FindFittingSection or GetNextSection
 
-	local numRows, x, y, rowHeight, previous = 0, 0, 0, 0
+	local numRows, x, y, rowHeight, maxSectionHeight, previous = 0, 0, 0, 0, 0
 	while next(sections) do
 		local section
 		if x > 0 then
@@ -986,13 +986,14 @@ function containerProto:LayoutSections(maxHeight, columnWidth, minWidth)
 		x = x + section:GetWidth() + SECTION_SPACING
 		widths[numRows] = x - SECTION_SPACING
 		previous = section
+		maxSectionHeight = max(maxSectionHeight, section:GetHeight())
 		rowHeight = max(rowHeight, section:GetHeight())
 	end
 
 	local totalHeight = y + rowHeight
 	heights[numRows+1] = totalHeight
 	local numColumns = max(floor(minWidth / (columnPixelWidth - COLUMN_SPACING)), ceil(totalHeight / maxHeight))
-	local maxColumnHeight = ceil(totalHeight / numColumns)
+	local maxColumnHeight = max(ceil(totalHeight / numColumns), maxSectionHeight)
 
 	local content = self.Content
 	local row, x, contentHeight = 1, 0, 0
