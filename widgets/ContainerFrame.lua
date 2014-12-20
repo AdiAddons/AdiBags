@@ -1000,11 +1000,11 @@ function containerProto:LayoutSections(maxHeight, columnWidth, minWidth)
 	while row <= numRows do
 		local yOffset, section = heights[row], rows[row]
 		section:SetPoint('TOPLEFT', content, x, 0)
-		local maxY, thisColumnWidth = yOffset + maxColumnHeight, 0
+		local maxY, thisColumnWidth = yOffset + maxColumnHeight + ITEM_SIZE + ROW_SPACING, 0
 		repeat
 			thisColumnWidth = max(thisColumnWidth, widths[row])
 			row = row + 1
-		until row > numRows or heights[row] > maxY
+		until row > numRows or heights[row+1] > maxY
 		contentHeight = max(contentHeight, heights[row] - yOffset)
 		x = x + thisColumnWidth + COLUMN_SPACING
 	end
