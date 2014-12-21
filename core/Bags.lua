@@ -54,7 +54,6 @@ function bagProto:OnEnable()
 		end
 		hookedBags[id] = self
 	end
-	self:RegisterMessage('AdiBags_BagUpdated')
 	if self.PostEnable then
 		self:PostEnable()
 	end
@@ -97,9 +96,6 @@ function bagProto:Close()
 	if self.frame and self.frame:IsShown() then
 		self:Debug('Close')
 		self.frame:Hide()
-		if self.needSorting and addon.db.profile.autoSort then
-			self:Sort()
-		end
 		addon:SendMessage('AdiBags_BagClosed', self.bagName, self)
 		if self.PostClose then
 			self:PostClose()
@@ -139,22 +135,6 @@ end
 
 function bagProto:CreateFrame()
 	return addon:CreateContainerFrame(self.bagName, self.isBank, self)
-end
-
-function bagProto:AdiBags_BagUpdated(event, ids)
-	if self.sorting then
- 		self.sorting = false
-		return
-	end
-
-	if self.needSorting then return end
-	
-	for id in pairs(ids) do
-		if self.bagIds[id] then
-			self.needSorting = true
-			return
-		end
-	end
 end
 
 --------------------------------------------------------------------------------
@@ -236,8 +216,6 @@ do
 	
 	function backpack:Sort()
 		PlaySound("UI_BagSorting_01")
-		self.sorting = true
-		self.needSorting = false
 		SortBags()
 	end
 end
@@ -304,8 +282,6 @@ do
 	
 	function bank:Sort()
 		PlaySound("UI_BagSorting_01")
-		self.sorting = true
-		self.needSorting = false
 		SortBankBags()
 		if IsReagentBankUnlocked() then
 			SortReagentBankBags()

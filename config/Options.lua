@@ -330,17 +330,6 @@ local function GetOptions()
 								type = 'toggle',
 								order = 95,
 							},
-							autoSort = {
-								name = L["Sort the items"],
-								desc = L["Automatically sort the bag contents when you close them. As AdiBags already show you a sorted view anyway, this only ensures that items are properly stacked and stored in the right bags."],
-								type = 'toggle',
-								order = 100,
-								confirm = function(info, value)
-									if value then
-										return L["Please notice that auto-sort could cause the game to freeze when the bags are closed. If it happens, just disable this option."]
-									end
-								end
-							},
 							autoDeposit = {
 								name = L["Deposit reagents"],
 								desc = L["Automtically deposit all reagents into the reagent bank when you talk to the banker."],

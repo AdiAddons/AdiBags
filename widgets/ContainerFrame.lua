@@ -227,16 +227,17 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.paused = true
 	self.forceLayout = true
 
+	local ForceFullLayout = function() self.forceLayout = true end
+
 	-- Register persitent listeners
 	local name = self:GetName()
 	local RegisterMessage = LibStub('ABEvent-1.0').RegisterMessage
 	RegisterMessage(name, 'AdiBags_FiltersChanged', self.FullUpdate, self)
 	RegisterMessage(name, 'AdiBags_LayoutChanged', self.FullUpdate, self)
 	RegisterMessage(name, 'AdiBags_ConfigChanged', self.ConfigChanged, self)
-	LibStub('ABEvent-1.0').RegisterEvent(name, 'EQUIPMENT_SWAP_FINISHED', function() self.forceLayout = true end)
+	LibStub('ABEvent-1.0').RegisterEvent(name, 'EQUIPMENT_SWAP_FINISHED', ForceFullLayout)
 
 	-- Force full layout on sort
-	local ForceFullLayout = function() self.forceLayout = true end
 	if isBank then
 		hooksecurefunc('SortBankBags', ForceFullLayout)
 		hooksecurefunc('SortReagentBankBags', ForceFullLayout)
@@ -313,17 +314,14 @@ function containerProto:CreateDepositButton()
 end
 
 function containerProto:CreateSortButton()
-	self:CreateModuleAutoButton(
+	self:CreateModuleButton(
 		"S",
 		10,
-		BAG_CLEANUP_BAGS,
-		L["auto-sort"],
-		"autoSort",
 		function()
 			self.bagObject:Sort()
 			self.forceLayout = true
 		end,
-		'|cffff7700'..L["Auto-sort can cause freeze when the bag is closed."]..'|r'
+		L["(Blizzard's) Sort items"]
 	)
 end
 
