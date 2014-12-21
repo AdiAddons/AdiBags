@@ -99,7 +99,7 @@ function sectionProto:OnCreate()
 	header:EnableMouse(true)
 	header:SetText("DUMMY")
 	header:GetFontString():SetAllPoints()
-	addon.SetupTooltip(header, self.ShowHeaderTooltip, "ANCHOR_NONE")
+	addon.SetupTooltip(header, function(header, tooltip) return self:ShowHeaderTooltip(header, tooltip) end, "ANCHOR_NONE")
 	self.Header = header
 	self:SendMessage('AdiBags_SectionCreated', self)
 
@@ -179,7 +179,7 @@ local scriptDispatcher = LibStub('CallbackHandler-1.0'):New(addon, 'RegisterSect
 local DispatchOnClick = function(...) return scriptDispatcher:Fire('OnClick', ...) end
 local DispatchOnReceiveDrag = function(...) return scriptDispatcher:Fire('DispatchOnReceiveDrag', ...) end
 
-function sectionProto.ShowHeaderTooltip(header, tooltip)
+function sectionProto:ShowHeaderTooltip(header, tooltip)
 	local self = header.section
 	tooltip:SetPoint("BOTTOMRIGHT", self.container, "TOPRIGHT", 0, 4)
 	if self.category ~= self.name then

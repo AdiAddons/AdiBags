@@ -218,6 +218,17 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.ToSortSection = toSortSection
 	self:AddWidget(toSortSection)
 
+	-- Override toSortSection handlers
+	toSortSection.ShowHeaderTooltip = function(self, _ , tooltip)
+		tooltip:SetPoint("BOTTOMRIGHT", self.container, "TOPRIGHT", 0, 4)
+		tooltip:AddLine(L["Recent items"], 1, 1, 1)
+		tooltip:AddLine(L["This special section receives items that have been recently moved, changed or added to the bags."])
+		tooltip:AddLine(L["Click to empty this section and move the items into their final section."])
+	end
+	toSortSection.UpdateHeaderScripts = function() end
+	toSortSection.Header:RegisterForClicks("AnyUp")
+	toSortSection.Header:SetScript("OnClick", function() self:FullUpdate() end)
+
 	local content = CreateFrame("Frame", nil, self)
 	content:SetPoint("TOPLEFT", toSortSection, "BOTTOMLEFT", 0, -ITEM_SPACING)
 	self.Content = content
