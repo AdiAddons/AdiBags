@@ -151,6 +151,7 @@ addon.DEFAULT_SETTINGS = {
 			insets = 3,
 			BackpackColor = { 0, 0, 0, 1 },
 			BankColor = { 0, 0, 0.5, 1 },
+			ReagentBankColor = { 0, 0.5, 0, 1 },
 		},
 		rightClickConfig = true,
 		autoOpen = true,

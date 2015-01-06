@@ -501,6 +501,13 @@ local function GetOptions()
 								hasAlpha = true,
 								arg = { "skin", "BankColor" },
 							},
+							reagentBankColor = {
+								name = L['Reagent bank color'],
+								type = 'color',
+								order = 70,
+								hasAlpha = true,
+								arg = { "skin", "ReagentBankColor" },
+							},
 						},
 					}
 				},
