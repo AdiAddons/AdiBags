@@ -751,7 +751,7 @@ function containerProto:DispatchItem(slotData, fullUpdate)
 		return
 	end
 
-	if sectionName == L["Recent Items"] or (not existing and not fullUpdate and slotData.link) then
+	if sectionName == L["Recent Items"] or (not fullUpdate and slotData.link) then
 		self.ToSortSection:AddItemButton(slotId, button)
 		return
 	end
