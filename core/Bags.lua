@@ -239,6 +239,7 @@ do
 		self:RawHookScript(BankFrame, "OnEvent", NOOP, true)
 		self:RawHookScript(BankFrame, "OnShow", NOOP, true)
 		self:RawHookScript(BankFrame, "OnHide", NOOP, true)
+		self:RawHook(BankFrame, "GetRight", "BankFrameGetRight", true)
 		self:Hook(BankFrame, "Show", "Open", true)
 		self:Hook(BankFrame, "Hide", "Close", true)
 
@@ -286,6 +287,10 @@ do
 		if IsReagentBankUnlocked() then
 			SortReagentBankBags()
 		end
+	end
+
+	function bank:BankFrameGetRight()
+		return 0
 	end
 
 end
