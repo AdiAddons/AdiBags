@@ -72,6 +72,8 @@ local HEADER_SIZE = addon.HEADER_SIZE
 
 local BAG_IDS = addon.BAG_IDS
 
+local LSM = LibStub('LibSharedMedia-3.0')
+
 --------------------------------------------------------------------------------
 -- Widget scripts
 --------------------------------------------------------------------------------
@@ -237,6 +239,9 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self:UpdateSkin()
 	self.paused = true
 	self.forceLayout = true
+
+	LSM.RegisterCallback(self, 'LibSharedMedia_Registered', 'UpdateSkin')
+	LSM.RegisterCallback(self, 'LibSharedMedia_SetGlobal', 'UpdateSkin')
 
 	local ForceFullLayout = function() self.forceLayout = true end
 

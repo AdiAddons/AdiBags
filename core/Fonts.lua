@@ -124,6 +124,8 @@ function addon:CreateFont(name, template, dbGetter)
 	font:SetFontObject(template)
 	font.template = template
 	font.GetDB = dbGetter
+	LSM.RegisterCallback(font, 'LibSharedMedia_Registered', 'ApplySettings')
+	LSM.RegisterCallback(font, 'LibSharedMedia_SetGlobal', 'ApplySettings')
 	return font
 end
 
