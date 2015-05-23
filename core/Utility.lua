@@ -189,6 +189,26 @@ function addon.GetDistinctItemID(link)
 end
 
 --------------------------------------------------------------------------------
+-- Compare two links ignoring character level part
+--------------------------------------------------------------------------------
+
+function addon.IsSameLinkButLevel(a, b)
+	if not a or not b then return false end
+
+	local linkRegExp = 'item:(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):%-?%d+:(%-?%d+)'
+	local partsA = {strmatch(a, linkRegExp)}
+	local partsB = {strmatch(b, linkRegExp)}
+
+	for i = 1, #partsA do
+		if partsA[i] ~= partsB[i] then
+			return false
+		end
+	end
+
+	return true
+end
+
+--------------------------------------------------------------------------------
 -- Basic junk test
 --------------------------------------------------------------------------------
 
