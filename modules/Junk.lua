@@ -50,7 +50,9 @@ local DEFAULTS = {
 		sources = { ['*'] = true },
 		include = {},
 		exclude = {
-			[6948] = true,
+			[6948] = true, -- Hearthstone
+			[110560] = true, -- Garrison Hearhstone
+			[64488] = true, -- The Innkeeper's Daughter
 		},
 	},
 }
