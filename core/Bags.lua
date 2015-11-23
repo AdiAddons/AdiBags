@@ -1,7 +1,22 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010-2012 Adirelle (adirelle@gmail.com)
+Copyright 2010-2014 Adirelle (adirelle@gmail.com)
 All rights reserved.
+
+This file is part of AdiBags.
+
+AdiBags is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+AdiBags is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
@@ -68,6 +83,9 @@ function bagProto:Open()
 	local frame = self:GetFrame()
 	if not frame:IsShown() then
 		self:Debug('Open')
+		if self.PreOpen then
+			self:PreOpen()
+		end
 		frame:Show()
 		addon:SendMessage('AdiBags_BagOpened', self.bagName, self)
 		return true
@@ -116,7 +134,7 @@ function bagProto:GetFrame()
 end
 
 function bagProto:CreateFrame()
-	return addon:CreateContainerFrame(self.bagName, self.bagIds, self.isBank)
+	return addon:CreateContainerFrame(self.bagName, self.isBank, self)
 end
 
 --------------------------------------------------------------------------------
@@ -129,11 +147,11 @@ local function CompareBags(a, b)
 	return a.order < b.order
 end
 
-function addon:NewBag(name, order, bagIds, isBank, ...)
-	self:Debug('NewBag', name, order, bagIds, isBank, ...)
-	local bag = addon:NewModule(name, bagProto, 'AceEvent-3.0', ...)
+function addon:NewBag(name, order, isBank, ...)
+	self:Debug('NewBag', name, order, isBank, ...)
+	local bag = addon:NewModule(name, bagProto, 'ABEvent-1.0', ...)
 	bag.bagName = name
-	bag.bagIds = bagIds
+	bag.bagIds = addon.BAG_IDS[isBank and "BANK" or "BAGS"]
 	bag.isBank = isBank
 	bag.order = order
 	tinsert(bags, bag)
@@ -177,7 +195,7 @@ end
 
 do
 	-- L["Backpack"]
-	local backpack = addon:NewBag("Backpack", 10, addon.BAG_IDS.BAGS, false, 'AceHook-3.0')
+	local backpack = addon:NewBag("Backpack", 10, false, 'AceHook-3.0')
 
 	function backpack:PostEnable()
 		self:RegisterMessage('AdiBags_InteractingWindowChanged')
@@ -195,7 +213,11 @@ do
 			self:Close()
 		end
 	end
-
+	
+	function backpack:Sort()
+		PlaySound("UI_BagSorting_01")
+		SortBags()
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -204,18 +226,24 @@ end
 
 do
 	-- L["Bank"]
-	local bank = addon:NewBag("Bank", 20, addon.BAG_IDS.BANK, true, 'AceHook-3.0')
+	local bank = addon:NewBag("Bank", 20, true, 'AceHook-3.0')
+
+	local UIHider = CreateFrame("Frame")
+	UIHider:Hide()
 
 	local function NOOP() end
 
 	function bank:PostEnable()
 		self:RegisterMessage('AdiBags_InteractingWindowChanged')
 
-		BankFrame:Hide()
 		self:RawHookScript(BankFrame, "OnEvent", NOOP, true)
-		self:RawHook(BankFrame, "Show", "Open", true)
-		self:RawHook(BankFrame, "Hide", "Close", true)
-		--self:RawHook(BankFrame, "IsShown", "IsOpen", true)
+		self:RawHookScript(BankFrame, "OnShow", NOOP, true)
+		self:RawHookScript(BankFrame, "OnHide", NOOP, true)
+		self:RawHook(BankFrame, "GetRight", "BankFrameGetRight", true)
+		self:Hook(BankFrame, "Show", "Open", true)
+		self:Hook(BankFrame, "Hide", "Close", true)
+
+		BankFrame:SetParent(UIHider)
 
 		if addon:GetInteractingWindow() == "BANKFRAME" then
 			self:Open()
@@ -226,6 +254,7 @@ do
 		if addon:GetInteractingWindow() == "BANKFRAME" then
 			self.hooks[BankFrame].Show(BankFrame)
 		end
+		BankFrame:SetParent(UIParent)
 	end
 
 	function bank:AdiBags_InteractingWindowChanged(event, new, old)
@@ -239,9 +268,29 @@ do
 	function bank:CanOpen()
 		return self:IsEnabled() and addon:GetInteractingWindow() == "BANKFRAME"
 	end
+	
+	function bank:PreOpen()
+		self.hooks[BankFrame].Show(BankFrame)
+		if addon.db.profile.autoDeposit and not IsModifierKeyDown() then
+			DepositReagentBank()
+		end
+	end
 
 	function bank:PostClose()
+		self.hooks[BankFrame].Hide(BankFrame)
 		CloseBankFrame()
+	end
+	
+	function bank:Sort()
+		PlaySound("UI_BagSorting_01")
+		SortBankBags()
+		if IsReagentBankUnlocked() then
+			SortReagentBankBags()
+		end
+	end
+
+	function bank:BankFrameGetRight()
+		return 0
 	end
 
 end

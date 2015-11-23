@@ -1,7 +1,22 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010-2012 Adirelle (adirelle@gmail.com)
+Copyright 2010-2014 Adirelle (adirelle@gmail.com)
 All rights reserved.
+
+This file is part of AdiBags.
+
+AdiBags is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+AdiBags is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
@@ -21,8 +36,8 @@ local GetItemInfo = _G.GetItemInfo
 local GetItemQualityColor = _G.GetItemQualityColor
 local hooksecurefunc = _G.hooksecurefunc
 local IsInventoryItemLocked = _G.IsInventoryItemLocked
-local ITEM_QUALITY_POOR = _G.ITEM_QUALITY_POOR
-local ITEM_QUALITY_UNCOMMON = _G.ITEM_QUALITY_UNCOMMON
+local ITEM_QUALITY_POOR = _G.LE_ITEM_QUALITY_POOR
+local ITEM_QUALITY_UNCOMMON = _G.LE_ITEM_QUALITY_UNCOMMON
 local next = _G.next
 local pairs = _G.pairs
 local select = _G.select
@@ -43,14 +58,16 @@ local ITEM_SIZE = addon.ITEM_SIZE
 -- Button initialization
 --------------------------------------------------------------------------------
 
-local buttonClass, buttonProto = addon:NewClass("ItemButton", "Button", "ContainerFrameItemButtonTemplate", "AceEvent-3.0")
+local buttonClass, buttonProto = addon:NewClass("ItemButton", "Button", "ContainerFrameItemButtonTemplate", "ABEvent-1.0")
 
 local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture", "NewItemTexture" }
 
 function buttonProto:OnCreate()
 	local name = self:GetName()
 	for i, childName in pairs(childrenNames ) do
-		self[childName] = _G[name..childName]
+		if not self[childName] then
+			self[childName] = _G[name..childName]
+		end
 	end
 	self:RegisterForDrag("LeftButton")
 	self:RegisterForClicks("LeftButtonUp","RightButtonUp")
@@ -61,6 +78,7 @@ function buttonProto:OnCreate()
 	if self.NewItemTexture then
 		self.NewItemTexture:Hide()
 	end
+	self.SplitStack = nil -- Remove the function set up by the template
 end
 
 function buttonProto:OnAcquire(container, bag, slot)
@@ -92,6 +110,10 @@ function buttonProto:IsLocked()
 	return select(3, GetContainerItemInfo(self.bag, self.slot))
 end
 
+function buttonProto:SplitStack(split)
+	SplitContainerItem(self.bag, self.slot, split)
+end
+
 --------------------------------------------------------------------------------
 -- Generic bank button sub-type
 --------------------------------------------------------------------------------
@@ -99,8 +121,22 @@ end
 local bankButtonClass, bankButtonProto = addon:NewClass("BankItemButton", "ItemButton")
 bankButtonClass.frameTemplate = "BankItemButtonGenericTemplate"
 
+function bankButtonProto:OnAcquire(container, bag, slot)
+	self.GetInventorySlot = nil -- Remove the method added by the template
+	self.inventorySlot = bag == REAGENTBANK_CONTAINER and ReagentBankButtonIDToInvSlotID(slot) or BankButtonIDToInvSlotID(slot)
+	return buttonProto.OnAcquire(self, container, bag, slot)
+end
+
 function bankButtonProto:IsLocked()
-	return IsInventoryItemLocked(BankButtonIDToInvSlotID(self.slot))
+	return IsInventoryItemLocked(self.inventorySlot)
+end
+
+function bankButtonProto:UpdateNew()
+	-- Not supported
+end
+
+function bankButtonProto:GetInventorySlot()
+	return self.inventorySlot
 end
 
 --------------------------------------------------------------------------------
@@ -111,7 +147,7 @@ local containerButtonPool = addon:CreatePool(buttonClass)
 local bankButtonPool = addon:CreatePool(bankButtonClass)
 
 function addon:AcquireItemButton(container, bag, slot)
-	if bag == BANK_CONTAINER then
+	if bag == BANK_CONTAINER or bag == REAGENTBANK_CONTAINER then
 		return bankButtonPool:Acquire(container, bag, slot)
 	else
 		return containerButtonPool:Acquire(container, bag, slot)
@@ -132,10 +168,10 @@ end)
 function buttonProto:SetSection(section)
 	local oldSection = self.section
 	if oldSection ~= section then
+		self.section = section
 		if oldSection then
 			oldSection:RemoveItemButton(self)
 		end
-		self.section = section
 		return true
 	end
 end
@@ -199,6 +235,7 @@ function buttonProto:OnShow()
 	self:RegisterEvent('BAG_UPDATE_COOLDOWN', 'UpdateCooldown')
 	self:RegisterEvent('ITEM_LOCK_CHANGED', 'UpdateLock')
 	self:RegisterEvent('QUEST_ACCEPTED', 'UpdateBorder')
+	self:RegisterEvent('BAG_NEW_ITEMS_UPDATED', 'UpdateNew')
 	if self.UpdateSearch then
 		self:RegisterEvent('INVENTORY_SEARCH_UPDATE', 'UpdateSearch')
 	end
@@ -264,6 +301,7 @@ function buttonProto:Update()
 	self:UpdateBorder()
 	self:UpdateCooldown()
 	self:UpdateLock()
+	self:UpdateNew()
 	if self.UpdateSearch then
 		self:UpdateSearch()
 	end
@@ -307,45 +345,58 @@ function buttonProto:UpdateCooldown()
 	return ContainerFrame_UpdateCooldown(self.bag, self)
 end
 
-function buttonProto:UpdateBorder(isolatedEvent)
-	if self.hasItem then
-		local texture, r, g, b, a, x1, x2, y1, y2, blendMode = nil, 1, 1, 1, 1, 0, 1, 0, 1, "BLEND"
-		local isQuestItem, questId, isActive = GetContainerItemQuestInfo(self.bag, self.slot)
-		if addon.db.profile.questIndicator and (questId and not isActive) then
-			texture = TEXTURE_ITEM_QUEST_BANG
-		elseif addon.db.profile.questIndicator and (questId or isQuestItem) then
-			texture = TEXTURE_ITEM_QUEST_BORDER
-		elseif addon.db.profile.qualityHighlight then
-			local _, _, quality = GetItemInfo(self.itemId)
-			if quality and quality >= ITEM_QUALITY_UNCOMMON then
-				r, g, b = GetItemQualityColor(quality)
-				a = addon.db.profile.qualityOpacity
-				texture, x1, x2, y1, y2 = [[Interface\Buttons\UI-ActionButton-Border]], 14/64, 49/64, 15/64, 50/64
-				blendMode = "ADD"
-			elseif quality == ITEM_QUALITY_POOR and addon.db.profile.dimJunk then
-				local v = 1 - 0.5 * addon.db.profile.qualityOpacity
-				texture, blendMode, r, g, b = true, "MOD", v, v, v
-			end
+function buttonProto:UpdateNew()
+	self.BattlepayItemTexture:SetShown(IsBattlePayItem(self.bag, self.slot))
+end
+
+local function GetBorder(bag, slot, itemId, settings)
+	if settings.questIndicator then
+		local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
+		if questId and not isActive then
+			return TEXTURE_ITEM_QUEST_BANG
 		end
-		if texture then
-			local border = self.IconQuestTexture
-			if texture == true then
-				border:SetVertexColor(1, 1, 1, 1)
-				border:SetTexture(r, g, b, a)
-			else
-				border:SetTexture(texture)
-				border:SetVertexColor(r, g, b, a)
-			end
-			border:SetTexCoord(x1, x2, y1, y2)
-			border:SetBlendMode(blendMode)
-			border:Show()
-			if isolatedEvent then
-				addon:SendMessage('AdiBags_UpdateBorder', self)
-			end
-			return
+		if questId or isQuestItem then
+			return TEXTURE_ITEM_QUEST_BORDER
 		end
 	end
-	self.IconQuestTexture:Hide()
+	if not settings.qualityHighlight then
+		return
+	end
+	local _, _, quality = GetItemInfo(itemId)
+	if quality == LE_ITEM_QUALITY_POOR and settings.dimJunk then
+		local v = 1 - 0.5 * settings.qualityOpacity
+		return true, v, v, v, 1, nil, nil, nil, nil, "MOD"
+	end
+	local color = quality ~= LE_ITEM_QUALITY_COMMON and BAG_ITEM_QUALITY_COLORS[quality]
+	if color then
+		return [[Interface\Buttons\UI-ActionButton-Border]], color.r, color.g, color.b, settings.qualityOpacity, 14/64, 49/64, 15/64, 50/64, "ADD"
+	end
+end
+
+function buttonProto:UpdateBorder(isolatedEvent)
+	local texture, r, g, b, a, x1, x2, y1, y2, blendMode
+	if self.hasItem then
+		texture, r, g, b, a, x1, x2, y1, y2, blendMode = GetBorder(self.bag, self.slot, self.itemLink or self.itemId, addon.db.profile)
+	end
+	if not texture then
+		self.IconQuestTexture:Hide()
+	else
+		local border = self.IconQuestTexture
+		if texture == true then
+			border:SetVertexColor(1, 1, 1, 1)
+			border:SetTexture(r or 1, g or 1, b or 1, a or 1)
+		else
+			border:SetTexture(texture)
+			border:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
+		end
+		border:SetTexCoord(x1 or 0, x2 or 1, y1 or 0, y2 or 1)
+		border:SetBlendMode(blendMode or "BLEND")
+		border:Show()
+	end
+	if self.JunkIcon then
+		local quality = self.hasItem and select(3, GetItemInfo(self.itemLink or self.itemId))
+		self.JunkIcon:SetShown(quality == LE_ITEM_QUALITY_POOR and addon:GetInteractingWindow() == "MERCHANT")
+	end
 	if isolatedEvent then
 		addon:SendMessage('AdiBags_UpdateBorder', self)
 	end
@@ -355,7 +406,7 @@ end
 -- Item stack button
 --------------------------------------------------------------------------------
 
-local stackClass, stackProto = addon:NewClass("StackButton", "Frame", "AceEvent-3.0")
+local stackClass, stackProto = addon:NewClass("StackButton", "Frame", "ABEvent-1.0")
 addon:CreatePool(stackClass, "AcquireStackButton")
 
 function stackProto:OnCreate()

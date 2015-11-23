@@ -1,7 +1,22 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010-2012 Adirelle (adirelle@gmail.com)
+Copyright 2010-2014 Adirelle (adirelle@gmail.com)
 All rights reserved.
+
+This file is part of AdiBags.
+
+AdiBags is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+AdiBags is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
@@ -25,6 +40,9 @@ local tostring = _G.tostring
 -- Classes
 --------------------------------------------------------------------------------
 
+-- Required as some "OnLoad" function refers to the frame parent (since 6.0)
+local defaultParent = CreateFrame("Frame")
+
 local classes = {}
 
 local function Meta_ToString(self)
@@ -33,7 +51,8 @@ end
 
 local function Class_Create(class, ...)
 	class.serial = class.serial + 1
-	local self = CreateFrame(class.frameType, addonName..class.name..class.serial, nil, class.frameTemplate)
+	local self = CreateFrame(class.frameType, addonName..class.name..class.serial, defaultParent, class.frameTemplate)
+	self:SetParent(nil) -- Get rid of the parent once the OnLoad handler has been called
 	setmetatable(self, class.metatable)
 	self:ClearAllPoints()
 	self:Hide()

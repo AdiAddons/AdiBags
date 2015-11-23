@@ -1,7 +1,22 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010-2012 Adirelle (adirelle@gmail.com)
+Copyright 2010-2014 Adirelle (adirelle@gmail.com)
 All rights reserved.
+
+This file is part of AdiBags.
+
+AdiBags is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+AdiBags is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
@@ -52,7 +67,7 @@ function addon:SetupDefaultFilters()
 
 	-- [90] Parts of an equipment set
 	do
-		local setFilter = addon:RegisterFilter("ItemSets", 90, "AceEvent-3.0", "AceBucket-3.0")
+		local setFilter = addon:RegisterFilter("ItemSets", 90, "ABEvent-1.0", "ABBucket-1.0")
 		setFilter.uiName = L['Gear manager item sets']
 		setFilter.uiDesc = L['Put items belonging to one or more sets of the built-in gear manager in specific sections.']
 

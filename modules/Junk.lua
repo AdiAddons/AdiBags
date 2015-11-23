@@ -1,7 +1,22 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010-2012 Adirelle (adirelle@gmail.com)
+Copyright 2010-2014 Adirelle (adirelle@gmail.com)
 All rights reserved.
+
+This file is part of AdiBags.
+
+AdiBags is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+AdiBags is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
@@ -12,8 +27,8 @@ local _G = _G
 local format = _G.format
 local GameTooltip = _G.GameTooltip
 local GetItemInfo = _G.GetItemInfo
-local ITEM_QUALITY_POOR = _G.ITEM_QUALITY_POOR
-local ITEM_QUALITY_UNCOMMON = _G.ITEM_QUALITY_UNCOMMON
+local ITEM_QUALITY_POOR = _G.LE_ITEM_QUALITY_POOR
+local ITEM_QUALITY_UNCOMMON = _G.LE_ITEM_QUALITY_UNCOMMON
 local print = _G.print
 local select = _G.select
 local setmetatable = _G.setmetatable
@@ -26,7 +41,7 @@ local wipe = _G.wipe
 local JUNK = addon.BI['Junk']
 local JUNK_KEY = addon.BuildSectionKey(JUNK, JUNK)
 
-local mod = addon:RegisterFilter("Junk", 85, "AceEvent-3.0", "AceHook-3.0")
+local mod = addon:RegisterFilter("Junk", 85, "ABEvent-1.0", "AceHook-3.0")
 mod.uiName = JUNK
 mod.uiDesc = L['Put items of poor quality or labeled as junk in the "Junk" section.']
 

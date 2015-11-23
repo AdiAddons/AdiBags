@@ -1,7 +1,22 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2013 Adirelle (adirelle@gmail.com)
+Copyright 2013-2014 Adirelle (adirelle@gmail.com)
 All rights reserved.
+
+This file is part of AdiBags.
+
+AdiBags is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+AdiBags is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
@@ -21,7 +36,7 @@ local select = _G.select
 local unpack = _G.unpack
 --GLOBALS>
 
-local mod = addon:NewModule('ItemLevel', 'AceEvent-3.0')
+local mod = addon:NewModule('ItemLevel', 'ABEvent-1.0')
 mod.uiName = L['Item level']
 mod.uiDesc = L['Display the level of equippable item in the top left corner of the button.']
 
@@ -32,9 +47,18 @@ local colorSchemes = {
 local texts = {}
 local ItemUpgradeInfo = LibStub('LibItemUpgradeInfo-1.0')
 
+local SyLevel = _G.SyLevel
+local SyLevelBypass
+if SyLevel then
+	function SyLevelBypass() return mod:IsEnabled() and mod.db.profile.useSyLevel end
+else
+	function SyLevelBypass() return false end
+end
+
 function mod:OnInitialize()
 	self.db = addon.db:RegisterNamespace(self.moduleName, {
 		profile = {
+			useSyLevel = false,
 			equippableOnly = true,
 			colorScheme = 'original',
 			minLevel = 1,
@@ -49,10 +73,24 @@ function mod:OnInitialize()
 		self.db.profile.colorScheme = 'none'
 		self.db.profile.colored = nil
 	end
+	if SyLevel then
+		SyLevel:RegisterPipe(
+			'Adibags',
+			function() self.db.profile.useSyLevel = true end,
+			function() self.db.profile.useSyLevel = false end,
+			function() self:SendMessage('AdiBags_UpdateAllButtons') end,
+			'AdiBags'
+		)
+		SyLevel:RegisterFilterOnPipe('Adibags', 'Item level text')
+		SyLevelDB.EnabledFilters['Item level text']['Adibags'] = true
+	end
 end
 
 function mod:OnEnable()
 	self:RegisterMessage('AdiBags_UpdateButton', 'UpdateButton')
+	if SyLevel and self.db.profile.useSyLevel and not SyLevel:IsPipeEnabled('Adibags') then
+		SyLevel:EnablePipe('Adibags')
+	end
 	self:SendMessage('AdiBags_UpdateAllButtons')
 end
 
@@ -72,16 +110,28 @@ end
 
 function mod:UpdateButton(event, button)
 	local settings = self.db.profile
-	local text = texts[button]
 	local link = button:GetItemLink()
+	local text = texts[button]
+
 	if link then
 		local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
 		local level = ItemUpgradeInfo:GetUpgradedItemLevel(link) or 0 -- Ugly workaround
 		if level >= settings.minLevel
-			and (quality > 0 or not settings.ignoreJunk)
+			and (quality ~= LE_ITEM_QUALITY_POOR or not settings.ignoreJunk)
 			and (loc ~= "" or not settings.equippableOnly)
-			and (quality ~= 7 or not settings.ignoreHeirloom)
+			and (quality ~= LE_ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
 		then
+			if SyLevel then
+				if settings.useSyLevel then
+					if text then
+						text:Hide()
+					end
+					SyLevel:CallFilters('Adibags', button, link)
+					return
+				else
+					SyLevel:CallFilters('Adibags', button, nil)
+				end
+			end
 			if not text then
 				text = CreateText(button)
 			end
@@ -89,6 +139,9 @@ function mod:UpdateButton(event, button)
 			text:SetTextColor(colorSchemes[settings.colorScheme](level, quality, reqLevel, (loc ~= "")))
 			return text:Show()
 		end
+	end
+	if SyLevel then
+		SyLevel:CallFilters('Adibags', button, nil)
 	end
 	if text then
 		text:Hide()
@@ -98,6 +151,12 @@ end
 
 function mod:GetOptions()
 	return {
+		useSyLevel = SyLevel and {
+			name = L['Use SyLevel'],
+			desc = L['Let SyLevel handle the the display.'],
+			type = 'toggle',
+			order = 5,
+		} or nil,
 		equippableOnly = {
 			name = L['Only equippable items'],
 			desc = L['Do not show level of items that cannot be equipped.'],
@@ -108,6 +167,7 @@ function mod:GetOptions()
 			name = L['Color scheme'],
 			desc = L['Which color scheme should be used to display the item level ?'],
 			type = 'select',
+			hidden = SyLevelBypass,
 			values = {
 				none     = L['None'],
 				original = L['Same as InventoryItemLevels'],
@@ -254,11 +314,12 @@ do
 	end
 
 	local maxLevelRanges = {
-		[60] = {  66,  92 },
-		[70] = { 100, 164 },
-		[80] = { 187, 284 },
-		[85] = { 333, 416 },
-		[90] = { 458, 580 }
+		[60]  = {  66,  92 },
+		[70]  = { 100, 164 },
+		[80]  = { 187, 284 },
+		[85]  = { 333, 416 },
+		[90]  = { 458, 580 },
+		[100] = { 615, 695 },
 	}
 
 	local maxLevelColors = {}

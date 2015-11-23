@@ -1,7 +1,22 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010-2012 Adirelle (adirelle@gmail.com)
+Copyright 2010-2014 Adirelle (adirelle@gmail.com)
 All rights reserved.
+
+This file is part of AdiBags.
+
+AdiBags is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+AdiBags is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
@@ -59,6 +74,8 @@ local ITEM_SIZE = addon.ITEM_SIZE
 local ITEM_SPACING = addon.ITEM_SPACING
 local BAG_INSET = addon.BAG_INSET
 local TOP_PADDING = addon.TOP_PADDING
+
+local BAG_IDS = addon.BAG_IDS
 
 --------------------------------------------------------------------------------
 -- Swaping process
@@ -178,7 +195,7 @@ do
 	function EmptyBag(bag)
 		ClearCursor()
 		wipe(otherBags)
-		local bags = addon.BAG_IDS.BANK[bag] and addon.BAG_IDS.BANK or addon.BAG_IDS.BAGS
+		local bags = BAG_IDS[BAG_IDS.BANK[bag] and "BANK_ONLY" or "BAGS"]
 		for otherBag in pairs(bags) do
 			if otherBag ~= bag then
 				tinsert(otherBags, otherBag)
@@ -199,7 +216,7 @@ end
 -- Regular bag buttons
 --------------------------------------------------------------------------------
 
-local bagButtonClass, bagButtonProto = addon:NewClass("BagSlotButton", "Button", "ItemButtonTemplate", "AceEvent-3.0")
+local bagButtonClass, bagButtonProto = addon:NewClass("BagSlotButton", "Button", "ItemButtonTemplate", "ABEvent-1.0")
 
 function bagButtonProto:OnCreate(bag)
 	self.bag = bag
@@ -439,7 +456,7 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	local x = BAG_INSET
 	local height = 0
 	for i, bag in ipairs(bags) do
-		if bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER then
+		if bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER and bag ~= REAGENTBANK_CONTAINER then
 			local button = buttonClass:Create(bag)
 			button:SetParent(self)
 			button:SetPoint("TOPLEFT", x, -TOP_PADDING)
@@ -452,7 +469,7 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	self:SetWidth(x + BAG_INSET)
 	self:SetHeight(BAG_INSET + TOP_PADDING + ITEM_SIZE)
 
-	LibStub('AceEvent-3.0').RegisterMessage(self:GetName(), 'AdiBags_ConfigChanged', Panel_ConfigChanged, self)
+	LibStub('ABEvent-1.0').RegisterMessage(self:GetName(), 'AdiBags_ConfigChanged', Panel_ConfigChanged, self)
 	Panel_UpdateSkin(self)
 
 	return self

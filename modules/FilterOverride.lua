@@ -1,7 +1,22 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010-2012 Adirelle (adirelle@gmail.com)
+Copyright 2010-2014 Adirelle (adirelle@gmail.com)
 All rights reserved.
+
+This file is part of AdiBags.
+
+AdiBags is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+AdiBags is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
@@ -42,7 +57,7 @@ local SplitSectionKey = addon.SplitSectionKey
 local JUNK, FREE_SPACE = addon.BI['Junk'], L["Free space"]
 local JUNK_KEY, FREE_SPACE_KEY = BuildSectionKey(JUNK, JUNK), BuildSectionKey(FREE_SPACE, FREE_SPACE)
 
-local mod = addon:RegisterFilter("FilterOverride", 95, "AceEvent-3.0")
+local mod = addon:RegisterFilter("FilterOverride", 95, "ABEvent-1.0")
 mod.uiName = L['Manual filtering']
 mod.uiDesc = L['Allow you manually redefine the section in which an item should be put. Simply drag an item on the section title.']
 

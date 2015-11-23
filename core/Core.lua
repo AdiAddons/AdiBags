@@ -1,7 +1,22 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010-2012 Adirelle (adirelle@gmail.com)
+Copyright 2010-2014 Adirelle (adirelle@gmail.com)
 All rights reserved.
+
+This file is part of AdiBags.
+
+AdiBags is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+AdiBags is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
@@ -29,7 +44,7 @@ local type = _G.type
 local unpack = _G.unpack
 --GLOBALS>
 
-LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'AceEvent-3.0', 'AceBucket-3.0', 'AceHook-3.0', 'AceConsole-3.0')
+LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'ABEvent-1.0', 'ABBucket-1.0', 'AceHook-3.0', 'AceConsole-3.0')
 --@debug@
 _G[addonName] = addon
 --@end-debug@
@@ -102,7 +117,9 @@ function addon:OnEnable()
 	self.globalLock = false
 
 	self:RegisterEvent('BAG_UPDATE')
-	self:RegisterBucketEvent('PLAYERBANKSLOTS_CHANGED', 0, 'BankUpdated')
+	self:RegisterEvent('BAG_UPDATE_DELAYED')
+	self:RegisterBucketEvent('PLAYERBANKSLOTS_CHANGED', 0.01, 'BankUpdated')
+	self:RegisterBucketEvent('PLAYERREAGENTBANKSLOTS_CHANGED', 0.01, 'ReagentBankUpdated')
 
 	self:RegisterEvent('PLAYER_LEAVING_WORLD', 'Disable')
 
@@ -114,6 +131,8 @@ function addon:OnEnable()
 	self:RawHook("ToggleAllBags", true)
 	self:RawHook("ToggleBackpack", true)
 	self:RawHook("ToggleBag", true)
+	self:RawHook("OpenBag", true)
+	self:RawHook("CloseBag", true)
 	self:RawHook("OpenBackpack", true)
 	self:RawHook("CloseBackpack", true)
 	self:RawHook('CloseSpecialWindows', true)
@@ -133,8 +152,8 @@ function addon:OnEnable()
 	self:RegisterEvent('GUILDBANKFRAME_CLOSED', 'UpdateInteractingWindow')
 	self:RegisterEvent('VOID_STORAGE_OPEN', 'UpdateInteractingWindow')
 	self:RegisterEvent('VOID_STORAGE_CLOSE', 'UpdateInteractingWindow')
-	self:RegisterEvent('FORGE_MASTER_OPENED', 'UpdateInteractingWindow')
-	self:RegisterEvent('FORGE_MASTER_CLOSED', 'UpdateInteractingWindow')
+	self:RegisterEvent('SOCKET_INFO_UPDATE', 'UpdateInteractingWindow')
+	self:RegisterEvent('SOCKET_INFO_CLOSE', 'UpdateInteractingWindow')
 
 	self:SetSortingOrder(self.db.profile.sortingOrder)
 
@@ -177,10 +196,11 @@ end
 function addon:UpgradeProfile()
 	local profile = self.db.profile
 
-	-- Convert old ordering setting
-	if profile.laxOrdering == true then
-		profile.laxOrdering = 1
-	end
+	-- Remove old settings
+	profile.laxOrdering = nil
+	profile.maxWidth = nil
+	profile.automaticLayout = nil
+	profile.rowWidth = nil
 
 	-- Convert old anchor settings
 	local oldData = profile.anchor
@@ -199,12 +219,6 @@ function addon:UpgradeProfile()
 	-- Convert old "notWhenTrading" setting
 	if profile.virtualStacks.notWhenTrading == true then
 		profile.virtualStacks.notWhenTrading = 3
-	end
-
-	-- Convert old "rowWidth"
-	if type(profile.rowWidth) == "number" then
-		local rowWidth = profile.rowWidth
-		profile.rowWidth = { Bank = rowWidth, Backpack = rowWidth }
 	end
 
 	-- Convert old "backgroundColors"
@@ -239,6 +253,27 @@ function addon:UpgradeProfile()
 		end
 	end
 
+end
+
+--------------------------------------------------------------------------------
+-- Error reporting
+--------------------------------------------------------------------------------
+
+local BugGrabber = addon.BugGrabber
+if BugGrabber then
+	if BugGrabber.setupCallbacks then
+		BugGrabber.setupCallbacks()
+	end
+	local pattern = "("..addonName.."[^\n]+%.lua):%d+:"
+	BugGrabber.RegisterCallback(addon, 'BugGrabber_BugGrabbed', function(_, errorObject)
+		local ref = strmatch(errorObject.stack, pattern)
+		if ref and not strmatch(ref, '\\libs\\') then
+			if not addon.db.global.muteBugGrabber then
+				print(format('|cffffff00'..L['Error in %s: %s -- details: %s'], addonName, '|r'..errorObject.message, BugGrabber:GetChatLink(errorObject)))
+			end
+			addon:Debug('Error:', errorObject.message)
+		end
+	end)
 end
 
 --------------------------------------------------------------------------------
@@ -302,16 +337,33 @@ addon:SetDefaultModulePrototype(moduleProto)
 -- Event handlers
 --------------------------------------------------------------------------------
 
+local updatedBags = {}
+local updatedBank = { [BANK_CONTAINER] = true }
+local updatedReagentBank = { [REAGENTBANK_CONTAINER] = true }
+
 function addon:BAG_UPDATE(event, bag)
-	self:SendMessage('AdiBags_BagUpdated', bag)
+	updatedBags[bag] = true
+end
+
+function addon:BAG_UPDATE_DELAYED(event)
+	self:SendMessage('AdiBags_BagUpdated', updatedBags)
+	wipe(updatedBags)
 end
 
 function addon:BankUpdated(slots)
 	-- Wrap several PLAYERBANKSLOTS_CHANGED into one AdiBags_BagUpdated message
 	for slot in pairs(slots) do
 		if slot > 0 and slot <= NUM_BANKGENERIC_SLOTS then
-			self:SendMessage('AdiBags_BagUpdated', BANK_CONTAINER)
-			return
+			return self:SendMessage('AdiBags_BagUpdated', updatedBank)
+		end
+	end
+end
+
+function addon:ReagentBankUpdated(slots)
+	-- Wrap several PLAYERREAGANBANKSLOTS_CHANGED into one AdiBags_BagUpdated message
+	for slot in pairs(slots) do
+		if slot > 0 and slot <= 98 then
+			return self:SendMessage('AdiBags_BagUpdated', updatedReagentBank)
 		end
 	end
 end
@@ -344,7 +396,7 @@ function addon:ConfigChanged(vars)
 				elseif not enabled and bag:IsEnabled() then
 					bag:Disable()
 				end
-			elseif strmatch(name, 'rowWidth') then
+			elseif strmatch(name, 'columnWidth') then
 				return self:SendMessage('AdiBags_LayoutChanged')
 			elseif strmatch(name, '^skin%.font') then
 				return self:UpdateFonts()
@@ -353,7 +405,7 @@ function addon:ConfigChanged(vars)
 	end
 	if vars.sortingOrder then
 		return self:SetSortingOrder(self.db.profile.sortingOrder)
-	elseif vars.maxHeight or vars.maxWidth or vars.laxOrdering then
+	elseif vars.maxHeight then
 		return self:SendMessage('AdiBags_LayoutChanged')
 	elseif vars.scale then
 		return self:LayoutBags()
@@ -383,7 +435,7 @@ end
 do
 	local current
 	function addon:UpdateInteractingWindow(event, ...)
-		local new = strmatch(event, '^([_%w]+)_OPEN') or strmatch(event, '^([_%w]+)_SHOW$')
+		local new = strmatch(event, '^([_%w]+)_OPEN') or strmatch(event, '^([_%w]+)_SHOW$') or strmatch(event, '^([_%w]+)_UPDATE$')
 		self:Debug('UpdateInteractingWindow', event, current, '=>', new, '|', ...)
 		if new ~= current then
 			local old = current
@@ -407,8 +459,12 @@ end
 
 function addon:ShouldStack(slotData)
 	local conf = self.db.profile.virtualStacks
+	local hintSuffix = '#'..tostring(slotData.bagFamily)
 	if not slotData.link then
-		return conf.freeSpace, "*Free*"
+		return conf.freeSpace, "*Free*"..hintSuffix
+	end
+	if not self.db.profile.showBagType then
+		hintSuffix = ''
 	end
 	local window, unstack = self:GetInteractingWindow(), 0
 	if window then
@@ -421,13 +477,13 @@ function addon:ShouldStack(slotData)
 	if maxStack > 1 then
 		if conf.stackable then
 			if (slotData.count or 1) == maxStack then
-				return true, slotData.itemId
+				return true, tostring(slotData.itemId)..hintSuffix
 			elseif unstack < 3 then
-				return conf.incomplete, slotData.itemId
+				return conf.incomplete, tostring(slotData.itemId)..hintSuffix
 			end
 		end
 	elseif conf.others and unstack < 2 then
-		return true, self.GetDistinctItemID(slotData.link)
+		return true, tostring(self.GetDistinctItemID(slotData.link))..hintSuffix
 	end
 end
 
@@ -437,9 +493,9 @@ end
 
 local LSM = LibStub('LibSharedMedia-3.0')
 
-function addon:GetContainerSkin(containerName)
+function addon:GetContainerSkin(containerName, isReagentBank)
 	local skin = self.db.profile.skin
-	local r, g, b, a = unpack(skin[containerName..'Color'], 1, 4)
+	local r, g, b, a = unpack(skin[isReagentBank and "ReagentBankColor" or (containerName..'Color')], 1, 4)
 	local backdrop = addon.BACKDROP
 	backdrop.bgFile = LSM:Fetch(LSM.MediaType.BACKGROUND, skin.background)
 	backdrop.edgeFile = LSM:Fetch(LSM.MediaType.BORDER, skin.border)

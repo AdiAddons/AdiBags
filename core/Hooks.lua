@@ -1,7 +1,22 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010-2012 Adirelle (adirelle@gmail.com)
+Copyright 2010-2014 Adirelle (adirelle@gmail.com)
 All rights reserved.
+
+This file is part of AdiBags.
+
+AdiBags is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+AdiBags is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
@@ -117,6 +132,25 @@ function addon:CloseAllBags(requesterFrame)
 		end
 	end
 	return found
+end
+
+function addon:OpenBag(id)
+	local ourBag = hookedBags[id]
+	if ourBag then
+		return ourBag:Open()
+	else
+		local frame = self:GetContainerFrame(id, true)
+		if frame then
+			frame:Hide()
+		end
+	end
+end
+
+function addon:CloseBag(id)
+	local ourBag = hookedBags[id]
+	if ourBag then
+		return ourBag:Close()
+	end
 end
 
 function addon:ToggleBag(id)

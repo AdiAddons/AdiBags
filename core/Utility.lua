@@ -1,7 +1,22 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010-2012 Adirelle (adirelle@gmail.com)
+Copyright 2010-2014 Adirelle (adirelle@gmail.com)
 All rights reserved.
+
+This file is part of AdiBags.
+
+AdiBags is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+AdiBags is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 -- Various utility functions
@@ -18,8 +33,8 @@ local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
 local geterrorhandler = _G.geterrorhandler
 local GetItemFamily = _G.GetItemFamily
 local GetItemInfo = _G.GetItemInfo
-local ITEM_QUALITY_POOR = _G.ITEM_QUALITY_POOR
-local ITEM_QUALITY_UNCOMMON = _G.ITEM_QUALITY_UNCOMMON
+local ITEM_QUALITY_POOR = _G.LE_ITEM_QUALITY_POOR
+local ITEM_QUALITY_UNCOMMON = _G.LE_ITEM_QUALITY_UNCOMMON
 local pairs = _G.pairs
 local pcall = _G.pcall
 local select = _G.select
@@ -230,12 +245,6 @@ function addon.GetItemFamily(item)
 	else
 		return GetItemFamily(item)
 	end
-end
-
-function addon.CanPutItemInContainer(item, container)
-	local freeSlots, containerFamily = GetContainerNumFreeSlots(container)
-	local itemFamily = addon.GetItemFamily(item)
-	return freeSlots > 0 and (containerFamily == 0 or band(itemFamily, containerFamily) ~= 0), freeSlots, itemFamily, containerFamily
 end
 
 function addon:GetFamilyTag(family)

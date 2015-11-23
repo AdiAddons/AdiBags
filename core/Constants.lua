@@ -1,7 +1,22 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010-2012 Adirelle (adirelle@gmail.com)
+Copyright 2010-2014 Adirelle (adirelle@gmail.com)
 All rights reserved.
+
+This file is part of AdiBags.
+
+AdiBags is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+AdiBags is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
@@ -11,6 +26,7 @@ local L = addon.L
 local _G = _G
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
 local BANK_CONTAINER = _G.BANK_CONTAINER
+local REAGENTBANK_CONTAINER = _G.REAGENTBANK_CONTAINER
 local NUM_BAG_SLOTS = _G.NUM_BAG_SLOTS
 local NUM_BANKBAGSLOTS = _G.NUM_BANKBAGSLOTS
 local pairs = _G.pairs
@@ -20,16 +36,32 @@ local pairs = _G.pairs
 local BAGS = { [BACKPACK_CONTAINER] = BACKPACK_CONTAINER }
 for i = 1, NUM_BAG_SLOTS do BAGS[i] = i end
 
--- Bank bags
-local BANK = { [BANK_CONTAINER] = BANK_CONTAINER }
-for i = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do BANK[i] = i end
+-- Base nank bags
+local BANK_ONLY = { [BANK_CONTAINER] = BANK_CONTAINER }
+for i = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do BANK_ONLY[i] = i end
+
+--- Reagent bank bags
+local REAGENTBANK_ONLY = { [REAGENTBANK_CONTAINER] = REAGENTBANK_CONTAINER }
+
+-- All bank bags
+local BANK = {}
+for _, bags in ipairs { BANK_ONLY, REAGENTBANK_ONLY } do
+	for id in pairs(bags) do BANK[id] = id end
+end
 
 -- All bags
 local ALL = {}
-for id in pairs(BAGS) do ALL[id] = id end
-for id in pairs(BANK) do ALL[id] = id end
+for _, bags in ipairs { BAGS, BANK } do
+	for id in pairs(bags) do ALL[id] = id end
+end
 
-addon.BAG_IDS = { BAGS = BAGS, BANK = BANK, ALL = ALL }
+addon.BAG_IDS = {
+	BAGS = BAGS,
+	BANK = BANK,
+	BANK_ONLY = BANK_ONLY,
+	REAGENTBANK_ONLY = REAGENTBANK_ONLY,
+	ALL = ALL
+}
 
 addon.FAMILY_TAGS = {
 --@noloc[[
@@ -93,10 +125,11 @@ addon.DEFAULT_SETTINGS = {
 			Bank = { point = "TOPLEFT", xOffset = 32, yOffset = -104 },
 		},
 		scale = 0.8,
-		rowWidth = { ['*'] = 9 },
+		columnWidth = {
+			Backpack = 4,
+			Bank = 6,
+		},
 		maxHeight = 0.60,
-		maxWidth = 0.40,
-		laxOrdering = 1,
 		qualityHighlight = true,
 		qualityOpacity = 1.0,
 		dimJunk = true,
@@ -111,7 +144,6 @@ addon.DEFAULT_SETTINGS = {
 			freeSpace = true,
 			notWhenTrading = 1,
 		},
-		automaticLayout = 1,
 		skin = {
 			background = "Blizzard Tooltip",
 			border = "Blizzard Tooltip",
@@ -119,14 +151,21 @@ addon.DEFAULT_SETTINGS = {
 			insets = 3,
 			BackpackColor = { 0, 0, 0, 1 },
 			BankColor = { 0, 0, 0.5, 1 },
+			ReagentBankColor = { 0, 0.5, 0, 1 },
 		},
 		rightClickConfig = true,
 		autoOpen = true,
+		hideAnchor = false,
+		autoDeposit = false,
+		compactLayout = false,
 	},
 	char = {
 		collapsedSections = {
 			['*'] = false,
 		},
-	}
+	},
+	global = {
+		muteBugGrabber = false,
+	},
 }
 
