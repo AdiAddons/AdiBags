@@ -164,6 +164,7 @@ local function __GetDistinctItemID(link)
 		return link
 	else
 		local itemString, id, enchant, gem1, gem2, gem3, gem4, suffix, reforge = strmatch(link, '(item:(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):%-?%d+:%-?%d+:(%-?%d+))')
+		if not id then return end
 		id = tonumber(id)
 		local equipSlot = select(9, GetItemInfo(id))
 		if equipSlot and equipSlot ~= "" and equipSlot ~= "INVTYPE_BAG" then
