@@ -622,13 +622,23 @@ function containerProto:UpdateContent(bag)
 			end
 
 			if slotData.link ~= link then
-				removed[slotData.slotId] = slotData.link
+				local prevSlotId = slotData.slotId
+				local prevLink = slotData.link
+				-- If links only differ in character level that's the same item
+				local sameItem = addon.IsSameLinkButLevel(slotData.link, link)
+
 				slotData.count = count
 				slotData.link = link
 				slotData.itemId = itemId
 				slotData.name, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass, slotData.equipSlot, slotData.texture, slotData.vendorPrice = name, quality, iLevel, reqLevel, class, subclass, equipSlot, texture, vendorPrice
 				slotData.maxStack = maxStack or (link and 1 or 0)
-				added[slotData.slotId] = slotData
+
+				if sameItem then
+					changed[slotData.slotId] = slotData
+				else
+					removed[prevSlotId] = prevLink
+					added[slotData.slotId] = slotData
+				end
 			elseif slotData.count ~= count then
 				slotData.count = count
 				changed[slotData.slotId] = slotData
