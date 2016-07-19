@@ -158,7 +158,7 @@ end
 -- because buttons created in combat do not work well
 hooksecurefunc(addon, 'OnInitialize', function()
 	addon:Debug('Prespawning buttons')
-	containerButtonPool:PreSpawn(100)
+	containerButtonPool:PreSpawn(160)
 end)
 
 --------------------------------------------------------------------------------
