@@ -918,8 +918,7 @@ function containerProto:RedispatchAllItems()
 	self:ResizeToSortSection()
 end
 
-local sections = {}
-
+-- Local stateless comparing function for sorting.
 local function CompareSections(a, b)
 	local orderA, orderB = a:GetOrder(), b:GetOrder()
 	if orderA == orderB then
@@ -933,7 +932,7 @@ local function CompareSections(a, b)
 	end
 end
 
-function containerProto:PrepareSections(columnWidth)
+function containerProto:PrepareSections(columnWidth, sections)
 	wipe(sections)
 	local maxHeight = 0
 	for key, section in pairs(self.sections) do
@@ -952,12 +951,13 @@ function containerProto:PrepareSections(columnWidth)
 			maxHeight = max(maxHeight, section:GetHeight())
 		end
 	end
+
 	tsort(sections, CompareSections)
 	self:Debug('PrepareSections', 'columnWidth=', columnWidth, '=>', #sections, 'sections')
 	return maxHeight
 end
 
-local function FindFittingSection(maxWidth)
+local function FindFittingSection(maxWidth, sections)
 	local bestScore, bestIndex = math.huge
 	for index, section in ipairs(sections) do
 		local wasted = maxWidth - section:GetWidth()
@@ -968,7 +968,7 @@ local function FindFittingSection(maxWidth)
 	return bestIndex and tremove(sections, bestIndex)
 end
 
-local function GetNextSection(maxWidth)
+local function GetNextSection(maxWidth, sections)
 	if sections[1] and sections[1]:GetWidth() <= maxWidth then
 		return tremove(sections, 1)
 	end
@@ -980,9 +980,8 @@ local COLUMN_SPACING = ceil((ITEM_SIZE + ITEM_SPACING) / 2)
 local ROW_SPACING = ITEM_SPACING*2
 local SECTION_SPACING = COLUMN_SPACING / 2
 
-function containerProto:LayoutSections(maxHeight, columnWidth, minWidth)
+function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, sections)
 	self:Debug('LayoutSections', maxHeight, columnWidth, minWidth)
-
 	local columnPixelWidth = (ITEM_SIZE + ITEM_SPACING) * columnWidth - ITEM_SPACING + SECTION_SPACING
 	local getSection = addon.db.profile.compactLayout and FindFittingSection or GetNextSection
 
@@ -990,7 +989,7 @@ function containerProto:LayoutSections(maxHeight, columnWidth, minWidth)
 	while next(sections) do
 		local section
 		if x > 0 then
-			section = getSection(columnPixelWidth - x)
+			section = getSection(columnPixelWidth - x, sections)
 			if section then
 				section:SetPoint('TOPLEFT', previous, 'TOPRIGHT', SECTION_SPACING, 0)
 			else
@@ -1052,7 +1051,9 @@ function containerProto:FullUpdate()
 	self.ToSortSection:Clear()
 	self:RedispatchAllItems()
 
-	local maxSectionHeight = self:PrepareSections(columnWidth)
+	local sections = {}
+
+	local maxSectionHeight = self:PrepareSections(columnWidth, sections)
 
 	if #sections == 0 then
 		self.Content:SetSize(self.minWidth, 0.5)
@@ -1061,7 +1062,7 @@ function containerProto:FullUpdate()
 		local selfScale = self:GetEffectiveScale()
 		local maxHeight = max(maxSectionHeight, settings.maxHeight * uiHeight * uiScale / selfScale - (ITEM_SIZE + ITEM_SPACING + HEADER_SIZE))
 
-		local contentWidth, contentHeight = self:LayoutSections(maxHeight, columnWidth, self.minWidth)
+		local contentWidth, contentHeight = self:LayoutSections(maxHeight, columnWidth, self.minWidth, sections)
 		self.Content:SetSize(contentWidth, contentHeight)
 	end
 
