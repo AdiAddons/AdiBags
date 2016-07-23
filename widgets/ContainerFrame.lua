@@ -974,14 +974,13 @@ local function GetNextSection(maxWidth, sections)
 	end
 end
 
-local heights, widths, rows = { 0 }, {}, {}
-
 local COLUMN_SPACING = ceil((ITEM_SIZE + ITEM_SPACING) / 2)
 local ROW_SPACING = ITEM_SPACING*2
 local SECTION_SPACING = COLUMN_SPACING / 2
 
 function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, sections)
 	self:Debug('LayoutSections', maxHeight, columnWidth, minWidth)
+	local heights, widths, rows = { 0 }, {}, {}
 	local columnPixelWidth = (ITEM_SIZE + ITEM_SPACING) * columnWidth - ITEM_SPACING + SECTION_SPACING
 	local getSection = addon.db.profile.compactLayout and FindFittingSection or GetNextSection
 
