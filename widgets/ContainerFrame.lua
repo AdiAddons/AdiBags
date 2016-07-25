@@ -1050,7 +1050,7 @@ function containerProto:FullUpdate()
 
 	self.ToSortSection:Clear()
 	self:RedispatchAllItems()
-
+	
 	local sections = {}
 
 	local maxSectionHeight = self:PrepareSections(columnWidth, sections)
