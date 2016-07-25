@@ -225,7 +225,6 @@ function containerProto:OnCreate(name, isBank, bagObject)
 		tooltip:SetPoint("BOTTOMRIGHT", self.container, "TOPRIGHT", 0, 4)
 		tooltip:AddLine(L["Recent items"], 1, 1, 1)
 		tooltip:AddLine(L["This special section receives items that have been recently moved, changed or added to the bags."])
-		tooltip:AddLine(L["Click to empty this section and move the items into their final section."])
 	end
 	toSortSection.UpdateHeaderScripts = function() end
 	toSortSection.Header:RegisterForClicks("AnyUp")
@@ -1050,7 +1049,7 @@ function containerProto:FullUpdate()
 
 	self.ToSortSection:Clear()
 	self:RedispatchAllItems()
-	
+
 	local sections = {}
 
 	local maxSectionHeight = self:PrepareSections(columnWidth, sections)

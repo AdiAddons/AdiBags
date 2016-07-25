@@ -79,6 +79,7 @@ function mod:OnDisable()
 	if self.button then
 		self.button:Hide()
 	end
+
 end
 
 --------------------------------------------------------------------------------
