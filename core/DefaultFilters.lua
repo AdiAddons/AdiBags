@@ -47,7 +47,8 @@ function addon:SetupDefaultFilters()
 	local MISCELLANEOUS = BI['Miscellaneous']
 	local QUEST = BI['Quest']
 	local RECIPE = BI['Recipe']
-	local TRADE_GOODS = BI['Trade Goods']
+	-- TODO: Get LibBabble updated.
+	local TRADE_GOODS = 'Tradeskills'
 	local WEAPON = BI["Weapon"]
 	local ARMOR =  BI["Armor"]
 	local JEWELRY = L["Jewelry"]
