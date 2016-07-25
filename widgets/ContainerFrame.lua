@@ -251,6 +251,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	RegisterMessage(name, 'AdiBags_FiltersChanged', self.FullUpdate, self)
 	RegisterMessage(name, 'AdiBags_LayoutChanged', self.FullUpdate, self)
 	RegisterMessage(name, 'AdiBags_ConfigChanged', self.ConfigChanged, self)
+	RegisterMessage(name, 'AdiBags_ForceFullLayout', ForceFullLayout)
 	LibStub('ABEvent-1.0').RegisterEvent(name, 'EQUIPMENT_SWAP_FINISHED', ForceFullLayout)
 
 	-- Force full layout on sort

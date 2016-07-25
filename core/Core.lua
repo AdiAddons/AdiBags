@@ -343,6 +343,7 @@ local updatedReagentBank = { [REAGENTBANK_CONTAINER] = true }
 
 function addon:BAG_UPDATE(event, bag)
 	updatedBags[bag] = true
+	self:SendMessage('AdiBags_ForceFullLayout')
 end
 
 function addon:BAG_UPDATE_DELAYED(event)
