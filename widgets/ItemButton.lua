@@ -236,6 +236,7 @@ function buttonProto:OnShow()
 	self:RegisterEvent('ITEM_LOCK_CHANGED', 'UpdateLock')
 	self:RegisterEvent('QUEST_ACCEPTED', 'UpdateBorder')
 	self:RegisterEvent('BAG_NEW_ITEMS_UPDATED', 'UpdateNew')
+	self:RegisterEvent('PLAYER_EQUIPMENT_CHANGED', 'FullUpdate')
 	if self.UpdateSearch then
 		self:RegisterEvent('INVENTORY_SEARCH_UPDATE', 'UpdateSearch')
 	end
