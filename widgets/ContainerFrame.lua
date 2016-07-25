@@ -989,7 +989,7 @@ function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, section
 		local section
 		if x > 0 then
 			section = getSection(columnPixelWidth - x, sections)
-			if section then
+			if section and previous then
 				section:SetPoint('TOPLEFT', previous, 'TOPRIGHT', SECTION_SPACING, 0)
 			else
 				x = 0
