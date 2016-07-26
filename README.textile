@@ -1,3 +1,6 @@
+!https://travis-ci.org/AdiAddons/AdiBags.svg?branch=master!:https://travis-ci.org/AdiAddons/AdiBags
+!https://badges.gitter.im/AdiAddons/AdiBags.svg!:https://gitter.im/AdiAddons/AdiBags?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
+
 AdiBags displays the content of your bags in one view, distributed into several sections using smart filters.
 
 It is heavily inspired by Nargiddley's Baggins.
