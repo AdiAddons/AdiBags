@@ -1040,7 +1040,7 @@ L["Put any item that can be equipped (including bags) into the \"Equipment\" sec
 L["Put items belonging to one or more sets of the built-in gear manager in specific sections."] = "Coloca los artículos pertenecientes a uno o más conjuntos del gestor de equipamiento en secciones específicas."
 L["Put items in sections depending on their first-level category at the Auction House."] = "Coloca los artículos en las secciones en función de su primer nivel de categoría de la casa de subastas."
 L["Put items of poor quality or labeled as junk in the \"Junk\" section."] = "Coloca los artículos de mala calidad o etiquetados como basura en la sección \"basura\" ."
-L["Put quest-related items in their own section."] = [=[Poner los objetos relacionados con misiones en su correspondiente seccion. 
+L["Put quest-related items in their own section."] = [=[Poner los objetos relacionados con misiones en su correspondiente seccion.
 ( not quest section?)]=]
 L["Quality highlight"] = "Resaltar calidad"
 L["Quest indicator"] = "Señalador de misión"
