@@ -213,7 +213,7 @@ do
 			self:Close()
 		end
 	end
-	
+
 	function backpack:Sort()
 		PlaySound("UI_BagSorting_01")
 		SortBags()
@@ -268,7 +268,7 @@ do
 	function bank:CanOpen()
 		return self:IsEnabled() and addon:GetInteractingWindow() == "BANKFRAME"
 	end
-	
+
 	function bank:PreOpen()
 		self.hooks[BankFrame].Show(BankFrame)
 		if addon.db.profile.autoDeposit and not IsModifierKeyDown() then
@@ -280,7 +280,7 @@ do
 		self.hooks[BankFrame].Hide(BankFrame)
 		CloseBankFrame()
 	end
-	
+
 	function bank:Sort()
 		PlaySound("UI_BagSorting_01")
 		SortBankBags()
