@@ -140,7 +140,7 @@ function glowProto:OnCreate()
 	alpha:SetOrder(1)
 	alpha:SetDuration(0.5)
 	alpha:SetFromAlpha(1)
- 	alpha:SetToAlpha(0)
+	alpha:SetToAlpha(0)
 end
 
 function glowProto:OnAcquire(button)
