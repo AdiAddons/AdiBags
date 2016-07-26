@@ -27,7 +27,7 @@ notifications:
 
 deploy:
   provider: script
-  script: $TRAVIS_BUILD_DIR/deploy/deploy.sh adibags "$encrypted_38056f6ca8c4_key" "$encrypted_38056f6ca8c4_iv"
+  script: $TRAVIS_BUILD_DIR/deploy/deploy.sh adibags "$encrypted_894b1a5df4ed_key" "$encrypted_894b1a5df4ed_iv"
   on:
     repo: AdiAddons/AdiBags
     all_branches: true
