@@ -49,3 +49,7 @@ externals:
 
 move-folders:
   AdiBags/AdiBags_Config: AdiBags_Config
+
+ignore:
+  - tests
+  - deploy
