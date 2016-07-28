@@ -47,7 +47,8 @@ function addon:SetupDefaultFilters()
 	local MISCELLANEOUS = BI['Miscellaneous']
 	local QUEST = BI['Quest']
 	local RECIPE = BI['Recipe']
-	local TRADE_GOODS = BI['Trade Goods']
+	-- TODO: Get LibBabble updated, or, ask Blizzard to implement a global for this.
+	local TRADESKILL = "Tradeskill"
 	local WEAPON = BI["Weapon"]
 	local ARMOR =  BI["Armor"]
 	local JEWELRY = L["Jewelry"]
@@ -57,7 +58,7 @@ function addon:SetupDefaultFilters()
 	-- Define global ordering
 	self:SetCategoryOrders{
 		[QUEST] = 30,
-		[TRADE_GOODS] = 20,
+		[TRADESKILL] = 20,
 		[EQUIPMENT] = 10,
 		[CONSUMMABLE] = -10,
 		[MISCELLANEOUS] = -20,
@@ -307,7 +308,7 @@ function addon:SetupDefaultFilters()
 					type = 'multiselect',
 					order = 10,
 					values = {
-						[TRADE_GOODS] = TRADE_GOODS,
+						[TRADESKILL] = TRADESKILL,
 						[CONSUMMABLE] = CONSUMMABLE,
 						[MISCELLANEOUS] = MISCELLANEOUS,
 						[GEM] = GEM,
@@ -335,9 +336,9 @@ function addon:SetupDefaultFilters()
 		function itemCat:Filter(slotData)
 			local class, subclass = slotData.class, slotData.subclass
 			if class == GEM and self.db.profile.mergeGems then
-				class, subclass = TRADE_GOODS, class
+				class, subclass = TRADESKILL, class
 			elseif class == GLYPH and self.db.profile.mergeGlyphs then
-				class, subclass = TRADE_GOODS, class
+				class, subclass = TRADESKILL, class
 			end
 			if self.db.profile.splitBySubclass[class] then
 				return subclass, class
