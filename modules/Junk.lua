@@ -50,9 +50,9 @@ local DEFAULTS = {
 		sources = { ['*'] = true },
 		include = {},
 		exclude = {
-			[6948] = true, -- Hearthstone
+			[  6948] = true, -- Hearthstone
 			[110560] = true, -- Garrison Hearhstone
-			[64488] = true, -- The Innkeeper's Daughter
+			[140192] = true, -- Dalaran Hearthstone
 		},
 	},
 }
@@ -263,4 +263,3 @@ elseif BrainDead then
 
 	sourceList.BrainDead = "BrainDead"
 end
-
