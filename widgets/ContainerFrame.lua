@@ -704,7 +704,7 @@ local function FilterByBag(slotData)
 	end
 end
 
-local MISCELLANEOUS = addon.BI['Miscellaneous']
+local MISCELLANEOUS = GetItemClassInfo(LE_ITEM_CLASS_MISCELLANEOUS)
 local FREE_SPACE = L["Free space"]
 function containerProto:FilterSlot(slotData)
 	if self.BagSlotPanel:IsShown() then

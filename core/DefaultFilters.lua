@@ -37,28 +37,27 @@ function addon:SetupDefaultFilters()
 	local wipe = _G.wipe
 	--GLOBALS>
 
-	local L, BI = addon.L, addon.BI
+	local L = addon.L
 
 	-- Make some strings local to speed things
-	local CONSUMMABLE = BI['Consumable']
-	local GEM = BI['Gem']
-	local GLYPH = BI['Glyph']
-	local JUNK = BI['Junk']
-	local MISCELLANEOUS = BI['Miscellaneous']
-	local QUEST = BI['Quest']
-	local RECIPE = BI['Recipe']
-	-- TODO: Get LibBabble updated, or, ask Blizzard to implement a global for this.
-	local TRADESKILL = "Tradeskill"
-	local WEAPON = BI["Weapon"]
-	local ARMOR =  BI["Armor"]
-	local JEWELRY = L["Jewelry"]
+	local CONSUMMABLE = GetItemClassInfo(LE_ITEM_CLASS_CONSUMABLE)
+	local GEM = GetItemClassInfo(LE_ITEM_CLASS_GEM)
+	local GLYPH = GetItemClassInfo(LE_ITEM_CLASS_GLYPH)
+	local JUNK = GetItemSubClassInfo(LE_ITEM_CLASS_MISCELLANEOUS, 0)
+	local MISCELLANEOUS = GetItemClassInfo(LE_ITEM_CLASS_MISCELLANEOUS)
+	local QUEST = GetItemClassInfo(LE_ITEM_CLASS_QUESTITEM)
+	local RECIPE = GetItemClassInfo(LE_ITEM_CLASS_RECIPE)
+	local TRADE_GOODS = GetItemClassInfo(LE_ITEM_CLASS_TRADEGOODS)
+	local WEAPON = GetItemClassInfo(LE_ITEM_CLASS_WEAPON)
+	local ARMOR = GetItemClassInfo(LE_ITEM_CLASS_ARMOR)
+	local JEWELRY = L['Jewelry']
 	local EQUIPMENT = L['Equipment']
 	local AMMUNITION = L['Ammunition']
 
 	-- Define global ordering
 	self:SetCategoryOrders{
 		[QUEST] = 30,
-		[TRADESKILL] = 20,
+		[TRADE_GOODS] = 20,
 		[EQUIPMENT] = 10,
 		[CONSUMMABLE] = -10,
 		[MISCELLANEOUS] = -20,
@@ -308,7 +307,7 @@ function addon:SetupDefaultFilters()
 					type = 'multiselect',
 					order = 10,
 					values = {
-						[TRADESKILL] = TRADESKILL,
+						[TRADE_GOODS] = TRADE_GOODS,
 						[CONSUMMABLE] = CONSUMMABLE,
 						[MISCELLANEOUS] = MISCELLANEOUS,
 						[GEM] = GEM,
@@ -336,9 +335,9 @@ function addon:SetupDefaultFilters()
 		function itemCat:Filter(slotData)
 			local class, subclass = slotData.class, slotData.subclass
 			if class == GEM and self.db.profile.mergeGems then
-				class, subclass = TRADESKILL, class
+				class, subclass = TRADE_GOODS, class
 			elseif class == GLYPH and self.db.profile.mergeGlyphs then
-				class, subclass = TRADESKILL, class
+				class, subclass = TRADE_GOODS, class
 			end
 			if self.db.profile.splitBySubclass[class] then
 				return subclass, class

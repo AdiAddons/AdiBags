@@ -7,8 +7,6 @@ It is heavily inspired by Nargiddley's Baggins.
 
 Configuration is available through Blizzard addon panel, /adibags chat command or right-clicking on the LDB plugin.
 
-*Important note about localized filters*: some filters rely on translations from "LibBabble-Inventory-3.0":http://www.wowace.com/addons/libbabble-inventory-3-0/ so if some of them behave strangely in your locale, please take a look at the "library translation status":http://www.wowace.com/addons/libbabble-inventory-3-0/localization/.
-
 h2. Features
 
 Most of these features may be configured. Check out the configuration panel ! (using the /adibags chat command or clicking on the bag icon, you have any LDB display)

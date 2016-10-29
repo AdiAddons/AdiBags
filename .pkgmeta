@@ -31,9 +31,6 @@ externals:
   libs/LibDataBroker-1.1:
     url: http://github.com/tekkub/libdatabroker-1-1.git
     tag: latest
-  libs/LibBabble-Inventory-3.0:
-    url: svn://svn.wowace.com/wow/libbabble-inventory-3-0/mainline/trunk
-    tag: latest
   libs/LibSharedMedia-3.0:
     url: svn://svn.wowace.com/wow/libsharedmedia-3-0/mainline/trunk/LibSharedMedia-3.0
     tag: latest

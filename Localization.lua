@@ -57,9 +57,6 @@ L["MINING_BAG_TAG"] = "Mi"
 L["TACKLE_BOX_TAG"] = "Fi"
 L["COOKING_BAR_TAG"] = "Co"
 
--- Get LibBabble-Inventory-3.0
-addon.BI = LibStub('LibBabble-Inventory-3.0'):GetLookupTable()
-
 --------------------------------------------------------------------------------
 -- Locales from localization system
 --------------------------------------------------------------------------------

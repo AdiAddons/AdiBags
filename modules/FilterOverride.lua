@@ -54,7 +54,7 @@ local wipe = _G.wipe
 local BuildSectionKey = addon.BuildSectionKey
 local SplitSectionKey = addon.SplitSectionKey
 
-local JUNK, FREE_SPACE = addon.BI['Junk'], L["Free space"]
+local JUNK, FREE_SPACE = GetItemSubClassInfo(LE_ITEM_CLASS_MISCELLANEOUS, 0), L["Free space"]
 local JUNK_KEY, FREE_SPACE_KEY = BuildSectionKey(JUNK, JUNK), BuildSectionKey(FREE_SPACE, FREE_SPACE)
 
 local mod = addon:RegisterFilter("FilterOverride", 95, "ABEvent-1.0")
