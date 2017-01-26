@@ -348,7 +348,7 @@ function buttonProto:UpdateNew()
 	self.BattlepayItemTexture:SetShown(IsBattlePayItem(self.bag, self.slot))
 end
 
-function buttonProto:IsContainerItemAnUpgrade()	
+function buttonProto:IsContainerItemAnUpgrade()
 	local itemIsUpgrade = IsContainerItemAnUpgrade(self:GetParent():GetID(), self:GetID());
 	if ( itemIsUpgrade == nil ) then -- nil means not all the data was available to determine if this is an upgrade.
 		self.UpgradeIcon:SetShown(false);
