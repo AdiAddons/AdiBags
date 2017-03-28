@@ -164,6 +164,7 @@ local function __GetDistinctItemID(link)
 		return link
 	else
 		local itemString, id, enchant, gem1, gem2, gem3, gem4, suffix, reforge = strmatch(link, '(item:(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):%-?%d+:%-?%d+:(%-?%d+))')
+		if not id then return end
 		id = tonumber(id)
 		local equipSlot = select(9, GetItemInfo(id))
 		if equipSlot and equipSlot ~= "" and equipSlot ~= "INVTYPE_BAG" then
@@ -186,6 +187,31 @@ end})
 
 function addon.GetDistinctItemID(link)
 	return link and distinctIDs[link]
+end
+
+--------------------------------------------------------------------------------
+-- Compare two links ignoring character level part
+--------------------------------------------------------------------------------
+
+function addon.IsSameLinkButLevel(a, b)
+	if not a or not b then return false end
+
+	-- take color coding, etc
+	-- take itemID, enchantID, 4 gem IDs, suffixID, uniqueID (8 parts)
+	-- skip linkLevel part
+	-- take the rest of the link
+	local linkRegExp = '(.*)(item:%-?%d+:%-?%d+:%-?%d+:%-?%d+:%-?%d+:%-?%d+:%-?%d+:%-?%d+):%-?%d+:(.*)'
+
+	local partsA = {strmatch(a, linkRegExp)}
+	local partsB = {strmatch(b, linkRegExp)}
+
+	for i = 1, #partsA do
+		if partsA[i] ~= partsB[i] then
+			return false
+		end
+	end
+
+	return true
 end
 
 --------------------------------------------------------------------------------

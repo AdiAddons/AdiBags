@@ -139,7 +139,8 @@ function glowProto:OnCreate()
 	local alpha = group:CreateAnimation("Alpha")
 	alpha:SetOrder(1)
 	alpha:SetDuration(0.5)
-	alpha:SetChange(-1)
+	alpha:SetFromAlpha(1)
+ 	alpha:SetToAlpha(0)
 end
 
 function glowProto:OnAcquire(button)
