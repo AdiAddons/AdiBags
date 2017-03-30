@@ -266,7 +266,7 @@ end
 --------------------------------------------------------------------------------
 
 function addon.GetItemFamily(item)
-	if (type(item) == "string" and (strmatch(item, "battlepet:") or strmatch(item, "keystone:"))) or select(9, GetItemInfo(item)) == "INVTYPE_BAG" then 
+	if (type(item) == "string" and (strmatch(item, "battlepet:") or strmatch(item, "keystone:"))) or select(9, GetItemInfo(item)) == "INVTYPE_BAG" then
 		return 0
 	else
 		return GetItemFamily(item)
