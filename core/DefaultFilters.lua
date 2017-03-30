@@ -37,20 +37,20 @@ function addon:SetupDefaultFilters()
 	local wipe = _G.wipe
 	--GLOBALS>
 
-	local L, BI = addon.L, addon.BI
+	local L = addon.L
 
 	-- Make some strings local to speed things
-	local CONSUMMABLE = BI['Consumable']
-	local GEM = BI['Gem']
-	local GLYPH = BI['Glyph']
-	local JUNK = BI['Junk']
-	local MISCELLANEOUS = BI['Miscellaneous']
-	local QUEST = BI['Quest']
-	local RECIPE = BI['Recipe']
-	local TRADE_GOODS = BI['Trade Goods']
-	local WEAPON = BI["Weapon"]
-	local ARMOR =  BI["Armor"]
-	local JEWELRY = L["Jewelry"]
+	local CONSUMMABLE = GetItemClassInfo(LE_ITEM_CLASS_CONSUMABLE)
+	local GEM = GetItemClassInfo(LE_ITEM_CLASS_GEM)
+	local GLYPH = GetItemClassInfo(LE_ITEM_CLASS_GLYPH)
+	local JUNK = GetItemSubClassInfo(LE_ITEM_CLASS_MISCELLANEOUS, 0)
+	local MISCELLANEOUS = GetItemClassInfo(LE_ITEM_CLASS_MISCELLANEOUS)
+	local QUEST = GetItemClassInfo(LE_ITEM_CLASS_QUESTITEM)
+	local RECIPE = GetItemClassInfo(LE_ITEM_CLASS_RECIPE)
+	local TRADE_GOODS = GetItemClassInfo(LE_ITEM_CLASS_TRADEGOODS)
+	local WEAPON = GetItemClassInfo(LE_ITEM_CLASS_WEAPON)
+	local ARMOR = GetItemClassInfo(LE_ITEM_CLASS_ARMOR)
+	local JEWELRY = L['Jewelry']
 	local EQUIPMENT = L['Equipment']
 	local AMMUNITION = L['Ammunition']
 

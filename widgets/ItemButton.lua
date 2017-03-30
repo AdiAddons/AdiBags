@@ -236,6 +236,7 @@ function buttonProto:OnShow()
 	self:RegisterEvent('ITEM_LOCK_CHANGED', 'UpdateLock')
 	self:RegisterEvent('QUEST_ACCEPTED', 'UpdateBorder')
 	self:RegisterEvent('BAG_NEW_ITEMS_UPDATED', 'UpdateNew')
+	self:RegisterEvent('PLAYER_EQUIPMENT_CHANGED', 'FullUpdate')
 	if self.UpdateSearch then
 		self:RegisterEvent('INVENTORY_SEARCH_UPDATE', 'UpdateSearch')
 	end
@@ -264,10 +265,7 @@ end
 --------------------------------------------------------------------------------
 
 function buttonProto:CanUpdate()
-	if not self:IsVisible() or addon.holdYourBreath then
-		return false
-	end
-	return true
+	return self:IsVisible()
 end
 
 function buttonProto:FullUpdate()
@@ -509,7 +507,7 @@ end
 function stackProto:OnShow()
 	self:RegisterMessage('AdiBags_UpdateAllButtons', 'Update')
 	self:RegisterMessage('AdiBags_PostContentUpdate')
-	self:RegisterEvent('ITEM_LOCK_CHANGED')
+	--self:RegisterEvent('ITEM_LOCK_CHANGED')
 	if self.button then
 		self.button:Show()
 	end

@@ -1,0 +1,37 @@
+langage: c
+sudo: false
+
+env:
+  - LUA="lua5.1" LUAC="luac5.1"
+
+addons:
+  apt:
+    packages:
+      - lua5.1
+
+script:
+  - cd tests
+  - ./lualint.sh
+  - ./cs.sh
+  - ./globals.sh || true
+
+notifications:
+  email:
+    on_failure: always
+    on_success: change
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/805c7d220691b76db4ca
+    on_success: change
+    on_failure: always
+
+deploy:
+  provider: script
+  script: $TRAVIS_BUILD_DIR/deploy/deploy.sh adibags "$encrypted_894b1a5df4ed_key" "$encrypted_894b1a5df4ed_iv"
+  on:
+    repo: AdiAddons/AdiBags
+    all_branches: true
+    condition: '$TRAVIS_BRANCH = master || -n "$TRAVIS_TAG"'
+
+cache:
+  apt: true

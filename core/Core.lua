@@ -227,7 +227,7 @@ function addon:UpgradeProfile()
 		profile.skin.BankColor = profile.backgroundColors.Bank
 		profile.backgroundColors = nil
 	end
-	
+
 	-- Convert old font settings
 	if type(profile.skin) == "table" then
 		local skin = profile.skin

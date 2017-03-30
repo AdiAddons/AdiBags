@@ -119,7 +119,7 @@ function glowProto:OnCreate()
 	self.Texture = tex
 
 	local group = self:CreateAnimationGroup()
-	group:SetScript('OnFinished', function() 
+	group:SetScript('OnFinished', function()
 		mod:HideGlow(self.button)
 	end)
 	self.Group = group
@@ -129,18 +129,18 @@ function glowProto:OnCreate()
 	rotation:SetDuration(0.5)
 	rotation:SetDegrees(90)
 	rotation:SetOrigin("CENTER", 0, 0)
-	
+
 	local scale = group:CreateAnimation("Scale")
 	scale:SetOrder(1)
 	scale:SetDuration(0.5)
 	scale:SetScale(3, 3)
 	scale:SetOrigin("CENTER", 0, 0)
-	
+
 	local alpha = group:CreateAnimation("Alpha")
 	alpha:SetOrder(1)
 	alpha:SetDuration(0.5)
 	alpha:SetFromAlpha(1)
- 	alpha:SetToAlpha(0)
+	alpha:SetToAlpha(0)
 end
 
 function glowProto:OnAcquire(button)

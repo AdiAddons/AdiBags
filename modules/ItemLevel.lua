@@ -180,9 +180,9 @@ function mod:GetOptions()
 			desc = L['Do not show levels under this threshold.'],
 			type = 'range',
 			min = 1,
-			max = 600,
+			max = 1000,
 			step = 1,
-			bigStep = 5,
+			bigStep = 10,
 			order = 30,
 		},
 		ignoreJunk = {
@@ -318,8 +318,9 @@ do
 		[70]  = { 100, 164 },
 		[80]  = { 187, 284 },
 		[85]  = { 333, 416 },
-		[90]  = { 458, 580 },
-		[100] = { 615, 695 },
+		[90]  = { 450, 616 },
+		[100] = { 615, 735 },
+		[110] = { 805, 905 },
 	}
 
 	local maxLevelColors = {}

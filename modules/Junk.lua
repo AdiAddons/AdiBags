@@ -38,7 +38,7 @@ local UseContainerItem = _G.UseContainerItem
 local wipe = _G.wipe
 --GLOBALS>
 
-local JUNK = addon.BI['Junk']
+local JUNK = GetItemSubClassInfo(LE_ITEM_CLASS_MISCELLANEOUS, 0)
 local JUNK_KEY = addon.BuildSectionKey(JUNK, JUNK)
 
 local mod = addon:RegisterFilter("Junk", 85, "ABEvent-1.0", "AceHook-3.0")
@@ -50,9 +50,9 @@ local DEFAULTS = {
 		sources = { ['*'] = true },
 		include = {},
 		exclude = {
-			[6948] = true, -- Hearthstone
+			[  6948] = true, -- Hearthstone
 			[110560] = true, -- Garrison Hearhstone
-			[64488] = true, -- The Innkeeper's Daughter
+			[140192] = true, -- Dalaran Hearthstone
 		},
 	},
 }
@@ -263,4 +263,3 @@ elseif BrainDead then
 
 	sourceList.BrainDead = "BrainDead"
 end
-

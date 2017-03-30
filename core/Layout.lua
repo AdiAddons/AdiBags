@@ -110,6 +110,7 @@ function addon:LayoutBags()
 	else
 		ManualBagLayout(self)
 	end
+	self:SendMessage('AdiBags_ForceFullLayout')
 end
 
 function addon:ToggleAnchor()
