@@ -616,6 +616,9 @@ function containerProto:UpdateContent(bag)
 			local name, count, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice
 			if link then
 				name, _, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice = GetItemInfo(link)
+				if not name then
+					name, _, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice = GetItemInfo(itemId)
+				end
 				count = select(2, GetContainerItemInfo(bag, slot)) or 0
 			else
 				link, count = false, 0
