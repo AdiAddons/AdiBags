@@ -349,12 +349,7 @@ function buttonProto:UpdateNew()
 end
 
 function buttonProto:IsContainerItemAnUpgrade()
-	local itemIsUpgrade = IsContainerItemAnUpgrade(self:GetParent():GetID(), self:GetID());
-	if ( itemIsUpgrade == nil ) then -- nil means not all the data was available to determine if this is an upgrade.
-		self.UpgradeIcon:SetShown(false);
-	else
-		self.UpgradeIcon:SetShown(itemIsUpgrade);
-	end
+	self.UpgradeIcon:SetShown(IsContainerItemAnUpgrade(self:GetParent():GetID(), self:GetID()) or false)
 end
 
 local function GetBorder(bag, slot, itemId, settings)
