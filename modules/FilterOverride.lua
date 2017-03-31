@@ -168,6 +168,8 @@ function mod:GetOptions()
 	local function GetItemId(str)
 		if type(str) == "string" and strmatch(str, "battlepet:") then
 			return 82800 -- Official item (Pet Cage)
+		elseif type(str) == "string" and strmatch(str, "keystone:") then
+			return 138019 -- Official item (Mythic Keystone)
 		elseif str then
 			local link = select(2, GetItemInfo(str))
 			return link and tonumber(link:match("item:(%d+)"))
