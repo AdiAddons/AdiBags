@@ -92,7 +92,9 @@ function addon:SetupDefaultFilters()
 			wipe(self.names)
 			for _,equipmentSetID in ipairs(C_EquipmentSet.GetEquipmentSetIDs()) do
 				local name = C_EquipmentSet.GetEquipmentSetInfo(equipmentSetID)
-				self.names[name] = name
+				if name then
+					self.names[name] = name
+				end
 			end
 			self.dirty = true
 		end
