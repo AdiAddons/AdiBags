@@ -139,6 +139,12 @@ function bankButtonProto:GetInventorySlot()
 	return self.inventorySlot
 end
 
+function bankButtonProto:UpdateUpgradeIcon()
+	if self.bag ~= BANK_CONTAINER and self.bag ~= REAGENTBANK_CONTAINER then
+		buttonProto.UpdateUpgradeIcon(self)
+	end
+end
+
 --------------------------------------------------------------------------------
 -- Pools and acquistion
 --------------------------------------------------------------------------------
@@ -300,7 +306,7 @@ function buttonProto:Update()
 	self:UpdateCooldown()
 	self:UpdateLock()
 	self:UpdateNew()
-	self:IsContainerItemAnUpgrade()
+	self:UpdateUpgradeIcon()
 	if self.UpdateSearch then
 		self:UpdateSearch()
 	end
@@ -348,8 +354,8 @@ function buttonProto:UpdateNew()
 	self.BattlepayItemTexture:SetShown(IsBattlePayItem(self.bag, self.slot))
 end
 
-function buttonProto:IsContainerItemAnUpgrade()
-	self.UpgradeIcon:SetShown(IsContainerItemAnUpgrade(self:GetParent():GetID(), self:GetID()) or false)
+function buttonProto:UpdateUpgradeIcon()
+	self.UpgradeIcon:SetShown(IsContainerItemAnUpgrade(self.bag, self.slot) or false)
 end
 
 local function GetBorder(bag, slot, itemId, settings)
@@ -365,7 +371,7 @@ local function GetBorder(bag, slot, itemId, settings)
 	if not settings.qualityHighlight then
 		return
 	end
-	local _, _, quality = GetItemInfo(itemId)
+	local _, _, _, quality = GetContainerItemInfo(bag, slot)
 	if quality == LE_ITEM_QUALITY_POOR and settings.dimJunk then
 		local v = 1 - 0.5 * settings.qualityOpacity
 		return true, v, v, v, 1, nil, nil, nil, nil, "MOD"
