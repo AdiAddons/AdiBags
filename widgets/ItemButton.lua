@@ -300,6 +300,7 @@ function buttonProto:Update()
 	self:UpdateCooldown()
 	self:UpdateLock()
 	self:UpdateNew()
+	self:IsContainerItemAnUpgrade()
 	if self.UpdateSearch then
 		self:UpdateSearch()
 	end
@@ -345,6 +346,10 @@ end
 
 function buttonProto:UpdateNew()
 	self.BattlepayItemTexture:SetShown(IsBattlePayItem(self.bag, self.slot))
+end
+
+function buttonProto:IsContainerItemAnUpgrade()
+	self.UpgradeIcon:SetShown(IsContainerItemAnUpgrade(self:GetParent():GetID(), self:GetID()) or false)
 end
 
 local function GetBorder(bag, slot, itemId, settings)
