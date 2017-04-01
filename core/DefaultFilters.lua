@@ -30,9 +30,7 @@ function addon:SetupDefaultFilters()
 	local EquipmentManager_UnpackLocation = _G.EquipmentManager_UnpackLocation
 	local format = _G.format
 	local GetContainerItemQuestInfo = _G.GetContainerItemQuestInfo
-	local GetEquipmentSetInfo = _G.GetEquipmentSetInfo
-	local GetEquipmentSetItemIDs = _G.GetEquipmentSetItemIDs
-	local GetNumEquipmentSets = _G.GetNumEquipmentSets
+	local C_EquipmentSet = _G.C_EquipmentSet
 	local pairs = _G.pairs
 	local wipe = _G.wipe
 	--GLOBALS>
@@ -92,8 +90,8 @@ function addon:SetupDefaultFilters()
 		function setFilter:UpdateNames()
 			self:Debug('Updating names')
 			wipe(self.names)
-			for i = 1, GetNumEquipmentSets() do
-				local name = GetEquipmentSetInfo(i)
+			for _,equipmentSetID in ipairs(C_EquipmentSet.GetEquipmentSetIDs()) do
+				local name = C_EquipmentSet.GetEquipmentSetInfo(equipmentSetID)
 				self.names[name] = name
 			end
 			self.dirty = true
@@ -103,10 +101,11 @@ function addon:SetupDefaultFilters()
 			self:Debug('Updating slots')
 			wipe(self.slots)
 			local missing = false
-			for i = 1, GetNumEquipmentSets() do
-				local name = GetEquipmentSetInfo(i)
-				local ids = GetEquipmentSetItemIDs(name)
-				local locations = GetEquipmentSetLocations(name)
+			for _,equipmentSetID in ipairs(C_EquipmentSet.GetEquipmentSetIDs()) do
+				local name = C_EquipmentSet.GetEquipmentSetInfo(equipmentSetID) 
+				local ids = C_EquipmentSet.GetItemIDs(equipmentSetID)
+				local locations = C_EquipmentSet.GetItemLocations(equipmentSetID)
+				
 				if ids and locations then
 					for invId, location in pairs(locations) do
 						if location ~= 0 and location ~= 1 and ids[invId] ~= 0 then
@@ -349,3 +348,4 @@ function addon:SetupDefaultFilters()
 	end
 
 end
+
