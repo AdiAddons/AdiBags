@@ -348,4 +348,3 @@ function addon:SetupDefaultFilters()
 	end
 
 end
-
