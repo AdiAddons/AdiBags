@@ -55,11 +55,14 @@ else
 	function SyLevelBypass() return false end
 end
 
+local itemClassGem, itemSubClassArtifactPower = 3, 11
+
 function mod:OnInitialize()
 	self.db = addon.db:RegisterNamespace(self.moduleName, {
 		profile = {
 			useSyLevel = false,
 			equippableOnly = true,
+			includeRelics=true,
 			colorScheme = 'original',
 			minLevel = 1,
 			ignoreJunk = true,
@@ -114,11 +117,11 @@ function mod:UpdateButton(event, button)
 	local text = texts[button]
 
 	if link then
-		local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
+		local _, _, quality, _, reqLevel, _, _, _, loc, _, _, itemClassID, itemSubClassID = GetItemInfo(link)
 		local level = ItemUpgradeInfo:GetUpgradedItemLevel(link) or 0 -- Ugly workaround
 		if level >= settings.minLevel
 			and (quality ~= LE_ITEM_QUALITY_POOR or not settings.ignoreJunk)
-			and (loc ~= "" or not settings.equippableOnly)
+			and ((loc ~= "" or (settings.includeRelics and (itemClassID==itemClassGem and itemSubClassID==itemSubClassArtifactPower))) or not settings.equippableOnly)
 			and (quality ~= LE_ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
 		then
 			if SyLevel then
@@ -162,6 +165,13 @@ function mod:GetOptions()
 			desc = L['Do not show level of items that cannot be equipped.'],
 			type = 'toggle',
 			order = 10,
+		},
+		includeRelics = {
+			name = L['Include aftifact relics'],
+			desc = L['Show item levels for artifact relics when Only equippable items is enabled.'],
+			type = 'toggle',
+			order = 11,
+			disabled = function() return not self.db.profile.equippableOnly end,
 		},
 		colorScheme = {
 			name = L['Color scheme'],
