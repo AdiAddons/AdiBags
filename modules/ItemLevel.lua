@@ -167,7 +167,7 @@ function mod:GetOptions()
 			order = 10,
 		},
 		includeRelics = {
-			name = L['Include aftifact relics'],
+			name = L['Include artifact relics'],
 			desc = L['Show item levels for artifact relics when Only equippable items is enabled.'],
 			type = 'toggle',
 			order = 11,
