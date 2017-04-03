@@ -284,6 +284,8 @@ L["Related to player level"] = true
 L["Same as InventoryItemLevels"] = true
 L["Use SyLevel"] = true
 L["Which color scheme should be used to display the item level ?"] = true
+L['Include aftifact relics'] = true
+L['Show item levels for artifact relics when Only equippable items is enabled.'] = true
 
 -- modules/Junk.lua
 L["Alt-right-click to configure the Junk module."] = true
