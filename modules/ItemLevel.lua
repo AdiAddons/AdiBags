@@ -55,8 +55,6 @@ else
 	function SyLevelBypass() return false end
 end
 
-local itemClassGem, itemSubClassArtifactPower = 3, 11
-
 function mod:OnInitialize()
 	self.db = addon.db:RegisterNamespace(self.moduleName, {
 		profile = {
@@ -121,7 +119,7 @@ function mod:UpdateButton(event, button)
 		local level = ItemUpgradeInfo:GetUpgradedItemLevel(link) or 0 -- Ugly workaround
 		if level >= settings.minLevel
 			and (quality ~= LE_ITEM_QUALITY_POOR or not settings.ignoreJunk)
-			and ((loc ~= "" or (settings.includeRelics and (itemClassID==itemClassGem and itemSubClassID==itemSubClassArtifactPower))) or not settings.equippableOnly)
+			and ((loc ~= "" or (settings.includeRelics and (itemClassID==LE_ITEM_CLASS_GEM and itemSubClassID==LE_ITEM_ARMOR_RELIC))) or not settings.equippableOnly)
 			and (quality ~= LE_ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
 		then
 			if SyLevel then
