@@ -415,9 +415,9 @@ local EQUIP_LOCS = {
 
 local sortingFuncs = {
 
-	default = function(idA, idB, nameA, nameB)
-		local _, _, qualityA, levelA, _, classA, subclassA, _, equipSlotA = GetItemInfo(idA)
-		local _, _, qualityB, levelB, _, classB, subclassB, _, equipSlotB = GetItemInfo(idB)
+	default = function(linkA, linkB, nameA, nameB)
+		local _, _, qualityA, levelA, _, classA, subclassA, _, equipSlotA = GetItemInfo(linkA)
+		local _, _, qualityB, levelB, _, classB, subclassB, _, equipSlotB = GetItemInfo(linkB)
 		local equipLocA = EQUIP_LOCS[equipSlotA or ""]
 		local equipLocB = EQUIP_LOCS[equipSlotB or ""]
 		if equipLocA and equipLocB and equipLocA ~= equipLocB then
@@ -435,13 +435,13 @@ local sortingFuncs = {
 		end
 	end,
 
-	byName = function(idA, idB, nameA, nameB)
+	byName = function(linkA, linkB, nameA, nameB)
 		return nameA < nameB
 	end,
 
-	byQualityAndLevel = function(idA, idB, nameA, nameB)
-		local _, _, qualityA, levelA = GetItemInfo(idA)
-		local _, _, qualityB, levelB = GetItemInfo(idB)
+	byQualityAndLevel = function(linkA, linkB, nameA, nameB)
+		local _, _, qualityA, levelA = GetItemInfo(linkA)
+		local _, _, qualityB, levelB = GetItemInfo(linkB)
 		if qualityA ~= qualityB then
 			return qualityA > qualityB
 		elseif levelA ~= levelB then
@@ -457,14 +457,14 @@ local currentSortingFunc = sortingFuncs.default
 
 local itemCompareCache = setmetatable({}, {
 	__index = function(t, key)
-		local idA, idB = strsplit(':', key, 2)
-		local nameA, nameB = GetItemInfo(idA), GetItemInfo(idB)
+		local linkA, linkB = strsplit(';', key, 2)
+		local nameA, nameB = GetItemInfo(linkA), GetItemInfo(linkB)
 		if nameA and nameB then
-			local result = currentSortingFunc(idA, idB, nameA, nameB)
+			local result = currentSortingFunc(linkA, linkB, nameA, nameB)
 			t[key] = result
 			return result
 		else
-			return idA < idB
+			return linkA < linkB
 		end
 	end
 })
@@ -480,18 +480,18 @@ function addon:SetSortingOrder(order)
 end
 
 function CompareButtons(a, b)
-	local idA, idB = a:GetItemId(), b:GetItemId()
-	if idA and idB then
-		if idA ~= idB then
-			return itemCompareCache[format("%d:%d", idA, idB)]
+	local linkA, linkB = a:GetItemLink(), b:GetItemLink()
+	if linkA and linkB then
+		if linkA ~= linkB then
+			return itemCompareCache[format("%s;%s", linkA, linkB)]
 		else
 			return a:GetCount() > b:GetCount()
 		end
-	elseif not idA and not idB then
+	elseif not linkA and not linkB then
 		local famA, famB = a:GetBagFamily(), b:GetBagFamily()
 		if famA and famB and famA ~= famB then
 			return famA < famB
 		end
 	end
-	return (idA and 1 or 0) > (idB and 1 or 0)
+	return (linkA and 1 or 0) > (linkB and 1 or 0)
 end
