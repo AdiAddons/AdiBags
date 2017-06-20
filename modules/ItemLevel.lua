@@ -1,3 +1,10 @@
+-- @Author: Brian Thurlow
+-- @Date:   06/19/2017 02:19:51 PM
+-- @Last modified by:   Brian Thurlow
+-- @Last modified time: 06/20/2017 02:16:24 PM
+
+
+
 --[[
 AdiBags - Adirelle's bag addon.
 Copyright 2013-2014 Adirelle (adirelle@gmail.com)
@@ -64,6 +71,8 @@ function mod:OnInitialize()
 			minLevel = 1,
 			ignoreJunk = true,
 			ignoreHeirloom = true,
+			textPos = 'TOPLEFT',
+			upgIconPos = 'TOPLEFT',
 		},
 	})
 	if self.db.profile.colored == true then
@@ -97,6 +106,10 @@ end
 function mod:OnDisable()
 	for _, text in pairs(texts) do
 		text:Hide()
+		if _.UpgradeIcon then
+			_.UpgradeIcon:ClearAllPoints()
+			_.UpgradeIcon:SetPoint("TOPLEFT",_,"TOPLEFT")
+		end
 	end
 end
 
@@ -137,6 +150,10 @@ function mod:UpdateButton(event, button)
 			end
 			text:SetText(level)
 			text:SetTextColor(colorSchemes[settings.colorScheme](level, quality, reqLevel, (loc ~= "")))
+			--Update Position Based on settings
+			text:ClearAllPoints()
+			text:SetPoint(settings.textPos, button, settings.textPos)
+			--------------------------------------
 			return text:Show()
 		end
 	end
@@ -165,7 +182,7 @@ function mod:GetOptions()
 		},
 		colorScheme = {
 			name = L['Color scheme'],
-			desc = L['Which color scheme should be used to display the item level ?'],
+			desc = L['Which color scheme should be used to display the item level?'],
 			type = 'select',
 			hidden = SyLevelBypass,
 			values = {
@@ -196,6 +213,40 @@ function mod:GetOptions()
 			desc = L['Do not show level of heirloom items.'],
 			type = 'toggle',
 			order = 50,
+		},
+		textPos = {
+			name = L['Text Position'],
+			desc = L['Where to show the item level?'],
+			type = 'select',
+			values = {
+				TOPLEFT     = L['Top Left'],
+				TOPRIGHT = L['Top Right'],
+				TOP    = L['Top'],
+				LEFT    = L['Left'],
+				RIGHT    = L['Right'],
+				CENTER    = L['Center'],
+				BOTTOMLEFT    = L['Bottom Left'],
+				BOTTOMRIGHT    = L['Bottom Right'],
+				BOTTOM    = L['Bottom'],
+			},
+			order = 60,
+		},
+		upgIconPos = {
+			name = L['Upgrade Icon Position'],
+			desc = L['Where to show the upgrade icon?'],
+			type = 'select',
+			values = {
+				TOPLEFT     = L['Top Left'],
+				TOPRIGHT = L['Top Right'],
+				TOP    = L['Top'],
+				LEFT    = L['Left'],
+				RIGHT    = L['Right'],
+				CENTER    = L['Center'],
+				BOTTOMLEFT    = L['Bottom Left'],
+				BOTTOMRIGHT    = L['Bottom Right'],
+				BOTTOM    = L['Bottom'],
+			},
+			order = 70,
 		},
 	}, addon:GetOptionHandler(self)
 end
