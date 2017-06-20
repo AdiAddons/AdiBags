@@ -1,3 +1,10 @@
+-- @Author: Brian Thurlow
+-- @Date:   06/19/2017 02:19:51 PM
+-- @Last modified by:   Brian Thurlow
+-- @Last modified time: 06/20/2017 02:06:14 PM
+
+
+
 --[[
 AdiBags - Adirelle's bag addon.
 Copyright 2010-2014 Adirelle (adirelle@gmail.com)
@@ -122,6 +129,11 @@ local bankButtonClass, bankButtonProto = addon:NewClass("BankItemButton", "ItemB
 bankButtonClass.frameTemplate = "BankItemButtonGenericTemplate"
 
 function bankButtonProto:OnAcquire(container, bag, slot)
+	self.UpgradeIcon = self:CreateTexture()
+	self.UpgradeIcon:SetAtlas("bags-greenarrow", true)
+	self.UpgradeIcon:SetShown(false)
+	self.UpgradeIcon:ClearAllPoints()
+	self.UpgradeIcon:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
 	self.GetInventorySlot = nil -- Remove the method added by the template
 	self.inventorySlot = bag == REAGENTBANK_CONTAINER and ReagentBankButtonIDToInvSlotID(slot) or BankButtonIDToInvSlotID(slot)
 	return buttonProto.OnAcquire(self, container, bag, slot)
@@ -140,9 +152,7 @@ function bankButtonProto:GetInventorySlot()
 end
 
 function bankButtonProto:UpdateUpgradeIcon()
-	if self.bag ~= BANK_CONTAINER and self.bag ~= REAGENTBANK_CONTAINER then
 		buttonProto.UpdateUpgradeIcon(self)
-	end
 end
 
 --------------------------------------------------------------------------------
@@ -355,7 +365,16 @@ function buttonProto:UpdateNew()
 end
 
 function buttonProto:UpdateUpgradeIcon()
-	self.UpgradeIcon:SetShown(IsContainerItemAnUpgrade(self.bag, self.slot) or false)
+	if self.UpgradeIcon then
+		local isUpgrade = IsContainerItemAnUpgrade(self.bag, self.slot)
+		if addon.db.profile.modules['ItemLevel'] then
+			local pos = addon.db:GetNamespace('ItemLevel',true).profile.upgIconPos
+			self.UpgradeIcon:ClearAllPoints()
+			self.UpgradeIcon:SetPoint(pos,self,pos)
+		end
+
+		self.UpgradeIcon:SetShown(isUpgrade or false)
+	end
 end
 
 local function GetBorder(bag, slot, itemId, settings)
