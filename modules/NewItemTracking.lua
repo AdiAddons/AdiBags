@@ -90,7 +90,7 @@ local function ResetButton_OnClick(widget, button)
 	if button == "RightButton" then
 		return mod:OpenOptions()
 	end
-	PlaySound("igMainMenuOptionCheckBoxOn")
+	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 	C_NewItems.ClearAll()
 	wipe(newItems)
 	mod.button:Disable()

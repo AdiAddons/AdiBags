@@ -349,7 +349,7 @@ local bankButtonClass, bankButtonProto = addon:NewClass("BankSlotButton", "BagSl
 
 function bankButtonProto:OnClick(button)
 	if self.toPurchase then
-		PlaySound("igMainMenuOption")
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
 		StaticPopup_Show("CONFIRM_BUY_BANK_SLOT")
 	else
 		return bagButtonProto.OnClick(self, button)
