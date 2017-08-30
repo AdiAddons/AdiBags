@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 
-## Interface: 70200
+## Interface: 70300
 
 ## Title: AdiBags
 ## Notes: Adirelle's bag addon.
