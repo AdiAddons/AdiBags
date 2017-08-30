@@ -215,7 +215,7 @@ do
 	end
 
 	function backpack:Sort()
-		PlaySound("UI_BagSorting_01")
+		PlaySound(SOUNDKIT.UI_BAG_SORTING_01)
 		SortBags()
 	end
 end
@@ -282,7 +282,7 @@ do
 	end
 
 	function bank:Sort()
-		PlaySound("UI_BagSorting_01")
+		PlaySound(SOUNDKIT.UI_BAG_SORTING_01)
 		SortBankBags()
 		if IsReagentBankUnlocked() then
 			SortReagentBankBags()
