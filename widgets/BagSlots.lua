@@ -438,8 +438,8 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	local self = CreateFrame("Frame", container:GetName().."Bags", container)
 	self:SetPoint("BOTTOMLEFT", container, "TOPLEFT", 0, 4)
 
-	self.openSound = isBank and "igMainMenuOpen" or "igBackPackOpen"
-	self.closeSound = isBank and "igMainMenuClose" or "igBackPackClose"
+	self.openSound = isBank and SOUNDKIT.IG_MAINMENU_OPEN or SOUNDKIT.IG_BACKPACK_OPEN
+	self.closeSound = isBank and SOUNDKIT.IG_MAINMENU_CLOSE or SOUNDKIT.IG_BACKPACK_CLOSE
 	self:SetScript('OnShow', Panel_OnShow)
 	self:SetScript('OnHide', Panel_OnHide)
 
