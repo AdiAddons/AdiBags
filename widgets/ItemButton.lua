@@ -73,11 +73,23 @@ function buttonProto:OnCreate()
 	self:RegisterForClicks("LeftButtonUp","RightButtonUp")
 	self:SetScript('OnShow', self.OnShow)
 	self:SetScript('OnHide', self.OnHide)
-	self:SetWidth(ITEM_SIZE)
-	self:SetHeight(ITEM_SIZE)
+	self:SetWidth(ElvUI and ElvUI[1]:Scale(ITEM_SIZE) or ITEM_SIZE)
+	self:SetHeight(ElvUI and ElvUI[1]:Scale(ITEM_SIZE) or ITEM_SIZE)
+	if ElvUI then
+		self:SetTemplate("Transparent");
+		self.IconTexture:SetInside();
+		self:GetHighlightTexture():SetColorTexture(1, 1, 1, 0.1)
+		self:GetHighlightTexture():SetInside();
+	end
 	if self.NewItemTexture then
 		self.NewItemTexture:Hide()
 	end
+	self:SetNormalTexture(nil)
+	self.ItemColor = CreateFrame("Frame", nil, self)
+	self.ItemColor:SetPoint("TOPLEFT", self, -1, 1)
+	self.ItemColor:SetPoint("BOTTOMRIGHT", self, 1, -1)
+	self.ItemColor:SetBackdrop({bgFile = [[Interface\Buttons\WHITE8x8]]})
+	self.ItemColor:SetBackdropColor(1, 1, 1, 1)
 	self.SplitStack = nil -- Remove the function set up by the template
 end
 
@@ -88,6 +100,7 @@ function buttonProto:OnAcquire(container, bag, slot)
 	self.stack = nil
 	self:SetParent(addon.itemParentFrames[bag])
 	self:SetID(slot)
+	self.ItemColor:SetFrameLevel(self:GetFrameLevel() - 1)
 	self:FullUpdate()
 end
 
@@ -289,10 +302,10 @@ function buttonProto:Update()
 	local icon = self.IconTexture
 	if self.texture then
 		icon:SetTexture(self.texture)
-		icon:SetTexCoord(0,1,0,1)
+		icon:SetTexCoord(.08, .92, .08, .9)
 	else
 		icon:SetTexture([[Interface\BUTTONS\UI-EmptySlot]])
-		icon:SetTexCoord(12/64, 51/64, 12/64, 51/64)
+		icon:SetTexCoord(16/64, 47/64, 13/64, 47/64)
 	end
 	local tag = (not self.itemId or addon.db.profile.showBagType) and addon:GetFamilyTag(self.bagFamily)
 	if tag then
@@ -389,18 +402,15 @@ function buttonProto:UpdateBorder(isolatedEvent)
 	end
 	if not texture then
 		self.IconQuestTexture:Hide()
+		self.ItemColor:SetBackdropColor(1, 1, 1, 1)
 	else
-		local border = self.IconQuestTexture
-		if texture == true then
-			border:SetVertexColor(1, 1, 1, 1)
-			border:SetTexture(r or 1, g or 1, b or 1, a or 1)
+		if texture == TEXTURE_ITEM_QUEST_BANG or texture == TEXTURE_ITEM_QUEST_BORDER then
+			self.ItemColor:SetBackdropColor(0.80, 0.6, 0, 1)
+		elseif texture == true then
+			self.ItemColor:SetBackdropColor(0.65882, 0.65882, 0.65882, 1)
 		else
-			border:SetTexture(texture)
-			border:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
+			self.ItemColor:SetBackdropColor(r or 1, g or 1, b or 1, 1)
 		end
-		border:SetTexCoord(x1 or 0, x2 or 1, y1 or 0, y2 or 1)
-		border:SetBlendMode(blendMode or "BLEND")
-		border:Show()
 	end
 	if self.JunkIcon then
 		local quality = self.hasItem and select(3, GetItemInfo(self.itemLink or self.itemId))
@@ -419,8 +429,11 @@ local stackClass, stackProto = addon:NewClass("StackButton", "Frame", "ABEvent-1
 addon:CreatePool(stackClass, "AcquireStackButton")
 
 function stackProto:OnCreate()
-	self:SetWidth(ITEM_SIZE)
-	self:SetHeight(ITEM_SIZE)
+	self:SetWidth(ElvUI and ElvUI[1]:Scale(ITEM_SIZE) or ITEM_SIZE)
+	self:SetHeight(ElvUI and ElvUI[1]:Scale(ITEM_SIZE) or ITEM_SIZE)
+	if (ElvUI) then
+		self:SetTemplate("Transparent");
+	end
 	self.slots = {}
 	self:SetScript('OnShow', self.OnShow)
 	self:SetScript('OnHide', self.OnHide)
