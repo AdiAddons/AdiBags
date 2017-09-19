@@ -106,6 +106,7 @@ function buttonProto:OnAcquire(container, bag, slot)
 	self:SetParent(addon.itemParentFrames[bag])
 	self:SetID(slot)
 	self.ItemColor:SetFrameLevel(self:GetFrameLevel() - 1)
+	ElvUI[1]:RegisterCooldown(_G[self:GetName()..'Cooldown'])
 	self:FullUpdate()
 end
 
