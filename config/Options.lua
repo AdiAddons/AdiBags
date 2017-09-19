@@ -550,9 +550,7 @@ local function GetOptions()
 								min = 0.05,
 								max = 1.0,
 								step = 0.05,
-								disabled = function(info)
-									return info.handler:IsDisabled(info) or not addon.db.profile.qualityHighlight
-								end,
+								disabled = true,
 							},
 							dimJunk = {
 								name = L['Dim junk'],
@@ -688,4 +686,3 @@ function addon:OpenOptions(...)
 		AceConfigDialog:Open(addonName)
 	end
 end
-

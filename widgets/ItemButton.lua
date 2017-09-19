@@ -73,14 +73,12 @@ function buttonProto:OnCreate()
 	self:RegisterForClicks("LeftButtonUp","RightButtonUp")
 	self:SetScript('OnShow', self.OnShow)
 	self:SetScript('OnHide', self.OnHide)
-	self:SetWidth(ElvUI and ElvUI[1]:Scale(ITEM_SIZE) or ITEM_SIZE)
-	self:SetHeight(ElvUI and ElvUI[1]:Scale(ITEM_SIZE) or ITEM_SIZE)
-	if ElvUI then
-		self:SetTemplate("Transparent");
-		self.IconTexture:SetInside();
-		self:GetHighlightTexture():SetColorTexture(1, 1, 1, 0.1)
-		self:GetHighlightTexture():SetInside();
-	end
+	self:SetWidth(ElvUI[1]:Scale(ITEM_SIZE))
+	self:SetHeight(ElvUI[1]:Scale(ITEM_SIZE))
+	self:SetTemplate("Transparent");
+	self.IconTexture:SetInside();
+	self:GetHighlightTexture():SetColorTexture(1, 1, 1, 0.1)
+	self:GetHighlightTexture():SetInside();
 	if self.NewItemTexture then
 		self.NewItemTexture:Hide()
 	end
@@ -429,11 +427,9 @@ local stackClass, stackProto = addon:NewClass("StackButton", "Frame", "ABEvent-1
 addon:CreatePool(stackClass, "AcquireStackButton")
 
 function stackProto:OnCreate()
-	self:SetWidth(ElvUI and ElvUI[1]:Scale(ITEM_SIZE) or ITEM_SIZE)
-	self:SetHeight(ElvUI and ElvUI[1]:Scale(ITEM_SIZE) or ITEM_SIZE)
-	if (ElvUI) then
-		self:SetTemplate("Transparent");
-	end
+	self:SetWidth(ElvUI[1]:Scale(ITEM_SIZE))
+	self:SetHeight(ElvUI[1]:Scale(ITEM_SIZE))
+	self:SetTemplate("Transparent");
 	self.slots = {}
 	self:SetScript('OnShow', self.OnShow)
 	self:SetScript('OnHide', self.OnHide)
