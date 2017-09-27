@@ -24,6 +24,7 @@ local L = addon.L
 
 --<GLOBALS
 local _G = _G
+local AS = unpack(AddOnSkins)
 local assert = _G.assert
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
 local band = _G.bit.band
@@ -352,6 +353,7 @@ function containerProto:CreateReagentTabButton()
 				return StaticPopup_Show("CONFIRM_BUY_REAGENTBANK_TAB")
 			end
 			self:ShowReagentTab(not self.isReagentBank)
+			AS:AdiBags("BANKFRAME_OPENED")
 		end,
 		function(_, tooltip)
 			if not IsReagentBankUnlocked() then

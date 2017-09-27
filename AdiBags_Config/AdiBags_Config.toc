@@ -7,7 +7,7 @@
 ## X-Date: @project-date-iso@
 ## X-Part-Of: AdiBags
 ## LoadOnDemand: 1
-## Dependencies: AdiBags, ElvUI
+## Dependencies: AdiBags, ElvUI, AddOnSkins
 ## OptionalDeps: AceGUI-3.0-SharedMediaWidgets
 
 #@no-lib-strip@

@@ -24,7 +24,7 @@
 ## Author: Adirelle
 ## Version: @project-version@
 ## SavedVariables: AdiBagsDB
-## Dependencies: ElvUI
+## Dependencies: ElvUI, AddOnSkins
 ## X-Date: @project-date-iso@
 ## X-License: GPL v3
 ## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, LibItemUpgradeInfo-1.0, Scrap, BrainDead, !BugGrabber, SyLevel
