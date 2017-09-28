@@ -210,6 +210,7 @@ end
 
 function mod:ShowBlizzardGlow(button, enable)
 	if enable then
+		local _, _, _, quality = GetContainerItemInfo(button.bag, button.slot)
 		if quality and NEW_ITEM_ATLAS_BY_QUALITY[quality] then
 			button.NewItemTexture:SetAtlas(NEW_ITEM_ATLAS_BY_QUALITY[quality])
 		else
