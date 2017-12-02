@@ -149,7 +149,7 @@ end
 --------------------------------------------------------------------------------
 
 function addon.IsValidItemLink(link)
-	if type(link) == "string" and (strmatch(link, "battlepet:") or (strmatch(link, 'item:[-:%d]+') and not strmatch(link, 'item:%d+:0:0:0:0:0:0:0:0:0'))) then
+	if type(link) == "string" and (strmatch(link, "battlepet:") or strmatch(link, "keystone:") or (strmatch(link, 'item:[-:%d]+') and not strmatch(link, 'item:%d+:0:0:0:0:0:0:0:0:0'))) then
 		return true
 	end
 end
@@ -160,7 +160,7 @@ end
 
 local function __GetDistinctItemID(link)
 	if not link or not addon.IsValidItemLink(link) then return end
-	if strmatch(link, "battlepet:") then
+	if strmatch(link, "battlepet:") or strmatch(link, "keystone:") then
 		return link
 	else
 		local itemString, id, enchant, gem1, gem2, gem3, gem4, suffix, reforge = strmatch(link, '(item:(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):%-?%d+:%-?%d+:(%-?%d+))')
@@ -266,7 +266,7 @@ end
 --------------------------------------------------------------------------------
 
 function addon.GetItemFamily(item)
-	if (type(item) == "string" and strmatch(item, "battlepet:")) or select(9, GetItemInfo(item)) == "INVTYPE_BAG" then
+	if (type(item) == "string" and (strmatch(item, "battlepet:") or strmatch(item, "keystone:"))) or select(9, GetItemInfo(item)) == "INVTYPE_BAG" then
 		return 0
 	else
 		return GetItemFamily(item)

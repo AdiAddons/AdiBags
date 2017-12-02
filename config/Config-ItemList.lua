@@ -54,7 +54,7 @@ do
 		local widget = frame.obj
 		local listWidget = widget:GetUserData('listwidget')
 		if not listWidget then return end
-		PlaySound("igMainMenuOption")
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
 		local previousId = widget.itemId
 		if previousId then
 			listWidget:Fire("OnValueChanged", previousId, false)
