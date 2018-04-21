@@ -30,9 +30,9 @@ function addon:SetupDefaultFilters()
 	local EquipmentManager_UnpackLocation = _G.EquipmentManager_UnpackLocation
 	local format = _G.format
 	local GetContainerItemQuestInfo = _G.GetContainerItemQuestInfo
-	local GetEquipmentSetInfo = _G.GetEquipmentSetInfo
-	local GetEquipmentSetItemIDs = _G.GetEquipmentSetItemIDs
-	local GetNumEquipmentSets = _G.GetNumEquipmentSets
+	local GetEquipmentSetInfo = _G.C_EquipmentSet.GetEquipmentSetInfo
+	local GetEquipmentSetItemIDs = _G.C_EquipmentSet.GetEquipmentSetItemIDs
+	local GetNumEquipmentSets = _G.C_EquipmentSet.GetNumEquipmentSets
 	local pairs = _G.pairs
 	local wipe = _G.wipe
 	--GLOBALS>
