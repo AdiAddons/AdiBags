@@ -70,9 +70,7 @@ function mod:OnEnable()
 	if self.widget then
 		self.widget:Show()
 	end
-	self:RegisterEvent('KNOWN_CURRENCY_TYPES_UPDATE', "Update")
 	self:RegisterEvent('CURRENCY_DISPLAY_UPDATE', "Update")
-	self:RegisterEvent('HONOR_CURRENCY_UPDATE', "Update")
 	if not self.hooked then
 		if IsAddOnLoaded('Blizzard_TokenUI') then
 			self:ADDON_LOADED('OnEnable', 'Blizzard_TokenUI')
