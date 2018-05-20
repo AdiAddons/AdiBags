@@ -217,6 +217,7 @@ do
 	function backpack:Sort()
 		PlaySound(SOUNDKIT.UI_BAG_SORTING_01)
 		SortBags()
+		C_Timer.After(1, function() addon:OpenBackpack() end)
 	end
 end
 

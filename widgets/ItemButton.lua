@@ -271,7 +271,10 @@ end
 --------------------------------------------------------------------------------
 
 function buttonProto:CanUpdate()
-	return self:IsVisible()
+	if not self:IsVisible() or addon.holdYourBreath then
+		return false
+	end
+	return true
 end
 
 function buttonProto:FullUpdate()
@@ -518,7 +521,7 @@ end
 function stackProto:OnShow()
 	self:RegisterMessage('AdiBags_UpdateAllButtons', 'Update')
 	self:RegisterMessage('AdiBags_PostContentUpdate')
-	--self:RegisterEvent('ITEM_LOCK_CHANGED')
+	self:RegisterEvent('ITEM_LOCK_CHANGED')
 	if self.button then
 		self.button:Show()
 	end

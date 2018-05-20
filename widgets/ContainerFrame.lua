@@ -334,6 +334,7 @@ function containerProto:CreateSortButton()
 		"S",
 		10,
 		function()
+			addon:CloseAllBags()
 			self.bagObject:Sort()
 			self.forceLayout = true
 		end,
