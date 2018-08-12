@@ -115,7 +115,11 @@ function mod:UpdateButton(event, button)
 
 	if link then
 		local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
-		local level = ItemUpgradeInfo:GetUpgradedItemLevel(link) or 0 -- Ugly workaround
+		--local level = ItemUpgradeInfo:GetUpgradedItemLevel(link) or 0 -- Ugly workaround
+		local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
+		if ( item ) then
+			level = item:GetCurrentItemLevel()
+		end		
 		if level >= settings.minLevel
 			and (quality ~= LE_ITEM_QUALITY_POOR or not settings.ignoreJunk)
 			and (loc ~= "" or not settings.equippableOnly)
@@ -136,7 +140,12 @@ function mod:UpdateButton(event, button)
 				text = CreateText(button)
 			end
 			text:SetText(level)
-			text:SetTextColor(colorSchemes[settings.colorScheme](level, quality, reqLevel, (loc ~= "")))
+			--text:SetTextColor(colorSchemes[settings.colorScheme](level, quality, reqLevel, (loc ~= "")))
+			if quality then
+				local r,g,b=GetItemQualityColor(quality);
+				--text:SetTextColor(r+0.5,g+0.5, b+0.5);
+				text:SetTextColor((r + 1) / 2, (g + 1) / 2, (b + 1) / 2)
+			end			
 			return text:Show()
 		end
 	end
