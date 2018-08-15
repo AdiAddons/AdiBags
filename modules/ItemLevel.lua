@@ -115,7 +115,7 @@ function mod:UpdateButton(event, button)
 
 	if link then
 		local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
-		--local level = ItemUpgradeInfo:GetUpgradedItemLevel(link) or 0 -- Ugly workaround
+		local level = 0
 		local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
 		if ( item ) then
 			level = item:GetCurrentItemLevel()
