@@ -45,7 +45,6 @@ local colorSchemes = {
 }
 
 local texts = {}
-local ItemUpgradeInfo = LibStub('LibItemUpgradeInfo-1.0')
 
 local SyLevel = _G.SyLevel
 local SyLevelBypass
@@ -115,7 +114,8 @@ function mod:UpdateButton(event, button)
 
 	if link then
 		local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
-		local level = ItemUpgradeInfo:GetUpgradedItemLevel(link) or 0 -- Ugly workaround
+		local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
+		local level = item and item:GetCurrentItemLevel() or 0
 		if level >= settings.minLevel
 			and (quality ~= LE_ITEM_QUALITY_POOR or not settings.ignoreJunk)
 			and (loc ~= "" or not settings.equippableOnly)
