@@ -266,7 +266,7 @@ if BugGrabber then
 	end
 	local pattern = "("..addonName.."[^\n]+%.lua):%d+:"
 	BugGrabber.RegisterCallback(addon, 'BugGrabber_BugGrabbed', function(_, errorObject)
-		local ref = strmatch(errorObject.stack, pattern)
+		local ref = errorObject and errorObject.stack and strmatch(errorObject.stack, pattern)
 		if ref and not strmatch(ref, '\\libs\\') then
 			if not addon.db.global.muteBugGrabber then
 				print(format('|cffffff00'..L['Error in %s: %s -- details: %s'], addonName, '|r'..errorObject.message, BugGrabber:GetChatLink(errorObject)))
