@@ -396,7 +396,7 @@ function buttonProto:UpdateBorder(isolatedEvent)
 		local border = self.IconQuestTexture
 		if texture == true then
 			border:SetVertexColor(1, 1, 1, 1)
-			border:SetTexture(r or 1, g or 1, b or 1, a or 1)
+			border:SetColorTexture(r or 1, g or 1, b or 1, a or 1)
 		else
 			border:SetTexture(texture)
 			border:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
