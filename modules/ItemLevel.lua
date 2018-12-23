@@ -59,7 +59,7 @@ function mod:OnInitialize()
 		profile = {
 			useSyLevel = false,
 			equippableOnly = true,
-			colorScheme = 'original',
+			colorScheme = 'level',
 			minLevel = 1,
 			ignoreJunk = true,
 			ignoreHeirloom = true,
@@ -314,14 +314,14 @@ do
 	end
 
 	local maxLevelRanges = {
-		[60]  = {  66,  92 },
-		[70]  = { 100, 164 },
-		[80]  = { 187, 284 },
-		[85]  = { 333, 416 },
-		[90]  = { 450, 616 },
-		[100] = { 615, 735 },
-		[110] = { 805, 905 },
-		[120] = { 310, 350 },
+		[ 60] = {  58,  65 }, -- Classic
+		[ 70] = {  80,  94 }, -- The Burning Crusade
+		[ 80] = { 100, 102 }, -- Wrath of the Lich King
+		[ 85] = { 108, 114 }, -- Cataclysm
+		[ 90] = { 116, 130 }, -- Mists of Pandaria
+		[100] = { 136, 143 }, -- Warlords of Draenor
+		[110] = { 164, 250 }, -- Legion
+		[120] = { 310, 385 }, -- Battle for Azeroth
 	}
 
 	local maxLevelColors = {}
