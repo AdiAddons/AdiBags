@@ -51,7 +51,12 @@ end
 
 local function Class_Create(class, ...)
 	class.serial = class.serial + 1
-	local self = CreateFrame(class.frameType, addonName..class.name..class.serial, defaultParent, class.frameTemplate)
+	local self
+	if (class.frameTemplate == "ItemButtonTemplate") then
+		self = CreateFrame("ItemButton", addonName..class.name..class.serial, defaultParent)
+	else
+		self = CreateFrame(class.frameType, addonName..class.name..class.serial, defaultParent, class.frameTemplate)
+	end
 	self:SetParent(nil) -- Get rid of the parent once the OnLoad handler has been called
 	setmetatable(self, class.metatable)
 	self:ClearAllPoints()
