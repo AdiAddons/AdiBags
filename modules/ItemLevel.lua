@@ -321,7 +321,7 @@ do
 		[ 90] = { 116, 130 }, -- Mists of Pandaria
 		[100] = { 136, 143 }, -- Warlords of Draenor
 		[110] = { 164, 250 }, -- Legion
-		[120] = { 340, 415 }, -- Battle for Azeroth
+		[120] = { 370, 445 }, -- Battle for Azeroth
 	}
 
 	local maxLevelColors = {}
