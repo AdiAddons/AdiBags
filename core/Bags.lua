@@ -213,12 +213,6 @@ do
 			self:Close()
 		end
 	end
-
-	function backpack:Sort()
-		PlaySound(SOUNDKIT.UI_BAG_SORTING_01)
-		SortBags()
-		C_Timer.After(1, function() addon:OpenBackpack() end)
-	end
 end
 
 --------------------------------------------------------------------------------
@@ -272,22 +266,11 @@ do
 
 	function bank:PreOpen()
 		self.hooks[BankFrame].Show(BankFrame)
-		if addon.db.profile.autoDeposit and not IsModifierKeyDown() then
-			DepositReagentBank()
-		end
 	end
 
 	function bank:PostClose()
 		self.hooks[BankFrame].Hide(BankFrame)
 		CloseBankFrame()
-	end
-
-	function bank:Sort()
-		PlaySound(SOUNDKIT.UI_BAG_SORTING_01)
-		SortBankBags()
-		if IsReagentBankUnlocked() then
-			SortReagentBankBags()
-		end
 	end
 
 	function bank:BankFrameGetRight()

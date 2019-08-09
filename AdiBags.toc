@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 
-## Interface: 80200
+## Interface: 11302
 
 ## Title: AdiBags
 ## Notes: Adirelle's bag addon.
@@ -69,7 +69,6 @@ modules\MoneyFrame.lua
 modules\FilterOverride.lua
 modules\ItemLevel.lua
 modules\Junk.lua
-modules\CurrencyFrame.lua
 modules\TooltipInfo.lua
 modules\SectionVisibilityDropdown.lua
 modules\BankSwitcher.lua

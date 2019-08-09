@@ -329,14 +329,7 @@ local function GetOptions()
 								desc = L["Automatically open the bags at merchant's, bank, ..."],
 								type = 'toggle',
 								order = 95,
-							},
-							autoDeposit = {
-								name = L["Deposit reagents"],
-								desc = L["Automtically deposit all reagents into the reagent bank when you talk to the banker."],
-								type = 'toggle',
-								order = 110,
-								disabled = function() return not IsReagentBankUnlocked() end,
-							},
+							}
 						}
 					},
 					position = {
@@ -500,13 +493,6 @@ local function GetOptions()
 								order = 60,
 								hasAlpha = true,
 								arg = { "skin", "BankColor" },
-							},
-							reagentBankColor = {
-								name = L['Reagent bank color'],
-								type = 'color',
-								order = 70,
-								hasAlpha = true,
-								arg = { "skin", "ReagentBankColor" },
 							},
 						},
 					}

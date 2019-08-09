@@ -195,7 +195,7 @@ do
 	function EmptyBag(bag)
 		ClearCursor()
 		wipe(otherBags)
-		local bags = BAG_IDS[BAG_IDS.BANK[bag] and "BANK_ONLY" or "BAGS"]
+		local bags = BAG_IDS[BAG_IDS.BANK[bag] and "BANK" or "BAGS"]
 		for otherBag in pairs(bags) do
 			if otherBag ~= bag then
 				tinsert(otherBags, otherBag)
@@ -216,7 +216,7 @@ end
 -- Regular bag buttons
 --------------------------------------------------------------------------------
 
-local bagButtonClass, bagButtonProto = addon:NewClass("BagSlotButton", "ItemButton", nil, "ABEvent-1.0")
+local bagButtonClass, bagButtonProto = addon:NewClass("BagSlotButton", "Button", "ItemButtonTemplate", "ABEvent-1.0")
 
 function bagButtonProto:OnCreate(bag)
 	self.bag = bag
@@ -456,7 +456,7 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	local x = BAG_INSET
 	local height = 0
 	for i, bag in ipairs(bags) do
-		if bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER and bag ~= REAGENTBANK_CONTAINER then
+		if bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER then
 			local button = buttonClass:Create(bag)
 			button:SetParent(self)
 			button:SetPoint("TOPLEFT", x, -TOP_PADDING)
