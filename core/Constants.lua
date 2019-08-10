@@ -121,7 +121,6 @@ addon.DEFAULT_SETTINGS = {
 		qualityHighlight = true,
 		qualityOpacity = 1.0,
 		dimJunk = true,
-		questIndicator = true,
 		showBagType = true,
 		filters = { ['*'] = true },
 		filterPriorities = {},

@@ -551,12 +551,6 @@ local function GetOptions()
 							},
 						},
 					},
-					questIndicator = {
-						name = L['Quest indicator'],
-						desc = L['Check this to display an indicator on quest items.'],
-						type = 'toggle',
-						order = 230,
-					},
 					showBagType = {
 						name = L['Bag type'],
 						desc = L['Check this to display a bag type tag in the top left corner of items.'],

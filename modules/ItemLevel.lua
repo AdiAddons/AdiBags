@@ -61,8 +61,7 @@ function mod:OnInitialize()
 			equippableOnly = true,
 			colorScheme = 'level',
 			minLevel = 1,
-			ignoreJunk = true,
-			ignoreHeirloom = true,
+			ignoreJunk = true
 		},
 	})
 	if self.db.profile.colored == true then
@@ -119,7 +118,6 @@ function mod:UpdateButton(event, button)
 		if level >= settings.minLevel
 			and (quality ~= LE_ITEM_QUALITY_POOR or not settings.ignoreJunk)
 			and (loc ~= "" or not settings.equippableOnly)
-			and (quality ~= LE_ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
 		then
 			if SyLevel then
 				if settings.useSyLevel then
@@ -190,13 +188,7 @@ function mod:GetOptions()
 			desc = L['Do not show level of poor quality items.'],
 			type = 'toggle',
 			order = 40,
-		},
-		ignoreHeirloom = {
-			name = L['Ignore heirloom items'],
-			desc = L['Do not show level of heirloom items.'],
-			type = 'toggle',
-			order = 50,
-		},
+		}
 	}, addon:GetOptionHandler(self)
 end
 
