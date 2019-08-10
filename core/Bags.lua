@@ -220,7 +220,6 @@ end
 --------------------------------------------------------------------------------
 
 do
-	-- L["Bank"]
 	local bank = addon:NewBag("Bank", 20, true, 'AceHook-3.0')
 
 	local UIHider = CreateFrame("Frame")

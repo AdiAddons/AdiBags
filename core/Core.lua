@@ -73,91 +73,6 @@ end
 --@end-debug@
 
 --------------------------------------------------------------------------------
--- Event handlers
---------------------------------------------------------------------------------
-
-local updatedBags = {}
-local updatedBank = { [BANK_CONTAINER] = true }
-
-function addon:BAG_UPDATE(event, bag)
-	updatedBags[bag] = true
-end
-
-function addon:BAG_UPDATE_DELAYED(event)
-	self:SendMessage('AdiBags_BagUpdated', updatedBags)
-	wipe(updatedBags)
-end
-
-function addon:BankUpdated(slots)
-	-- Wrap several PLAYERBANKSLOTS_CHANGED into one AdiBags_BagUpdated message
-	for slot in pairs(slots) do
-		if slot > 0 and slot <= NUM_BANKGENERIC_SLOTS then
-			return self:SendMessage('AdiBags_BagUpdated', updatedBank)
-		end
-	end
-end
-
-function addon:ConfigChanged(vars)
-	--@debug@
-	self:Debug('ConfigChanged', DebugTable(vars))
-	--@end-debug@
-	if vars.enabled then
-		if self.db.profile.enabled then
-			self:Enable()
-		else
-			self:Disable()
-		end
-		return
-	elseif not self:IsEnabled() then
-		return
-	elseif vars.filter then
-		return self:SendMessage('AdiBags_FiltersChanged')
-	else
-		for name in pairs(vars) do
-			if strmatch(name, 'virtualStacks') then
-				return self:SendMessage('AdiBags_FiltersChanged')
-			elseif strmatch(name, 'bags%.') then
-				local _, bagName = strsplit('.', name)
-				local bag = self:GetModule(bagName)
-				local enabled = self.db.profile.bags[bagName]
-				if enabled and not bag:IsEnabled() then
-					bag:Enable()
-				elseif not enabled and bag:IsEnabled() then
-					bag:Disable()
-				end
-			elseif strmatch(name, 'columnWidth') then
-				return self:SendMessage('AdiBags_LayoutChanged')
-			elseif strmatch(name, '^skin%.font') then
-				return self:UpdateFonts()
-			end
-		end
-	end
-	if vars.sortingOrder then
-		return self:SetSortingOrder(self.db.profile.sortingOrder)
-	elseif vars.maxHeight then
-		return self:SendMessage('AdiBags_LayoutChanged')
-	elseif vars.scale then
-		return self:LayoutBags()
-	elseif vars.positionMode then
-		return self:UpdatePositionMode()
-	else
-		self:SendMessage('AdiBags_UpdateAllButtons')
-	end
-end
-
-function addon:SetGlobalLock(locked)
-	locked = not not locked
-	if locked ~= self.globalLock then
-		self.globalLock = locked
-		self:SendMessage('AdiBags_GlobalLockChanged', locked)
-		if not locked then
-			self:SendMessage('AdiBags_LayoutChanged')
-		end
-		return true
-	end
-end
-
---------------------------------------------------------------------------------
 -- Addon initialization and enabling
 --------------------------------------------------------------------------------
 
@@ -410,6 +325,91 @@ local moduleProto = {
 }
 addon.moduleProto = moduleProto
 addon:SetDefaultModulePrototype(moduleProto)
+
+--------------------------------------------------------------------------------
+-- Event handlers
+--------------------------------------------------------------------------------
+
+local updatedBags = {}
+local updatedBank = { [BANK_CONTAINER] = true }
+
+function addon:BAG_UPDATE(event, bag)
+	updatedBags[bag] = true
+end
+
+function addon:BAG_UPDATE_DELAYED(event)
+	self:SendMessage('AdiBags_BagUpdated', updatedBags)
+	wipe(updatedBags)
+end
+
+function addon:BankUpdated(slots)
+	-- Wrap several PLAYERBANKSLOTS_CHANGED into one AdiBags_BagUpdated message
+	for slot in pairs(slots) do
+		if slot > 0 and slot <= NUM_BANKGENERIC_SLOTS then
+			return self:SendMessage('AdiBags_BagUpdated', updatedBank)
+		end
+	end
+end
+
+function addon:ConfigChanged(vars)
+	--@debug@
+	self:Debug('ConfigChanged', DebugTable(vars))
+	--@end-debug@
+	if vars.enabled then
+		if self.db.profile.enabled then
+			self:Enable()
+		else
+			self:Disable()
+		end
+		return
+	elseif not self:IsEnabled() then
+		return
+	elseif vars.filter then
+		return self:SendMessage('AdiBags_FiltersChanged')
+	else
+		for name in pairs(vars) do
+			if strmatch(name, 'virtualStacks') then
+				return self:SendMessage('AdiBags_FiltersChanged')
+			elseif strmatch(name, 'bags%.') then
+				local _, bagName = strsplit('.', name)
+				local bag = self:GetModule(bagName)
+				local enabled = self.db.profile.bags[bagName]
+				if enabled and not bag:IsEnabled() then
+					bag:Enable()
+				elseif not enabled and bag:IsEnabled() then
+					bag:Disable()
+				end
+			elseif strmatch(name, 'columnWidth') then
+				return self:SendMessage('AdiBags_LayoutChanged')
+			elseif strmatch(name, '^skin%.font') then
+				return self:UpdateFonts()
+			end
+		end
+	end
+	if vars.sortingOrder then
+		return self:SetSortingOrder(self.db.profile.sortingOrder)
+	elseif vars.maxHeight then
+		return self:SendMessage('AdiBags_LayoutChanged')
+	elseif vars.scale then
+		return self:LayoutBags()
+	elseif vars.positionMode then
+		return self:UpdatePositionMode()
+	else
+		self:SendMessage('AdiBags_UpdateAllButtons')
+	end
+end
+
+function addon:SetGlobalLock(locked)
+	locked = not not locked
+	if locked ~= self.globalLock then
+		self.globalLock = locked
+		self:SendMessage('AdiBags_GlobalLockChanged', locked)
+		if not locked then
+			self:SendMessage('AdiBags_LayoutChanged')
+		end
+		return true
+	end
+end
 
 --------------------------------------------------------------------------------
 -- Track windows related to item interaction (merchant, mail, bank, ...)
