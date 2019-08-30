@@ -108,7 +108,6 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.name = name
 	self.bagObject = bagObject
 	self.isBank = isBank
-	self.isReagentBank = false
 
 	self.buttons = {}
 	self.content = {}
@@ -208,12 +207,6 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	anchor:SetFrameLevel(self:GetFrameLevel() + 10)
 	self.Anchor = anchor
 
-	if self.isBank then
-		self:CreateReagentTabButton()
-		self:CreateDepositButton()
-	end
-	self:CreateSortButton()
-
 	local toSortSection = addon:AcquireSection(self, L["Recent Items"], self.name)
 	toSortSection:SetPoint("TOPLEFT", BAG_INSET, -addon.TOP_PADDING)
 	toSortSection:Show()
@@ -251,15 +244,6 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	RegisterMessage(name, 'AdiBags_LayoutChanged', self.FullUpdate, self)
 	RegisterMessage(name, 'AdiBags_ConfigChanged', self.ConfigChanged, self)
 	RegisterMessage(name, 'AdiBags_ForceFullLayout', ForceFullLayout)
-	LibStub('ABEvent-1.0').RegisterEvent(name, 'EQUIPMENT_SWAP_FINISHED', ForceFullLayout)
-
-	-- Force full layout on sort
-	if isBank then
-		hooksecurefunc('SortBankBags', ForceFullLayout)
-		hooksecurefunc('SortReagentBankBags', ForceFullLayout)
-	else
-		hooksecurefunc('SortBags', ForceFullLayout)
-	end
 end
 
 function containerProto:ToString() return self.name or self:GetName() end
@@ -311,75 +295,13 @@ end
 	return button
 end
 
-function containerProto:CreateDepositButton()
-	local button = self:CreateModuleAutoButton(
-		"D",
-		0,
-		REAGENTBANK_DEPOSIT,
-		L["auto-deposit"],
-		"autoDeposit",
-		DepositReagentBank,
-		L["You can block auto-deposit ponctually by pressing a modified key while talking to the banker."]
-	)
-
-	if not IsReagentBankUnlocked() then
-		button:Hide()
-		button:SetScript('OnEvent', button.Show)
-		button:RegisterEvent('REAGENTBANK_PURCHASED')
-	end
-end
-
-function containerProto:CreateSortButton()
-	self:CreateModuleButton(
-		"S",
-		10,
-		function()
-			addon:CloseAllBags()
-			self.bagObject:Sort()
-			self.forceLayout = true
-		end,
-		L["(Blizzard's) Sort items"]
-	)
-end
-
-function containerProto:CreateReagentTabButton()
-	local button
-	button = self:CreateModuleButton(
-		"R",
-		0,
-		function()
-			if not IsReagentBankUnlocked() then
-				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
-				return StaticPopup_Show("CONFIRM_BUY_REAGENTBANK_TAB")
-			end
-			self:ShowReagentTab(not self.isReagentBank)
-		end,
-		function(_, tooltip)
-			if not IsReagentBankUnlocked() then
-				tooltip:AddLine(BANKSLOTPURCHASE, 1, 1, 1)
-				tooltip:AddLine(REAGENTBANK_PURCHASE_TEXT)
-				SetTooltipMoney(tooltip, GetReagentBankCost(), nil, COSTS_LABEL)
-				return
-			end
-			tooltip:AddLine(
-				format(
-					L['Click to swap between %s and %s.'],
-					REAGENT_BANK:lower(),
-					L["Bank"]:lower()
-				)
-			)
-		end
-	)
-end
-
 --------------------------------------------------------------------------------
 -- Scripts & event handlers
 --------------------------------------------------------------------------------
 
 function containerProto:GetBagIds()
 	return BAG_IDS[
-		self.isReagentBank and "REAGENTBANK_ONLY" or
-		self.isBank and "BANK_ONLY" or
+		self.isBank and "BANK" or
 		"BAGS"
 	]
 end
@@ -408,8 +330,6 @@ end
 function containerProto:OnShow()
 	self:Debug('OnShow')
 	PlaySound(self.isBank and SOUNDKIT.IG_MAINMENU_OPEN or SOUNDKIT.IG_BACKPACK_OPEN)
-	self:RegisterEvent('EQUIPMENT_SWAP_PENDING', "PauseUpdates")
-	self:RegisterEvent('EQUIPMENT_SWAP_FINISHED', "ResumeUpdates")
 	self:RegisterEvent('AUCTION_MULTISELL_START', "PauseUpdates")
 	self:RegisterEvent('AUCTION_MULTISELL_UPDATE')
 	self:RegisterEvent('AUCTION_MULTISELL_FAILURE', "ResumeUpdates")
@@ -446,28 +366,6 @@ function containerProto:RefreshContents()
 		self:UpdateContent(bag)
 	end
 	self:UpdateButtons()
-end
-
-function containerProto:ShowReagentTab(show)
-	self:Debug('ShowReagentTab', show)
-
-	self.Title:SetText(show and REAGENT_BANK or L["Bank"])
-	self.BagSlotButton:SetEnabled(not show)
-	if show and self.BagSlotPanel:IsShown() then
-		self.BagSlotPanel:Hide()
-		self.BagSlotButton:SetChecked(false)
-	end
-	BankFrame.selectedTab = show and 2 or 1
-
-	local previousBags = self:GetBagIds()
-	self.isReagentBank = show
-
-	for bag in pairs(previousBags) do
-		self:UpdateContent(bag)
-	end
-	self.forceLayout = true
-	self:RefreshContents()
-	self:UpdateSkin()
 end
 
 function containerProto:AUCTION_MULTISELL_UPDATE(event, current, total)
@@ -575,7 +473,7 @@ end
 --------------------------------------------------------------------------------
 
 function containerProto:UpdateSkin()
-	local backdrop, r, g, b, a = addon:GetContainerSkin(self.name, self.isReagentBank)
+	local backdrop, r, g, b, a = addon:GetContainerSkin(self.name)
 	self:SetBackdrop(backdrop)
 	self:SetBackdropColor(r, g, b, a)
 	local m = max(r, g, b)
@@ -693,8 +591,6 @@ local function FilterByBag(slotData)
 		name = L['Backpack']
 	elseif bag == BANK_CONTAINER then
 		name = L['Bank']
-	elseif bag == REAGENTBANK_CONTAINER then
-		name = REAGENT_BANK
 	elseif bag <= NUM_BAG_SLOTS then
 		name = format(L["Bag #%d"], bag)
 	else

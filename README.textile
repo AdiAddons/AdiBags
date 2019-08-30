@@ -12,7 +12,6 @@ h2. Features
 Most of these features may be configured. Check out the configuration panel ! (using the /adibags chat command or clicking on the bag icon, you have any LDB display)
 
 * Smart filters are used to distribute items into several sections, including:
-** Item sets of the Blizzard's gear manager (one section per set),
 ** Junk items (whitelist and blacklist available),
 ** Quest items,
 ** Equipment (items your character can wear),

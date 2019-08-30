@@ -51,8 +51,6 @@ local DEFAULTS = {
 		include = {},
 		exclude = {
 			[  6948] = true, -- Hearthstone
-			[110560] = true, -- Garrison Hearhstone
-			[140192] = true, -- Dalaran Hearthstone
 		},
 	},
 }

@@ -30,7 +30,6 @@ local format = _G.format
 local GetContainerItemID = _G.GetContainerItemID
 local GetContainerItemInfo = _G.GetContainerItemInfo
 local GetContainerItemLink = _G.GetContainerItemLink
-local GetContainerItemQuestInfo = _G.GetContainerItemQuestInfo
 local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
 local GetItemInfo = _G.GetItemInfo
 local GetItemQualityColor = _G.GetItemQualityColor
@@ -43,8 +42,6 @@ local pairs = _G.pairs
 local select = _G.select
 local SetItemButtonDesaturated = _G.SetItemButtonDesaturated
 local StackSplitFrame = _G.StackSplitFrame
-local TEXTURE_ITEM_QUEST_BANG = _G.TEXTURE_ITEM_QUEST_BANG
-local TEXTURE_ITEM_QUEST_BORDER = _G.TEXTURE_ITEM_QUEST_BORDER
 local tostring = _G.tostring
 local wipe = _G.wipe
 --GLOBALS>
@@ -58,7 +55,7 @@ local ITEM_SIZE = addon.ITEM_SIZE
 -- Button initialization
 --------------------------------------------------------------------------------
 
-local buttonClass, buttonProto = addon:NewClass("ItemButton", "ItemButton", "ContainerFrameItemButtonTemplate", "ABEvent-1.0")
+local buttonClass, buttonProto = addon:NewClass("ItemButton", "Button", "ContainerFrameItemButtonTemplate", "ABEvent-1.0")
 
 local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture", "NewItemTexture" }
 
@@ -123,7 +120,7 @@ bankButtonClass.frameTemplate = "BankItemButtonGenericTemplate"
 
 function bankButtonProto:OnAcquire(container, bag, slot)
 	self.GetInventorySlot = nil -- Remove the method added by the template
-	self.inventorySlot = bag == REAGENTBANK_CONTAINER and ReagentBankButtonIDToInvSlotID(slot) or BankButtonIDToInvSlotID(slot)
+	self.inventorySlot = BankButtonIDToInvSlotID(slot)
 	return buttonProto.OnAcquire(self, container, bag, slot)
 end
 
@@ -139,12 +136,6 @@ function bankButtonProto:GetInventorySlot()
 	return self.inventorySlot
 end
 
-function bankButtonProto:UpdateUpgradeIcon()
-	if self.bag ~= BANK_CONTAINER and self.bag ~= REAGENTBANK_CONTAINER then
-		buttonProto.UpdateUpgradeIcon(self)
-	end
-end
-
 --------------------------------------------------------------------------------
 -- Pools and acquistion
 --------------------------------------------------------------------------------
@@ -153,7 +144,7 @@ local containerButtonPool = addon:CreatePool(buttonClass)
 local bankButtonPool = addon:CreatePool(bankButtonClass)
 
 function addon:AcquireItemButton(container, bag, slot)
-	if bag == BANK_CONTAINER or bag == REAGENTBANK_CONTAINER then
+	if bag == BANK_CONTAINER then
 		return bankButtonPool:Acquire(container, bag, slot)
 	else
 		return containerButtonPool:Acquire(container, bag, slot)
@@ -309,7 +300,6 @@ function buttonProto:Update()
 	self:UpdateCooldown()
 	self:UpdateLock()
 	self:UpdateNew()
-	self:UpdateUpgradeIcon()
 	if self.UpdateSearch then
 		self:UpdateSearch()
 	end
@@ -357,20 +347,7 @@ function buttonProto:UpdateNew()
 	self.BattlepayItemTexture:SetShown(IsBattlePayItem(self.bag, self.slot))
 end
 
-function buttonProto:UpdateUpgradeIcon()
-	self.UpgradeIcon:SetShown(IsContainerItemAnUpgrade(self.bag, self.slot) or false)
-end
-
 local function GetBorder(bag, slot, itemId, settings)
-	if settings.questIndicator then
-		local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
-		if questId and not isActive then
-			return TEXTURE_ITEM_QUEST_BANG
-		end
-		if questId or isQuestItem then
-			return TEXTURE_ITEM_QUEST_BORDER
-		end
-	end
 	if not settings.qualityHighlight then
 		return
 	end

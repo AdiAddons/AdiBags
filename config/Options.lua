@@ -329,14 +329,7 @@ local function GetOptions()
 								desc = L["Automatically open the bags at merchant's, bank, ..."],
 								type = 'toggle',
 								order = 95,
-							},
-							autoDeposit = {
-								name = L["Deposit reagents"],
-								desc = L["Automtically deposit all reagents into the reagent bank when you talk to the banker."],
-								type = 'toggle',
-								order = 110,
-								disabled = function() return not IsReagentBankUnlocked() end,
-							},
+							}
 						}
 					},
 					position = {
@@ -501,13 +494,6 @@ local function GetOptions()
 								hasAlpha = true,
 								arg = { "skin", "BankColor" },
 							},
-							reagentBankColor = {
-								name = L['Reagent bank color'],
-								type = 'color',
-								order = 70,
-								hasAlpha = true,
-								arg = { "skin", "ReagentBankColor" },
-							},
 						},
 					}
 				},
@@ -564,12 +550,6 @@ local function GetOptions()
 								end,
 							},
 						},
-					},
-					questIndicator = {
-						name = L['Quest indicator'],
-						desc = L['Check this to display an indicator on quest items.'],
-						type = 'toggle',
-						order = 230,
 					},
 					showBagType = {
 						name = L['Bag type'],
