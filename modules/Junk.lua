@@ -241,12 +241,24 @@ if Scrap and type(Scrap.IsJunk) == "function" then
 		return (force or prefs.sources.Scrap) and Scrap:IsJunk(itemId)
 	end
 
-	Scrap:HookScript('OnReceiveDrag', function()
+	local function updateScrap()
 		if prefs.sources.Scrap then
 			wipe(cache)
 			addon:SendMessage("AdiBags_FiltersChanged")
 		end
-	end)
+	end
+
+	if Scrap.HookScript then
+		Scrap:HookScript('OnReceiveDrag', updateScrap)
+	end
+
+	if Scrap.Merchant and Scrap.Merchant.HookScript then
+		Scrap.Merchant:HookScript('OnReceiveDrag', updateScrap)
+	end
+
+	if Scrap.ToggleJunk then
+		_G.hooksecurefunc(Scrap, "ToggleJunk", updateScrap)
+	end
 
 	sourceList.Scrap = "Scrap"
 
