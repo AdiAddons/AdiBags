@@ -252,13 +252,23 @@ if Scrap and type(Scrap.IsJunk) == "function" then
 		Scrap:HookScript('OnReceiveDrag', updateScrap)
 	end
 
-	if Scrap.Merchant and Scrap.Merchant.HookScript then
-		Scrap.Merchant:HookScript('OnReceiveDrag', updateScrap)
-	end
-
 	if Scrap.ToggleJunk then
 		_G.hooksecurefunc(Scrap, "ToggleJunk", updateScrap)
 	end
+
+	local frame = _G.CreateFrame("Frame")
+	frame:RegisterEvent("ADDON_LOADED")
+	frame:SetScript("OnEvent", function (_self, _event, name)
+		if name ~= "Scrap_Merchant" then
+			return
+		end
+
+		if Scrap.Merchant and Scrap.Merchant.HookScript then
+			Scrap.Merchant:HookScript('OnReceiveDrag', updateScrap)
+		end
+
+		frame:UnregisterEvent("ADDON_LOADED")
+	end)
 
 	sourceList.Scrap = "Scrap"
 
