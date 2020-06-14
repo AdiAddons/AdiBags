@@ -282,11 +282,12 @@ do
 		CloseBankFrame()
 	end
 
-	function bank:Sort()
+	function bank:Sort(isReagentBank)
 		PlaySound(SOUNDKIT.UI_BAG_SORTING_01)
-		SortBankBags()
-		if IsReagentBankUnlocked() then
+		if isReagentBank then
 			SortReagentBankBags()
+		else
+			SortBankBags()
 		end
 	end
 
