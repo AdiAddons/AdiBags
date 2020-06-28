@@ -264,7 +264,10 @@ if Scrap and type(Scrap.IsJunk) == "function" then
 		end
 	end
 
-	Scrap:HookScript('OnReceiveDrag', hook)
+	if Scrap.HookScript then
+		-- Fallback support for older versions; no longer a ScriptObject.
+		Scrap:HookScript('OnReceiveDrag', hook)
+	end
 
 	if Scrap.ToggleJunk then
 		hooksecurefunc(Scrap, 'ToggleJunk', hook)
