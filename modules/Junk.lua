@@ -27,6 +27,8 @@ local _G = _G
 local format = _G.format
 local GameTooltip = _G.GameTooltip
 local GetItemInfo = _G.GetItemInfo
+local hooksecurefunc = _G.hooksecurefunc
+local IsAddOnLoaded = _G.IsAddOnLoaded
 local ITEM_QUALITY_POOR = _G.LE_ITEM_QUALITY_POOR
 local ITEM_QUALITY_UNCOMMON = _G.LE_ITEM_QUALITY_UNCOMMON
 local print = _G.print
@@ -75,6 +77,20 @@ function mod:OnEnable()
 	wipe(cache)
 	addon.RegisterSectionHeaderScript(self, 'OnTooltipUpdate', 'OnTooltipUpdateSectionHeader')
 	addon.RegisterSectionHeaderScript(self, 'OnClick', 'OnClickSectionHeader')
+	if not self.hooked then
+		if IsAddOnLoaded('Scrap_Merchant') then
+			self:ADDON_LOADED('OnEnable', 'Scrap_Merchant')
+		else
+			self:RegisterEvent('ADDON_LOADED')
+		end
+	end
+end
+
+function mod:ADDON_LOADED(_, name)
+	if name ~= 'Scrap_Merchant' then return end
+	self:UnregisterEvent('ADDON_LOADED')
+	self:HookScrap()
+	self.hooked = true
 end
 
 function mod:OnDisable()
@@ -241,34 +257,24 @@ if Scrap and type(Scrap.IsJunk) == "function" then
 		return (force or prefs.sources.Scrap) and Scrap:IsJunk(itemId)
 	end
 
-	local function updateScrap()
+	local function hook()
 		if prefs.sources.Scrap then
 			wipe(cache)
 			addon:SendMessage("AdiBags_FiltersChanged")
 		end
 	end
 
-	if Scrap.HookScript then
-		Scrap:HookScript('OnReceiveDrag', updateScrap)
-	end
+	Scrap:HookScript('OnReceiveDrag', hook)
 
 	if Scrap.ToggleJunk then
-		_G.hooksecurefunc(Scrap, "ToggleJunk", updateScrap)
+		hooksecurefunc(Scrap, 'ToggleJunk', hook)
 	end
 
-	local frame = _G.CreateFrame("Frame")
-	frame:RegisterEvent("ADDON_LOADED")
-	frame:SetScript("OnEvent", function (_self, _event, name)
-		if name ~= "Scrap_Merchant" then
-			return
+	function mod:HookScrap()
+		if Scrap.Merchant then
+			Scrap.Merchant:HookScript('OnReceiveDrag', hook)
 		end
-
-		if Scrap.Merchant and Scrap.Merchant.HookScript then
-			Scrap.Merchant:HookScript('OnReceiveDrag', updateScrap)
-		end
-
-		frame:UnregisterEvent("ADDON_LOADED")
-	end)
+	end
 
 	sourceList.Scrap = "Scrap"
 
