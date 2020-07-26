@@ -89,9 +89,11 @@ function buttonProto:OnAcquire(container, bag, slot)
 	self:SetParent(addon.itemParentFrames[bag])
 	self:SetID(slot)
 	self:FullUpdate()
+	addon:SendMessage("AdiBags_AcquireButton", self, bag)
 end
 
 function buttonProto:OnRelease()
+	addon:SendMessage("AdiBags_ReleaseButton", self, self.bag)
 	self:SetSection(nil)
 	self.container = nil
 	self.itemId = nil

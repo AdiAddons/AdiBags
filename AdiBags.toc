@@ -26,7 +26,7 @@
 ## SavedVariables: AdiBagsDB
 ## X-Date: @project-date-iso@
 ## X-License: GPL v3
-## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, Scrap, BrainDead, !BugGrabber, SyLevel
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, Scrap, BrainDead, !BugGrabber, SyLevel, Masque
 #@alpha@
 ## OptionalDeps: AdiDebug, BugSack, Swatter
 #@end-alpha@
@@ -74,6 +74,7 @@ modules\TooltipInfo.lua
 modules\SectionVisibilityDropdown.lua
 modules\BankSwitcher.lua
 modules\ChangeHighlight.lua
+modules\Masque.lua
 
 core\DefaultFilters.lua
 
