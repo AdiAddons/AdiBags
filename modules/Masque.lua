@@ -46,6 +46,7 @@ function mod:OnEnable()
 
 	self:RegisterMessage("AdiBags_AcquireButton", "OnAcquireButton")
 	self:RegisterMessage("AdiBags_ReleaseButton", "OnReleaseButton")
+	self:RegisterMessage("AdiBags_UpdateButton", "OnUpdateButton")
 
 	self:AddActiveButtonsToGroups()
 end
@@ -65,30 +66,51 @@ end
 function mod:AddActiveButtonsToGroups()
 	if self.BackpackButtonPool then
 		for button in self.BackpackButtonPool:IterateActiveObjects() do
-			self.BackpackGroup:AddButton(button)
+			self:AddButtonToMasqueGroup(self.BackpackGroup, button)
 		end
 	end
 
 	if self.BankButtonPool then
 		for button in self.BankButtonPool:IterateActiveObjects() do
-			self.BankGroup:AddButton(button)
+			self:AddButtonToMasqueGroup(self.BankGroup, button)
 		end
 	end
 end
 
 function mod:OnAcquireButton(event, button, bag)
 	if bag == BANK_CONTAINER or bag == REAGENTBANK_CONTAINER then
-		self.BankGroup:AddButton(button)
+		self:AddButtonToMasqueGroup(self.BankGroup, button)
 	else
-		self.BackpackGroup:AddButton(button)
+		self:AddButtonToMasqueGroup(self.BackpackGroup, button)
 	end
 end
 
 function mod:OnReleaseButton(event, button, bag)
 	if bag == BANK_CONTAINER or bag == REAGENTBANK_CONTAINER then
-		self.BankGroup:RemoveButton(button)
+		self:RemoveButtonFromMasqueGroup(self.BankGroup, button)
 	else
-		self.BackpackGroup:RemoveButton(button)
+		self:RemoveButtonFromMasqueGroup(self.BackpackGroup, button)
+	end
+end
+
+function mod:AddButtonToMasqueGroup(group, button)
+	group:AddButton(button, {
+		Border = button.IconQuestTexture
+	})
+	button.masqueGroup = group
+end
+
+function mod:RemoveButtonFromMasqueGroup(group, button)
+	button.masqueGroup = nil
+	group:RemoveButton(button)
+end
+
+function mod:OnUpdateButton(event, button)
+	-- this effectively reskins the button
+	if button.masqueGroup then
+		local group = button.masqueGroup
+		self:RemoveButtonFromMasqueGroup(group, button)
+		self:AddButtonToMasqueGroup(group, button)
 	end
 end
 
