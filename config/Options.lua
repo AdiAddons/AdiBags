@@ -558,10 +558,8 @@ local function GetOptions()
 								name = L['Dim junk'],
 								desc = L['Check this to have poor quality items dimmed.'],
 								type = 'toggle',
+								width = 'double',
 								order = 225,
-								disabled = function(info)
-									return info.handler:IsDisabled(info) or not addon.db.profile.qualityHighlight
-								end,
 							},
 						},
 					},
