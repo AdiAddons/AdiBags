@@ -75,6 +75,7 @@ function buttonProto:OnCreate()
 	self:SetScript('OnHide', self.OnHide)
 	self:SetWidth(ITEM_SIZE)
 	self:SetHeight(ITEM_SIZE)
+	self.EmptySlotTextureFile = addon.EMPTY_SLOT_FILE
 	if self.NewItemTexture then
 		self.NewItemTexture:Hide()
 	end
@@ -289,16 +290,20 @@ function buttonProto:FullUpdate()
 	self:Update()
 end
 
-function buttonProto:Update()
-	if not self:CanUpdate() then return end
+function buttonProto:UpdateIcon()
 	local icon = self.IconTexture
 	if self.texture then
 		icon:SetTexture(self.texture)
 		icon:SetTexCoord(0,1,0,1)
 	else
-		icon:SetTexture([[Interface\BUTTONS\UI-EmptySlot]])
+		icon:SetTexture(self.EmptySlotTextureFile)
 		icon:SetTexCoord(12/64, 51/64, 12/64, 51/64)
 	end
+end
+
+function buttonProto:Update()
+	if not self:CanUpdate() then return end
+	self:UpdateIcon()
 	local tag = (not self.itemId or addon.db.profile.showBagType) and addon:GetFamilyTag(self.bagFamily)
 	if tag then
 		self.Stock:SetText(tag)

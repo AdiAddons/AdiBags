@@ -39,7 +39,9 @@ function mod:OnEnable()
 	self.Masque = Masque
 
 	self.BackpackGroup = Masque:Group(addonName, "Backpack")
+	self.BackpackGroup:SetCallback(self.OnMasqueGroupChange, self)
 	self.BankGroup = Masque:Group(addonName, "Bank")
+	self.BankGroup:SetCallback(self.OnMasqueGroupChange, self)
 
 	self.BackpackButtonPool = addon:GetPool("ItemButton")
 	self.BankButtonPool = addon:GetPool("BankItemButton")
@@ -47,32 +49,55 @@ function mod:OnEnable()
 	self:RegisterMessage("AdiBags_AcquireButton", "OnAcquireButton")
 	self:RegisterMessage("AdiBags_ReleaseButton", "OnReleaseButton")
 	self:RegisterMessage("AdiBags_UpdateButton", "OnUpdateButton")
+	self:RegisterMessage("AdiBags_UpdateBorder", "OnUpdateButton")
 
-	self:AddActiveButtonsToGroups()
+	self:AddAllActiveButtonsToGroup(self.BackpackButtonPool, self.BackpackGroup)
+	self:AddAllActiveButtonsToGroup(self.BankButtonPool, self.BankGroup)
 end
 
 function mod:OnDisable()
 	self:UnregisterMessage("AdiBags_AcquireButton")
 	self:UnregisterMessage("AdiBags_ReleaseButton")
+	self:UnregisterMessage("AdiBags_UpdateButton")
+	self:UnregisterMessage("AdiBags_UpdateBorder")
 
-	if self.BackpackGroup then
+	if self.BackpackGroup and self.BackpackButtonPool then
+		self:RemoveAllActiveButtonsFromGroup(self.BackpackButtonPool, self.BackpackGroup, true)
 		self.BackpackGroup:Delete()
 	end
-	if self.BankGroup then
+	if self.BankGroup and self.BankButtonPool then
+		self.RemoveAllActiveButtonsFromGroup(self.BankButtonPool, self.BankGroup, true)
 		self.BankGroup:Delete()
 	end
 end
 
-function mod:AddActiveButtonsToGroups()
-	if self.BackpackButtonPool then
-		for button in self.BackpackButtonPool:IterateActiveObjects() do
-			self:AddButtonToMasqueGroup(self.BackpackGroup, button)
+function mod:OnMasqueGroupChange(masqueGroupName, skinId, backdrop, shadow, gloss, colors, disabled)
+	local pool, group
+	if masqueGroupName == "Backpack" then
+		pool = self.BackpackButtonPool
+		group = self.BackpackGroup
+	elseif masqueGroupName == "Bank" then
+		pool = self.BankButtonPool
+		group = self.BankGroup
+	end
+	if pool and group then
+		self:RemoveAllActiveButtonsFromGroup(pool, group, disabled)
+		if not disabled then
+			self:AddAllActiveButtonsToGroup(pool, group)
 		end
 	end
+end
 
-	if self.BankButtonPool then
-		for button in self.BankButtonPool:IterateActiveObjects() do
-			self:AddButtonToMasqueGroup(self.BankGroup, button)
+function mod:AddAllActiveButtonsToGroup(pool, group)
+	for button in pool:IterateActiveObjects() do
+		self:AddButtonToMasqueGroup(group, button)
+	end
+end
+
+function mod:RemoveAllActiveButtonsFromGroup(pool, group, update)
+	if pool.IterateActiveObjects then
+		for button in pool:IterateActiveObjects() do
+			self:RemoveButtonFromMasqueGroup(group, button, update)
 		end
 	end
 end
@@ -94,15 +119,22 @@ function mod:OnReleaseButton(event, button, bag)
 end
 
 function mod:AddButtonToMasqueGroup(group, button)
+	button.EmptySlotTextureFile = nil
 	group:AddButton(button, {
-		Border = button.IconQuestTexture
+		Border = button.IconQuestTexture,
+		Icon = button.IconTexture,
 	})
 	button.masqueGroup = group
+	button:UpdateIcon()
 end
 
-function mod:RemoveButtonFromMasqueGroup(group, button)
+function mod:RemoveButtonFromMasqueGroup(group, button, update)
 	button.masqueGroup = nil
+	button.EmptySlotTextureFile = addon.EMPTY_SLOT_FILE
 	group:RemoveButton(button)
+	if update then
+		button:UpdateIcon()
+	end
 end
 
 function mod:OnUpdateButton(event, button)
