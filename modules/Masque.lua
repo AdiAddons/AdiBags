@@ -89,29 +89,29 @@ function mod:OnMasqueGroupChange(masqueGroupName, skinId, backdrop, shadow, glos
 end
 
 function mod:AddAllActiveButtonsToGroup(pool, group)
+	if not pool.IterateActiveObjects then return end
 	for button in pool:IterateActiveObjects() do
 		self:AddButtonToMasqueGroup(group, button)
 	end
 end
 
 function mod:RemoveAllActiveButtonsFromGroup(pool, group, update)
-	if pool.IterateActiveObjects then
-		for button in pool:IterateActiveObjects() do
-			self:RemoveButtonFromMasqueGroup(group, button, update)
-		end
+	if not pool.IterateActiveObjects then return end
+	for button in pool:IterateActiveObjects() do
+		self:RemoveButtonFromMasqueGroup(group, button, update)
 	end
 end
 
-function mod:OnAcquireButton(event, button, bag)
-	if bag == BANK_CONTAINER or bag == REAGENTBANK_CONTAINER then
+function mod:OnAcquireButton(event, button)
+	if button:IsBank() then
 		self:AddButtonToMasqueGroup(self.BankGroup, button)
 	else
 		self:AddButtonToMasqueGroup(self.BackpackGroup, button)
 	end
 end
 
-function mod:OnReleaseButton(event, button, bag)
-	if bag == BANK_CONTAINER or bag == REAGENTBANK_CONTAINER then
+function mod:OnReleaseButton(event, button)
+	if button:IsBank() then
 		self:RemoveButtonFromMasqueGroup(self.BankGroup, button)
 	else
 		self:RemoveButtonFromMasqueGroup(self.BackpackGroup, button)
@@ -138,12 +138,11 @@ function mod:RemoveButtonFromMasqueGroup(group, button, update)
 end
 
 function mod:OnUpdateButton(event, button)
+	local group = button.masqueGroup
+	if not group then return end
 	-- this effectively reskins the button
-	if button.masqueGroup then
-		local group = button.masqueGroup
-		self:RemoveButtonFromMasqueGroup(group, button)
-		self:AddButtonToMasqueGroup(group, button)
-	end
+	self:RemoveButtonFromMasqueGroup(group, button)
+	self:AddButtonToMasqueGroup(group, button)
 end
 
 function mod:GetOptions()
@@ -153,7 +152,10 @@ function mod:GetOptions()
 			name = L['/masque'],
 			type = 'execute',
 			order = 10,
-			func = function() SlashCmdList["MASQUE"]("") end,
+			func = function()
+				addon:CloseOptions()
+				SlashCmdList["MASQUE"]("")
+			end,
 		}
 	end
 	return options, addon:GetOptionHandler(self, false)

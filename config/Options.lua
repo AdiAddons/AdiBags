@@ -559,7 +559,7 @@ local function GetOptions()
 								desc = L['Check this to have poor quality items dimmed.'],
 								type = 'toggle',
 								width = 'double',
-								order = 225,
+								order = 230,
 							},
 						},
 					},
@@ -685,5 +685,9 @@ function addon:OpenOptions(...)
 	elseif not AceConfigDialog:Close(addonName) then
 		AceConfigDialog:Open(addonName)
 	end
+end
+
+function addon:CloseOptions()
+	AceConfigDialog:Close(addonName)
 end
 

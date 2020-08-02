@@ -90,11 +90,11 @@ function buttonProto:OnAcquire(container, bag, slot)
 	self:SetParent(addon.itemParentFrames[bag])
 	self:SetID(slot)
 	self:FullUpdate()
-	addon:SendMessage("AdiBags_AcquireButton", self, bag)
+	addon:SendMessage("AdiBags_AcquireButton", self)
 end
 
 function buttonProto:OnRelease()
-	addon:SendMessage("AdiBags_ReleaseButton", self, self.bag)
+	addon:SendMessage("AdiBags_ReleaseButton", self)
 	self:SetSection(nil)
 	self.container = nil
 	self.itemId = nil
@@ -142,12 +142,6 @@ function bankButtonProto:GetInventorySlot()
 	return self.inventorySlot
 end
 
-function bankButtonProto:UpdateUpgradeIcon()
-	if self.bag ~= BANK_CONTAINER and self.bag ~= REAGENTBANK_CONTAINER then
-		buttonProto.UpdateUpgradeIcon(self)
-	end
-end
-
 --------------------------------------------------------------------------------
 -- Pools and acquistion
 --------------------------------------------------------------------------------
@@ -156,7 +150,7 @@ local containerButtonPool = addon:CreatePool(buttonClass)
 local bankButtonPool = addon:CreatePool(bankButtonClass)
 
 function addon:AcquireItemButton(container, bag, slot)
-	if bag == BANK_CONTAINER or bag == REAGENTBANK_CONTAINER then
+	if container.isBank or container.isReagentBank then
 		return bankButtonPool:Acquire(container, bag, slot)
 	else
 		return containerButtonPool:Acquire(container, bag, slot)
@@ -366,6 +360,7 @@ function buttonProto:UpdateNew()
 end
 
 function buttonProto:UpdateUpgradeIcon()
+	if not self.UpgradeIcon then return end
 	self.UpgradeIcon:SetShown(IsContainerItemAnUpgrade(self.bag, self.slot) or false)
 end
 
