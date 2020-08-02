@@ -22,11 +22,6 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 local addonName, addon = ...
 local L = addon.L
 
---<GLOBALS
-local _G = _G
-local BANK_CONTAINER = _G.BANK_CONTAINER
---GLOBALS>
-
 local mod = addon:NewModule('Masque', 'ABEvent-1.0')
 mod.uiName = L['Masque']
 mod.uiDesc = L['Support for skinning item buttons with Masque.']
@@ -38,9 +33,9 @@ function mod:OnEnable()
 
 	self.Masque = Masque
 
-	self.BackpackGroup = Masque:Group(addonName, "Backpack")
+	self.BackpackGroup = Masque:Group(addonName, L["Backpack"])
 	self.BackpackGroup:SetCallback(self.OnMasqueGroupChange, self)
-	self.BankGroup = Masque:Group(addonName, "Bank")
+	self.BankGroup = Masque:Group(addonName, L["Bank"])
 	self.BankGroup:SetCallback(self.OnMasqueGroupChange, self)
 
 	self.BackpackButtonPool = addon:GetPool("ItemButton")
@@ -73,10 +68,10 @@ end
 
 function mod:OnMasqueGroupChange(masqueGroupName, skinId, backdrop, shadow, gloss, colors, disabled)
 	local pool, group
-	if masqueGroupName == "Backpack" then
+	if masqueGroupName == L["Backpack"] then
 		pool = self.BackpackButtonPool
 		group = self.BackpackGroup
-	elseif masqueGroupName == "Bank" then
+	elseif masqueGroupName == L["Bank"] then
 		pool = self.BankButtonPool
 		group = self.BankGroup
 	end
