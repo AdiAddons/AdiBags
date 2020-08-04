@@ -232,7 +232,7 @@ function SlashCmdList.ADIBAGSOODEBUG()
 	print('Pools:')
 	for name, pool in pairs(pools) do
 		local heapSize, numActives = 0, 0
-		for k in pairs(pool.activtes) do
+		for k in pairs(pool.actives) do
 			numActives = numActives + 1
 		end
 		for k in pairs(pool.heap) do
