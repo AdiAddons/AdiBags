@@ -103,6 +103,7 @@ addon.SECTION_SPACING = addon.ITEM_SIZE / 3 + addon.ITEM_SPACING
 addon.BAG_INSET = 8
 addon.TOP_PADDING = 32
 addon.HEADER_SIZE = 14 + addon.ITEM_SPACING
+addon.EMPTY_SLOT_FILE = [[Interface\BUTTONS\UI-EmptySlot]]
 
 addon.BACKDROP = {
 	bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
@@ -132,6 +133,7 @@ addon.DEFAULT_SETTINGS = {
 		maxHeight = 0.60,
 		qualityHighlight = true,
 		qualityOpacity = 1.0,
+		junkQualityHighlight = false,
 		dimJunk = true,
 		questIndicator = true,
 		showBagType = true,
