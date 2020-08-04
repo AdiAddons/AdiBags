@@ -30,6 +30,10 @@ local function isBankButton(button)
 	return not not addon.BAG_IDS.BANK[button.bag]
 end
 
+local function isMasqueGroupEnabled(group) -- doesn't seem to be an api for this
+	return not group.db.Disabled
+end
+
 function mod:OnEnable()
 	local Masque = LibStub("Masque", true)
 
@@ -60,7 +64,7 @@ function mod:OnDisable()
 	self:UnregisterMessage("AdiBags_UpdateBorder")
 
 	if self.BackpackGroup and self.BackpackButtonPool then
-		self:RemoveAllActiveButtonsFromGroups(true, true)
+		self:RemoveAllActiveButtonsFromGroups()
 	end
 	if self.BackpackGroup then
 		self.BackpackGroup:Delete()
@@ -89,11 +93,12 @@ function mod:AddAllActiveButtonsToGroups()
 	end
 end
 
-function mod:RemoveAllActiveButtonsFromGroups(update, disable)
+function mod:RemoveAllActiveButtonsFromGroups()
 	for _, pool in ipairs({ [1] = self.BackpackButtonPool, [2] = self.BankButtonPool }) do
 		if pool.IterateActiveObjects then
 			for button in pool:IterateActiveObjects() do
-				self:RemoveButtonFromMasqueGroup(self:ComputeButtonMasqueGroup(button), button, update, disable)
+				local group = self:ComputeButtonMasqueGroup(button)
+				self:RemoveButtonFromMasqueGroup(group, button, not self:IsEnabled() or not isMasqueGroupEnabled(group))
 			end
 		end
 	end
@@ -108,6 +113,7 @@ function mod:OnReleaseButton(event, button)
 end
 
 function mod:AddButtonToMasqueGroup(group, button)
+	if not isMasqueGroupEnabled(group) then return end 
 	button.EmptySlotTextureFile = nil
 	group:AddButton(button, {
 		Border = button.IconQuestTexture,
@@ -116,13 +122,13 @@ function mod:AddButtonToMasqueGroup(group, button)
 	button:UpdateIcon()
 end
 
-function mod:RemoveButtonFromMasqueGroup(group, button, update, disable)
+function mod:RemoveButtonFromMasqueGroup(group, button, update)
 	button.EmptySlotTextureFile = addon.EMPTY_SLOT_FILE
 	group:RemoveButton(button)
 	if update then
-		button:UpdateIcon()
-	end
-	if disable then -- hack: seems like masque does not reset these values when button is removed from group (it's possible there could be other taint)
+		button:UpdateIcon() -- mainly for empty slot update
+
+		-- hack: seems like masque does not reset these values when button is removed from group (it's possible there could be other taint)
 		button.IconQuestTexture:SetWidth(addon.ITEM_SIZE)
 		button.IconQuestTexture:SetHeight(addon.ITEM_SIZE)
 		button:UpdateBorder()
