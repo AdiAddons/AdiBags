@@ -554,11 +554,19 @@ local function GetOptions()
 									return info.handler:IsDisabled(info) or not addon.db.profile.qualityHighlight
 								end,
 							},
+							junkQualityHighlight = {
+								name = L['Highlight junk'],
+								desc = L['Check this to make poor quality items have a red border.'],
+								type = 'toggle',
+								order = 225,
+								disabled = function(info)
+									return info.handler:IsDisabled(info) or not addon.db.profile.qualityHighlight
+								end,
+							},
 							dimJunk = {
 								name = L['Dim junk'],
 								desc = L['Check this to have poor quality items dimmed.'],
 								type = 'toggle',
-								width = 'double',
 								order = 230,
 							},
 						},

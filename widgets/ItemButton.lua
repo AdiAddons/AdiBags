@@ -384,7 +384,9 @@ local function GetBorder(bag, slot, itemId, quality, settings)
 	end
 	local color
 	if quality == LE_ITEM_QUALITY_POOR then
-		color = { r = 1, g = 0, b = 0 }
+		if settings.junkQualityHighlight then
+			color = { r = 1, g = 0, b = 0 }
+		end
 	elseif quality ~= LE_ITEM_QUALITY_COMMON then
 		color = BAG_ITEM_QUALITY_COLORS[quality]
 	end
