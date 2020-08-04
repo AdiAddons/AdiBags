@@ -142,6 +142,12 @@ function bankButtonProto:GetInventorySlot()
 	return self.inventorySlot
 end
 
+function bankButtonProto:UpdateUpgradeIcon()
+	if self.bag ~= BANK_CONTAINER and self.bag ~= REAGENTBANK_CONTAINER then
+		buttonProto.UpdateUpgradeIcon(self)
+	end
+end
+
 --------------------------------------------------------------------------------
 -- Pools and acquistion
 --------------------------------------------------------------------------------
@@ -150,7 +156,7 @@ local containerButtonPool = addon:CreatePool(buttonClass)
 local bankButtonPool = addon:CreatePool(bankButtonClass)
 
 function addon:AcquireItemButton(container, bag, slot)
-	if container.isBank or container.isReagentBank then
+	if bag == BANK_CONTAINER or bag == REAGENTBANK_CONTAINER then
 		return bankButtonPool:Acquire(container, bag, slot)
 	else
 		return containerButtonPool:Acquire(container, bag, slot)
@@ -360,7 +366,6 @@ function buttonProto:UpdateNew()
 end
 
 function buttonProto:UpdateUpgradeIcon()
-	if not self.UpgradeIcon then return end
 	self.UpgradeIcon:SetShown(IsContainerItemAnUpgrade(self.bag, self.slot) or false)
 end
 

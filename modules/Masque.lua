@@ -26,6 +26,10 @@ local mod = addon:NewModule('Masque', 'ABEvent-1.0')
 mod.uiName = L['Masque']
 mod.uiDesc = L['Support for skinning item buttons with Masque.']
 
+local function isBankButton(button)
+	return not not addon.BAG_IDS.BANK[button.bag]
+end
+
 function mod:OnEnable()
 	local Masque = LibStub("Masque", true)
 
@@ -46,8 +50,7 @@ function mod:OnEnable()
 	self:RegisterMessage("AdiBags_UpdateButton", "OnUpdateButton")
 	self:RegisterMessage("AdiBags_UpdateBorder", "OnUpdateButton")
 
-	self:AddAllActiveButtonsToGroup(self.BackpackButtonPool, self.BackpackGroup)
-	self:AddAllActiveButtonsToGroup(self.BankButtonPool, self.BankGroup)
+	self:AddAllActiveButtonsToGroups()
 end
 
 function mod:OnDisable()
@@ -57,60 +60,51 @@ function mod:OnDisable()
 	self:UnregisterMessage("AdiBags_UpdateBorder")
 
 	if self.BackpackGroup and self.BackpackButtonPool then
-		self:RemoveAllActiveButtonsFromGroup(self.BackpackButtonPool, self.BackpackGroup, true)
+		self:RemoveAllActiveButtonsFromGroups(true)
+	end
+	if self.BackpackGroup then
 		self.BackpackGroup:Delete()
 	end
-	if self.BankGroup and self.BankButtonPool then
-		self.RemoveAllActiveButtonsFromGroup(self.BankButtonPool, self.BankGroup, true)
+	if self.BankGroup then
 		self.BankGroup:Delete()
 	end
 end
 
+function mod:ComputeButtonMasqueGroup(button)
+	return isBankButton(button) and self.BankGroup or self.BackpackGroup
+end
+
 function mod:OnMasqueGroupChange(masqueGroupName, skinId, backdrop, shadow, gloss, colors, disabled)
-	local pool, group
-	if masqueGroupName == L["Backpack"] then
-		pool = self.BackpackButtonPool
-		group = self.BackpackGroup
-	elseif masqueGroupName == L["Bank"] then
-		pool = self.BankButtonPool
-		group = self.BankGroup
-	end
-	if pool and group then
-		self:RemoveAllActiveButtonsFromGroup(pool, group, disabled)
-		if not disabled then
-			self:AddAllActiveButtonsToGroup(pool, group)
+	self:RemoveAllActiveButtonsFromGroups()
+	self:AddAllActiveButtonsToGroups()
+end
+
+function mod:AddAllActiveButtonsToGroups()
+	for _, pool in ipairs({ [1] = self.BackpackButtonPool, [2] = self.BankButtonPool }) do
+		if pool.IterateActiveObjects then
+			for button in pool:IterateActiveObjects() do
+				self:AddButtonToMasqueGroup(self:ComputeButtonMasqueGroup(button), button)
+			end
 		end
 	end
 end
 
-function mod:AddAllActiveButtonsToGroup(pool, group)
-	if not pool.IterateActiveObjects then return end
-	for button in pool:IterateActiveObjects() do
-		self:AddButtonToMasqueGroup(group, button)
-	end
-end
-
-function mod:RemoveAllActiveButtonsFromGroup(pool, group, update)
-	if not pool.IterateActiveObjects then return end
-	for button in pool:IterateActiveObjects() do
-		self:RemoveButtonFromMasqueGroup(group, button, update)
+function mod:RemoveAllActiveButtonsFromGroups(update)
+	for _, pool in ipairs({ [1] = self.BackpackButtonPool, [2] = self.BankButtonPool }) do
+		if pool.IterateActiveObjects then
+			for button in pool:IterateActiveObjects() do
+				self:RemoveButtonFromMasqueGroup(self:ComputeButtonMasqueGroup(button), button, update)
+			end
+		end
 	end
 end
 
 function mod:OnAcquireButton(event, button)
-	if button:IsBank() then
-		self:AddButtonToMasqueGroup(self.BankGroup, button)
-	else
-		self:AddButtonToMasqueGroup(self.BackpackGroup, button)
-	end
+	self:AddButtonToMasqueGroup(self:ComputeButtonMasqueGroup(button), button)
 end
 
 function mod:OnReleaseButton(event, button)
-	if button:IsBank() then
-		self:RemoveButtonFromMasqueGroup(self.BankGroup, button)
-	else
-		self:RemoveButtonFromMasqueGroup(self.BackpackGroup, button)
-	end
+	self:RemoveButtonFromMasqueGroup(self:ComputeButtonMasqueGroup(button), button)
 end
 
 function mod:AddButtonToMasqueGroup(group, button)
@@ -119,12 +113,10 @@ function mod:AddButtonToMasqueGroup(group, button)
 		Border = button.IconQuestTexture,
 		Icon = button.IconTexture,
 	})
-	button.masqueGroup = group
 	button:UpdateIcon()
 end
 
 function mod:RemoveButtonFromMasqueGroup(group, button, update)
-	button.masqueGroup = nil
 	button.EmptySlotTextureFile = addon.EMPTY_SLOT_FILE
 	group:RemoveButton(button)
 	if update then
@@ -133,9 +125,7 @@ function mod:RemoveButtonFromMasqueGroup(group, button, update)
 end
 
 function mod:OnUpdateButton(event, button)
-	local group = button.masqueGroup
-	if not group then return end
-	-- this effectively reskins the button
+	local group = self:ComputeButtonMasqueGroup(button)
 	self:RemoveButtonFromMasqueGroup(group, button)
 	self:AddButtonToMasqueGroup(group, button)
 end
