@@ -60,7 +60,7 @@ function mod:OnDisable()
 	self:UnregisterMessage("AdiBags_UpdateBorder")
 
 	if self.BackpackGroup and self.BackpackButtonPool then
-		self:RemoveAllActiveButtonsFromGroups(true)
+		self:RemoveAllActiveButtonsFromGroups(true, true)
 	end
 	if self.BackpackGroup then
 		self.BackpackGroup:Delete()
@@ -89,11 +89,11 @@ function mod:AddAllActiveButtonsToGroups()
 	end
 end
 
-function mod:RemoveAllActiveButtonsFromGroups(update)
+function mod:RemoveAllActiveButtonsFromGroups(update, disable)
 	for _, pool in ipairs({ [1] = self.BackpackButtonPool, [2] = self.BankButtonPool }) do
 		if pool.IterateActiveObjects then
 			for button in pool:IterateActiveObjects() do
-				self:RemoveButtonFromMasqueGroup(self:ComputeButtonMasqueGroup(button), button, update)
+				self:RemoveButtonFromMasqueGroup(self:ComputeButtonMasqueGroup(button), button, update, disable)
 			end
 		end
 	end
@@ -116,11 +116,16 @@ function mod:AddButtonToMasqueGroup(group, button)
 	button:UpdateIcon()
 end
 
-function mod:RemoveButtonFromMasqueGroup(group, button, update)
+function mod:RemoveButtonFromMasqueGroup(group, button, update, disable)
 	button.EmptySlotTextureFile = addon.EMPTY_SLOT_FILE
 	group:RemoveButton(button)
 	if update then
 		button:UpdateIcon()
+	end
+	if disable then -- hack: seems like masque does not reset these values when button is removed from group (it's possible there could be other taint)
+		button.IconQuestTexture:SetWidth(addon.ITEM_SIZE)
+		button.IconQuestTexture:SetHeight(addon.ITEM_SIZE)
+		button:UpdateBorder()
 	end
 end
 
