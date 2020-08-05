@@ -1,0 +1,17 @@
+The original BugGrabber code is copyrighted 2005 by Rowne and Ramble.
+Contributions by Fritti are copyrighted 2006 by Fritti.
+Contributions by Rabbit are copyrighted 2009 by Rabbit.
+
+The current maintainer is Rabbit.
+
+The BugGrabber Team consists of the current maintainer and anyone else who has
+done commits containing source code modifications (not translations) during the
+course of the last year.
+
+This addon is distributed under the terms of the GNU General Public License
+version 2 or later.
+
+http://www.gnu.org/copyleft/gpl.html
+
+Any and all questions regarding our stance and licensing should be
+directed to the #wowace IRC channel on irc.freenode.net.
