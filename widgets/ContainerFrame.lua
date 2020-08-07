@@ -124,14 +124,16 @@ function containerProto:OnCreate(name, isBank, bagObject)
 		self.content[bagId] = { size = 0 }
 		tinsert(bagSlots, bagId)
 		if not addon.itemParentFrames[bagId] then
-			local f = CreateFrame("Frame", addonName..'ItemContainer'..bagId, self)
+			-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+			local f = CreateFrame("Frame", addonName..'ItemContainer'..bagId, self, 'BackDropTemplate')
 			f.isBank = isBank
 			f:SetID(bagId)
 			addon.itemParentFrames[bagId] = f
 		end
 	end
 
-	local button = CreateFrame("Button", nil, self)
+	-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+	local button = CreateFrame("Button", nil, self, 'BackDropTemplate')
 	button:SetAllPoints(self)
 	button:RegisterForClicks("AnyUp")
 	button:SetScript('OnClick', function(_, ...) return self:OnClick(...) end)
@@ -173,7 +175,8 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	addon.SetupTooltip(closeButton, L["Close"])
 	closeButton:SetFrameLevel(frameLevel)
 
-	local bagSlotButton = CreateFrame("CheckButton", nil, self)
+	-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+	local bagSlotButton = CreateFrame("CheckButton", nil, self, 'BackDropTemplate')
 	bagSlotButton:SetNormalTexture([[Interface\Buttons\Button-Backpack-Up]])
 	bagSlotButton:SetCheckedTexture([[Interface\Buttons\CheckButtonHilight]])
 	bagSlotButton:GetCheckedTexture():SetBlendMode("ADD")
@@ -230,7 +233,8 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	toSortSection.Header:RegisterForClicks("AnyUp")
 	toSortSection.Header:SetScript("OnClick", function() self:FullUpdate() end)
 
-	local content = CreateFrame("Frame", nil, self)
+	-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+	local content = CreateFrame("Frame", nil, self, 'BackDropTemplate')
 	content:SetPoint("TOPLEFT", toSortSection, "BOTTOMLEFT", 0, -ITEM_SPACING)
 	self.Content = content
 	self:AddWidget(content)

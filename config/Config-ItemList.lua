@@ -135,7 +135,8 @@ do
 
 	local function Constructor()
 		local name = "AceGUI30ItemListElement" .. AceGUI:GetNextWidgetNum(Type)
-		local frame = CreateFrame("Button", name, UIParent)
+		-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+		local frame = CreateFrame("Button", name, UIParent, 'BackDropTemplate')
 		frame:Hide()
 
 		frame:EnableMouse(true)

@@ -41,7 +41,8 @@ local tostring = _G.tostring
 --------------------------------------------------------------------------------
 
 -- Required as some "OnLoad" function refers to the frame parent (since 6.0)
-local defaultParent = CreateFrame("Frame")
+-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+local defaultParent = CreateFrame("Frame", nil, nil, 'BackDropTemplate')
 
 local classes = {}
 
@@ -104,10 +105,12 @@ end
 local function NewRootClass(name, frameType, frameTemplate, ...)
 	local class, prototype, parent
 	if frameTemplate and LibStub(frameTemplate, true) then
-		class, prototype, parent = NewClass(name, CreateFrame(frameType), frameTemplate, ...)
+		-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+		class, prototype, parent = NewClass(name, CreateFrame(frameType, nil, nil, 'BackDropTemplate'), frameTemplate, ...)
 		frameTemplate = nil
 	else
-		class, prototype, parent = NewClass(name, CreateFrame(frameType), ...)
+		-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+		class, prototype, parent = NewClass(name, CreateFrame(frameType, nil, nil, 'BackDropTemplate'), ...)
 	end
 	class.frameType = frameType
 	class.frameTemplate = frameTemplate

@@ -99,7 +99,8 @@ function mod:OnBagFrameCreated(bag)
 	if bag.bagName ~= "Backpack" then return end
 	local frame = bag:GetFrame()
 
-	local widget =CreateFrame("Button", addonName.."CurrencyFrame", frame)
+	-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+	local widget =CreateFrame("Button", addonName.."CurrencyFrame", frame, 'BackDropTemplate')
 	self.widget = widget
 	widget:SetHeight(16)
 	widget:RegisterForClicks("RightButtonUp")

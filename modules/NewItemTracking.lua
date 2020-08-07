@@ -242,7 +242,8 @@ local function Glow_Update(glow)
 end
 
 local function CreateGlow(button)
-	local glow = CreateFrame("FRAME", nil, button)
+	-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+	local glow = CreateFrame("FRAME", nil, button, 'BackDropTemplate')
 	glow:SetFrameLevel(button:GetFrameLevel()+15)
 	glow:SetPoint("CENTER")
 	glow:SetWidth(addon.ITEM_SIZE)

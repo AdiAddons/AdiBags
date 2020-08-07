@@ -126,7 +126,8 @@ end
 
 function bagProto:GetFrame()
 	if not self.frame then
-		self.frame = self:CreateFrame()
+		-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+		self.frame = self:CreateFrame(nil, nil, nil, 'BackDropTemplate')
 		self.frame.CloseButton:SetScript('OnClick', function() self:Close() end)
 		addon:SendMessage('AdiBags_BagFrameCreated', self)
 	end
@@ -229,7 +230,8 @@ do
 	-- L["Bank"]
 	local bank = addon:NewBag("Bank", 20, true, 'AceHook-3.0')
 
-	local UIHider = CreateFrame("Frame")
+	-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+	local UIHider = CreateFrame("Frame",nil,nil,'BackDropTemplate')
 	UIHider:Hide()
 
 	local function NOOP() end

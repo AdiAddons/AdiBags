@@ -58,7 +58,8 @@ local _G = _G
 -- GLOBALS: LibStub
 
 AceDB.db_registry = AceDB.db_registry or {}
-AceDB.frame = AceDB.frame or CreateFrame("Frame")
+-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+AceDB.frame = AceDB.frame or CreateFrame("Frame", nil, nil, 'BackdropTemplate')
 
 local CallbackHandler
 local CallbackDummy = { Fire = function() end }

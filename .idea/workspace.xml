@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="97ef1e59-6c4a-495b-a465-ddaadd70dcb8" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1fgpXJmbjZV76QTcorid42Yjqx2" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="last_opened_file_path" value="G:/Users/Maxime/Downloads/jeu/wow/github/IntelliJ-IDEA-Lua-IDE-WoW-API" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.16894531" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="WindowStateProjectService">
+    <state x="-1202" y="395" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1596742238940">
+      <screen x="-1920" y="0" width="1920" height="1050" />
+    </state>
+    <state x="-1202" y="395" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/-1920.0.1920.1050/0.0.1920.1050/1920.0.1920.1050@-1920.0.1920.1050" timestamp="1596742238940" />
+    <state x="740" y="279" key="FileChooserDialogImpl" timestamp="1596649842587">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="740" y="279" key="FileChooserDialogImpl/-1920.0.1920.1050/0.0.1920.1050/1920.0.1920.1050@0.0.1920.1050" timestamp="1596649842587" />
+    <state x="440" y="99" key="SettingsEditor" timestamp="1596649876835">
+      <screen x="0" y="0" width="1920" height="1050" />
+    </state>
+    <state x="440" y="99" key="SettingsEditor/-1920.0.1920.1050/0.0.1920.1050/1920.0.1920.1050@0.0.1920.1050" timestamp="1596649876835" />
+    <state x="-1920" y="0" width="1572" height="724" key="dock-window-1" timestamp="1596742574602">
+      <screen x="-1920" y="0" width="1920" height="1050" />
+    </state>
+    <state x="-1920" y="0" width="1572" height="724" key="dock-window-1/-1920.0.1920.1050/0.0.1920.1050/1920.0.1920.1050@-1920.0.1920.1050" timestamp="1596742574602" />
+    <state x="-1038" y="140" width="787" height="801" key="find.popup" timestamp="1596812551950">
+      <screen x="-1920" y="0" width="1920" height="1050" />
+    </state>
+    <state x="-1038" y="140" width="787" height="801" key="find.popup/-1920.0.1920.1050/0.0.1920.1050/1920.0.1920.1050@-1920.0.1920.1050" timestamp="1596812551950" />
+  </component>
+</project>

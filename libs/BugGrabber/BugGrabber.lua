@@ -515,7 +515,8 @@ end
 
 local events = {}
 do
-	local frame = CreateFrame("Frame")
+	-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+	local frame = CreateFrame("Frame", nil, nil, 'BackdropTemplate')
 	frame:SetScript("OnEvent", function(_, event, ...) events[event](events, event, ...) end)
 	frame:RegisterEvent("ADDON_LOADED")
 	frame:RegisterEvent("PLAYER_LOGIN")

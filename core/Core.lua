@@ -298,7 +298,8 @@ end
 
 do
 	-- Create the Blizzard addon option frame
-	local panel = CreateFrame("Frame", addonName.."BlizzOptions")
+	-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+	local panel = CreateFrame("Frame", addonName.."BlizzOptions", nil, 'BackDropTemplate')
 	panel.name = addonName
 	InterfaceOptions_AddCategory(panel)
 

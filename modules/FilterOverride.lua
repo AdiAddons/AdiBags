@@ -503,7 +503,8 @@ function mod:OnReceiveDragSectionHeader(_, header)
 	if contentType == "item" then
 		if IsAltKeyDown() then
 			if not dropdownFrame then
-				dropdownFrame = CreateFrame("Frame", addonName.."FilterOverrideDropDownMenu")
+				-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+				dropdownFrame = CreateFrame("Frame", addonName.."FilterOverrideDropDownMenu", nil, 'BackDropTemplate')
 				dropdownFrame.displayMode = "MENU"
 				dropdownFrame.initialize = FilterDropDownMenu_Initialize
 				dropdownFrame.point = "BOTTOMRIGHT"

@@ -39,7 +39,8 @@ local CBH = LibStub('CallbackHandler-1.0')
 local eventLib = LibStub:NewLibrary("ABEvent-1.0", 1)
 
 local events = CBH:New(eventLib, 'RegisterEvent', 'UnregisterEvent', 'UnregisterAllEvents')
-local eventFrame = CreateFrame("Frame")
+-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+local eventFrame = CreateFrame("Frame", nil, nil, 'BackDropTemplate')
 eventFrame:SetScript('OnEvent', function(_, ...) return events:Fire(...) end)
 function events:OnUsed(_, event) return eventFrame:RegisterEvent(event) end
 function events:OnUnused(_, event) return eventFrame:UnregisterEvent(event) end

@@ -83,7 +83,8 @@ local BAG_IDS = addon.BAG_IDS
 
 local EmptyBag
 do
-	local swapFrame = CreateFrame("Frame")
+	-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+	local swapFrame = CreateFrame("Frame", nil, nil, 'BackDropTemplate')
 	local otherBags = {}
 	local locked = {}
 	local timeout = 0
@@ -435,7 +436,8 @@ end
 --------------------------------------------------------------------------------
 
 function addon:CreateBagSlotPanel(container, name, bags, isBank)
-	local self = CreateFrame("Frame", container:GetName().."Bags", container)
+	-- Added 'BackDropTemplate' in every create frame due to api change 9.0
+	local self = CreateFrame("Frame", container:GetName().."Bags", container, 'BackDropTemplate')
 	self:SetPoint("BOTTOMLEFT", container, "TOPLEFT", 0, 4)
 
 	self.openSound = isBank and SOUNDKIT.IG_MAINMENU_OPEN or SOUNDKIT.IG_BACKPACK_OPEN
