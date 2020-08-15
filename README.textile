@@ -83,8 +83,6 @@ According to my experience with Baggins, comprehensive editor is awful to write 
 
 h2. Feedback
 
-*Important notice:* since v1.6.12-beta-1, AdiBags embeds "BugGrabber":http://www.curse.com/addons/wow/bug-grabber, an error catching addon. Please check the error is really about AdiBags before reporting them here. I suggest installing "BugSack":http://www.curse.com/addons/wow/bugsack to catch the errors.
-
 Some words about submitting bug reports:
 * I do not care about "it doesn't work, fix it!" messages. I need to know how it failed and a way to reproduce the bug so I can test it and make sure I fix it.
 * Bug reports are not in the "fire and forget" kind of things. I may have to ask you some details.
