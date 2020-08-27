@@ -40,7 +40,7 @@
 -- end
 -- @class file
 -- @name AceDB-3.0.lua
--- @release $Id$
+-- @release $Id: AceDB-3.0.lua 1217 2019-07-11 03:06:18Z funkydude $
 local ACEDB_MAJOR, ACEDB_MINOR = "AceDB-3.0", 27
 local AceDB = LibStub:NewLibrary(ACEDB_MAJOR, ACEDB_MINOR)
 
@@ -58,8 +58,7 @@ local _G = _G
 -- GLOBALS: LibStub
 
 AceDB.db_registry = AceDB.db_registry or {}
--- Added 'BackDropTemplate' in every create frame due to api change 9.0
-AceDB.frame = AceDB.frame or CreateFrame("Frame", nil, nil, 'BackdropTemplate')
+AceDB.frame = AceDB.frame or CreateFrame("Frame")
 
 local CallbackHandler
 local CallbackDummy = { Fire = function() end }

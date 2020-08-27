@@ -28,15 +28,14 @@
 -- end
 -- @class file
 -- @name AceAddon-3.0.lua
--- @release $Id$
+-- @release $Id: AceAddon-3.0.lua 1202 2019-05-15 23:11:22Z nevcairiel $
 
 local MAJOR, MINOR = "AceAddon-3.0", 12
 local AceAddon, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not AceAddon then return end -- No Upgrade needed.
 
--- Added 'BackDropTemplate' in every create frame due to api change 9.0
-AceAddon.frame = AceAddon.frame or CreateFrame("Frame", "AceAddon30Frame",nil,'BackdropTemplate') -- Our very own frame
+AceAddon.frame = AceAddon.frame or CreateFrame("Frame", "AceAddon30Frame") -- Our very own frame
 AceAddon.addons = AceAddon.addons or {} -- addons in general
 AceAddon.statuses = AceAddon.statuses or {} -- statuses of addon.
 AceAddon.initializequeue = AceAddon.initializequeue or {} -- addons that are new and not initialized

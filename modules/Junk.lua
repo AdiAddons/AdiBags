@@ -29,8 +29,8 @@ local GameTooltip = _G.GameTooltip
 local GetItemInfo = _G.GetItemInfo
 local hooksecurefunc = _G.hooksecurefunc
 local IsAddOnLoaded = _G.IsAddOnLoaded
-local ITEM_QUALITY_POOR = _G.LE_ITEM_QUALITY_POOR
-local ITEM_QUALITY_UNCOMMON = _G.LE_ITEM_QUALITY_UNCOMMON
+local ITEM_QUALITY_POOR = Enum.ItemQuality.Poor
+local ITEM_QUALITY_UNCOMMON = Enum.ItemQuality.Uncommon
 local print = _G.print
 local select = _G.select
 local setmetatable = _G.setmetatable
@@ -102,7 +102,7 @@ end
 function mod:BaseCheckItem(itemId, force)
 	local _, _, quality, _, _, class, subclass = GetItemInfo(itemId)
 	if ((force or prefs.sources.lowQuality) and quality == ITEM_QUALITY_POOR)
-		or ((force or prefs.sources.junkCategory) and quality and quality < ITEM_QUALITY_UNCOMMON and (class == JUNK or subclass == JUNK)) then
+			or ((force or prefs.sources.junkCategory) and quality < ITEM_QUALITY_UNCOMMON and (class == JUNK or subclass == JUNK)) then
 		return true
 	end
 	return false
