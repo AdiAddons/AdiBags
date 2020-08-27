@@ -158,8 +158,14 @@ function mod:Update()
 	if not self.widget or updating then return end
 	updating = true
 	local shown, hideZeroes = self.db.profile.shown, self.db.profile.hideZeroes
+	-- Dirty avoid dooblons when showing isShowInBackpack money
 	for i, CurrencyInfo in IterateCurrencies() do
-		 if shown[CurrencyInfo.name] and (CurrencyInfo.quantity > 0 or not hideZeroes) then
+		if CurrencyInfo.isShowInBackpack and (CurrencyInfo.quantity > 0 or not hideZeroes) then
+			tinsert(values, BreakUpLargeNumbers(CurrencyInfo.quantity))
+			tinsert(values, format(ICON_STRING, CurrencyInfo.iconFileID))
+			CurrencyInfo.CurrencyShown = true
+		end
+		if shown[CurrencyInfo.name] and (CurrencyInfo.quantity > 0 or not hideZeroes) and not CurrencyInfo.CurrencyShown then
 			tinsert(values, BreakUpLargeNumbers(CurrencyInfo.quantity))
 			tinsert(values, format(ICON_STRING, CurrencyInfo.iconFileID))
 		end
@@ -181,6 +187,7 @@ function mod:Update()
 	updating = false
 end
 
+-- TODO: Use the flag isShowInBackpack from C_CurrencyInfo.GetCurrencyInfo to configure curency
 function mod:GetOptions()
 	local values = {}
 	return {
