@@ -116,11 +116,11 @@ function mod:OnBagFrameCreated(bag)
 	frame:AddBottomWidget(widget, "LEFT", 50)
 end
 
-
 local IterateCurrencies
 do
 	local function iterator(collapse, index)
 		local CurrencyListSize = GetCurrencyListSize()
+		if CurrencyListSize == 0 then return end
 		CurrencyListSize = CurrencyListSize - 2
 		if not index then return end
 		repeat

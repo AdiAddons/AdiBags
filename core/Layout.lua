@@ -34,15 +34,7 @@ function addon:CreateBagAnchor()
 	local anchor = self:CreateAnchorWidget(UIParent, "anchor", L["AdiBags Anchor"])
 	anchor:SetSize(80, 80)
 	anchor:SetFrameStrata("TOOLTIP")
-	anchor:SetBackdrop({
-		bgFile = "Interface/Tooltifps/UI-Tooltip-Background",
-		edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-		tile = true,
-		tileEdge = true,
-		tileSize = 16,
-		edgeSize = 16,
-		insets = { left = 4, right = 4, top = 4, bottom = 4 },
-	});
+	anchor:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]] })
 	anchor:SetBackdropColor(0, 1, 0, 1)
 	anchor:SetBackdropBorderColor(0, 0, 0, 0)
 	anchor:EnableMouse(true)
