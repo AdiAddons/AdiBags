@@ -34,6 +34,8 @@ local min = _G.min
 local pairs = _G.pairs
 local select = _G.select
 local unpack = _G.unpack
+local LE_ITEM_QUALITY_POOR = Enum.ItemQuality.Poor
+local LE_ITEM_QUALITY_HEIRLOOM = Enum.ItemQuality.Heirloom
 --GLOBALS>
 
 local mod = addon:NewModule('ItemLevel', 'ABEvent-1.0')

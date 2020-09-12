@@ -38,6 +38,7 @@ local tonumber = _G.tonumber
 local type = _G.type
 local unpack = _G.unpack
 local wipe = _G.wipe
+local LE_ITEM_QUALITY_POOR = Enum.ItemQuality.Poor
 --GLOBALS>
 
 local mod = addon:RegisterFilter('NewItem', 80, 'ABEvent-1.0')
