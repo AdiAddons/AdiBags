@@ -27,10 +27,10 @@ local _G = _G
 local BreakUpLargeNumbers = _G.BreakUpLargeNumbers
 local CreateFont = _G.CreateFont
 local CreateFrame = _G.CreateFrame
-local ExpandCurrencyList = _G.ExpandCurrencyList
+local ExpandCurrencyList = _G.C_CurrencyInfo.ExpandCurrencyList
 local format = _G.format
-local GetCurrencyListInfo = _G.GetCurrencyListInfo
-local GetCurrencyListSize = _G.GetCurrencyListSize
+local GetCurrencyListInfo = _G.C_CurrencyInfo.GetCurrencyListInfo
+local GetCurrencyListSize = _G.C_CurrencyInfo.GetCurrencyListSize
 local hooksecurefunc = _G.hooksecurefunc
 local ipairs = _G.ipairs
 local IsAddOnLoaded = _G.IsAddOnLoaded
@@ -121,15 +121,17 @@ do
 		if not index then return end
 		repeat
 			index = index + 1
-			local name, isHeader, isExpanded, isUnused, isWatched, count, icon = GetCurrencyListInfo(index)
-			if name then
-				if isHeader then
-					if not isExpanded then
-						tinsert(collapse, 1, index)
-						ExpandCurrencyList(index, 1)
+			local currencyInfo = GetCurrencyListInfo(index)
+			if currencyInfo then
+				if currencyInfo.name then
+					if currencyInfo.isHeader then
+						if not currencyInfo.isHeaderExpanded then
+							tinsert(collapse, 1, index)
+							ExpandCurrencyList(index, 1)
+						end
+					else
+						return index, currencyInfo.name, currencyInfo.isHeader, currencyInfo.isHeaderExpanded, currencyInfo.isTypeUnused, currencyInfo.isShowInBackpack, currencyInfo.quantity, currencyInfo.iconFileID
 					end
-				else
-					return index, name, isHeader, isExpanded, isUnused, isWatched, count, icon
 				end
 			end
 		until index > GetCurrencyListSize()

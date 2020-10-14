@@ -117,9 +117,9 @@ function mod:UpdateButton(event, button)
 		local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
 		local level = item and item:GetCurrentItemLevel() or 0
 		if level >= settings.minLevel
-			and (quality ~= LE_ITEM_QUALITY_POOR or not settings.ignoreJunk)
+			and (quality ~= Enum.ItemQuality.Poor or not settings.ignoreJunk)
 			and (loc ~= "" or not settings.equippableOnly)
-			and (quality ~= LE_ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
+			and (quality ~= Enum.ItemQuality.Heirloom or not settings.ignoreHeirloom)
 		then
 			if SyLevel then
 				if settings.useSyLevel then

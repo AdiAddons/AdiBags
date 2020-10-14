@@ -135,7 +135,7 @@ function mod:IsNew(bag, slot, link)
 	elseif not addon.BAG_IDS.BANK[bag]
 		and C_NewItems.IsNewItem(bag, slot)
 		and not IsBattlePayItem(bag, slot)
-		and (not self.db.profile.ignoreJunk or select(4, GetContainerItemInfo(bag, slot)) ~= LE_ITEM_QUALITY_POOR)
+		and (not self.db.profile.ignoreJunk or select(4, GetContainerItemInfo(bag, slot)) ~= Enum.ItemQuality.Poor)
 	then
 		newItems[link] = true
 		return true
