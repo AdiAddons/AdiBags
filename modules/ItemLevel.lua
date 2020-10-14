@@ -63,6 +63,7 @@ function mod:OnInitialize()
 			minLevel = 1,
 			ignoreJunk = true,
 			ignoreHeirloom = true,
+			showBattlePetLevels = true,
 		},
 	})
 	if self.db.profile.colored == true then
@@ -113,6 +114,22 @@ function mod:UpdateButton(event, button)
 	local text = texts[button]
 
 	if link then
+		local objectTable = { strsplit(":", string.match(string.trim(link), "|H(.-)|h")) }
+		--https://wow.gamepedia.com/API_GetDetailedItemLevelInfo ?
+		if objectTable[1] == "battlepet" then
+			if settings.showBattlePetLevels then
+				local battlepetlevel = objectTable[3]
+				if not text then
+					text = CreateText(button)
+				end
+				text:SetText(battlepetlevel)
+				--text:SetTextColor(GetItemQualityColor(objectTable[4]))
+				return text:Show()
+			elseif text then
+				return text:Hide()
+			end
+		end
+
 		local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
 		local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
 		local level = item and item:GetCurrentItemLevel() or 0
@@ -196,6 +213,12 @@ function mod:GetOptions()
 			desc = L['Do not show level of heirloom items.'],
 			type = 'toggle',
 			order = 50,
+		},
+		showBattlePetLevels = {
+			name = L['Show battle pet levels'],
+			desc = L['Shows the levels of caged battle pets.'],
+			type = 'toggle',
+			order = 60,
 		},
 	}, addon:GetOptionHandler(self)
 end
