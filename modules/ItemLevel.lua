@@ -315,7 +315,9 @@ do
 		end
 	end
 
+-- TODO: Change the item-level system for shadowlands
 	local maxLevelRanges = {
+--[[
 		[ 60] = {  58,  65 }, -- Classic
 		[ 70] = {  80,  94 }, -- The Burning Crusade
 		[ 80] = { 100, 102 }, -- Wrath of the Lich King
@@ -324,6 +326,13 @@ do
 		[100] = { 136, 143 }, -- Warlords of Draenor
 		[110] = { 164, 250 }, -- Legion
 		[120] = { 400, 485 }, -- Battle for Azeroth
+]]--
+		[10] = { 1, 20 }, -- Leveling
+		[20] = { 25, 40 }, -- Leveling
+		[30] = { 45, 60 }, -- Leveling
+		[40] = { 65, 80 }, -- Leveling
+		[50] = { 85, 168 }, -- Leveling
+		[60] = { 170, 300 }, -- Battle for Azeroth
 	}
 
 	local maxLevelColors = {}
