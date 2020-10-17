@@ -226,6 +226,7 @@ function mod:GetOptions()
 		},
 		include = {
 			type = 'multiselect',
+			width = 'full',
 			dialogControl = 'ItemList',
 			name = L['Include list'],
 			desc = L['Items in this list are always considered as junk. Click an item to remove it from the list.'],
@@ -236,6 +237,7 @@ function mod:GetOptions()
 		},
 		exclude = {
 			type = 'multiselect',
+			width = 'full',
 			dialogControl = 'ItemList',
 			name = L['Exclude list'],
 			desc = L['Items in this list are never considered as junk. Click an item to remove it from the list.'],
