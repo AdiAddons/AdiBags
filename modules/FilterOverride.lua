@@ -258,6 +258,7 @@ function mod:GetOptions()
 				name = L['Items'],
 				desc = L['Click on a item to remove it from the list. You can drop an item on the empty slot to add it to the list.'],
 				type = 'multiselect',
+				width = 'full',
 				dialogControl = 'ItemList',
 				order = 40,
 				get = function() return true end,
