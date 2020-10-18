@@ -116,8 +116,17 @@ function mod:UpdateButton(event, button)
 	local text = texts[button]
 
 	if link then
-		local objectTable = { strsplit(":", string.match(string.trim(link), "|H(.-)|h")) }
-		--https://wow.gamepedia.com/API_GetDetailedItemLevelInfo ?
+		local objectTable = { strsplit(":", string.match(link, "|H(.-)|h")) }
+		-- example objectTable for a battle pet:
+		-- [1]="battlepet", -- item type
+		-- [2]="242",
+		-- [3]="25",        -- pet level
+		-- [4]="3",
+		-- [5]="1319",
+		-- [6]="305",
+		-- [7]="289",
+		-- [8]="0000000000000000",
+		-- [9]="30409"
 		if objectTable[1] == "battlepet" then
 			if settings.showBattlePetLevels then
 				local battlepetlevel = objectTable[3]
@@ -125,7 +134,6 @@ function mod:UpdateButton(event, button)
 					text = CreateText(button)
 				end
 				text:SetText(battlepetlevel)
-				--text:SetTextColor(GetItemQualityColor(objectTable[4]))
 				return text:Show()
 			elseif text then
 				return text:Hide()
