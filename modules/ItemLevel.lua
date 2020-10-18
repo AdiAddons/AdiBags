@@ -26,6 +26,8 @@ local L = addon.L
 local _G = _G
 local abs = _G.math.abs
 local GetItemInfo = _G.GetItemInfo
+local ITEM_QUALITY_HEIRLOOM = _G.Enum.ItemQuality.Heirloom
+local ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
 local QuestDifficultyColors = _G.QuestDifficultyColors
 local UnitLevel = _G.UnitLevel
 local modf = _G.math.modf
@@ -134,9 +136,9 @@ function mod:UpdateButton(event, button)
 		local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
 		local level = item and item:GetCurrentItemLevel() or 0
 		if level >= settings.minLevel
-			and (quality ~= LE_ITEM_QUALITY_POOR or not settings.ignoreJunk)
+			and (quality ~= ITEM_QUALITY_POOR or not settings.ignoreJunk)
 			and (loc ~= "" or not settings.equippableOnly)
-			and (quality ~= LE_ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
+			and (quality ~= ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
 		then
 			if SyLevel then
 				if settings.useSyLevel then
@@ -227,15 +229,15 @@ end
 do
 	local colors = {
 		-- { upper bound, r, g, b }
-		{ 150, 0.55, 0.55, 0.55 }, -- gray
-		{ 250, 1.00, 0.00, 0.00 }, -- red
-		{ 300, 1.00, 0.70, 0.00 }, -- orange
-		{ 350, 1.00, 1.00, 0.00 }, -- yellow
-		{ 372, 0.00, 1.00, 0.00 }, -- green
-		{ 385, 0.00, 1.00, 1.00 }, -- cyan
-		{ 397, 0.00, 0.80, 1.00 }, -- blue
-		{ 403, 1.00, 0.50, 1.00 }, -- purple,
-		{ 410, 1.00, 0.75, 1.00 }, -- pink
+		{  30, 0.55, 0.55, 0.55 }, -- gray
+		{  54, 1.00, 0.00, 0.00 }, -- red
+		{  72, 1.00, 0.70, 0.00 }, -- orange
+		{ 140, 1.00, 1.00, 0.00 }, -- yellow
+		{ 158, 0.00, 1.00, 0.00 }, -- green
+		{ 188, 0.00, 1.00, 1.00 }, -- cyan
+		{ 218, 0.00, 0.80, 1.00 }, -- blue
+		{ 233, 1.00, 0.50, 1.00 }, -- purple,
+		{ 273, 1.00, 0.75, 1.00 }, -- pink
 		{ 999, 1.00, 1.00, 1.00 }, -- white
 	}
 
@@ -337,14 +339,8 @@ do
 	end
 
 	local maxLevelRanges = {
-		[ 60] = {  58,  65 }, -- Classic
-		[ 70] = {  80,  94 }, -- The Burning Crusade
-		[ 80] = { 100, 102 }, -- Wrath of the Lich King
-		[ 85] = { 108, 114 }, -- Cataclysm
-		[ 90] = { 116, 130 }, -- Mists of Pandaria
-		[100] = { 136, 143 }, -- Warlords of Draenor
-		[110] = { 164, 250 }, -- Legion
-		[120] = { 400, 485 }, -- Battle for Azeroth
+		[50] = {  72, 140 }, -- Battle for Azeroth
+		[60] = { 158, 233 }, -- Shadowlands
 	}
 
 	local maxLevelColors = {}
