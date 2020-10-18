@@ -65,6 +65,9 @@ function mod:OnInitialize()
 			minLevel = 1,
 			ignoreJunk = true,
 			ignoreHeirloom = true,
+			anchor = 'BOTTOMLEFT',
+			offsetX = 2,
+			offsetY = 1,
 		},
 	})
 	if self.db.profile.colored == true then
@@ -85,6 +88,9 @@ function mod:OnInitialize()
 		SyLevel:RegisterFilterOnPipe('Adibags', 'Item level text')
 		SyLevelDB.EnabledFilters['Item level text']['Adibags'] = true
 	end
+	self.db.RegisterCallback(self, "OnProfileChanged", "UpdateTextLocation")
+	self.db.RegisterCallback(self, "OnProfileCopied", "UpdateTextLocation")
+	self.db.RegisterCallback(self, "OnProfileReset", "UpdateTextLocation")
 end
 
 function mod:OnEnable()
@@ -103,10 +109,23 @@ end
 
 local function CreateText(button)
 	local text = button:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
-	text:SetPoint("TOPLEFT", button, 3, -1)
+	local anchor = mod.db.profile.anchor or mod.db.defaults.profile.anchor
+	local offsetX = mod.db.profile.offsetX or mod.db.defaults.profile.offsetX
+	local offsetY = mod.db.profile.offsetY or mod.db.defaults.profile.offsetY
+	text:SetPoint(anchor, button, offsetX, offsetY)
 	text:Hide()
 	texts[button] = text
 	return text
+end
+
+function mod:UpdateTextLocation()
+	local anchor = mod.db.profile.anchor or mod.db.defaults.profile.anchor
+	local offsetX = mod.db.profile.offsetX or mod.db.defaults.profile.offsetX
+	local offsetY = mod.db.profile.offsetY or mod.db.defaults.profile.offsetY
+	for button, text in pairs(texts) do
+		text:ClearAllPoints()
+		text:SetPoint(anchor, button, offsetX, offsetY)
+	end
 end
 
 function mod:UpdateButton(event, button)
@@ -198,6 +217,63 @@ function mod:GetOptions()
 			desc = L['Do not show level of heirloom items.'],
 			type = 'toggle',
 			order = 50,
+		},
+		positionHeader = {
+			name = L['Text Position'],
+			type = 'header',
+			order = 60,
+		},
+		anchor = {
+			name = L['Anchor'],
+			desc = L['Where to anchor the item level text?'],
+			type = 'select',
+			values = {
+				TOPLEFT = L['Top Left'],
+				TOP = L['Top'],
+				TOPRIGHT = L['Top Right'],
+				LEFT = L['Left'],
+				CENTER = L['Center'],
+				RIGHT = L['Right'],
+				BOTTOMLEFT = L['Bottom Left'],
+				BOTTOM = L['Bottom'],
+				BOTTOMRIGHT = L['Bottom Right'],
+				
+			},
+			sorting = {
+				[1] = "TOPLEFT",
+				[2] = "TOP",
+				[3] = "TOPRIGHT",
+				[4] = "LEFT",
+				[5] = "CENTER",
+				[6] = "RIGHT",
+				[7] = "BOTTOMLEFT",
+				[8] = "BOTTOM",
+				[9] = "BOTTOMRIGHT",
+			},
+			order = 61,
+			set = function(info,value) mod.db.profile[info[#info]] = value mod:UpdateTextLocation() end,
+		},
+		offsetX = {
+			name = L['offset right'],
+			desc = L['How far right?'],
+			type = 'range',
+			min = -20,
+			max = 20,
+			step = 1,
+			bigStep = 1,
+			order = 62,
+			set = function(info,value) mod.db.profile[info[#info]] = value mod:UpdateTextLocation() end,
+		},
+		offsetY = {
+			name = L['offset up'],
+			desc = L['How far up?'],
+			type = 'range',
+			min = -20,
+			max = 20,
+			step = 1,
+			bigStep = 1,
+			order = 63,
+			set = function(info,value) mod.db.profile[info[#info]] = value mod:UpdateTextLocation() end,
 		},
 	}, addon:GetOptionHandler(self)
 end
