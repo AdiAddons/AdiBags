@@ -237,7 +237,6 @@ function mod:GetOptions()
 				BOTTOMLEFT = L['Bottom Left'],
 				BOTTOM = L['Bottom'],
 				BOTTOMRIGHT = L['Bottom Right'],
-				
 			},
 			sorting = {
 				[1] = "TOPLEFT",
