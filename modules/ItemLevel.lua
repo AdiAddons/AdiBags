@@ -113,6 +113,7 @@ end
 function mod:UpdateButton(event, button)
 	local settings = self.db.profile
 	local text = texts[button]
+	local link = button:GetItemLink()
 	--Integration with SyLevel. If useSyLevel then let SyLevel handle item level logic.
 	if SyLevel then	
 		if settings.useSyLevel then
@@ -128,7 +129,6 @@ function mod:UpdateButton(event, button)
 	local level --The level to display for this item
 	local color --should be a table of color values to be passed to SetTextColor like returned by GetItemQualityColor()
 	local shouldShow = false --Set to true if this text should be shown
-	local link = button:GetItemLink()
 	--Item Logic
 	if link then
 		local objectTable = { strsplit(":", string.match(link, "|H(.-)|h")) } --see https://wow.gamepedia.com/ItemString for more info
