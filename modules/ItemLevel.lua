@@ -36,6 +36,7 @@ local min = _G.min
 local pairs = _G.pairs
 local select = _G.select
 local unpack = _G.unpack
+local wipe = _G.wipe
 --GLOBALS>
 
 local mod = addon:NewModule('ItemLevel', 'ABEvent-1.0')
@@ -176,6 +177,13 @@ function mod:UpdateButton(event, button)
 	updateCache[button] = link
 end
 
+local function SetOptionAndUpdate(info, value)
+	mod.db.profile[info[#info]] = value
+	wipe(updateCache)
+	for button, text in pairs(texts) do
+		mod:UpdateButton(nil, button)
+	end
+end
 
 function mod:GetOptions()
 	return {
@@ -184,12 +192,14 @@ function mod:GetOptions()
 			desc = L['Let SyLevel handle the the display.'],
 			type = 'toggle',
 			order = 5,
+			set = SetOptionAndUpdate,
 		} or nil,
 		equippableOnly = {
 			name = L['Only equippable items'],
 			desc = L['Do not show level of items that cannot be equipped.'],
 			type = 'toggle',
 			order = 10,
+			set = SetOptionAndUpdate,
 		},
 		colorScheme = {
 			name = L['Color scheme'],
@@ -202,6 +212,7 @@ function mod:GetOptions()
 				level    = L['Related to player level'],
 			},
 			order = 20,
+			set = SetOptionAndUpdate,
 		},
 		minLevel = {
 			name = L['Mininum level'],
@@ -212,24 +223,28 @@ function mod:GetOptions()
 			step = 1,
 			bigStep = 10,
 			order = 30,
+			set = SetOptionAndUpdate,
 		},
 		ignoreJunk = {
 			name = L['Ignore low quality items'],
 			desc = L['Do not show level of poor quality items.'],
 			type = 'toggle',
 			order = 40,
+			set = SetOptionAndUpdate,
 		},
 		ignoreHeirloom = {
 			name = L['Ignore heirloom items'],
 			desc = L['Do not show level of heirloom items.'],
 			type = 'toggle',
 			order = 50,
+			set = SetOptionAndUpdate,
 		},
 		showBattlePetLevels = {
 			name = L['Show battle pet levels'],
 			desc = L['Shows the levels of caged battle pets.'],
 			type = 'toggle',
 			order = 60,
+			set = SetOptionAndUpdate,
 		},
 	}, addon:GetOptionHandler(self)
 end
