@@ -112,66 +112,64 @@ end
 
 function mod:UpdateButton(event, button)
 	local settings = self.db.profile
-	local link = button:GetItemLink()
 	local text = texts[button]
-
+	--Integration with SyLevel. If useSyLevel then let SyLevel handle item level logic.
+	if SyLevel then	
+		if settings.useSyLevel then
+			if text then
+				text:Hide()
+			end
+			SyLevel:CallFilters('Adibags', button, link)
+			return
+		else
+			SyLevel:CallFilters('Adibags', button, nil)
+		end
+	end
+	local level --The level to display for this item
+	local color --should be a table of color values to be passed to SetTextColor like returned by GetItemQualityColor()
+	local shouldShow = false --Set to true if this text should be shown
+	local link = button:GetItemLink()
+	--Item Logic
 	if link then
-		local objectTable = { strsplit(":", string.match(link, "|H(.-)|h")) }
-		-- example objectTable for a battle pet:
-		-- [1]="battlepet", -- item type
-		-- [2]="242",
-		-- [3]="25",        -- pet level
-		-- [4]="3",
-		-- [5]="1319",
-		-- [6]="305",
-		-- [7]="289",
-		-- [8]="0000000000000000",
-		-- [9]="30409"
-		if objectTable[1] == "battlepet" then
+		local objectTable = { strsplit(":", string.match(link, "|H(.-)|h")) } --see https://wow.gamepedia.com/ItemString for more info
+		if objectTable[1] == "item" then
+			local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
+			local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
+			level = item and item:GetCurrentItemLevel() or 0
+			if level >= settings.minLevel
+				and (quality ~= ITEM_QUALITY_POOR or not settings.ignoreJunk)
+				and (loc ~= "" or not settings.equippableOnly)
+				and (quality ~= ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
+			then
+				color = {colorSchemes[settings.colorScheme](level, quality, reqLevel, (loc ~= ""))}
+				shouldShow = true
+			end
+		elseif objectTable[1] == "battlepet" then
 			if settings.showBattlePetLevels then
-				local battlepetlevel = objectTable[3]
-				if not text then
-					text = CreateText(button)
-				end
-				text:SetText(battlepetlevel)
-				return text:Show()
-			elseif text then
-				return text:Hide()
+				level = objectTable[3]
+				color = {GetItemQualityColor(objectTable[4])}
+				shouldShow = true
 			end
 		end
-
-		local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
-		local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
-		local level = item and item:GetCurrentItemLevel() or 0
-		if level >= settings.minLevel
-			and (quality ~= ITEM_QUALITY_POOR or not settings.ignoreJunk)
-			and (loc ~= "" or not settings.equippableOnly)
-			and (quality ~= ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
-		then
-			if SyLevel then
-				if settings.useSyLevel then
-					if text then
-						text:Hide()
-					end
-					SyLevel:CallFilters('Adibags', button, link)
-					return
-				else
-					SyLevel:CallFilters('Adibags', button, nil)
-				end
-			end
-			if not text then
-				text = CreateText(button)
-			end
+	end
+	--Display Logic
+	if shouldShow then
+		if not text then
+			text = CreateText(button)
+		end
+		if level then
 			text:SetText(level)
-			text:SetTextColor(colorSchemes[settings.colorScheme](level, quality, reqLevel, (loc ~= "")))
-			return text:Show()
 		end
-	end
-	if SyLevel then
-		SyLevel:CallFilters('Adibags', button, nil)
-	end
-	if text then
-		text:Hide()
+		if settings.colorScheme ~= "none" then
+			if color and #color >= 3 then
+				text:SetTextColor(unpack(color))
+			end
+		else
+			text:SetTextColor(colorSchemes["none"]())
+		end
+		text:Show()
+	else
+		if text then text:Hide() end
 	end
 end
 
