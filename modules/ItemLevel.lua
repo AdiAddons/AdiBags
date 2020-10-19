@@ -137,6 +137,8 @@ function mod:UpdateButton(event, button)
 				return text:Show()
 			elseif text then
 				return text:Hide()
+			else
+				return
 			end
 		end
 
