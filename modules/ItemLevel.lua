@@ -242,7 +242,7 @@ function mod:GetOptions()
 		positionHeader = {
 			name = L['Text Position'],
 			type = 'header',
-			order = 60,
+			order = 70,
 		},
 		anchor = {
 			name = L['Anchor'],
@@ -269,7 +269,7 @@ function mod:GetOptions()
 				[8] = "BOTTOM",
 				[9] = "BOTTOMRIGHT",
 			},
-			order = 61,
+			order = 71,
 			set = function(info,value) mod.db.profile[info[#info]] = value mod:UpdateTextLocation() end,
 		},
 		offsetX = {
@@ -280,7 +280,7 @@ function mod:GetOptions()
 			max = 20,
 			step = 1,
 			bigStep = 1,
-			order = 62,
+			order = 72,
 			set = function(info,value) mod.db.profile[info[#info]] = value mod:UpdateTextLocation() end,
 		},
 		offsetY = {
@@ -291,10 +291,10 @@ function mod:GetOptions()
 			max = 20,
 			step = 1,
 			bigStep = 1,
-			order = 63,
+			order = 73,
 			set = function(info,value) mod.db.profile[info[#info]] = value mod:UpdateTextLocation() end,
 		},
-		text = addon:CreateFontOptions(self.font, nil, 70),
+		text = addon:CreateFontOptions(self.font, nil, 80),
 	}
 	options.text.args.size.step = 1
 	options.text.args.color.disabled  = function() return mod.db.profile.colorScheme ~= "none" end
