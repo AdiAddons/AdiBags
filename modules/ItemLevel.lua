@@ -116,24 +116,14 @@ function mod:UpdateButton(event, button)
 	local text = texts[button]
 
 	if link then
-		local objectTable = { strsplit(":", string.match(link, "|H(.-)|h")) }
-		-- example objectTable for a battle pet:
-		-- [1]="battlepet", -- item type
-		-- [2]="242",
-		-- [3]="25",        -- pet level
-		-- [4]="3",
-		-- [5]="1319",
-		-- [6]="305",
-		-- [7]="289",
-		-- [8]="0000000000000000",
-		-- [9]="30409"
-		if objectTable[1] == "battlepet" then
+		local linkType, linkOptions = LinkUtil.ExtractLink(link);
+		if linkType == "battlepet" then
 			if settings.showBattlePetLevels then
-				local battlepetlevel = objectTable[3]
+				local _, petLevel, breedQuality = strsplit(":", linkOptions)
 				if not text then
 					text = CreateText(button)
 				end
-				text:SetText(battlepetlevel)
+				text:SetText(petLevel)
 				return text:Show()
 			elseif text then
 				return text:Hide()
