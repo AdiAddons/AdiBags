@@ -47,6 +47,7 @@ local colorSchemes = {
 }
 
 local texts = {}
+local updateCache = {}
 
 local SyLevel = _G.SyLevel
 local SyLevelBypass
@@ -126,6 +127,7 @@ function mod:UpdateButton(event, button)
 			SyLevel:CallFilters('Adibags', button, nil)
 		end
 	end
+	if updateCache[button] == link then return end
 	local level --The level to display for this item
 	local color --should be a table of color values to be passed to SetTextColor like returned by GetItemQualityColor()
 	local shouldShow = false --Set to true if this text should be shown
@@ -171,6 +173,7 @@ function mod:UpdateButton(event, button)
 	else
 		if text then text:Hide() end
 	end
+	updateCache[button] = link
 end
 
 
