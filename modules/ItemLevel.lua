@@ -43,7 +43,7 @@ mod.uiName = L['Item level']
 mod.uiDesc = L['Display the level of equippable item in the top left corner of the button.']
 
 local colorSchemes = {
-	none = function() return 1, 1 ,1 end
+	none = function() return mod.db.profile.text.r, mod.db.profile.text.g, mod.db.profile.text.b end
 }
 
 local texts = {}
@@ -68,8 +68,19 @@ function mod:OnInitialize()
 			anchor = 'BOTTOMLEFT',
 			offsetX = 2,
 			offsetY = 1,
+			text = addon:GetFontDefaults(NumberFontNormalLarge),
 		},
 	})
+	self.font = addon:CreateFont(
+		self.name..'Font',
+		NumberFontNormalLarge,
+		function() return self.db.profile.text end
+	)
+	self.font.SettingHook = function(self)
+		local fontName, fontSize = self:GetFont()
+		self:SetFont(fontName, fontSize, "OUTLINE")
+		mod:UpdateFont()
+	end
 	if self.db.profile.colored == true then
 		self.db.profile.colorScheme = 'original'
 		self.db.profile.colored = nil
@@ -113,9 +124,18 @@ local function CreateText(button)
 	local offsetX = mod.db.profile.offsetX or mod.db.defaults.profile.offsetX
 	local offsetY = mod.db.profile.offsetY or mod.db.defaults.profile.offsetY
 	text:SetPoint(anchor, button, offsetX, offsetY)
+	text:SetFontObject(mod.font)
 	text:Hide()
 	texts[button] = text
 	return text
+end
+
+function mod:UpdateFont()
+	if self.db.profile.colorScheme == "none" then
+		for button, text in pairs(texts) do
+			text:SetTextColor(colorSchemes[self.db.profile.colorScheme]())
+		end
+	end
 end
 
 function mod:UpdateTextLocation()
@@ -171,7 +191,8 @@ end
 
 
 function mod:GetOptions()
-	return {
+	local options =
+	{
 		useSyLevel = SyLevel and {
 			name = L['Use SyLevel'],
 			desc = L['Let SyLevel handle the the display.'],
@@ -273,7 +294,11 @@ function mod:GetOptions()
 			order = 63,
 			set = function(info,value) mod.db.profile[info[#info]] = value mod:UpdateTextLocation() end,
 		},
-	}, addon:GetOptionHandler(self)
+		text = addon:CreateFontOptions(self.font, nil, 70),
+	}
+	options.text.args.size.step = 1
+	options.text.args.color.disabled  = function() return mod.db.profile.colorScheme ~= "none" end
+	return options, addon:GetOptionHandler(self)
 end
 
 -- Color scheme inspired from InventoryItemLevels
