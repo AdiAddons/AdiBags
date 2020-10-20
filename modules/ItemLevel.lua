@@ -122,6 +122,7 @@ function mod:UpdateButton(event, button)
 			if text then
 				text:Hide()
 			end
+			SyLevel:CallFilters('Adibags', button, link)
 			return
 		else
 			SyLevel:CallFilters('Adibags', button, nil)
