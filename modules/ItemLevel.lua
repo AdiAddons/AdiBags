@@ -117,7 +117,7 @@ function mod:UpdateButton(event, button)
 	local text = texts[button]
 	local link = button:GetItemLink()
 	--Integration with SyLevel. If useSyLevel then let SyLevel handle item level logic.
-	if SyLevel then	
+	if SyLevel then
 		if settings.useSyLevel then
 			if text then
 				text:Hide()
