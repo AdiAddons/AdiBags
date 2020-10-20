@@ -122,7 +122,6 @@ function mod:UpdateButton(event, button)
 			if text then
 				text:Hide()
 			end
-			SyLevel:CallFilters('Adibags', button, link)
 			return
 		else
 			SyLevel:CallFilters('Adibags', button, nil)
@@ -134,8 +133,8 @@ function mod:UpdateButton(event, button)
 	local shouldShow = false --Set to true if this text should be shown
 	--Item Logic
 	if link then
-		local objectTable = { strsplit(":", string.match(link, "|H(.-)|h")) } --see https://wow.gamepedia.com/ItemString for more info
-		if objectTable[1] == "item" then
+		local linkType, linkOptions = LinkUtil.ExtractLink(link);
+		if linkType == "item" then
 			local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
 			local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
 			level = item and item:GetCurrentItemLevel() or 0
@@ -147,10 +146,10 @@ function mod:UpdateButton(event, button)
 				color = {colorSchemes[settings.colorScheme](level, quality, reqLevel, (loc ~= ""))}
 				shouldShow = true
 			end
-		elseif objectTable[1] == "battlepet" then
+		elseif linkType == "battlepet" then
 			if settings.showBattlePetLevels then
-				level = objectTable[3]
-				color = {GetItemQualityColor(objectTable[4])}
+				local _, petLevel, breedQuality = strsplit(":", linkOptions)
+				level = petLevel
 				shouldShow = true
 			end
 		end
@@ -166,6 +165,8 @@ function mod:UpdateButton(event, button)
 		if settings.colorScheme ~= "none" then
 			if color and #color >= 3 then
 				text:SetTextColor(unpack(color))
+			else
+				text:SetTextColor(1,1,1)
 			end
 		else
 			text:SetTextColor(colorSchemes["none"]())
