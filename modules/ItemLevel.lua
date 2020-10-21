@@ -56,6 +56,16 @@ else
 	function SyLevelBypass() return false end
 end
 
+local function UpdateFont()
+	local fontName, fontSize = mod.font:GetFont()
+	mod.font:SetFont(fontName, fontSize, "OUTLINE")
+	if mod.db.profile.colorScheme == "none" then
+		for button, text in pairs(texts) do
+			text:SetTextColor(colorSchemes[mod.db.profile.colorScheme]())
+		end
+	end
+end
+
 function mod:OnInitialize()
 	self.db = addon.db:RegisterNamespace(self.moduleName, {
 		profile = {
@@ -76,11 +86,7 @@ function mod:OnInitialize()
 		NumberFontNormalLarge,
 		function() return self.db.profile.text end
 	)
-	self.font.SettingHook = function(self)
-		local fontName, fontSize = self:GetFont()
-		self:SetFont(fontName, fontSize, "OUTLINE")
-		mod:UpdateFont()
-	end
+	self.font.SettingHook = UpdateFont
 	if self.db.profile.colored == true then
 		self.db.profile.colorScheme = 'original'
 		self.db.profile.colored = nil
@@ -117,6 +123,8 @@ function mod:OnEnable()
 		SyLevel:EnablePipe('Adibags')
 	end
 	self:SendMessage('AdiBags_UpdateAllButtons')
+	self.font:ApplySettings()
+	UpdateFont()
 	UpdateTextLocation()
 end
 
@@ -136,14 +144,6 @@ local function CreateText(button)
 	text:Hide()
 	texts[button] = text
 	return text
-end
-
-function mod:UpdateFont()
-	if self.db.profile.colorScheme == "none" then
-		for button, text in pairs(texts) do
-			text:SetTextColor(colorSchemes[self.db.profile.colorScheme]())
-		end
-	end
 end
 
 function mod:UpdateButton(event, button)
