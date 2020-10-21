@@ -158,6 +158,9 @@ addon.DEFAULT_SETTINGS = {
 		hideAnchor = false,
 		autoDeposit = false,
 		compactLayout = false,
+		upgradeIconAnchor = "TOPLEFT",
+		upgradeIconOffsetX = 0,
+		upgradeIconOffsetY = 0,
 	},
 	char = {
 		collapsedSections = {
