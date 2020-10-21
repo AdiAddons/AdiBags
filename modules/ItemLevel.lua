@@ -99,9 +99,16 @@ function mod:OnInitialize()
 		SyLevel:RegisterFilterOnPipe('Adibags', 'Item level text')
 		SyLevelDB.EnabledFilters['Item level text']['Adibags'] = true
 	end
-	self.db.RegisterCallback(self, "OnProfileChanged", "UpdateTextLocation")
-	self.db.RegisterCallback(self, "OnProfileCopied", "UpdateTextLocation")
-	self.db.RegisterCallback(self, "OnProfileReset", "UpdateTextLocation")
+end
+
+local function UpdateTextLocation()
+	local anchor = mod.db.profile.anchor or mod.db.defaults.profile.anchor
+	local offsetX = mod.db.profile.offsetX or mod.db.defaults.profile.offsetX
+	local offsetY = mod.db.profile.offsetY or mod.db.defaults.profile.offsetY
+	for button, text in pairs(texts) do
+		text:ClearAllPoints()
+		text:SetPoint(anchor, button, offsetX, offsetY)
+	end
 end
 
 function mod:OnEnable()
@@ -110,6 +117,7 @@ function mod:OnEnable()
 		SyLevel:EnablePipe('Adibags')
 	end
 	self:SendMessage('AdiBags_UpdateAllButtons')
+	UpdateTextLocation()
 end
 
 function mod:OnDisable()
@@ -135,16 +143,6 @@ function mod:UpdateFont()
 		for button, text in pairs(texts) do
 			text:SetTextColor(colorSchemes[self.db.profile.colorScheme]())
 		end
-	end
-end
-
-function mod:UpdateTextLocation()
-	local anchor = mod.db.profile.anchor or mod.db.defaults.profile.anchor
-	local offsetX = mod.db.profile.offsetX or mod.db.defaults.profile.offsetX
-	local offsetY = mod.db.profile.offsetY or mod.db.defaults.profile.offsetY
-	for button, text in pairs(texts) do
-		text:ClearAllPoints()
-		text:SetPoint(anchor, button, offsetX, offsetY)
 	end
 end
 
@@ -270,7 +268,7 @@ function mod:GetOptions()
 				[9] = "BOTTOMRIGHT",
 			},
 			order = 71,
-			set = function(info,value) mod.db.profile[info[#info]] = value mod:UpdateTextLocation() end,
+			set = function(info,value) mod.db.profile[info[#info]] = value; UpdateTextLocation() end,
 		},
 		offsetX = {
 			name = L["X Offset"],
@@ -281,7 +279,7 @@ function mod:GetOptions()
 			step = 1,
 			bigStep = 1,
 			order = 72,
-			set = function(info,value) mod.db.profile[info[#info]] = value mod:UpdateTextLocation() end,
+			set = function(info,value) mod.db.profile[info[#info]] = value; UpdateTextLocation() end,
 		},
 		offsetY = {
 			name = L["Y Offset"] ,
@@ -292,7 +290,7 @@ function mod:GetOptions()
 			step = 1,
 			bigStep = 1,
 			order = 73,
-			set = function(info,value) mod.db.profile[info[#info]] = value mod:UpdateTextLocation() end,
+			set = function(info,value) mod.db.profile[info[#info]] = value; UpdateTextLocation() end,
 		},
 		text = addon:CreateFontOptions(self.font, nil, 80),
 	}
