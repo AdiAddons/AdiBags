@@ -269,25 +269,6 @@ local function GetOptions()
 			bagList[module.bagName] = L[module.bagName]
 		end
 	end
-
-	local function UpdateUpgradeIcon()
-		local db = addon.db.profile
-		for button, _ in addon:GetPool("ItemButton"):IterateActiveObjects() do
-			button.UpgradeIcon:ClearAllPoints()
-			button.UpgradeIcon:SetPoint(db.upgradeIconAnchor, button, db.upgradeIconOffsetX, db.upgradeIconOffsetY)
-		end
-		for button, _ in addon:GetPool("BankItemButton"):IterateActiveObjects() do
-			button.UpgradeIcon:ClearAllPoints()
-			button.UpgradeIcon:SetPoint(db.upgradeIconAnchor, button, db.upgradeIconOffsetX, db.upgradeIconOffsetY)
-		end
-	end
-
-	local function SetOptionAndUpdateUpgradeIcon(info, value, ...)
-		local db = addon.db.profile
-		db[info[#info]] = value
-		UpdateUpgradeIcon()
-	end
-
 	options = {
 		--@debug@
 		name = addonName..' DEV',
@@ -665,6 +646,11 @@ local function GetOptions()
 						type = 'group',
 						inline = true,
 						order = 400,
+						set = function(info, value, ...)
+								local db = addon.db.profile
+								db[info[#info]] = value
+								addon:UpdateUpgradeIcon()
+								end,
 						args = {
 							upgradeIconAnchor = {
 								name = L['Anchor'],
@@ -679,7 +665,6 @@ local function GetOptions()
 									BOTTOMLEFT = L['Bottom Left'],
 									BOTTOM = L['Bottom'],
 									BOTTOMRIGHT = L['Bottom Right'],
-									
 								},
 								sorting = {
 									[1] = "TOPLEFT",
@@ -693,7 +678,6 @@ local function GetOptions()
 									[9] = "BOTTOMRIGHT",
 								},
 								order = 10,
-								set = SetOptionAndUpdateUpgradeIcon,
 							},
 							upgradeIconOffsetX = {
 								name = L["X Offset"],
@@ -704,7 +688,6 @@ local function GetOptions()
 								step = 1,
 								bigStep = 1,
 								order = 20,
-								set = SetOptionAndUpdateUpgradeIcon,
 							},
 							upgradeIconOffsetY = {
 								name = L["Y Offset"] ,
@@ -715,7 +698,6 @@ local function GetOptions()
 								step = 1,
 								bigStep = 1,
 								order = 30,
-								set = SetOptionAndUpdateUpgradeIcon,
 							},
 						},
 					},

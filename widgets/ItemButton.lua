@@ -176,6 +176,18 @@ hooksecurefunc(addon, 'OnInitialize', function()
 	containerButtonPool:PreSpawn(160)
 end)
 
+function addon:UpdateUpgradeIcon()
+	local db = addon.db.profile
+	for button, _ in addon:GetPool("ItemButton"):IterateActiveObjects() do
+		button.UpgradeIcon:ClearAllPoints()
+		button.UpgradeIcon:SetPoint(db.upgradeIconAnchor, button, db.upgradeIconOffsetX, db.upgradeIconOffsetY)
+	end
+	for button, _ in addon:GetPool("BankItemButton"):IterateActiveObjects() do
+		button.UpgradeIcon:ClearAllPoints()
+		button.UpgradeIcon:SetPoint(db.upgradeIconAnchor, button, db.upgradeIconOffsetX, db.upgradeIconOffsetY)
+	end
+end
+
 --------------------------------------------------------------------------------
 -- Model data
 --------------------------------------------------------------------------------
