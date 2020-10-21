@@ -178,11 +178,11 @@ end)
 
 function addon:UpdateUpgradeIcon()
 	local db = addon.db.profile
-	for button, _ in addon:GetPool("ItemButton"):IterateActiveObjects() do
+	for button, _ in addon:GetPool("ItemButton"):IterateAllObjects() do
 		button.UpgradeIcon:ClearAllPoints()
 		button.UpgradeIcon:SetPoint(db.upgradeIconAnchor, button, db.upgradeIconOffsetX, db.upgradeIconOffsetY)
 	end
-	for button, _ in addon:GetPool("BankItemButton"):IterateActiveObjects() do
+	for button, _ in addon:GetPool("BankItemButton"):IterateAllObjects() do
 		button.UpgradeIcon:ClearAllPoints()
 		button.UpgradeIcon:SetPoint(db.upgradeIconAnchor, button, db.upgradeIconOffsetX, db.upgradeIconOffsetY)
 	end
