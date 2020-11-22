@@ -99,6 +99,7 @@ function mod:OnEnable()
 end
 
 function mod:OnDisable()
+	wipe(updateCache)
 	for _, text in pairs(texts) do
 		text:Hide()
 	end
