@@ -37,8 +37,8 @@ Most of these features may be configured. Check out the configuration panel ! (u
 h2. Separate modules
 
 I have written two separate modules for AdiBags:
-* "AdiBags_Outfitter":http://wow.curse.com/downloads/wow-addons/details/adibags_outfitter.aspx: add filters for "Outfitter":http://wow.curse.com/downloads/wow-addons/details/outfitter.aspx item sets.
-* "AdiBags_PT3Filter":http://wow.curse.com/downloads/wow-addons/details/adibags-pt3filter.aspx: add filters based on "LibPeriodicTable-3.1":http://wow.curse.com/downloads/wow-addons/details/libperiodictable-3-1.aspx categories.
+* "AdiBags_Outfitter":https://www.curseforge.com/wow/addons/adibags_outfitter: add filters for "Outfitter":https://www.curseforge.com/wow/addons/outfitter item sets.
+* "AdiBags_PT3Filter":https://www.curseforge.com/wow/addons/adibags-pt3filter: add filters based on "LibPeriodicTable-3.1":https://www.curseforge.com/wow/addons/libperiodictable-3-1 categories.
 
 h2. Tips & tricks
 
@@ -83,7 +83,7 @@ According to my experience with Baggins, comprehensive editor is awful to write 
 
 h2. Feedback
 
-*Important notice:* since v1.6.12-beta-1, AdiBags embeds "BugGrabber":http://www.curse.com/addons/wow/bug-grabber, an error catching addon. Please check the error is really about AdiBags before reporting them here. I suggest installing "BugSack":http://www.curse.com/addons/wow/bugsack to catch the errors.
+*Important notice:* since v1.6.12-beta-1, AdiBags embeds "BugGrabber":https://www.curseforge.com/wow/addons/bug-grabber, an error catching addon. Please check the error is really about AdiBags before reporting them here. I suggest installing "BugSack":https://www.curseforge.com/wow/addons/bugsack to catch the errors.
 
 Some words about submitting bug reports:
 * I do not care about "it doesn't work, fix it!" messages. I need to know how it failed and a way to reproduce the bug so I can test it and make sure I fix it.
