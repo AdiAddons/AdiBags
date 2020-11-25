@@ -170,4 +170,3 @@ addon.DEFAULT_SETTINGS = {
 		muteBugGrabber = false,
 	},
 }
-

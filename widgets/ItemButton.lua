@@ -427,7 +427,7 @@ function buttonProto:UpdateAlpha()
 
 	if self.hasItem and settings.dimJunk then
 		local quality = select(4, GetContainerItemInfo(self.bag, self.slot))
-		if quality == LE_ITEM_QUALITY_POOR then
+		if quality == ITEM_QUALITY_POOR then
 			newAlpha = 0.5
 		end
 	end

@@ -22,6 +22,11 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 local addonName, addon = ...
 local L = addon.L
 
+--<GLOBALS
+local _G = _G
+local SlashCmdList = _G.SlashCmdList
+--GLOBALS>
+
 local mod = addon:NewModule('Masque', 'ABEvent-1.0')
 mod.uiName = L['Masque']
 mod.uiDesc = L['Support for skinning item buttons with Masque.']
@@ -113,7 +118,7 @@ function mod:OnReleaseButton(event, button)
 end
 
 function mod:AddButtonToMasqueGroup(group, button)
-	if not isMasqueGroupEnabled(group) then return end 
+	if not isMasqueGroupEnabled(group) then return end
 	button.EmptySlotTextureFile = nil
 	group:AddButton(button, {
 		Border = button.IconQuestTexture,

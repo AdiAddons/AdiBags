@@ -698,4 +698,3 @@ end
 function addon:CloseOptions()
 	AceConfigDialog:Close(addonName)
 end
-
