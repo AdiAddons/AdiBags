@@ -36,8 +36,8 @@ local GetItemInfo = _G.GetItemInfo
 local GetItemQualityColor = _G.GetItemQualityColor
 local hooksecurefunc = _G.hooksecurefunc
 local IsInventoryItemLocked = _G.IsInventoryItemLocked
-local ITEM_QUALITY_POOR = _G.LE_ITEM_QUALITY_POOR
-local ITEM_QUALITY_UNCOMMON = _G.LE_ITEM_QUALITY_UNCOMMON
+local ITEM_QUALITY_COMMON = _G.Enum.ItemQuality.Common
+local ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
 local next = _G.next
 local pairs = _G.pairs
 local select = _G.select
@@ -383,11 +383,11 @@ local function GetBorder(bag, slot, itemId, quality, settings)
 		return
 	end
 	local color
-	if quality == LE_ITEM_QUALITY_POOR then
+	if quality == ITEM_QUALITY_POOR then
 		if settings.junkQualityHighlight then
 			color = { r = 1, g = 0, b = 0 }
 		end
-	elseif quality ~= LE_ITEM_QUALITY_COMMON then
+	elseif quality ~= ITEM_QUALITY_COMMON then
 		color = BAG_ITEM_QUALITY_COLORS[quality]
 	end
 	if color then
@@ -414,7 +414,7 @@ function buttonProto:UpdateBorder(isolatedEvent)
 	end
 	if self.JunkIcon then
 		local quality = self.hasItem and select(3, GetItemInfo(self.itemLink or self.itemId))
-		self.JunkIcon:SetShown(quality == LE_ITEM_QUALITY_POOR and addon:GetInteractingWindow() == "MERCHANT")
+		self.JunkIcon:SetShown(quality == ITEM_QUALITY_POOR and addon:GetInteractingWindow() == "MERCHANT")
 	end
 	if isolatedEvent then
 		addon:SendMessage('AdiBags_UpdateBorder', self)
