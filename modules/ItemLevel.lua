@@ -118,7 +118,7 @@ function mod:UpdateButton(event, button)
 	local settings = self.db.profile
 	local text = texts[button]
 	local link = button:GetItemLink()
-	--Integration with SyLevel. If useSyLevel then let SyLevel handle item level logic.
+	-- Integration with SyLevel. If useSyLevel then let SyLevel handle item level logic.
 	if SyLevel then
 		if settings.useSyLevel then
 			if text then
@@ -131,10 +131,10 @@ function mod:UpdateButton(event, button)
 		end
 	end
 	if updateCache[button] == link then return end
-	local level --The level to display for this item
-	local color --should be a table of color values to be passed to SetTextColor like returned by GetItemQualityColor()
-	local shouldShow = false --Set to true if this text should be shown
-	--Item Logic
+	local level -- The level to display for this item
+	local color -- should be a table of color values to be passed to SetTextColor like returned by GetItemQualityColor()
+	local shouldShow = false -- Set to true if this text should be shown
+	-- Item Logic
 	if link then
 		local linkType, linkOptions = ExtractLink(link)
 		if linkType == "item" then
@@ -157,7 +157,7 @@ function mod:UpdateButton(event, button)
 			end
 		end
 	end
-	--Display Logic
+	-- Display Logic
 	if shouldShow then
 		if not text then
 			text = CreateText(button)
