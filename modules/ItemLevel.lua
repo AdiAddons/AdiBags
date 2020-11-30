@@ -37,6 +37,7 @@ local pairs = _G.pairs
 local select = _G.select
 local unpack = _G.unpack
 local wipe = _G.wipe
+local ExtractLink = _G.LinkUtil.ExtractLink
 --GLOBALS>
 
 local mod = addon:NewModule('ItemLevel', 'ABEvent-1.0')
@@ -135,7 +136,7 @@ function mod:UpdateButton(event, button)
 	local shouldShow = false --Set to true if this text should be shown
 	--Item Logic
 	if link then
-		local linkType, linkOptions = LinkUtil.ExtractLink(link);
+		local linkType, linkOptions = ExtractLink(link)
 		if linkType == "item" then
 			local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
 			local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
@@ -168,7 +169,7 @@ function mod:UpdateButton(event, button)
 			if color and #color >= 3 then
 				text:SetTextColor(unpack(color))
 			else
-				text:SetTextColor(1,1,1)
+				text:SetTextColor(1, 1, 1)
 			end
 		else
 			text:SetTextColor(colorSchemes["none"]())
@@ -380,7 +381,7 @@ do
 	end
 
 	colorSchemes.level = function(level, quality, reqLevel, equipabble)
-		if not equipabble then return 1,1,1 end
+		if not equipabble then return 1, 1, 1 end
 		local playerLevel = UnitLevel('player')
 		if playerLevel == _G.MAX_PLAYER_LEVEL then
 			-- Use the item level range for that level
