@@ -36,6 +36,8 @@ local min = _G.min
 local pairs = _G.pairs
 local select = _G.select
 local unpack = _G.unpack
+local wipe = _G.wipe
+local ExtractLink = _G.LinkUtil.ExtractLink
 --GLOBALS>
 
 local mod = addon:NewModule('ItemLevel', 'ABEvent-1.0')
@@ -47,6 +49,7 @@ local colorSchemes = {
 }
 
 local texts = {}
+local updateCache = {}
 
 local SyLevel = _G.SyLevel
 local SyLevelBypass
@@ -65,6 +68,7 @@ function mod:OnInitialize()
 			minLevel = 1,
 			ignoreJunk = true,
 			ignoreHeirloom = true,
+			showBattlePetLevels = true,
 		},
 	})
 	if self.db.profile.colored == true then
@@ -96,6 +100,7 @@ function mod:OnEnable()
 end
 
 function mod:OnDisable()
+	wipe(updateCache)
 	for _, text in pairs(texts) do
 		text:Hide()
 	end
@@ -111,45 +116,78 @@ end
 
 function mod:UpdateButton(event, button)
 	local settings = self.db.profile
-	local link = button:GetItemLink()
 	local text = texts[button]
-
-	if link then
-		local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
-		local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
-		local level = item and item:GetCurrentItemLevel() or 0
-		if level >= settings.minLevel
-			and (quality ~= ITEM_QUALITY_POOR or not settings.ignoreJunk)
-			and (loc ~= "" or not settings.equippableOnly)
-			and (quality ~= ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
-		then
-			if SyLevel then
-				if settings.useSyLevel then
-					if text then
-						text:Hide()
-					end
-					SyLevel:CallFilters('Adibags', button, link)
-					return
-				else
-					SyLevel:CallFilters('Adibags', button, nil)
-				end
+	local link = button:GetItemLink()
+	-- Integration with SyLevel. If useSyLevel then let SyLevel handle item level logic.
+	if SyLevel then
+		if settings.useSyLevel then
+			if text then
+				text:Hide()
 			end
-			if not text then
-				text = CreateText(button)
-			end
-			text:SetText(level)
-			text:SetTextColor(colorSchemes[settings.colorScheme](level, quality, reqLevel, (loc ~= "")))
-			return text:Show()
+			SyLevel:CallFilters('Adibags', button, link)
+			return
+		else
+			SyLevel:CallFilters('Adibags', button, nil)
 		end
 	end
-	if SyLevel then
-		SyLevel:CallFilters('Adibags', button, nil)
+	if updateCache[button] == link then return end
+	local level -- The level to display for this item
+	local color -- should be a table of color values to be passed to SetTextColor like returned by GetItemQualityColor()
+	local shouldShow = false -- Set to true if this text should be shown
+	-- Item Logic
+	if link then
+		local linkType, linkOptions = ExtractLink(link)
+		if linkType == "item" then
+			local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
+			local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
+			level = item and item:GetCurrentItemLevel() or 0
+			if level >= settings.minLevel
+				and (quality ~= ITEM_QUALITY_POOR or not settings.ignoreJunk)
+				and (loc ~= "" or not settings.equippableOnly)
+				and (quality ~= ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
+			then
+				color = {colorSchemes[settings.colorScheme](level, quality, reqLevel, (loc ~= ""))}
+				shouldShow = true
+			end
+		elseif linkType == "battlepet" then
+			if settings.showBattlePetLevels then
+				local _, petLevel, breedQuality = strsplit(":", linkOptions)
+				level = petLevel
+				shouldShow = true
+			end
+		end
 	end
-	if text then
-		text:Hide()
+	-- Display Logic
+	if shouldShow then
+		if not text then
+			text = CreateText(button)
+		end
+		if level then
+			text:SetText(level)
+		end
+		if settings.colorScheme ~= "none" then
+			if color and #color >= 3 then
+				text:SetTextColor(unpack(color))
+			else
+				text:SetTextColor(1, 1, 1)
+			end
+		else
+			text:SetTextColor(colorSchemes["none"]())
+		end
+		text:Show()
+	else
+		if text then text:Hide() end
 	end
+	updateCache[button] = link
 end
 
+local function SetOptionAndUpdate(info, value)
+	mod.db.profile[info[#info]] = value
+	wipe(updateCache)
+	for button, text in pairs(texts) do
+		mod:UpdateButton(nil, button)
+	end
+end
 
 function mod:GetOptions()
 	return {
@@ -158,12 +196,14 @@ function mod:GetOptions()
 			desc = L['Let SyLevel handle the the display.'],
 			type = 'toggle',
 			order = 5,
+			set = SetOptionAndUpdate,
 		} or nil,
 		equippableOnly = {
 			name = L['Only equippable items'],
 			desc = L['Do not show level of items that cannot be equipped.'],
 			type = 'toggle',
 			order = 10,
+			set = SetOptionAndUpdate,
 		},
 		colorScheme = {
 			name = L['Color scheme'],
@@ -176,6 +216,7 @@ function mod:GetOptions()
 				level    = L['Related to player level'],
 			},
 			order = 20,
+			set = SetOptionAndUpdate,
 		},
 		minLevel = {
 			name = L['Mininum level'],
@@ -186,18 +227,28 @@ function mod:GetOptions()
 			step = 1,
 			bigStep = 10,
 			order = 30,
+			set = SetOptionAndUpdate,
 		},
 		ignoreJunk = {
 			name = L['Ignore low quality items'],
 			desc = L['Do not show level of poor quality items.'],
 			type = 'toggle',
 			order = 40,
+			set = SetOptionAndUpdate,
 		},
 		ignoreHeirloom = {
 			name = L['Ignore heirloom items'],
 			desc = L['Do not show level of heirloom items.'],
 			type = 'toggle',
 			order = 50,
+			set = SetOptionAndUpdate,
+		},
+		showBattlePetLevels = {
+			name = L['Show battle pet levels'],
+			desc = L['Shows the levels of caged battle pets.'],
+			type = 'toggle',
+			order = 60,
+			set = SetOptionAndUpdate,
 		},
 	}, addon:GetOptionHandler(self)
 end
@@ -330,7 +381,7 @@ do
 	end
 
 	colorSchemes.level = function(level, quality, reqLevel, equipabble)
-		if not equipabble then return 1,1,1 end
+		if not equipabble then return 1, 1, 1 end
 		local playerLevel = UnitLevel('player')
 		if playerLevel == _G.MAX_PLAYER_LEVEL then
 			-- Use the item level range for that level
