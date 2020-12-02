@@ -38,6 +38,7 @@ local select = _G.select
 local unpack = _G.unpack
 local wipe = _G.wipe
 local ExtractLink = _G.LinkUtil.ExtractLink
+local IsItemConduitByItemInfo = _G.C_Soulbinds.IsItemConduitByItemInfo
 --GLOBALS>
 
 local mod = addon:NewModule('ItemLevel', 'ABEvent-1.0')
@@ -140,7 +141,10 @@ function mod:UpdateButton(event, button)
 		if linkType == "item" then
 			local _, _, quality, _, reqLevel, itemType, subType, _, loc = GetItemInfo(link)
 			local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
-			local equippable = loc ~= "INVTYPE_BAG" and loc ~= "" or itemType == "Armor" or subType == "Artifact Relic"
+			local equippable = (loc ~= "INVTYPE_BAG" and loc ~= "")
+							or itemType == "Armor"
+							or subType == "Artifact Relic"
+							or IsItemConduitByItemInfo(link)
 			level = item and item:GetCurrentItemLevel() or 0
 			-- sometimes the link doesn't have all the right info yet so we shouldn't cache the result
 			if (itemType ~= nil) then
@@ -159,6 +163,11 @@ function mod:UpdateButton(event, button)
 			elseif subType == "Companion Pets" and settings.showBattlePetLevels then
 				level = 1
 				shouldShow = true
+			else
+				print("not showing ilvl for "..link)
+				print("level: "..level..", type: "..(itemType or "nil")..", subType: "..(subType or "nil").." loc: "..(loc or "nil"))
+				print(linkOptions)
+				print("is conduit??? "..(IsItemConduitByItemInfo(link) and "true" or "false"))
 			end
 		elseif linkType == "battlepet" then
 			if settings.showBattlePetLevels then
