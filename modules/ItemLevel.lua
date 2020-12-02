@@ -130,7 +130,7 @@ function mod:UpdateButton(event, button)
 			SyLevel:CallFilters('Adibags', button, nil)
 		end
 	end
-	if updateCache[button] == link then return end
+	if updateCache[button] == link then --[[if link ~= nil then if text ~= nil then text:Show() end end--]] return end
 	local level -- The level to display for this item
 	local color -- should be a table of color values to be passed to SetTextColor like returned by GetItemQualityColor()
 	local shouldShow = false -- Set to true if this text should be shown
@@ -138,21 +138,38 @@ function mod:UpdateButton(event, button)
 	if link then
 		local linkType, linkOptions = ExtractLink(link)
 		if linkType == "item" then
-			local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
+			local _, _, quality, _, reqLevel, itemType, subType, _, loc = GetItemInfo(link)
 			local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
+			local equippable = loc ~= "INVTYPE_BAG" and loc ~= "" or itemType == "Armor" or subType == "Artifact Relic"
 			level = item and item:GetCurrentItemLevel() or 0
+			-- sometimes the link doesn't have all the right info yet so we shouldn't cache the result
+			if (itemType ~= nil) then
+				updateCache[button] = link
+				--print("caching"..link.." "..itemType.."/"..subType..": "..level.."-"..loc)
+			else
+				print("bag itemType nil "..link)
+			end
 			if level >= settings.minLevel
 				and (quality ~= ITEM_QUALITY_POOR or not settings.ignoreJunk)
-				and (loc ~= "" or not settings.equippableOnly)
+				and (equippable or not settings.equippableOnly)
 				and (quality ~= ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
 			then
-				color = {colorSchemes[settings.colorScheme](level, quality, reqLevel, (loc ~= ""))}
+				color = {colorSchemes[settings.colorScheme](level, quality, reqLevel, equippable)}
+				shouldShow = true
+			elseif subType == "Companion Pets" and settings.showBattlePetLevels then
+				level = 1
 				shouldShow = true
 			end
 		elseif linkType == "battlepet" then
 			if settings.showBattlePetLevels then
 				local _, petLevel, breedQuality = strsplit(":", linkOptions)
 				level = petLevel
+				if (petLevel ~= nil) then
+					updateCache[button] = link
+				else
+					print ("bag pet nil "..link)
+					-- i've never seen this hit (so far)
+				end
 				shouldShow = true
 			end
 		end
@@ -178,7 +195,6 @@ function mod:UpdateButton(event, button)
 	else
 		if text then text:Hide() end
 	end
-	updateCache[button] = link
 end
 
 local function SetOptionAndUpdate(info, value)
