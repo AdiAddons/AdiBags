@@ -140,10 +140,13 @@ function mod:UpdateButton(event, button)
 	end
 	if updateCache[button] == link then
 		if link ~= nil and text ~= nil and not text:IsShown() then
-			-- sometimes text gets hidden even though it's still cached - show it
-			text:Show()
+			-- sometimes text gets hidden even though it's still cached
+			-- there must be some missing cache invalidation somewhere
+			updateCache[button] = nil
+		else
+			-- cached value, everything checks out - skip below processing
+			return
 		end
-		return
 	end
 	local level -- The level to display for this item
 	local color -- should be a table of color values to be passed to SetTextColor like returned by GetItemQualityColor()
@@ -155,9 +158,9 @@ function mod:UpdateButton(event, button)
 			local _, _, quality, _, reqLevel, _, _, _, loc, _, _, itemClassID, itemSubClassID = GetItemInfo(link)
 			local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
 			local equippable = (loc ~= "INVTYPE_BAG" and loc ~= "")
-							or itemClassID == LE_ITEM_CLASS_ARMOR
-							or (itemClassID == LE_ITEM_CLASS_GEM and itemSubClassID == LE_ITEM_GEM_ARTIFACTRELIC)
-							or (itemClassID == LE_ITEM_CLASS_CONSUMABLE and itemSubClassID == ITEM_CONSUMABLE_OTHER and IsItemConduitByItemInfo(link))
+					or itemClassID == LE_ITEM_CLASS_ARMOR
+					or (itemClassID == LE_ITEM_CLASS_GEM and itemSubClassID == LE_ITEM_GEM_ARTIFACTRELIC)
+					or (itemClassID == LE_ITEM_CLASS_CONSUMABLE and itemSubClassID == ITEM_CONSUMABLE_OTHER and IsItemConduitByItemInfo(link))
 			level = item and item:GetCurrentItemLevel() or 0
 			-- sometimes the link doesn't have all the right info yet so we shouldn't cache the result
 			if (itemClassID ~= nil) then
