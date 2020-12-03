@@ -28,6 +28,13 @@ local abs = _G.math.abs
 local GetItemInfo = _G.GetItemInfo
 local ITEM_QUALITY_HEIRLOOM = _G.Enum.ItemQuality.Heirloom
 local ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
+local LE_ITEM_CLASS_ARMOR = _G.LE_ITEM_CLASS_ARMOR
+local LE_ITEM_CLASS_GEM = _G.LE_ITEM_CLASS_GEM
+local LE_ITEM_CLASS_MISCELLANEOUS = _G.LE_ITEM_CLASS_MISCELLANEOUS
+local LE_ITEM_MISCELLANEOUS_COMPANION_PET = _G.LE_ITEM_MISCELLANEOUS_COMPANION_PET
+local LE_ITEM_GEM_ARTIFACTRELIC = _G.LE_ITEM_GEM_ARTIFACTRELIC
+local LE_ITEM_CLASS_CONSUMABLE = _G.LE_ITEM_CLASS_CONSUMABLE
+local ITEM_CONSUMABLE_OTHER = 8 -- there is no subcategory enum for consumables
 local QuestDifficultyColors = _G.QuestDifficultyColors
 local UnitLevel = _G.UnitLevel
 local modf = _G.math.modf
@@ -145,15 +152,15 @@ function mod:UpdateButton(event, button)
 	if link then
 		local linkType, linkOptions = ExtractLink(link)
 		if linkType == "item" then
-			local _, _, quality, _, reqLevel, itemType, subType, _, loc = GetItemInfo(link)
+			local _, _, quality, _, reqLevel, _, _, _, loc, _, _, itemClassID, itemSubClassID = GetItemInfo(link)
 			local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
 			local equippable = (loc ~= "INVTYPE_BAG" and loc ~= "")
-							or itemType == "Armor"
-							or subType == "Artifact Relic"
-							or (itemType == "Consumable" and subType == "Other" and IsItemConduitByItemInfo(link))
+							or itemClassID == LE_ITEM_CLASS_ARMOR
+							or (itemClassID == LE_ITEM_CLASS_GEM and itemSubClassID == LE_ITEM_GEM_ARTIFACTRELIC)
+							or (itemClassID == LE_ITEM_CLASS_CONSUMABLE and itemSubClassID == ITEM_CONSUMABLE_OTHER and IsItemConduitByItemInfo(link))
 			level = item and item:GetCurrentItemLevel() or 0
 			-- sometimes the link doesn't have all the right info yet so we shouldn't cache the result
-			if (itemType ~= nil) then
+			if (itemClassID ~= nil) then
 				updateCache[button] = link
 			end
 			if level >= settings.minLevel
@@ -163,7 +170,7 @@ function mod:UpdateButton(event, button)
 			then
 				color = {colorSchemes[settings.colorScheme](level, quality, reqLevel, equippable)}
 				shouldShow = true
-			elseif subType == "Companion Pets" and settings.showBattlePetLevels then
+			elseif settings.showBattlePetLevels and itemClassID == LE_ITEM_CLASS_MISCELLANEOUS and itemSubClassID == LE_ITEM_MISCELLANEOUS_COMPANION_PET then
 				level = 1
 				shouldShow = true
 			end
