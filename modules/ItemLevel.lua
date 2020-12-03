@@ -144,14 +144,11 @@ function mod:UpdateButton(event, button)
 			local equippable = (loc ~= "INVTYPE_BAG" and loc ~= "")
 							or itemType == "Armor"
 							or subType == "Artifact Relic"
-							or IsItemConduitByItemInfo(link)
+							or (itemType == "Consumable" and subType == "Other" and IsItemConduitByItemInfo(link))
 			level = item and item:GetCurrentItemLevel() or 0
 			-- sometimes the link doesn't have all the right info yet so we shouldn't cache the result
 			if (itemType ~= nil) then
 				updateCache[button] = link
-				--print("caching"..link.." "..itemType.."/"..subType..": "..level.."-"..loc)
-			else
-				print("bag itemType nil "..link)
 			end
 			if level >= settings.minLevel
 				and (quality ~= ITEM_QUALITY_POOR or not settings.ignoreJunk)
@@ -163,22 +160,12 @@ function mod:UpdateButton(event, button)
 			elseif subType == "Companion Pets" and settings.showBattlePetLevels then
 				level = 1
 				shouldShow = true
-			else
-				print("not showing ilvl for "..link)
-				print("level: "..level..", type: "..(itemType or "nil")..", subType: "..(subType or "nil").." loc: "..(loc or "nil"))
-				print(linkOptions)
-				print("is conduit??? "..(IsItemConduitByItemInfo(link) and "true" or "false"))
 			end
 		elseif linkType == "battlepet" then
 			if settings.showBattlePetLevels then
 				local _, petLevel, breedQuality = strsplit(":", linkOptions)
 				level = petLevel
-				if (petLevel ~= nil) then
-					updateCache[button] = link
-				else
-					print ("bag pet nil "..link)
-					-- i've never seen this hit (so far)
-				end
+				updateCache[button] = link
 				shouldShow = true
 			end
 		end
