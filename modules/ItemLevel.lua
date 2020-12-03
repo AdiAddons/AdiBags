@@ -131,7 +131,13 @@ function mod:UpdateButton(event, button)
 			SyLevel:CallFilters('Adibags', button, nil)
 		end
 	end
-	if updateCache[button] == link then --[[if link ~= nil then if text ~= nil then text:Show() end end--]] return end
+	if updateCache[button] == link then
+		if link ~= nil and text ~= nil and not text:IsShown() then
+			-- sometimes text gets hidden even though it's still cached - show it
+			text:Show()
+		end
+		return
+	end
 	local level -- The level to display for this item
 	local color -- should be a table of color values to be passed to SetTextColor like returned by GetItemQualityColor()
 	local shouldShow = false -- Set to true if this text should be shown
