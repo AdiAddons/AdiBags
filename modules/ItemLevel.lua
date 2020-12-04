@@ -160,15 +160,15 @@ function mod:UpdateButton(event, button)
 			if (itemClassID ~= nil) then
 				updateCache[button] = link
 			end
-			if level >= settings.minLevel
+			if settings.showBattlePetLevels and itemClassID == LE_ITEM_CLASS_MISCELLANEOUS and itemSubClassID == LE_ITEM_MISCELLANEOUS_COMPANION_PET then
+				level = 1
+				shouldShow = true
+			elseif level >= settings.minLevel
 				and (quality ~= ITEM_QUALITY_POOR or not settings.ignoreJunk)
 				and (equippable or not settings.equippableOnly)
 				and (quality ~= ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
 			then
 				color = {colorSchemes[settings.colorScheme](level, quality, reqLevel, equippable)}
-				shouldShow = true
-			elseif settings.showBattlePetLevels and itemClassID == LE_ITEM_CLASS_MISCELLANEOUS and itemSubClassID == LE_ITEM_MISCELLANEOUS_COMPANION_PET then
-				level = 1
 				shouldShow = true
 			end
 		elseif linkType == "battlepet" then
