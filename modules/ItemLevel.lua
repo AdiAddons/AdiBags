@@ -139,7 +139,7 @@ function mod:UpdateButton(event, button)
 		end
 	end
 	if updateCache[button] == link then
-		-- cached link for this button - skip below processing
+		-- cached link for this button (or no link and no cache) - skip below processing either way
 		return
 	end
 	local level -- The level to display for this item
@@ -200,7 +200,7 @@ function mod:UpdateButton(event, button)
 		text:Show()
 	else
 		if text and text:IsShown() then
-			updateCache[button] = nil
+			updateCache[button] = link
 			text:Hide()
 		end
 	end
