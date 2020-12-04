@@ -139,14 +139,8 @@ function mod:UpdateButton(event, button)
 		end
 	end
 	if updateCache[button] == link then
-		if link ~= nil and text ~= nil and not text:IsShown() then
-			-- sometimes text gets hidden even though it's still cached
-			-- there must be some missing cache invalidation somewhere
-			updateCache[button] = nil
-		else
-			-- cached value, everything checks out - skip below processing
-			return
-		end
+		-- cached link for this button - skip below processing
+		return
 	end
 	local level -- The level to display for this item
 	local color -- should be a table of color values to be passed to SetTextColor like returned by GetItemQualityColor()
@@ -205,7 +199,10 @@ function mod:UpdateButton(event, button)
 		end
 		text:Show()
 	else
-		if text then text:Hide() end
+		if text and text:IsShown() then
+			updateCache[button] = nil
+			text:Hide()
+		end
 	end
 end
 
