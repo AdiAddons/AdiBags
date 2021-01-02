@@ -60,7 +60,7 @@ local ITEM_SIZE = addon.ITEM_SIZE
 
 local buttonClass, buttonProto = addon:NewClass("ItemButton", "ItemButton", "ContainerFrameItemButtonTemplate", "ABEvent-1.0")
 
-local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture", "NewItemTexture" }
+local childrenNames = { "Cooldown", "IconBorder", "IconQuestTexture", "IconTexture", "Count", "Stock", "NormalTexture", "NewItemTexture" }
 
 function buttonProto:OnCreate()
 	local name = self:GetName()
@@ -266,6 +266,7 @@ end
 function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)
 	if unit == "player" then
 		self:UpdateBorder(event)
+		self:UpdateAlpha()
 	end
 end
 
@@ -292,12 +293,21 @@ end
 
 function buttonProto:UpdateIcon()
 	local icon = self.IconTexture
+	local settings = addon.db.profile
 	if self.texture then
 		icon:SetTexture(self.texture)
 		icon:SetTexCoord(0,1,0,1)
 	else
 		icon:SetTexture(self.EmptySlotTextureFile)
 		icon:SetTexCoord(12/64, 51/64, 12/64, 51/64)
+	end
+	if self.IconQuestTexture then
+		local isQuestItem, questId = GetContainerItemQuestInfo(self.bag, self.slot)
+		if settings.questIndicator and (isQuestItem or questId) then
+			self.IconQuestTexture:Show()
+		else
+			self.IconQuestTexture:Hide()
+		end
 	end
 end
 
@@ -369,10 +379,9 @@ function buttonProto:UpdateUpgradeIcon()
 	self.UpgradeIcon:SetShown(IsContainerItemAnUpgrade(self.bag, self.slot) or false)
 end
 
-local function GetBorder(bag, slot, itemId, quality, settings)
+local function GetBorder(quality, isQuestItem, questId, isQuestActive, settings)
 	if settings.questIndicator then
-		local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
-		if questId and not isActive then
+		if questId and not isQuestActive then
 			return TEXTURE_ITEM_QUEST_BANG
 		end
 		if questId or isQuestItem then
@@ -398,20 +407,25 @@ end
 function buttonProto:UpdateBorder(isolatedEvent)
 	local texture, r, g, b, a, x1, x2, y1, y2, blendMode, quality
 	local settings = addon.db.profile
+	local isQuestItem, questId, isQuestActive
 	if self.hasItem then
 		quality = select(4, GetContainerItemInfo(self.bag, self.slot))
-		texture, r, g, b, a, x1, x2, y1, y2, blendMode = GetBorder(self.bag, self.slot, self.itemLink or self.itemId, quality, settings)
+		isQuestItem, questId, isQuestActive = GetContainerItemQuestInfo(self.bag, self.slot)
+		texture, r, g, b, a, x1, x2, y1, y2, blendMode = GetBorder(quality, isQuestItem, questId, isQuestActive, settings)
 	end
+
+	local layer = (settings.questIndicator and (isQuestItem or questId)) and self.IconQuestTexture or self.IconBorder
+
 	if not texture then
-		self.IconQuestTexture:Hide()
+		layer:Hide()
 	else
-		local border = self.IconQuestTexture
-		border:SetTexture(texture)
-		border:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
-		border:SetTexCoord(x1 or 0, x2 or 1, y1 or 0, y2 or 1)
-		border:SetBlendMode(blendMode or "BLEND")
-		border:Show()
+		layer:SetTexture(texture)
+		layer:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
+		layer:SetTexCoord(x1 or 0, x2 or 1, y1 or 0, y2 or 1)
+		layer:SetBlendMode(blendMode or "BLEND")
+		layer:Show()
 	end
+
 	if self.JunkIcon then
 		local quality = self.hasItem and select(3, GetItemInfo(self.itemLink or self.itemId))
 		self.JunkIcon:SetShown(quality == ITEM_QUALITY_POOR and addon:GetInteractingWindow() == "MERCHANT")

@@ -121,29 +121,32 @@ function mod:AddButtonToMasqueGroup(group, button)
 	if not isMasqueGroupEnabled(group) then return end
 	button.EmptySlotTextureFile = nil
 	group:AddButton(button, {
-		Border = button.IconQuestTexture,
 		Icon = button.IconTexture,
+		IconBorder = button.IconBorder,
+		QuestBorder = button.IconQuestTexture
 	})
+	button.masqueGroup = group
 	button:UpdateIcon()
 end
 
 function mod:RemoveButtonFromMasqueGroup(group, button, update)
 	button.EmptySlotTextureFile = addon.EMPTY_SLOT_FILE
+	button.masqueGroup = nil
 	group:RemoveButton(button)
 	if update then
 		button:UpdateIcon() -- mainly for empty slot update
 
 		-- hack: seems like masque does not reset these values when button is removed from group (it's possible there could be other taint)
-		button.IconQuestTexture:SetWidth(addon.ITEM_SIZE)
-		button.IconQuestTexture:SetHeight(addon.ITEM_SIZE)
+		button.IconBorder:SetWidth(addon.ITEM_SIZE)
+		button.IconBorder:SetHeight(addon.ITEM_SIZE)
 		button:UpdateBorder()
 	end
 end
 
 function mod:OnUpdateButton(event, button)
-	local group = self:ComputeButtonMasqueGroup(button)
-	self:RemoveButtonFromMasqueGroup(group, button)
-	self:AddButtonToMasqueGroup(group, button)
+	if button.masqueGroup then
+		button.masqueGroup:ReSkin(button)
+	end
 end
 
 function mod:GetOptions()
