@@ -140,25 +140,13 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	button:SetAllPoints(self)
 	button:RegisterForClicks("AnyUp")
 	button:SetScript('OnClick', function(_, ...)
-		local setForeground = false
+		-- Toggle foreground by container click
 		if isBank and frameLevelBank < frameLevelBag then
 			frameLevelBank = frameLevelBank + frameLevelIncrement
-			setForeground = true
+			self:SetFrameLevel(self:GetFrameLevel() + frameLevelIncrement)
 		elseif not isBank and frameLevelBank > frameLevelBag then
 			frameLevelBag = frameLevelBag + frameLevelIncrement
-			setForeground = true
-		end
-		if setForeground then
-			frameLevel = 2 + (self:GetFrameLevel() + frameLevelIncrement)
-			self:SetFrameLevel(frameLevel - 2)
-			button:SetFrameLevel(frameLevel - 1)
-			headerLeftRegion:SetFrameLevel(frameLevel)
-			headerRightRegion:SetFrameLevel(frameLevel)
-			bottomLeftRegion:SetFrameLevel(frameLevel)
-			bottomRightRegion:SetFrameLevel(frameLevel)
-			closeButton:SetFrameLevel(frameLevel)
-			searchBox:SetFrameLevel(frameLevel)
-			anchor:SetFrameLevel(self:GetFrameLevel() + 10)
+			self:SetFrameLevel(self:GetFrameLevel() + frameLevelIncrement)
 		end
 
 		return self:OnClick(...)
