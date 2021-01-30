@@ -592,7 +592,7 @@ function stackProto:Update()
 	self:UpdateVisibleSlot()
 	self:UpdateCount()
 	if self.button then
-		self.button:Update()
+		self.button:FullUpdate()
 	end
 end
 
