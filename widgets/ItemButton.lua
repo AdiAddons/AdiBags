@@ -380,7 +380,9 @@ function buttonProto:UpdateNew()
 end
 
 function buttonProto:UpdateUpgradeIcon()
-	self.UpgradeIcon:SetShown(IsContainerItemAnUpgrade(self.bag, self.slot) or false)
+	if IsAddOnLoaded('Pawn') then itemIsUpgrade = _G.PawnIsContainerItemAnUpgrade(self.bag, self.slot) end
+	if itemIsUpgrade == nil then itemIsUpgrade = _G.IsContainerItemAnUpgrade(self.bag, self.slot) end
+	self.UpgradeIcon:SetShown( itemIsUpgrade or false)
 end
 
 local function GetBorder(bag, slot, itemId, settings)
