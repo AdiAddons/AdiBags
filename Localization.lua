@@ -284,6 +284,12 @@ L["Related to player level"] = true
 L["Same as InventoryItemLevels"] = true
 L["Use SyLevel"] = true
 L["Which color scheme should be used to display the item level ?"] = true
+L['Text Position'] = true
+L["Anchor"] = true
+L["X Offset"] = true
+L["Offset in X direction (horizontal) from the given anchor point."] = true
+L["Y Offset"] = true
+L["Offset in Y direction (vertical) from the given anchor point."] = true
 
 -- modules/Junk.lua
 L["Alt-right-click to configure the Junk module."] = true
@@ -625,6 +631,11 @@ L["When checked, right-clicking on an empty space of a bag opens the configurati
 L["When ctrl is held down"] = "Quand CONTROL est enfoncé"
 L["When shift is held down"] = "Quand MAJ est enfoncé"
 L["Which color scheme should be used to display the item level ?"] = "Quel thème de couleur doit être utilisé pour afficher le niiveau d'objet ?" -- Needs review
+L["Anchor"] = "Ancre"
+L["X Offset"] = "Décalage en X"
+L["Offset in X direction (horizontal) from the given anchor point."] = "Le décalage en X (horizontal) par rapport au point d'ancrage donné."
+L["Y Offset"] = "Décalage en Y"
+L["Offset in Y direction (vertical) from the given anchor point."] = "Le décalage en Y (vertical) par rapport au point d'ancrage donné."
 
 ------------------------ deDE ------------------------
 elseif locale == 'deDE' then
@@ -792,6 +803,11 @@ L["When alt is held down"] = "Wenn Alt gedrückt ist"
 L["When any modifier key is held down"] = "Wenn irgendeine Modifizierungstase gedrückt ist"
 L["When ctrl is held down"] = "Wenn Strg gedrückt ist"
 L["When shift is held down"] = "Wenn Umschalt gedrückt ist"
+L["Anchor"] = "Anker"
+L["X Offset"] = "X-Verschiebung"
+L["Offset in X direction (horizontal) from the given anchor point."] = "Verschiebung in Richtung X (horizontal) vom gegebenen Ankerpunkt aus."
+L["Y Offset"] = "Y-Verschiebung"
+L["Offset in Y direction (vertical) from the given anchor point."] = "Verschiebung in Richtung Y (vertikal) vom gegebenen Ankerpunkt aus."
 
 ------------------------ esMX ------------------------
 -- no translation
@@ -966,6 +982,11 @@ L["When alt is held down"] = "Когда кнопка Alt нажата"
 L["When any modifier key is held down"] = "Когда какая-либо клавиша модификатора нажата"
 L["When ctrl is held down"] = "Когда кнопка Ctrl нажата"
 L["When shift is held down"] = "Когда кнопка Shift нажата"
+L["Anchor"] = "Якорь"
+L["X Offset"] = "Сдвиг по Х"
+L["Offset in X direction (horizontal) from the given anchor point."] = "Сдвиг по оси Х (горизонтально) от заданной точки привязки."
+L["Y Offset"] = "Сдвиг по Y"
+L["Offset in Y direction (vertical) from the given anchor point."] = "Сдвиг по оси Y (вертикально) от заданной точки привязки."
 
 ------------------------ esES ------------------------
 elseif locale == 'esES' then
@@ -1062,6 +1083,11 @@ L["Unlock anchor"] = "desbloquear anclaje - desanclar."
 L["Use this to adjust the bag scale."] = "Usa esto para ajustar la escala de la bolsa."
 L["Use this to adjust the quality-based border opacity. 100% means fully opaque."] = [=[Usa esto para ajustar la opacidad del borde basado en la calidad. 100% significa opaco.
 ]=]
+L["Anchor"] = "Anclar"
+L["X Offset"] = "Desplazamiento X"
+L["Offset in X direction (horizontal) from the given anchor point."] = "Desplazado en la dirección X (horizontal) desde el punto de anclaje dado."
+L["Y Offset"] = "Desplazamiento Y"
+L["Offset in Y direction (vertical) from the given anchor point."] = "Desplazado en la dirección Y (vertical) desde el punto de anclaje dado."
 
 ------------------------ zhTW ------------------------
 elseif locale == 'zhTW' then
@@ -1319,6 +1345,11 @@ L["When checked, right-clicking on an empty space of a bag opens the configurati
 L["When ctrl is held down"] = "當 ctrl 按住"
 L["When shift is held down"] = "當 shift 按住"
 L["Which color scheme should be used to display the item level ?"] = "應該使用哪種顏色設定顯示物品的等級?" -- Needs review
+L["Anchor"] = "錨點"
+L["X Offset"] = "X 偏移量"
+L["Offset in X direction (horizontal) from the given anchor point."] = "X 方向（水平）給定的錨點偏移量。"
+L["Y Offset"] = "Y 偏移量"
+L["Offset in Y direction (vertical) from the given anchor point."] = "Y 方向（垂直）給定的錨點偏移量。"
 
 ------------------------ zhCN ------------------------
 elseif locale == 'zhCN' then
@@ -1573,6 +1604,11 @@ L["When checked, right-clicking on an empty space of a bag opens the configurati
 L["When ctrl is held down"] = "当CTRL键被按下" -- Needs review
 L["When shift is held down"] = "当SHIFT键被按下" -- Needs review
 L["Which color scheme should be used to display the item level ?"] = "应该使用哪种颜色设定显示物品的等级?" -- Needs review
+L["Anchor"] = "锚点"
+L["X Offset"] = "X 偏移量"
+L["Offset in X direction (horizontal) from the given anchor point."] = "X 方向（水平）给定的锚点偏移量。"
+L["Y Offset"] = "Y 偏移量"
+L["Offset in Y direction (vertical) from the given anchor point."] = "Y 方向（垂直）给定的锚点偏移量。"
 
 ------------------------ koKR ------------------------
 elseif locale == 'koKR' then
@@ -1849,6 +1885,11 @@ L["When ctrl is held down"] = "Ctrl키를 누르고 있을 때"
 L["When shift is held down"] = "Shift키를 누르고 있을 때"
 L["Which color scheme should be used to display the item level ?"] = "아이템 레벨에 어떤 색상화 방식을 사용할까요 ?"
 L["You can block auto-deposit ponctually by pressing a modified key while talking to the banker."] = "은행원과 대화할 때 보조 키를 누르고 있으면 자동 보관 기능을 방지할 수 있습니다."
+L["Anchor"] = "앵커"
+L["X Offset"] = "X 좌표"
+L["Offset in X direction (horizontal) from the given anchor point."] = "주어진 앵커를 기준으로 X 방향(수평)의 좌표를 설정합니다."
+L["Y Offset"] = "Y 좌표"
+L["Offset in Y direction (vertical) from the given anchor point."] = "주어진 앵커를 기준으로 Y 방향(수직)의 좌표를 설정합니다."
 
 ------------------------ ptBR ------------------------
 elseif locale == 'ptBR' then
@@ -2106,6 +2147,11 @@ L["When checked, right-clicking on an empty space of a bag opens the configurati
 L["When ctrl is held down"] = "Quando CTRL é pressionado"
 L["When shift is held down"] = "Quando SHIFT é pressionado"
 L["Which color scheme should be used to display the item level ?"] = "Qual esquema de cores deve ser usado para mostrar o nível do item?"
+L["Anchor"] = "Ancorar"
+L["X Offset"] = "Posição de X"
+L["Offset in X direction (horizontal) from the given anchor point."] = "Posição da direção X (horizontal) do ponto de ancora dado"
+L["Y Offset"] = "Posição de Y"
+L["Offset in Y direction (vertical) from the given anchor point."] = "Posição da direção Y (vertical) do ponto de ancora dado"
 end
 
 -- @noloc]]
