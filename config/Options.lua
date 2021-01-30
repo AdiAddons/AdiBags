@@ -641,6 +641,66 @@ local function GetOptions()
 							},
 						}
 					},
+					ItemUpgrade = {
+						name = ITEM_UPGRADE,
+						type = 'group',
+						inline = true,
+						order = 400,
+						set = function(info, value, ...)
+								local db = addon.db.profile
+								db[info[#info]] = value
+								addon:UpdateUpgradeIcon()
+								end,
+						args = {
+							upgradeIconAnchor = {
+								name = L['Anchor'],
+								type = 'select',
+								values = {
+									TOPLEFT = L['Top Left'],
+									TOP = L['Top'],
+									TOPRIGHT = L['Top Right'],
+									LEFT = L['Left'],
+									CENTER = L['Center'],
+									RIGHT = L['Right'],
+									BOTTOMLEFT = L['Bottom Left'],
+									BOTTOM = L['Bottom'],
+									BOTTOMRIGHT = L['Bottom Right'],
+								},
+								sorting = {
+									[1] = "TOPLEFT",
+									[2] = "TOP",
+									[3] = "TOPRIGHT",
+									[4] = "LEFT",
+									[5] = "CENTER",
+									[6] = "RIGHT",
+									[7] = "BOTTOMLEFT",
+									[8] = "BOTTOM",
+									[9] = "BOTTOMRIGHT",
+								},
+								order = 10,
+							},
+							upgradeIconOffsetX = {
+								name = L["X Offset"],
+								desc = L["Offset in X direction (horizontal) from the given anchor point."],
+								type = 'range',
+								min = -20,
+								max = 20,
+								step = 1,
+								bigStep = 1,
+								order = 20,
+							},
+							upgradeIconOffsetY = {
+								name = L["Y Offset"] ,
+								desc = L["Offset in Y direction (vertical) from the given anchor point."],
+								type = 'range',
+								min = -20,
+								max = 20,
+								step = 1,
+								bigStep = 1,
+								order = 30,
+							},
+						},
+					},
 				},
 			},
 			filters = {

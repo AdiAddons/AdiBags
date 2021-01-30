@@ -170,6 +170,7 @@ function addon:OnEnable()
 	self.bagFont:ApplySettings()
 	self.sectionFont:ApplySettings()
 	self:UpdatePositionMode()
+	self:UpdateUpgradeIcon()
 
 	self:Debug('Enabled')
 end

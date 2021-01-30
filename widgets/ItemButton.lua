@@ -79,6 +79,8 @@ function buttonProto:OnCreate()
 		self.NewItemTexture:Hide()
 	end
 	self.SplitStack = nil -- Remove the function set up by the template
+	self.UpgradeIcon:ClearAllPoints()
+	self.UpgradeIcon:SetPoint(addon.db.profile.upgradeIconAnchor, self, addon.db.profile.upgradeIconOffsetX, addon.db.profile.upgradeIconOffsetY)
 end
 
 function buttonProto:OnAcquire(container, bag, slot)
@@ -121,6 +123,13 @@ end
 local bankButtonClass, bankButtonProto = addon:NewClass("BankItemButton", "ItemButton")
 bankButtonClass.frameTemplate = "BankItemButtonGenericTemplate"
 
+function bankButtonProto:OnCreate()
+	self.UpgradeIcon = self:CreateTexture(nil, "OVERLAY", nil, 1)
+	self.UpgradeIcon:SetAtlas("bags-greenarrow", true)
+	self.UpgradeIcon:Hide()
+	buttonProto.OnCreate(self)
+end
+
 function bankButtonProto:OnAcquire(container, bag, slot)
 	self.GetInventorySlot = nil -- Remove the method added by the template
 	self.inventorySlot = bag == REAGENTBANK_CONTAINER and ReagentBankButtonIDToInvSlotID(slot) or BankButtonIDToInvSlotID(slot)
@@ -140,7 +149,7 @@ function bankButtonProto:GetInventorySlot()
 end
 
 function bankButtonProto:UpdateUpgradeIcon()
-	if self.bag ~= BANK_CONTAINER and self.bag ~= REAGENTBANK_CONTAINER then
+	if self.bag ~= REAGENTBANK_CONTAINER then
 		buttonProto.UpdateUpgradeIcon(self)
 	end
 end
@@ -166,6 +175,18 @@ hooksecurefunc(addon, 'OnInitialize', function()
 	addon:Debug('Prespawning buttons')
 	containerButtonPool:PreSpawn(160)
 end)
+
+function addon:UpdateUpgradeIcon()
+	local db = addon.db.profile
+	for button, _ in addon:GetPool("ItemButton"):IterateAllObjects() do
+		button.UpgradeIcon:ClearAllPoints()
+		button.UpgradeIcon:SetPoint(db.upgradeIconAnchor, button, db.upgradeIconOffsetX, db.upgradeIconOffsetY)
+	end
+	for button, _ in addon:GetPool("BankItemButton"):IterateAllObjects() do
+		button.UpgradeIcon:ClearAllPoints()
+		button.UpgradeIcon:SetPoint(db.upgradeIconAnchor, button, db.upgradeIconOffsetX, db.upgradeIconOffsetY)
+	end
+end
 
 --------------------------------------------------------------------------------
 -- Model data
