@@ -37,9 +37,16 @@ function mod:OnInitialize()
 		{
 			profile = {
 				small = false,
+				text = addon:GetFontDefaults(PriceFont)
 			}
 		}
 	)
+	self.font = addon:CreateFont(
+		self.name..'Font',
+		PriceFont,
+		function() return self.db.profile.text end
+	)
+	self.font.SettingHook = function() return self:Update() end
 end
 
 function mod:OnEnable()
@@ -47,6 +54,8 @@ function mod:OnEnable()
 	if self.widget then
 		self.widget:Show()
 	end
+	self.font:ApplySettings()
+	self:Update();
 end
 
 function mod:OnDisable()
@@ -69,7 +78,27 @@ function mod:OnBagFrameCreated(bag)
 	widget:SetScript('OnClick', function() self:OpenOptions() end)
 	addon.SetupTooltip(widget, { L['Money'], L['Right-click to configure.'] }, "ANCHOR_BOTTOMRIGHT")
 
+	self:Update()
 	frame:AddBottomWidget(self.widget, "RIGHT", 50, size, size, 0)
+end
+
+local updating
+local GOLD_BUTTON_FRAME_NAME = addonName.."MoneyFrameGoldButton"
+local SILVER_BUTTON_FRAME_NAME = addonName.."MoneyFrameSilverButton"
+local COPPER_BUTTON_FRAME_NAME = addonName.."MoneyFrameCopperButton"
+
+function mod:Update()
+	if not self.widget or updating then return end
+	updating = true
+
+	for _, child in ipairs({ self.widget:GetChildren() }) do
+		local childName = child:GetName()
+		if childName == GOLD_BUTTON_FRAME_NAME or childName == SILVER_BUTTON_FRAME_NAME or childName == COPPER_BUTTON_FRAME_NAME then
+			child:SetNormalFontObject(self.font)
+		end
+	end
+
+	updating = false
 end
 
 function mod:GetOptions()
@@ -80,5 +109,6 @@ function mod:GetOptions()
 			type = 'toggle',
 			order = 10,
 		},
-	}, addon:GetOptionHandler(self, false)
+		text = addon:CreateFontOptions(self.font, nil, 15)
+	}, addon:GetOptionHandler(self, false, function() return self:Update() end)
 end
