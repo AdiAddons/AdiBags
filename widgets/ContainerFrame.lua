@@ -92,6 +92,10 @@ function addon:CreateContainerFrame(...) return containerClass:Create(...) end
 
 local SimpleLayeredRegion = addon:GetClass("SimpleLayeredRegion")
 
+local frameLevelBag = 0
+local frameLevelBank = 5
+local frameLevelIncrement = 10
+
 local bagSlots = {}
 function containerProto:OnCreate(name, isBank, bagObject)
 	self:SetParent(UIParent)
@@ -100,7 +104,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 
 	--self:EnableMouse(true)
 	self:SetFrameStrata("HIGH")
-	local frameLevel = 2 + (isBank and 5 or 0)
+	local frameLevel = 2 + (isBank and frameLevelBank or frameLevelBag)
 	self:SetFrameLevel(frameLevel - 2)
 
 	self:SetScript('OnShow', self.OnShow)
@@ -135,7 +139,33 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	local button = CreateFrame("Button", nil, self)
 	button:SetAllPoints(self)
 	button:RegisterForClicks("AnyUp")
-	button:SetScript('OnClick', function(_, ...) return self:OnClick(...) end)
+	button:SetScript('OnClick', function(_, ...)
+		-- Toggle foreground by container click
+		local setForeground = false
+		if isBank and frameLevelBank < frameLevelBag then
+			setForeground = true
+			frameLevelBank = frameLevelBank + frameLevelIncrement
+		elseif not isBank and frameLevelBank > frameLevelBag then
+			setForeground = true
+			frameLevelBag = frameLevelBag + frameLevelIncrement
+		end
+
+		if setForeground then
+			frameLevel = 2 + (self:GetFrameLevel() + frameLevelIncrement)
+			self:SetFrameLevel(frameLevel - 2)
+			if button ~= nil then
+				button:SetFrameLevel(frameLevel - 1)
+			end
+			if closeButton ~= nil then
+				closeButton:SetFrameLevel(frameLevel)
+			end
+			if searchBox ~= nil then
+				searchBox:SetFrameLevel(frameLevel)
+			end
+		end
+
+		return self:OnClick(...)
+	end)
 	button:SetScript('OnReceiveDrag', function() return self:OnClick("LeftButton") end)
 	button:SetFrameLevel(frameLevel - 1)
 
