@@ -1,6 +1,6 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2014 Adirelle (adirelle@gmail.com)
+Copyright 2014-2021 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 This file is part of AdiBags.
