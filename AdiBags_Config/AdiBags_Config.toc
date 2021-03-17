@@ -1,4 +1,4 @@
-## Interface: 90002
+## Interface: 90005
 
 ## Title: AdiBags Configuration
 ## Notes: Adirelle's bag addon.
