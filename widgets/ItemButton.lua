@@ -41,7 +41,6 @@ local ITEM_QUALITY_COMMON = _G.Enum.ItemQuality.Common
 local ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
 local next = _G.next
 local pairs = _G.pairs
-local PawnIsContainerItemAnUpgrade = _G.PawnIsContainerItemAnUpgrade
 local select = _G.select
 local SetItemButtonDesaturated = _G.SetItemButtonDesaturated
 local StackSplitFrame = _G.StackSplitFrame
@@ -361,6 +360,7 @@ end
 
 function buttonProto:UpdateUpgradeIcon()
 	-- Use Pawn's (third-party addon) function if present; else fallback to Blizzard's.
+	local PawnIsContainerItemAnUpgrade = _G.PawnIsContainerItemAnUpgrade
 	local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot) or IsContainerItemAnUpgrade(self.bag, self.slot)
 	self.UpgradeIcon:SetShown(itemIsUpgrade or false)
 end
