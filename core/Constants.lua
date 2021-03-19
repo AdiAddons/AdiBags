@@ -149,8 +149,4 @@ addon.DEFAULT_SETTINGS = {
 			['*'] = false,
 		},
 	},
-	global = {
-		muteBugGrabber = false,
-	},
 }
-
