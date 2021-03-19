@@ -40,7 +40,6 @@ local ITEM_QUALITY_COMMON = _G.Enum.ItemQuality.Standard
 local ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
 local next = _G.next
 local pairs = _G.pairs
-local PawnIsContainerItemAnUpgrade = _G.PawnIsContainerItemAnUpgrade
 local select = _G.select
 local SetItemButtonDesaturated = _G.SetItemButtonDesaturated
 local StackSplitFrame = _G.StackSplitFrame
