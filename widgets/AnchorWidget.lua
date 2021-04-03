@@ -24,6 +24,7 @@ local L = addon.L
 
 --<GLOBALS
 local _G = _G
+local BackdropTemplateMixin = _G.BackdropTemplateMixin
 local CreateFrame = _G.CreateFrame
 local UIParent = _G.UIParent
 --GLOBALS>
@@ -60,7 +61,7 @@ function anchorProto:OnCreate(parent, name, label, target)
 	self:SetScript('OnMouseUp', self.StopMoving)
 	self:SetScript('OnHide', self.StopMoving)
 
-	local corner = CreateFrame("Frame", nil, self)
+	local corner = CreateFrame("Frame", nil, self, BackdropTemplateMixin and "BackdropTemplate")
 	corner:SetFrameStrata("TOOLTIP")
 	corner:SetBackdrop({ bgFile = [[Interface\Buttons\WHITE8X8]], tile = true, tileSize = 8 })
 	corner:SetBackdropColor(1, 1, 0.5, 0.8)

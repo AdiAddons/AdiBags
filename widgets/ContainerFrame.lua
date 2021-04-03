@@ -25,6 +25,7 @@ local L = addon.L
 --<GLOBALS
 local _G = _G
 local assert = _G.assert
+local BackdropTemplateMixin = _G.BackdropTemplateMixin
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
 local band = _G.bit.band
 local BANK_CONTAINER = _G.BANK_CONTAINER
@@ -43,6 +44,7 @@ local GetMerchantItemLink = _G.GetMerchantItemLink
 local ipairs = _G.ipairs
 local max = _G.max
 local min = _G.min
+local Mixin = _G.Mixin
 local next = _G.next
 local NUM_BAG_SLOTS = _G.NUM_BAG_SLOTS
 local pairs = _G.pairs
@@ -96,6 +98,9 @@ local bagSlots = {}
 function containerProto:OnCreate(name, isBank, bagObject)
 	self:SetParent(UIParent)
 	containerParentProto.OnCreate(self)
+	if BackdropTemplateMixin then
+		Mixin(self, BackdropTemplateMixin)
+	end
 
 	--self:EnableMouse(true)
 	self:SetFrameStrata("HIGH")

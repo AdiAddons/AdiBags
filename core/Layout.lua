@@ -24,6 +24,8 @@ local L = addon.L
 
 --<GLOBALS
 local _G = _G
+local BackdropTemplateMixin = _G.BackdropTemplateMixin
+local Mixin = _G.Mixin
 local pairs = _G.pairs
 local type = _G.type
 local UIParent = _G.UIParent
@@ -32,6 +34,9 @@ local wipe = _G.wipe
 
 function addon:CreateBagAnchor()
 	local anchor = self:CreateAnchorWidget(UIParent, "anchor", L["AdiBags Anchor"])
+	if BackdropTemplateMixin then
+		Mixin(anchor, BackdropTemplateMixin)
+	end
 	anchor:SetSize(80, 80)
 	anchor:SetFrameStrata("TOOLTIP")
 	anchor:SetBackdrop({ bgFile = [[Interface\Tooltips\UI-Tooltip-Background]] })

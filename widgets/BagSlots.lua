@@ -24,6 +24,7 @@ local L = addon.L
 
 --<GLOBALS
 local _G = _G
+local BackdropTemplateMixin = _G.BackdropTemplateMixin
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
 local band = _G.bit.band
 local BankFrame = _G.BankFrame
@@ -435,7 +436,7 @@ end
 --------------------------------------------------------------------------------
 
 function addon:CreateBagSlotPanel(container, name, bags, isBank)
-	local self = CreateFrame("Frame", container:GetName().."Bags", container)
+	local self = CreateFrame("Frame", container:GetName().."Bags", container, BackdropTemplateMixin and "BackdropTemplate")
 	self:SetPoint("BOTTOMLEFT", container, "TOPLEFT", 0, 4)
 
 	self.openSound = isBank and SOUNDKIT.IG_MAINMENU_OPEN or SOUNDKIT.IG_BACKPACK_OPEN
