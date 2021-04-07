@@ -108,7 +108,7 @@ end
 
 local function CreateText(button)
 	local text = button:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
-	text:SetPoint("TOPLEFT", button, 3, -1)
+	text:SetPoint("BOTTOMLEFT", button, 3, -1)
 	text:Hide()
 	texts[button] = text
 	return text
