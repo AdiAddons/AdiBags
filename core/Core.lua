@@ -1,6 +1,6 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010-2014 Adirelle (adirelle@gmail.com)
+Copyright 2010-2021 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 This file is part of AdiBags.
@@ -108,6 +108,13 @@ function addon:OnInitialize()
 	self:RegisterChatCommand("adibags", function(cmd)
 		addon:OpenOptions(strsplit(' ', cmd or ""))
 	end, true)
+
+	-- Just a warning
+	--@alpha@
+	if geterrorhandler() == _G._ERRORMESSAGE and not GetCVarBool("scriptErrors") then
+		print('|cffffee00', L["Warning: You are using an alpha or beta version of AdiBags without displaying Lua errors. If anything goes wrong, AdiBags (or any other addon causing some error) will simply stop working for apparently no reason. Please either enable the display of Lua errors or install an error handler addon like BugSack or Swatter."], '|r')
+	end
+	--@end-alpha@
 
 	self:Debug('Initialized')
 end
@@ -254,27 +261,6 @@ function addon:UpgradeProfile()
 		end
 	end
 
-end
-
---------------------------------------------------------------------------------
--- Error reporting
---------------------------------------------------------------------------------
-
-local BugGrabber = addon.BugGrabber
-if BugGrabber then
-	if BugGrabber.setupCallbacks then
-		BugGrabber.setupCallbacks()
-	end
-	local pattern = "("..addonName.."[^\n]+%.lua):%d+:"
-	BugGrabber.RegisterCallback(addon, 'BugGrabber_BugGrabbed', function(_, errorObject)
-		local ref = errorObject and errorObject.stack and strmatch(errorObject.stack, pattern)
-		if ref and not strmatch(ref, '\\libs\\') then
-			if not addon.db.global.muteBugGrabber then
-				print(format('|cffffff00'..L['Error in %s: %s -- details: %s'], addonName, '|r'..errorObject.message, BugGrabber:GetChatLink(errorObject)))
-			end
-			addon:Debug('Error:', errorObject.message)
-		end
-	end)
 end
 
 --------------------------------------------------------------------------------
