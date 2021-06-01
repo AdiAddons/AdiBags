@@ -26,6 +26,7 @@ local L = addon.L
 local _G = _G
 local abs = _G.math.abs
 local GetItemInfo = _G.GetItemInfo
+local ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
 local QuestDifficultyColors = _G.QuestDifficultyColors
 local UnitLevel = _G.UnitLevel
 local modf = _G.math.modf
@@ -116,7 +117,7 @@ function mod:UpdateButton(event, button)
 		local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
 		local level = item and item:GetCurrentItemLevel() or 0
 		if level >= settings.minLevel
-			and (quality ~= LE_ITEM_QUALITY_POOR or not settings.ignoreJunk)
+			and (quality ~= ITEM_QUALITY_POOR or not settings.ignoreJunk)
 			and (loc ~= "" or not settings.equippableOnly)
 		then
 			if SyLevel then
@@ -196,16 +197,16 @@ end
 do
 	local colors = {
 		-- { upper bound, r, g, b }
-		{ 150, 0.55, 0.55, 0.55 }, -- gray
-		{ 250, 1.00, 0.00, 0.00 }, -- red
-		{ 300, 1.00, 0.70, 0.00 }, -- orange
-		{ 350, 1.00, 1.00, 0.00 }, -- yellow
-		{ 372, 0.00, 1.00, 0.00 }, -- green
-		{ 385, 0.00, 1.00, 1.00 }, -- cyan
-		{ 397, 0.00, 0.80, 1.00 }, -- blue
-		{ 403, 1.00, 0.50, 1.00 }, -- purple,
-		{ 410, 1.00, 0.75, 1.00 }, -- pink
-		{ 999, 1.00, 1.00, 1.00 }, -- white
+		{ 30, 0.55, 0.55, 0.55 }, -- gray
+		{ 58, 1.00, 0.00, 0.00 }, -- red
+		{ 61, 1.00, 0.70, 0.00 }, -- orange
+		{ 63, 1.00, 1.00, 0.00 }, -- yellow
+		{ 65, 0.00, 1.00, 0.00 }, -- green
+		{ 80, 0.00, 1.00, 1.00 }, -- cyan
+		{ 84, 0.00, 0.80, 1.00 }, -- blue
+		{ 89, 1.00, 0.50, 1.00 }, -- purple,
+		{ 94, 1.00, 0.75, 1.00 }, -- pink
+		{ 99, 1.00, 1.00, 1.00 }, -- white
 	}
 
 	colorSchemes.original = function(level)
