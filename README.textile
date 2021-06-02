@@ -83,15 +83,15 @@ According to my experience with Baggins, comprehensive editor is awful to write 
 
 h2. Feedback
 
-*Important notice:* since v1.6.12-beta-1, AdiBags embeds "BugGrabber":https://www.curseforge.com/wow/addons/bug-grabber, an error catching addon. Please check the error is really about AdiBags before reporting them here. I suggest installing "BugSack":https://www.curseforge.com/wow/addons/bugsack to catch the errors.
+*Important notice:* I highly suggest installing both, "BugGrabber":https://www.curseforge.com/wow/addons/bug-grabber and "BugSack":https://www.curseforge.com/wow/addons/bugsack, to capture errors and then alert/display them to you in the manner of your choosing. However, I ask that you please verify any errors received are actually about AdiBags before reporting them to me.
 
 Some words about submitting bug reports:
-* I do not care about "it doesn't work, fix it!" messages. I need to know how it failed and a way to reproduce the bug so I can test it and make sure I fix it.
-* Bug reports are not in the "fire and forget" kind of things. I may have to ask you some details.
-* Please check all existing tickets and the "known issues" section above before submitting new ones. Duplicate reports will be rejected on sight.
+* Reports that tell me "it doesn't work, fix it!" aren't helpful. I need to know how it failed and a way to reproduce the bug, so I can identify what's causing it and make sure it gets fixed properly.
+* These aren't a "fire and forget" sort of thing. I may have some follow-up questions or require your assistance in some way.
+* Please search through the existing reports and "known issues" section above before submitting new ones. Duplicate reports will be rejected on sight.
 
-Please report any bug or error using the "bug tracker":https://github.com/Adirelle/AdiBags/issues
+Now, with all of that in mind, please report any bug or error you've found using the "issue tracker":https://github.com/AdiAddons/AdiBags/issues.
 
 h2. License
 
-AdiButtonAuras is licensed under the GNU General Public License version 3.
+AdiBags is licensed under the GNU General Public License version 3.

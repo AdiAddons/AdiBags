@@ -13,7 +13,6 @@ externals:
   libs/LibDataBroker-1.1: https://github.com/tekkub/libdatabroker-1-1
   libs/LibSharedMedia-3.0: https://repos.wowace.com/wow/libsharedmedia-3-0/trunk/LibSharedMedia-3.0
   libs/AceGUI-3.0-SharedMediaWidgets: https://repos.wowace.com/wow/ace-gui-3-0-shared-media-widgets/trunk/AceGUI-3.0-SharedMediaWidgets
-  libs/BugGrabber: https://repos.wowace.com/wow/bug-grabber/trunk
 
 move-folders:
   AdiBags/AdiBags_Config: AdiBags_Config
