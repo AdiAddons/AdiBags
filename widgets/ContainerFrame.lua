@@ -41,6 +41,7 @@ local GetCursorInfo = _G.GetCursorInfo
 local GetItemInfo = _G.GetItemInfo
 local GetMerchantItemLink = _G.GetMerchantItemLink
 local ipairs = _G.ipairs
+local KEYRING_CONTAINER = _G.KEYRING_CONTAINER
 local max = _G.max
 local min = _G.min
 local next = _G.next
@@ -384,7 +385,7 @@ local function FindBagWithRoom(self, itemFamily)
 	for bag in pairs(self:GetBagIds()) do
 		local numFree, family = GetContainerNumFreeSlots(bag)
 		if numFree and numFree > 0 then
-			if band(family, itemFamily) ~= 0 then
+			if band(bag == KEYRING_CONTAINER and 256 or family, itemFamily) ~= 0 then
 				return bag
 			elseif not fallback then
 				fallback = bag
@@ -495,6 +496,7 @@ function containerProto:UpdateContent(bag)
 	local content = self.content[bag]
 	local newSize = self:GetBagIds()[bag] and GetContainerNumSlots(bag) or 0
 	local _, bagFamily = GetContainerNumFreeSlots(bag)
+	bagFamily = bag == KEYRING_CONTAINER and 256 or bagFamily
 	content.family = bagFamily
 	for slot = 1, newSize do
 		local itemId = GetContainerItemID(bag, slot)
@@ -588,7 +590,9 @@ end
 local function FilterByBag(slotData)
 	local bag = slotData.bag
 	local name
-	if bag == BACKPACK_CONTAINER then
+	if bag == KEYRING_CONTAINER then
+		name = L['Keyring']
+	elseif bag == BACKPACK_CONTAINER then
 		name = L['Backpack']
 	elseif bag == BANK_CONTAINER then
 		name = L['Bank']

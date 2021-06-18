@@ -49,6 +49,7 @@ local GetItemInfo = _G.GetItemInfo
 local GetNumBankSlots = _G.GetNumBankSlots
 local ipairs = _G.ipairs
 local IsInventoryItemLocked = _G.IsInventoryItemLocked
+local KEYRING_CONTAINER = _G.KEYRING_CONTAINER
 local next = _G.next
 local NUM_BAG_SLOTS = _G.NUM_BAG_SLOTS
 local NUM_BANKGENERIC_SLOTS = _G.NUM_BANKGENERIC_SLOTS
@@ -103,7 +104,7 @@ do
 		addon:Debug('FindSlotForItem', itemId, GetItemInfo(itemId), 'count=', itemCount, 'maxStack=', maxStack, 'family=', itemFamily, 'bags:', unpack(bags))
 		local bestBag, bestSlot, bestScore
 		for i, bag in pairs(bags) do
-			local scoreBonus = band(select(2, GetContainerNumFreeSlots(bag)) or 0, itemFamily) ~= 0 and maxStack or 0
+			local scoreBonus = band(bag == KEYRING_CONTAINER and 256 or select(2, GetContainerNumFreeSlots(bag)) or 0, itemFamily) ~= 0 and maxStack or 0
 			for slot = 1, GetContainerNumSlots(bag) do
 				local texture, slotCount, locked = GetContainerItemInfo(bag, slot)
 				if not locked and (not texture or GetContainerItemID(bag, slot) == itemId) then
@@ -456,7 +457,7 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	local x = BAG_INSET
 	local height = 0
 	for i, bag in ipairs(bags) do
-		if bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER then
+		if bag ~= KEYRING_CONTAINER and bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER then
 			local button = buttonClass:Create(bag)
 			button:SetParent(self)
 			button:SetPoint("TOPLEFT", x, -TOP_PADDING)

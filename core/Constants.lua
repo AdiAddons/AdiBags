@@ -26,16 +26,17 @@ local L = addon.L
 local _G = _G
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
 local BANK_CONTAINER = _G.BANK_CONTAINER
+local KEYRING_CONTAINER = _G.KEYRING_CONTAINER
 local NUM_BAG_SLOTS = _G.NUM_BAG_SLOTS
 local NUM_BANKBAGSLOTS = _G.NUM_BANKBAGSLOTS
 local pairs = _G.pairs
 --GLOBALS>
 
--- Backpack and bags
-local BAGS = { [BACKPACK_CONTAINER] = BACKPACK_CONTAINER }
+-- Keyring, backpack, and bags
+local BAGS = { [KEYRING_CONTAINER] = KEYRING_CONTAINER, [BACKPACK_CONTAINER] = BACKPACK_CONTAINER }
 for i = 1, NUM_BAG_SLOTS do BAGS[i] = i end
 
--- Base nank bags
+-- Bank and bank bags
 local BANK = { [BANK_CONTAINER] = BANK_CONTAINER }
 for i = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do BANK[i] = i end
 

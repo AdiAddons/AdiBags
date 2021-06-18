@@ -38,6 +38,7 @@ local IsContainerItemAnUpgrade = _G.IsContainerItemAnUpgrade
 local IsInventoryItemLocked = _G.IsInventoryItemLocked
 local ITEM_QUALITY_COMMON = _G.Enum.ItemQuality.Standard
 local ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
+local KEYRING_CONTAINER = _G.KEYRING_CONTAINER
 local next = _G.next
 local pairs = _G.pairs
 local select = _G.select
@@ -275,7 +276,7 @@ function buttonProto:FullUpdate()
 	self.itemLink = GetContainerItemLink(bag, slot)
 	self.hasItem = not not self.itemId
 	self.texture = GetContainerItemInfo(bag, slot)
-	self.bagFamily = select(2, GetContainerNumFreeSlots(bag))
+	self.bagFamily = bag == KEYRING_CONTAINER and 256 or select(2, GetContainerNumFreeSlots(bag))
 	self:Update()
 end
 

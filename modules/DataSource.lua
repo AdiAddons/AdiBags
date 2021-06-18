@@ -28,6 +28,7 @@ local format = _G.format
 local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
 local GetContainerNumSlots = _G.GetContainerNumSlots
 local ipairs = _G.ipairs
+local KEYRING_CONTAINER = _G.KEYRING_CONTAINER
 local pairs = _G.pairs
 local strjoin = _G.strjoin
 local tconcat = _G.table.concat
@@ -121,7 +122,7 @@ local function BuildSpaceString(bags)
 	wipe(free)
 	for bag in pairs(bags) do
 		local bagSize = GetContainerNumSlots(bag)
-		if bagSize and bagSize > 0 then
+		if bag ~= KEYRING_CONTAINER and bagSize and bagSize > 0 then
 			local bagFree, bagFamily = GetContainerNumFreeSlots(bag)
 			if mod.db.profile.mergeBags then bagFamily = 0 end
 			size[bagFamily] = (size[bagFamily] or 0) + bagSize
