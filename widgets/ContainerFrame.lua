@@ -49,6 +49,7 @@ local NUM_BAG_SLOTS = _G.NUM_BAG_SLOTS
 local pairs = _G.pairs
 local PlaySound = _G.PlaySound
 local select = _G.select
+local SOUNDKIT = _G.SOUNDKIT
 local strjoin = _G.strjoin
 local strsplit = _G.strsplit
 local tinsert = _G.tinsert
@@ -78,6 +79,17 @@ local LSM = LibStub('LibSharedMedia-3.0')
 --------------------------------------------------------------------------------
 -- Widget scripts
 --------------------------------------------------------------------------------
+
+local function KeyringButton_OnClick(button)
+	PlaySound(button:GetChecked() and SOUNDKIT.KEY_RING_OPEN or SOUNDKIT.KEY_RING_CLOSE)
+	if button:GetChecked() then
+		BAG_IDS.BAGS[KEYRING_CONTAINER] = KEYRING_CONTAINER
+		-- TODO: Initialize/setup hooks, callbacks, and etc. for the keyring "bag."
+	else
+		BAG_IDS.BAGS[KEYRING_CONTAINER] = nil
+		-- TODO: Undo the above.
+	end
+end
 
 local function BagSlotButton_OnClick(button)
 	button.panel:SetShown(button:GetChecked())
@@ -173,6 +185,22 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	closeButton:SetPoint("TOPRIGHT", -2, -2)
 	addon.SetupTooltip(closeButton, L["Close"])
 	closeButton:SetFrameLevel(frameLevel)
+
+	if not self.isBank then
+		local keyringButton = CreateFrame("CheckButton", nil, self)
+		keyringButton:SetNormalTexture([[Interface\Buttons\UI-Button-KeyRing]])
+		keyringButton:SetCheckedTexture([[Interface\Buttons\UI-Button-KeyRing-Highlight]])
+		keyringButton:GetCheckedTexture():SetBlendMode("ADD")
+		keyringButton:SetScript('OnClick', KeyringButton_OnClick)
+		keyringButton:SetWidth(15)
+		keyringButton:SetHeight(30)
+		self.keyringButton = keyringButton
+		addon.SetupTooltip(keyringButton, {
+			L["Keyring"],
+			L["Click to toggle the keyring."]
+		}, "ANCHOR_BOTTOMLEFT", -8, 0)
+		headerLeftRegion:AddWidget(keyringButton, 60, 8)
+	end
 
 	local bagSlotButton = CreateFrame("CheckButton", nil, self)
 	bagSlotButton:SetNormalTexture([[Interface\Buttons\Button-Backpack-Up]])
