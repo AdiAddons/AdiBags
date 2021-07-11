@@ -35,6 +35,7 @@ local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
 local GetItemInfo = _G.GetItemInfo
 local GetItemQualityColor = _G.GetItemQualityColor
 local hooksecurefunc = _G.hooksecurefunc
+local IsContainerItemAnUpgrade = _G.IsContainerItemAnUpgrade
 local IsInventoryItemLocked = _G.IsInventoryItemLocked
 local ITEM_QUALITY_COMMON = _G.Enum.ItemQuality.Common
 local ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
@@ -358,9 +359,10 @@ function buttonProto:UpdateNew()
 end
 
 function buttonProto:UpdateUpgradeIcon()
-	if IsAddOnLoaded('Pawn') then itemIsUpgrade = _G.PawnIsContainerItemAnUpgrade(self.bag, self.slot) end
-	if itemIsUpgrade == nil then itemIsUpgrade = _G.IsContainerItemAnUpgrade(self.bag, self.slot) end
-	self.UpgradeIcon:SetShown( itemIsUpgrade or false)
+	-- Use Pawn's (third-party addon) function if present; else fallback to Blizzard's.
+	local PawnIsContainerItemAnUpgrade = _G.PawnIsContainerItemAnUpgrade
+	local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot) or IsContainerItemAnUpgrade(self.bag, self.slot)
+	self.UpgradeIcon:SetShown(itemIsUpgrade or false)
 end
 
 local function GetBorder(bag, slot, itemId, settings)

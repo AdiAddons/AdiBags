@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 
-## Interface: 90005
+## Interface: 90100
 
 ## Title: AdiBags
 ## Notes: Adirelle's bag addon.
@@ -26,7 +26,7 @@
 ## SavedVariables: AdiBagsDB
 ## X-Date: @project-date-iso@
 ## X-License: GPL v3
-## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, Scrap, BrainDead, !BugGrabber, SyLevel
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, Scrap, BrainDead, SyLevel
 #@alpha@
 ## OptionalDeps: AdiDebug, BugSack, Swatter
 #@end-alpha@
@@ -34,7 +34,6 @@
 #@no-lib-strip@
 libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
-libs\BugGrabber\load.xml
 libs\AceAddon-3.0\AceAddon-3.0.xml
 libs\AceDB-3.0\AceDB-3.0.xml
 libs\AceHook-3.0\AceHook-3.0.xml

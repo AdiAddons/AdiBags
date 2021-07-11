@@ -296,16 +296,6 @@ local function GetOptions()
 				type = 'toggle',
 				order = 110,
 			},
-			muteBugGrabber = {
-				name = L['No error reports'],
-				desc = L['Check to disable error reporting.'],
-				type = 'toggle',
-				order = 115,
-				confirm = function(_, value) return value and L["If the addon seems not to work properly, please re-enable error reporting and check again before filing a bug ticket."] end,
-				get = function() return addon.db.global.muteBugGrabber end,
-				set = function(_, v) addon.db.global.muteBugGrabber = v end,
-				hidden = not addon.BugGrabber,
-			},
 			bags = {
 				name = L['Bags'],
 				type = 'group',
@@ -688,4 +678,3 @@ function addon:OpenOptions(...)
 		AceConfigDialog:Open(addonName)
 	end
 end
-
