@@ -96,7 +96,8 @@ local bagSlots = {}
 function containerProto:OnCreate(name, isBank, bagObject)
 	self:SetParent(UIParent)
 	containerParentProto.OnCreate(self)
-
+	Mixin(self, BackdropTemplateMixin)
+	
 	--self:EnableMouse(true)
 	self:SetFrameStrata("HIGH")
 	local frameLevel = 2 + (isBank and 5 or 0)
