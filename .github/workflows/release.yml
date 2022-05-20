@@ -1,0 +1,32 @@
+name: Package and release
+
+on:
+  push:
+    tags:
+      - '**'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Clone project
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # TODO(cidan): add tests
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            Localization.lua
+            AdiBags.toc
+            AdiBags_Config
+            config
+            core
+            libs
+            modules
+            widgets
