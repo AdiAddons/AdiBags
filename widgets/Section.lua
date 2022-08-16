@@ -108,8 +108,15 @@ function sectionProto:OnCreate()
 end
 
 function sectionProto:OnShow()
+	local isFreeSpaceSection = self.key == "Free space#Free space"
+	local keySection = self.container:GetSection("Key", "Key")
+
 	for button in pairs(self.buttons) do
-		button:Show()
+		local buttonFamilyIsKeyChain = button.bagFamily == 256 or (button:IsStack() and button:GetBagFamily() == 256)
+		local shouldShow = not (keySection:IsCollapsed() and isFreeSpaceSection and buttonFamilyIsKeyChain)
+		if shouldShow then
+			button:Show()
+		end
 	end
 end
 
@@ -117,6 +124,15 @@ function sectionProto:OnHide()
 	for button in pairs(self.buttons) do
 		button:Hide()
 	end
+	-- Also hide free keys section in the "Free space"
+	if self.key == "Key#Key" then
+			local section = self.container:GetSection("Free space", "Free space")
+			for button in pairs(section.buttons) do
+				if button.bagFamily == 256 or (button:IsStack() and button:GetBagFamily() == 256) then
+					button:Hide()
+				end
+			end
+		end
 end
 
 function sectionProto:ToString()
@@ -358,9 +374,16 @@ function sectionProto:FullLayout()
 		return self:Hide()
 	end
 
+	local isFreeSpaceSection = self.key == "Free space#Free space"
+	local keySection = self.container:GetSection("Key", "Key")
+
 	for button in pairs(self.buttons) do
-		button:Show()
-		tinsert(buttonOrder, button)
+		local buttonFamilyIsKeyChain = button.bagFamily == 256 or (button:IsStack() and button:GetBagFamily() == 256)
+		local shouldShow = not (keySection:IsCollapsed() and isFreeSpaceSection and buttonFamilyIsKeyChain)
+		if shouldShow then
+			button:Show()
+			tinsert(buttonOrder, button)
+		end
 	end
 	tsort(buttonOrder, CompareButtons)
 
