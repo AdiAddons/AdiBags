@@ -51,11 +51,6 @@ local type = _G.type
 local FAMILY_TAGS = addon.FAMILY_TAGS
 local FAMILY_ICONS = addon.FAMILY_ICONS
 
-addon.isRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-addon.isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
-addon.isBCC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC and LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_BURNING_CRUSADE
-addon.isWOTLK = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC and LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_NORTHREND
-
 --------------------------------------------------------------------------------
 -- (bag,slot) <=> slotId conversion
 --------------------------------------------------------------------------------

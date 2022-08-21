@@ -22,6 +22,12 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 local addonName, addon = ...
 local L = addon.L
 
+-- Constants for detecting WoW version.
+addon.isRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+addon.isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+addon.isBCC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC and LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_BURNING_CRUSADE
+addon.isWOTLK = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC and LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_NORTHREND
+
 --<GLOBALS
 local _G = _G
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
