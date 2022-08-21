@@ -307,16 +307,25 @@ function addon:SetupDefaultFilters()
 		end
 
 		function itemCat:GetOptions()
-			local values = {
-				[TRADE_GOODS] = TRADE_GOODS,
-				[CONSUMMABLE] = CONSUMMABLE,
-				[MISCELLANEOUS] = MISCELLANEOUS,
-				[RECIPE] = RECIPE,
-			}
+			local values = {}
 			if addon.isRetail then
-				values[GEM] = GEM
-				values[GLYPH] = GLYPH
+				values = {
+					[TRADE_GOODS] = TRADE_GOODS,
+					[CONSUMMABLE] = CONSUMMABLE,
+					[MISCELLANEOUS] = MISCELLANEOUS,
+					[GEM] = GEM,
+					[GLYPH] = GLYPH,
+					[RECIPE] = RECIPE,
+				}
+			else
+				values = {
+					[TRADE_GOODS] = TRADE_GOODS,
+					[CONSUMMABLE] = CONSUMMABLE,
+					[MISCELLANEOUS] = MISCELLANEOUS,
+					[RECIPE] = RECIPE,
+				}
 			end
+
 			return {
 				splitBySubclass = {
 					name = L['Split by subcategories'],
