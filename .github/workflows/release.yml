@@ -1,46 +1,17 @@
 name: Package and release
-
-# we need to let GitHub know _when_ we want to release, typically only when we create a new tag.
-# this will target only tags, and not all pushes to the master branch.
-# this part can be heavily customized to your liking, like targeting only tags that match a certain word,
-# other branches or even pullrequests.
 on:
   push:
-    branches:
-      - 'master'
-
-# a workflow is built up as jobs, and within these jobs are steps
+    tags:
+      - '**'
 jobs:
-
-  # "release" is a job, you can name it anything you want
   release:
-
-    # we can run our steps on pretty much anything, but the "ubuntu-latest" image is a safe bet
     runs-on: ubuntu-latest
-
     env:
-      CF_API_KEY: ${{ secrets.CF_API_KEY }}
-      WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
-      WAGO_API_TOKEN: ${{ secrets.WAGO_API_TOKEN }}
-      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}  # "GITHUB_TOKEN" is a secret always provided to the workflow
-                                                 # for your own token, the name cannot start with "GITHUB_"
-
-    # "steps" holds a list of all the steps needed to package and release our AddOn
+      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}  
     steps:
-
-      # we first have to clone the AddOn project, this is a required step
       - name: Clone project
         uses: actions/checkout@v3
         with:
           fetch-depth: 0  # gets git history for changelogs
-
-      # once cloned, we just run the GitHub Action for the packager project
       - name: Package and release
-        uses: BigWigsMods/packager@v2
-
-      # another example where we supply additional arguments, this example is specifically to release
-      # for the Burning Crusade Classic version of the game and doesn't upload to WoWInterface
-      - name: Package and release for Burning Crusade Classic
-        uses: BigWigsMods/packager@v2
-        with:
-          args: -g bcc -w 0
+        uses: BigWigsMods/packager@v2.0.8
