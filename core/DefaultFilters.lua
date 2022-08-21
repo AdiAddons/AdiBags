@@ -72,7 +72,7 @@ function addon:SetupDefaultFilters()
 			local setFilter = addon:RegisterFilter("ItemSets", 90, "ABEvent-1.0", "ABBucket-1.0")
 			setFilter.uiName = L['Gear manager item sets']
 			setFilter.uiDesc = L['Put items belonging to one or more sets of the built-in gear manager in specific sections.']
-		
+
 			function setFilter:OnInitialize()
 				self.db = addon.db:RegisterNamespace('ItemSets', {
 					profile = { oneSectionPerSet = true },
@@ -81,16 +81,16 @@ function addon:SetupDefaultFilters()
 				self.names = {}
 				self.slots = {}
 			end
-		
+
 			function setFilter:OnEnable()
 				self:RegisterEvent('EQUIPMENT_SETS_CHANGED')
 				self:RegisterMessage("AdiBags_PreFilter")
 				self:RegisterMessage("AdiBags_PreContentUpdate")
 				self:UpdateNames()
 			end
-		
+
 			local GetSlotId = addon.GetSlotId
-		
+
 			function setFilter:UpdateNames()
 				self:Debug('Updating names')
 				wipe(self.names)
@@ -100,7 +100,7 @@ function addon:SetupDefaultFilters()
 				end
 				self.dirty = true
 			end
-		
+
 			function setFilter:UpdateSlots()
 				self:Debug('Updating slots')
 				wipe(self.slots)
@@ -132,22 +132,22 @@ function addon:SetupDefaultFilters()
 				end
 				self.dirty = not missing
 			end
-		
+
 			function setFilter:EQUIPMENT_SETS_CHANGED(event)
 				self:UpdateNames()
 				self:SendMessage('AdiBags_FiltersChanged', true)
 			end
-		
+
 			function setFilter:AdiBags_PreContentUpdate(event)
 				self.dirty = true
 			end
-		
+
 			function setFilter:AdiBags_PreFilter(event)
 				if self.dirty then
 					self:UpdateSlots()
 				end
 			end
-		
+
 			local SETS, SET_NAME =  L['Sets'], L["Set: %s"]
 			function setFilter:Filter(slotData)
 				local name = self.slots[slotData.slotId]
@@ -159,7 +159,7 @@ function addon:SetupDefaultFilters()
 					end
 				end
 			end
-		
+
 			function setFilter:GetOptions()
 				return {
 					oneSectionPerSet = {
@@ -185,7 +185,7 @@ function addon:SetupDefaultFilters()
 					},
 				}, addon:GetOptionHandler(self, true)
 			end
-		
+
 		end
 	end
 
@@ -307,20 +307,23 @@ function addon:SetupDefaultFilters()
 		end
 
 		function itemCat:GetOptions()
+			local values = {
+				[TRADE_GOODS] = TRADE_GOODS,
+				[CONSUMMABLE] = CONSUMMABLE,
+				[MISCELLANEOUS] = MISCELLANEOUS,
+				[RECIPE] = RECIPE,
+			}
+			if addon.isRetail then
+				values[GEM] = GEM
+				values[GLYPH] = GLYPH
+			end
 			return {
 				splitBySubclass = {
 					name = L['Split by subcategories'],
 					desc = L['Select which first-level categories should be split by sub-categories.'],
 					type = 'multiselect',
 					order = 10,
-					values = {
-						[TRADE_GOODS] = TRADE_GOODS,
-						[CONSUMMABLE] = CONSUMMABLE,
-						[MISCELLANEOUS] = MISCELLANEOUS,
-						[GEM] = GEM,
-						[GLYPH] = GLYPH,
-						[RECIPE] = RECIPE,
-					}
+					values = values
 				},
 				mergeGems = {
 					name = L['Gems are trade goods'],
