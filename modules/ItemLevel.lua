@@ -28,6 +28,13 @@ local abs = _G.math.abs
 local GetItemInfo = _G.GetItemInfo
 local ITEM_QUALITY_HEIRLOOM = _G.Enum.ItemQuality.Heirloom
 local ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
+local LE_ITEM_CLASS_ARMOR = _G.LE_ITEM_CLASS_ARMOR
+local LE_ITEM_CLASS_GEM = _G.LE_ITEM_CLASS_GEM
+local LE_ITEM_CLASS_MISCELLANEOUS = _G.LE_ITEM_CLASS_MISCELLANEOUS
+local LE_ITEM_MISCELLANEOUS_COMPANION_PET = _G.LE_ITEM_MISCELLANEOUS_COMPANION_PET
+local LE_ITEM_GEM_ARTIFACTRELIC = _G.LE_ITEM_GEM_ARTIFACTRELIC
+local LE_ITEM_CLASS_CONSUMABLE = _G.LE_ITEM_CLASS_CONSUMABLE
+local ITEM_CONSUMABLE_OTHER = 8 -- there is no subcategory enum for consumables
 local QuestDifficultyColors = _G.QuestDifficultyColors
 local UnitLevel = _G.UnitLevel
 local modf = _G.math.modf
@@ -38,6 +45,7 @@ local select = _G.select
 local unpack = _G.unpack
 local wipe = _G.wipe
 local ExtractLink = _G.LinkUtil.ExtractLink
+local IsItemConduitByItemInfo = _G.C_Soulbinds.IsItemConduitByItemInfo
 --GLOBALS>
 
 local mod = addon:NewModule('ItemLevel', 'ABEvent-1.0')
@@ -130,7 +138,10 @@ function mod:UpdateButton(event, button)
 			SyLevel:CallFilters('Adibags', button, nil)
 		end
 	end
-	if updateCache[button] == link then return end
+	if updateCache[button] == link then
+		-- cached link for this button (or no link and no cache) - skip below processing either way
+		return
+	end
 	local level -- The level to display for this item
 	local color -- should be a table of color values to be passed to SetTextColor like returned by GetItemQualityColor()
 	local shouldShow = false -- Set to true if this text should be shown
@@ -138,21 +149,33 @@ function mod:UpdateButton(event, button)
 	if link then
 		local linkType, linkOptions = ExtractLink(link)
 		if linkType == "item" then
-			local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
+			local _, _, quality, _, reqLevel, _, _, _, loc, _, _, itemClassID, itemSubClassID = GetItemInfo(link)
 			local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
+			local equippable = (loc ~= "INVTYPE_BAG" and loc ~= "")
+					or itemClassID == LE_ITEM_CLASS_ARMOR
+					or (itemClassID == LE_ITEM_CLASS_GEM and itemSubClassID == LE_ITEM_GEM_ARTIFACTRELIC)
+					or (itemClassID == LE_ITEM_CLASS_CONSUMABLE and itemSubClassID == ITEM_CONSUMABLE_OTHER and IsItemConduitByItemInfo(link))
 			level = item and item:GetCurrentItemLevel() or 0
-			if level >= settings.minLevel
+			-- sometimes the link doesn't have all the right info yet so we shouldn't cache the result
+			if (itemClassID ~= nil) then
+				updateCache[button] = link
+			end
+			if settings.showBattlePetLevels and itemClassID == LE_ITEM_CLASS_MISCELLANEOUS and itemSubClassID == LE_ITEM_MISCELLANEOUS_COMPANION_PET then
+				level = 1
+				shouldShow = true
+			elseif level >= settings.minLevel
 				and (quality ~= ITEM_QUALITY_POOR or not settings.ignoreJunk)
-				and (loc ~= "" or not settings.equippableOnly)
+				and (equippable or not settings.equippableOnly)
 				and (quality ~= ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
 			then
-				color = {colorSchemes[settings.colorScheme](level, quality, reqLevel, (loc ~= ""))}
+				color = {colorSchemes[settings.colorScheme](level, quality, reqLevel, equippable)}
 				shouldShow = true
 			end
 		elseif linkType == "battlepet" then
 			if settings.showBattlePetLevels then
 				local _, petLevel, breedQuality = strsplit(":", linkOptions)
 				level = petLevel
+				updateCache[button] = link
 				shouldShow = true
 			end
 		end
@@ -176,9 +199,11 @@ function mod:UpdateButton(event, button)
 		end
 		text:Show()
 	else
-		if text then text:Hide() end
+		if text and text:IsShown() then
+			updateCache[button] = link
+			text:Hide()
+		end
 	end
-	updateCache[button] = link
 end
 
 local function SetOptionAndUpdate(info, value)
