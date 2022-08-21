@@ -37,7 +37,10 @@ local pairs = _G.pairs
 local select = _G.select
 local unpack = _G.unpack
 local wipe = _G.wipe
-local ExtractLink = _G.LinkUtil.ExtractLink
+local ExtractLink
+if addon.isRetail then
+	ExtractLink = _G.LinkUtil.ExtractLink
+end
 --GLOBALS>
 
 local mod = addon:NewModule('ItemLevel', 'ABEvent-1.0')
