@@ -363,11 +363,13 @@ function buttonProto:UpdateNew()
 	self.BattlepayItemTexture:SetShown(IsBattlePayItem(self.bag, self.slot))
 end
 
-function buttonProto:UpdateUpgradeIcon()
-	-- Use Pawn's (third-party addon) function if present; else fallback to Blizzard's.
-	local PawnIsContainerItemAnUpgrade = _G.PawnIsContainerItemAnUpgrade
-	local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot) or IsContainerItemAnUpgrade(self.bag, self.slot)
-	self.UpgradeIcon:SetShown(itemIsUpgrade or false)
+if addon.isRetail then
+	function buttonProto:UpdateUpgradeIcon()
+		-- Use Pawn's (third-party addon) function if present; else fallback to Blizzard's.
+		local PawnIsContainerItemAnUpgrade = _G.PawnIsContainerItemAnUpgrade
+		local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot) or IsContainerItemAnUpgrade(self.bag, self.slot)
+		self.UpgradeIcon:SetShown(itemIsUpgrade or false)
+	end
 end
 
 local function GetBorder(bag, slot, itemId, settings)

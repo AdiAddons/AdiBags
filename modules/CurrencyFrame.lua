@@ -22,6 +22,11 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 local addonName, addon = ...
 local L = addon.L
 
+-- Don't load this file at all unless AdiBags is in retail.
+if not addon.isRetail then
+	return
+end
+
 --<GLOBALS
 local _G = _G
 local BreakUpLargeNumbers = _G.BreakUpLargeNumbers

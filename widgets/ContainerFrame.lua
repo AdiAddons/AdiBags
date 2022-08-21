@@ -252,14 +252,16 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	RegisterMessage(name, 'AdiBags_LayoutChanged', self.FullUpdate, self)
 	RegisterMessage(name, 'AdiBags_ConfigChanged', self.ConfigChanged, self)
 	RegisterMessage(name, 'AdiBags_ForceFullLayout', ForceFullLayout)
-	LibStub('ABEvent-1.0').RegisterEvent(name, 'EQUIPMENT_SWAP_FINISHED', ForceFullLayout)
+	if addon.isRetail then
+		LibStub('ABEvent-1.0').RegisterEvent(name, 'EQUIPMENT_SWAP_FINISHED', ForceFullLayout)
 
-	-- Force full layout on sort
-	if isBank then
-		hooksecurefunc('SortBankBags', ForceFullLayout)
-		hooksecurefunc('SortReagentBankBags', ForceFullLayout)
-	else
-		hooksecurefunc('SortBags', ForceFullLayout)
+		-- Force full layout on sort
+		if isBank then
+			hooksecurefunc('SortBankBags', ForceFullLayout)
+			hooksecurefunc('SortReagentBankBags', ForceFullLayout)
+		else
+			hooksecurefunc('SortBags', ForceFullLayout)
+		end
 	end
 end
 
