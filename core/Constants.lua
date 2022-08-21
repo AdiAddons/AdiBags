@@ -36,17 +36,23 @@ local pairs = _G.pairs
 local BAGS = { [BACKPACK_CONTAINER] = BACKPACK_CONTAINER }
 for i = 1, NUM_BAG_SLOTS do BAGS[i] = i end
 
--- Base nank bags
-local BANK_ONLY = { [BANK_CONTAINER] = BANK_CONTAINER }
-for i = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do BANK_ONLY[i] = i end
-
---- Reagent bank bags
-local REAGENTBANK_ONLY = { [REAGENTBANK_CONTAINER] = REAGENTBANK_CONTAINER }
-
--- All bank bags
 local BANK = {}
-for _, bags in ipairs { BANK_ONLY, REAGENTBANK_ONLY } do
-	for id in pairs(bags) do BANK[id] = id end
+
+if addon.isRetail then
+	-- Base nank bags
+	local BANK_ONLY = { [BANK_CONTAINER] = BANK_CONTAINER }
+	for i = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do BANK_ONLY[i] = i end
+
+	--- Reagent bank bags
+	local REAGENTBANK_ONLY = { [REAGENTBANK_CONTAINER] = REAGENTBANK_CONTAINER }
+
+	-- All bank bags
+	for _, bags in ipairs { BANK_ONLY, REAGENTBANK_ONLY } do
+		for id in pairs(bags) do BANK[id] = id end
+	end
+else
+	BANK = { [BANK_CONTAINER] = BANK_CONTAINER }
+	for i = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do BANK[i] = i end
 end
 
 -- All bags
