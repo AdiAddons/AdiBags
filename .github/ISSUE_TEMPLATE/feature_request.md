@@ -2,7 +2,7 @@
 name: Feature request
 about: Create a new feature request!
 title: ''
-labels: ''
+labels: Feature, Pending
 assignees: ''
 
 ---
