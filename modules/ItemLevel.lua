@@ -118,6 +118,14 @@ local function CreateText(button)
 end
 
 function mod:UpdateButton(event, button)
+	if addon.isRetail then
+		mod:UpdateButton_Retail(event, button)
+	else
+		mod:UpdateButton_Classic(event, button)
+	end
+end
+
+function mod:UpdateButton_Retail(event, button)
 	local settings = self.db.profile
 	local text = texts[button]
 	local link = button:GetItemLink()
@@ -182,6 +190,46 @@ function mod:UpdateButton(event, button)
 		if text then text:Hide() end
 	end
 	updateCache[button] = link
+end
+
+function mod:UpdateButton_Classic(event, button)
+	local settings = self.db.profile
+	local link = button:GetItemLink()
+	local text = texts[button]
+
+	if link then
+		local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
+		local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
+		local level = item and item:GetCurrentItemLevel() or 0
+		if level >= settings.minLevel
+			and (quality ~= LE_ITEM_QUALITY_POOR or not settings.ignoreJunk)
+			and (loc ~= "" or not settings.equippableOnly)
+		then
+			if SyLevel then
+				if settings.useSyLevel then
+					if text then
+						text:Hide()
+					end
+					SyLevel:CallFilters('Adibags', button, link)
+					return
+				else
+					SyLevel:CallFilters('Adibags', button, nil)
+				end
+			end
+			if not text then
+				text = CreateText(button)
+			end
+			text:SetText(level)
+			text:SetTextColor(colorSchemes[settings.colorScheme](level, quality, reqLevel, (loc ~= "")))
+			return text:Show()
+		end
+	end
+	if SyLevel then
+		SyLevel:CallFilters('Adibags', button, nil)
+	end
+	if text then
+		text:Hide()
+	end
 end
 
 local function SetOptionAndUpdate(info, value)

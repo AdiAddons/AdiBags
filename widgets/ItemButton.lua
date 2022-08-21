@@ -315,7 +315,9 @@ function buttonProto:Update()
 	self:UpdateCooldown()
 	self:UpdateLock()
 	self:UpdateNew()
-	self:UpdateUpgradeIcon()
+	if addon.isRetail then
+		self:UpdateUpgradeIcon()
+	end
 	if self.UpdateSearch then
 		self:UpdateSearch()
 	end
@@ -373,13 +375,15 @@ if addon.isRetail then
 end
 
 local function GetBorder(bag, slot, itemId, settings)
-	if settings.questIndicator then
-		local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
-		if questId and not isActive then
-			return TEXTURE_ITEM_QUEST_BANG
-		end
-		if questId or isQuestItem then
-			return TEXTURE_ITEM_QUEST_BORDER
+	if addon.isRetail then
+		if settings.questIndicator then
+			local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
+			if questId and not isActive then
+				return TEXTURE_ITEM_QUEST_BANG
+			end
+			if questId or isQuestItem then
+				return TEXTURE_ITEM_QUEST_BORDER
+			end
 		end
 	end
 	if not settings.qualityHighlight then
