@@ -636,7 +636,7 @@ function containerProto:UpdateContent(bag)
 				link, count = false, 0
 			end
 
-			if slotData.link ~= link then
+			if slotData.link ~= link or slotData.texture ~= texture then
 				local prevSlotId = slotData.slotId
 				local prevLink = slotData.link
 				-- If links only differ in character level that's the same item
