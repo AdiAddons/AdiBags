@@ -648,7 +648,7 @@ function containerProto:UpdateContent(bag)
 				slotData.name, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass, slotData.equipSlot, slotData.texture, slotData.vendorPrice = name, quality, iLevel, reqLevel, class, subclass, equipSlot, texture, vendorPrice
 				slotData.maxStack = maxStack or (link and 1 or 0)
 
-				if sameItem then
+				if sameItem and slotData.texture ~= texture then
 					changed[slotData.slotId] = slotData
 				else
 					removed[prevSlotId] = prevLink
