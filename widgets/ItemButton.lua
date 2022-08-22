@@ -59,7 +59,12 @@ local ITEM_SIZE = addon.ITEM_SIZE
 -- Button initialization
 --------------------------------------------------------------------------------
 
-local buttonClass, buttonProto = addon:NewClass("ItemButton", "ItemButton", "ContainerFrameItemButtonTemplate", "ABEvent-1.0")
+local buttonClass, buttonProto
+if addon.isRetail then
+	buttonClass, buttonProto = addon:NewClass("ItemButton", "ItemButton", "ContainerFrameItemButtonTemplate", "ABEvent-1.0")
+else
+	buttonClass, buttonProto = addon:NewClass("ItemButton", "Button", "ContainerFrameItemButtonTemplate", "ABEvent-1.0")
+end
 
 local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture", "NewItemTexture" }
 
@@ -310,7 +315,9 @@ function buttonProto:Update()
 	self:UpdateCooldown()
 	self:UpdateLock()
 	self:UpdateNew()
-	self:UpdateUpgradeIcon()
+	if addon.isRetail then
+		self:UpdateUpgradeIcon()
+	end
 	if self.UpdateSearch then
 		self:UpdateSearch()
 	end
@@ -358,21 +365,25 @@ function buttonProto:UpdateNew()
 	self.BattlepayItemTexture:SetShown(IsBattlePayItem(self.bag, self.slot))
 end
 
-function buttonProto:UpdateUpgradeIcon()
-	-- Use Pawn's (third-party addon) function if present; else fallback to Blizzard's.
-	local PawnIsContainerItemAnUpgrade = _G.PawnIsContainerItemAnUpgrade
-	local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot) or IsContainerItemAnUpgrade(self.bag, self.slot)
-	self.UpgradeIcon:SetShown(itemIsUpgrade or false)
+if addon.isRetail then
+	function buttonProto:UpdateUpgradeIcon()
+		-- Use Pawn's (third-party addon) function if present; else fallback to Blizzard's.
+		local PawnIsContainerItemAnUpgrade = _G.PawnIsContainerItemAnUpgrade
+		local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot) or IsContainerItemAnUpgrade(self.bag, self.slot)
+		self.UpgradeIcon:SetShown(itemIsUpgrade or false)
+	end
 end
 
 local function GetBorder(bag, slot, itemId, settings)
-	if settings.questIndicator then
-		local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
-		if questId and not isActive then
-			return TEXTURE_ITEM_QUEST_BANG
-		end
-		if questId or isQuestItem then
-			return TEXTURE_ITEM_QUEST_BORDER
+	if addon.isRetail then
+		if settings.questIndicator then
+			local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
+			if questId and not isActive then
+				return TEXTURE_ITEM_QUEST_BANG
+			end
+			if questId or isQuestItem then
+				return TEXTURE_ITEM_QUEST_BORDER
+			end
 		end
 	end
 	if not settings.qualityHighlight then

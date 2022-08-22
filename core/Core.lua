@@ -126,7 +126,9 @@ function addon:OnEnable()
 	self:RegisterEvent('BAG_UPDATE')
 	self:RegisterEvent('BAG_UPDATE_DELAYED')
 	self:RegisterBucketEvent('PLAYERBANKSLOTS_CHANGED', 0.01, 'BankUpdated')
-	self:RegisterBucketEvent('PLAYERREAGENTBANKSLOTS_CHANGED', 0.01, 'ReagentBankUpdated')
+	if addon.isRetail then
+		self:RegisterBucketEvent('PLAYERREAGENTBANKSLOTS_CHANGED', 0.01, 'ReagentBankUpdated')
+	end
 
 	self:RegisterEvent('PLAYER_LEAVING_WORLD', 'Disable')
 
@@ -325,7 +327,10 @@ addon:SetDefaultModulePrototype(moduleProto)
 
 local updatedBags = {}
 local updatedBank = { [BANK_CONTAINER] = true }
-local updatedReagentBank = { [REAGENTBANK_CONTAINER] = true }
+local updatedReagentBank = {}
+if addon.isRetail then
+	updatedReagentBank = { [REAGENTBANK_CONTAINER] = true }
+end
 
 function addon:BAG_UPDATE(event, bag)
 	updatedBags[bag] = true

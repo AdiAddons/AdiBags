@@ -209,12 +209,13 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	anchor:SetFrameLevel(self:GetFrameLevel() + 10)
 	self.Anchor = anchor
 
-	if self.isBank then
-		self:CreateReagentTabButton()
-		self:CreateDepositButton()
+	if addon.isRetail then
+		if self.isBank then
+			self:CreateReagentTabButton()
+			self:CreateDepositButton()
+		end
+		self:CreateSortButton()
 	end
-	self:CreateSortButton()
-
 	local toSortSection = addon:AcquireSection(self, L["Recent Items"], self.name)
 	toSortSection:SetPoint("TOPLEFT", BAG_INSET, -addon.TOP_PADDING)
 	toSortSection:Show()
@@ -252,14 +253,16 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	RegisterMessage(name, 'AdiBags_LayoutChanged', self.FullUpdate, self)
 	RegisterMessage(name, 'AdiBags_ConfigChanged', self.ConfigChanged, self)
 	RegisterMessage(name, 'AdiBags_ForceFullLayout', ForceFullLayout)
-	LibStub('ABEvent-1.0').RegisterEvent(name, 'EQUIPMENT_SWAP_FINISHED', ForceFullLayout)
+	if addon.isRetail then
+		LibStub('ABEvent-1.0').RegisterEvent(name, 'EQUIPMENT_SWAP_FINISHED', ForceFullLayout)
 
-	-- Force full layout on sort
-	if isBank then
-		hooksecurefunc('SortBankBags', ForceFullLayout)
-		hooksecurefunc('SortReagentBankBags', ForceFullLayout)
-	else
-		hooksecurefunc('SortBags', ForceFullLayout)
+		-- Force full layout on sort
+		if isBank then
+			hooksecurefunc('SortBankBags', ForceFullLayout)
+			hooksecurefunc('SortReagentBankBags', ForceFullLayout)
+		else
+			hooksecurefunc('SortBags', ForceFullLayout)
+		end
 	end
 end
 
@@ -378,11 +381,18 @@ end
 --------------------------------------------------------------------------------
 
 function containerProto:GetBagIds()
-	return BAG_IDS[
-		self.isReagentBank and "REAGENTBANK_ONLY" or
-		self.isBank and "BANK_ONLY" or
-		"BAGS"
-	]
+	if addon.isRetail then
+		return BAG_IDS[
+			self.isReagentBank and "REAGENTBANK_ONLY" or
+			self.isBank and "BANK_ONLY" or
+			"BAGS"
+		]
+	else
+		return BAG_IDS[
+			self.isBank and "BANK" or
+			"BAGS"
+		]
+	end
 end
 
 function containerProto:BagsUpdated(event, bagIds)

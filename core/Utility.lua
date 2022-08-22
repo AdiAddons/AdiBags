@@ -45,6 +45,7 @@ local strsplit = _G.strsplit
 local tonumber = _G.tonumber
 local tostring = _G.tostring
 local type = _G.type
+
 --GLOBALS>
 
 local FAMILY_TAGS = addon.FAMILY_TAGS
