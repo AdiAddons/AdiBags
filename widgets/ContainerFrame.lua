@@ -588,6 +588,7 @@ end
 function containerProto:UpdateSkin()
 	local backdrop, r, g, b, a = addon:GetContainerSkin(self.name, self.isReagentBank)
 	self:SetBackdrop(backdrop)
+	self:ApplyBackdrop()
 	self:SetBackdropColor(r, g, b, a)
 	local m = max(r, g, b)
 	if m == 0 then
