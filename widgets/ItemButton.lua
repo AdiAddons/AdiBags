@@ -37,8 +37,17 @@ local GetItemQualityColor = _G.GetItemQualityColor
 local hooksecurefunc = _G.hooksecurefunc
 local IsContainerItemAnUpgrade = _G.IsContainerItemAnUpgrade
 local IsInventoryItemLocked = _G.IsInventoryItemLocked
-local ITEM_QUALITY_COMMON = _G.Enum.ItemQuality.Common
-local ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
+local ITEM_QUALITY_COMMON
+local ITEM_QUALITY_POOR
+
+if addon.isRetail then
+	ITEM_QUALITY_COMMON = _G.Enum.ItemQuality.Common
+	ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
+else
+	ITEM_QUALITY_COMMON = _G.LE_ITEM_QUALITY_COMMON
+	ITEM_QUALITY_POOR = _G.LE_ITEM_QUALITY_POOR
+end
+
 local next = _G.next
 local pairs = _G.pairs
 local select = _G.select

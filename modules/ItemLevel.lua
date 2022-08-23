@@ -26,8 +26,17 @@ local L = addon.L
 local _G = _G
 local abs = _G.math.abs
 local GetItemInfo = _G.GetItemInfo
-local ITEM_QUALITY_HEIRLOOM = _G.Enum.ItemQuality.Heirloom
-local ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
+local ITEM_QUALITY_HEIRLOOM
+local ITEM_QUALITY_POOR
+
+if addon.isRetail then
+	ITEM_QUALITY_HEIRLOOM = _G.Enum.ItemQuality.Heirloom
+	ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
+else
+	ITEM_QUALITY_HEIRLOOM = _G.LE_ITEM_QUALITY_HEIRLOOM
+	ITEM_QUALITY_POOR = _G.LE_ITEM_QUALITY_POOR
+end
+
 local QuestDifficultyColors = _G.QuestDifficultyColors
 local UnitLevel = _G.UnitLevel
 local modf = _G.math.modf
