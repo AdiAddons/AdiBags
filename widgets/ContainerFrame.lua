@@ -119,6 +119,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.added = {}
 	self.removed = {}
 	self.changed = {}
+	self.sameChanged = {}
 
 	local ids
 	for bagId in pairs(BAG_IDS[isBank and "BANK" or "BAGS"]) do
@@ -604,7 +605,7 @@ end
 
 function containerProto:UpdateContent(bag)
 	self:Debug('UpdateContent', bag)
-	local added, removed, changed = self.added, self.removed, self.changed
+	local added, removed, changed, sameChanged = self.added, self.removed, self.changed, self.sameChanged
 	local content = self.content[bag]
 	local newSize = self:GetBagIds()[bag] and GetContainerNumSlots(bag) or 0
 	local _, bagFamily = GetContainerNumFreeSlots(bag)
@@ -632,6 +633,11 @@ function containerProto:UpdateContent(bag)
 				if not name then
 					name, _, quality, iLevel, reqLevel, class, subclass, maxStack, equipSlot, texture, vendorPrice = GetItemInfo(itemId)
 				end
+				-- Correctly catch battlepets and store their name.
+				if string.match(link, "|Hbattlepet:") then
+					local _, speciesID = strsplit(":", link)
+					name = C_PetJournal.GetPetInfoBySpeciesID(speciesID)
+				end
 				count = select(2, GetContainerItemInfo(bag, slot)) or 0
 			else
 				link, count = false, 0
@@ -640,6 +646,7 @@ function containerProto:UpdateContent(bag)
 			if slotData.link ~= link or slotData.texture ~= texture then
 				local prevSlotId = slotData.slotId
 				local prevLink = slotData.link
+				local prevTexture = slotData.texture
 				-- If links only differ in character level that's the same item
 				local sameItem = addon.IsSameLinkButLevel(slotData.link, link)
 
@@ -649,8 +656,15 @@ function containerProto:UpdateContent(bag)
 				slotData.name, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass, slotData.equipSlot, slotData.texture, slotData.vendorPrice = name, quality, iLevel, reqLevel, class, subclass, equipSlot, texture, vendorPrice
 				slotData.maxStack = maxStack or (link and 1 or 0)
 
-				if sameItem and slotData.texture ~= texture then
-					changed[slotData.slotId] = slotData
+				if sameItem then
+					-- Items that are the same item but have mutated are marked as "new" to make them more visble.
+					-- However, only things with a new texture are marked as new, i.e. wrapped items.
+					if prevTexture ~= texture then
+						sameChanged[slotData.slotId] = slotData
+						addon:SendMessage('AdiBags_AddNewItem', slotData.link)	
+					else
+						changed[slotData.slotId] = slotData
+					end
 				else
 					removed[prevSlotId] = prevLink
 					added[slotData.slotId] = slotData
@@ -672,7 +686,7 @@ function containerProto:UpdateContent(bag)
 end
 
 function containerProto:HasContentChanged()
-	return not not (next(self.added) or next(self.removed) or next(self.changed))
+	return not not (next(self.added) or next(self.removed) or next(self.changed) or next(self.sameChanged))
 end
 
 --------------------------------------------------------------------------------
@@ -810,7 +824,7 @@ function containerProto:UpdateButtons()
 	end
 	self:Debug('UpdateButtons')
 
-	local added, removed, changed = self.added, self.removed, self.changed
+	local added, removed, changed, sameChanged = self.added, self.removed, self.changed, self.sameChanged
 	self:SendMessage('AdiBags_PreContentUpdate', self, added, removed, changed)
 
 	for slotId in pairs(removed) do
@@ -829,11 +843,17 @@ function containerProto:UpdateButtons()
 	for slotId in pairs(changed) do
 		buttons[slotId]:FullUpdate()
 	end
+	
+	for slotId, slotData in pairs(sameChanged) do
+		self:DispatchItem(slotData)
+		buttons[slotId]:FullUpdate()
+	end
 
 	self:SendMessage('AdiBags_PostContentUpdate', self, added, removed, changed)
 	wipe(added)
 	wipe(removed)
 	wipe(changed)
+	wipe(sameChanged)
 
 	self:ResizeToSortSection()
 end

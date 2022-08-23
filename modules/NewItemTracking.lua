@@ -73,6 +73,7 @@ function mod:OnEnable()
 	end
 
 	self:RegisterMessage('AdiBags_UpdateButton', 'UpdateButton')
+	self:RegisterMessage('AdiBags_AddNewItem', 'AddNewItem')
 	self:RegisterEvent('BAG_NEW_ITEMS_UPDATED')
 end
 
@@ -122,6 +123,10 @@ end
 
 function mod:UpdateModuleButton()
 	self.button:SetEnabled(next(newItems) or self.container.ToSortSection:IsShown())
+end
+
+function mod:AddNewItem(event, link)
+	newItems[link] = true
 end
 
 --------------------------------------------------------------------------------
