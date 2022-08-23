@@ -119,6 +119,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.added = {}
 	self.removed = {}
 	self.changed = {}
+	self.sameChanged = {}
 
 	local ids
 	for bagId in pairs(BAG_IDS[isBank and "BANK" or "BAGS"]) do
@@ -604,7 +605,7 @@ end
 
 function containerProto:UpdateContent(bag)
 	self:Debug('UpdateContent', bag)
-	local added, removed, changed = self.added, self.removed, self.changed
+	local added, removed, changed, sameChanged = self.added, self.removed, self.changed, self.sameChanged
 	local content = self.content[bag]
 	local newSize = self:GetBagIds()[bag] and GetContainerNumSlots(bag) or 0
 	local _, bagFamily = GetContainerNumFreeSlots(bag)
@@ -649,8 +650,11 @@ function containerProto:UpdateContent(bag)
 				slotData.name, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass, slotData.equipSlot, slotData.texture, slotData.vendorPrice = name, quality, iLevel, reqLevel, class, subclass, equipSlot, texture, vendorPrice
 				slotData.maxStack = maxStack or (link and 1 or 0)
 
-				if sameItem and slotData.texture ~= texture then
-					changed[slotData.slotId] = slotData
+				if sameItem then
+					-- Items that are the same item but have mutated are marked as "new" to make them more visble.
+					-- i.e. wrapping paper, enchantments, etc.
+					sameChanged[slotData.slotId] = slotData
+					addon:SendMessage('AdiBags_AddNewItem', slotData.link)
 				else
 					removed[prevSlotId] = prevLink
 					added[slotData.slotId] = slotData
@@ -672,7 +676,7 @@ function containerProto:UpdateContent(bag)
 end
 
 function containerProto:HasContentChanged()
-	return not not (next(self.added) or next(self.removed) or next(self.changed))
+	return not not (next(self.added) or next(self.removed) or next(self.changed) or next(self.sameChanged))
 end
 
 --------------------------------------------------------------------------------
@@ -810,7 +814,7 @@ function containerProto:UpdateButtons()
 	end
 	self:Debug('UpdateButtons')
 
-	local added, removed, changed = self.added, self.removed, self.changed
+	local added, removed, changed, sameChanged = self.added, self.removed, self.changed, self.sameChanged
 	self:SendMessage('AdiBags_PreContentUpdate', self, added, removed, changed)
 
 	for slotId in pairs(removed) do
@@ -829,11 +833,17 @@ function containerProto:UpdateButtons()
 	for slotId in pairs(changed) do
 		buttons[slotId]:FullUpdate()
 	end
+	
+	for slotId, slotData in pairs(sameChanged) do
+		self:DispatchItem(slotData)
+		buttons[slotId]:FullUpdate()
+	end
 
 	self:SendMessage('AdiBags_PostContentUpdate', self, added, removed, changed)
 	wipe(added)
 	wipe(removed)
 	wipe(changed)
+	wipe(sameChanged)
 
 	self:ResizeToSortSection()
 end
