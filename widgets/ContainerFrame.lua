@@ -647,6 +647,7 @@ function containerProto:UpdateContent(bag)
 				local prevSlotId = slotData.slotId
 				local prevLink = slotData.link
 				local prevTexture = slotData.texture
+				local prevEquipSlot = slotData.equipSlot
 				-- If links only differ in character level that's the same item
 				local sameItem = addon.IsSameLinkButLevel(slotData.link, link)
 
@@ -655,13 +656,12 @@ function containerProto:UpdateContent(bag)
 				slotData.itemId = itemId
 				slotData.name, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass, slotData.equipSlot, slotData.texture, slotData.vendorPrice = name, quality, iLevel, reqLevel, class, subclass, equipSlot, texture, vendorPrice
 				slotData.maxStack = maxStack or (link and 1 or 0)
-
 				if sameItem then
 					-- Items that are the same item but have mutated are marked as "new" to make them more visble.
 					-- However, only things with a new texture are marked as new, i.e. wrapped items.
-					if prevTexture ~= texture then
+					if prevTexture ~= texture and equipSlot ~= prevEquipSlot then
 						sameChanged[slotData.slotId] = slotData
-						addon:SendMessage('AdiBags_AddNewItem', slotData.link)	
+						addon:SendMessage('AdiBags_AddNewItem', slotData.link)
 					else
 						changed[slotData.slotId] = slotData
 					end
