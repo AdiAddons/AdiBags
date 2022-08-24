@@ -102,9 +102,6 @@ function mod:OnDisable()
 	if self.widget then
 		self.widget:Hide()
 	end
-	for widget in pairs(self.widgets) do
-		widget:Hide()
-	end
 end
 
 function mod:OnBagFrameCreated(bag)
@@ -130,14 +127,14 @@ function mod:OnBagFrameCreated(bag)
 			cells = {}
 		}
 
-		for ii = 1, ceil(GetCurrencyListSize() / 3) do
+		for ii = 1, ceil(GetCurrencyListSize() / 3)+1 do
 			local cellFrame = CreateFrame("Button", string.format("%sCurrencyCellFrame%d%d", addonName, i, ii), columnFrame)
 			if ii == 1 then
 				cellFrame:SetPoint("TOPLEFT", columnFrame, "TOPLEFT")
 			else
 				cellFrame:SetPoint("TOPLEFT", column.cells[ii-1].frame, "BOTTOMLEFT")
 			end
-			
+
 			cellFrame:Show()
 			local fs = cellFrame:CreateFontString(nil, "OVERLAY")
 			fs:SetFontObject(self.font)
