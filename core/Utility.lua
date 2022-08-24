@@ -154,6 +154,12 @@ function addon.SetupTooltip(widget, content, anchor, xOffset, yOffset)
 	end
 end
 
+function addon.RemoveTooltip(widget)
+	widget:SetScript('OnEnter', nil)
+	widget:SetScript('OnLeave', nil)
+	widget.tooltipCallback = nil
+	widget.UpdateTooltip = nil
+end
 --------------------------------------------------------------------------------
 -- Item link checking
 --------------------------------------------------------------------------------
