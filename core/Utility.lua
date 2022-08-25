@@ -51,6 +51,7 @@ local setmetatable = _G.setmetatable
 local strjoin = _G.strjoin
 local strmatch = _G.strmatch
 local strsplit = _G.strsplit
+local strsplittable = _G.strsplittable
 local tonumber = _G.tonumber
 local tostring = _G.tostring
 local type = _G.type
@@ -170,6 +171,88 @@ function addon.IsValidItemLink(link)
 	end
 end
 
+-- ParseItemLink parses an item link for it's distinct attributes and
+-- returns a table with every attribute. Updated as of retail 9.2.7.
+function addon.ParseItemLink(link)
+
+	-- Parse the first elements that have no variable length
+	local _, itemID, enchantID, gemID1, gemID2, gemID3, gemID4,
+	suffixID, uniqueID, linkLevel, specializationID, modifiersMask,
+	itemContext, rest = strsplit(":", link, 14)
+
+
+	-- The next several link items have a variable length and must be parsed
+	-- out one by one. There is definitely a more clever way of doing this,
+	-- but we want to optimize for readability. Blizzard has upended item links
+	-- before, which would make this code diffcult to update if it's too "clever".
+	local numBonusIDs
+	local bonusIDs
+	numBonusIDs, rest = strsplit(":", rest, 2)
+	if numBonusIDs ~= "" then
+		local splits = (tonumber(numBonusIDs))+1
+		bonusIDs = strsplittable(":", rest, splits)
+		rest = table.remove(bonusIDs, splits)
+	end
+
+	local numModifiers
+	local modifierIDs
+	numModifiers, rest = strsplit(":", rest, 2)
+	if numModifiers ~= "" then
+		local splits = (tonumber(numModifiers)*2)+1
+		modifierIDs = strsplittable(":", rest, splits)
+		rest = table.remove(modifierIDs, splits)
+	end
+
+	local relic1NumBonusIDs
+	local relic1BonusIDs
+	relic1NumBonusIDs, rest = strsplit(":", rest, 2)
+	if relic1NumBonusIDs ~= "" then
+		local splits = (tonumber(relic1NumBonusIDs))+1
+		relic1BonusIDs = strsplittable(":", rest, splits)
+		rest = table.remove(relic1BonusIDs, splits)
+	end
+
+	local relic2NumBonusIDs
+	local relic2BonusIDs
+	relic2NumBonusIDs, rest = strsplit(":", rest, 2)
+	if relic2NumBonusIDs ~= "" then
+		local splits = (tonumber(relic2NumBonusIDs))+1
+		relic2BonusIDs = strsplittable(":", rest, (tonumber(relic2NumBonusIDs))+1)
+		rest = table.remove(relic2BonusIDs, splits)
+	end
+
+	local relic3NumBonusIDs
+	local relic3BonusIDs
+	relic3NumBonusIDs, rest = strsplit(":", rest, 2)
+	if relic3NumBonusIDs ~= "" then
+		local splits = (tonumber(relic3NumBonusIDs))+1
+		relic3BonusIDs = strsplittable(":", rest, (tonumber(relic3NumBonusIDs))+1)
+		rest = table.remove(relic3BonusIDs, splits)
+	end
+	local crafterGUID, extraEnchantID = strsplit(":", rest, 3)
+	return {
+		itemID = itemID,
+		enchantID = enchantID,
+		gemID1 = gemID1,
+		gemID2 = gemID2,
+		gemID3 = gemID3,
+		gemID4 = gemID4,
+		suffixID = suffixID,
+		uniqueID = uniqueID,
+		linkLevel = linkLevel,
+		specializationID = specializationID,
+		modifiersMask = modifiersMask,
+		itemContext = itemContext,
+		bonusIDs = bonusIDs or {},
+		modifierIDs = modifierIDs or {},
+		relic1BonusIDs = relic1BonusIDs or {},
+		relic2BonusIDs = relic2BonusIDs or {},
+		relic3BonusIDs = relic3BonusIDs or {},
+		crafterGUID = crafterGUID,
+		extraEnchantID = extraEnchantID
+	}
+end
+
 --------------------------------------------------------------------------------
 -- Get distinct item IDs from item links
 --------------------------------------------------------------------------------
@@ -179,15 +262,29 @@ local function __GetDistinctItemID(link)
 	if strmatch(link, "battlepet:") or strmatch(link, "keystone:") then
 		return link
 	else
-		local itemString, id, enchant, gem1, gem2, gem3, gem4, suffix, reforge = strmatch(link, '(item:(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):(%-?%d+):%-?%d+:%-?%d+:(%-?%d+))')
-		if not id then return end
-		id = tonumber(id)
+		local itemData = addon.ParseItemLink(link)
+		if not itemData then return end
+		local newLink
+		local id = tonumber(itemData.itemID)
 		local equipSlot = select(9, GetItemInfo(id))
 		if equipSlot and equipSlot ~= "" and equipSlot ~= "INVTYPE_BAG" then
-			-- Rebuild an item link without noise
-			id = strjoin(':', 'item', id, enchant, gem1, gem2, gem3, gem4, suffix, "0", "0", reforge)
+			-- Rebuild an item link without any unique identifiers that are out of the player's control.
+			newLink = strjoin(':', '|Hitem',
+			itemData.itemID, itemData.enchantID, itemData.gemID1, itemData.gemID2, itemData.gemID3, itemData.gemID4,
+			itemData.suffixID, itemData.uniqueID, itemData.linkLevel, itemData.specializationID,
+			itemData.modifiersMask, itemData.itemContext,
+			#itemData.bonusIDs,
+			table.concat(itemData.bonusIDs, ":"),
+			#itemData.modifierIDs,
+			table.concat(itemData.modifierIDs),
+			"", -- Relic 1
+			"", -- Relic 2
+			"", -- Relic 3
+			"", -- Crafter GUID
+			itemData.extraEnchantID
+			)
 		end
-		return id
+		return newLink
 	end
 end
 
