@@ -12,7 +12,7 @@ Configuration is available through Blizzard addon panel, the `/adibags` chat com
 ### Filter Partitions
 AdiBags will automatically filter and group items into partitions so that all like-items are always grouped together. AdiBags tries to make sure there are intelligent defaults that require little-to-no out of the box configuration for item grouping. The partiions them selves are layed out automatically as well, with no human interaction. The result is a beautiful item and bag experience, right from the start!
 <p align="center">
-  <span><img width="570" height="625" src="https://i.imgur.com/JuzoYEy.gif"></span>
+  <span><img width="570" height="625" src="https://i.imgur.com/PyCfmcR.gif"></span>
   <br>
   <i>Automatic filters based on Auction House categories, gear sets, and more!</i>
 </p>
