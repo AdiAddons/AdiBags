@@ -6,27 +6,34 @@ AdiBags is a World of Warcraft addon that displays the contents of your bags in 
 
 Configuration is available through Blizzard addon panel, the `/adibags` chat command, and by configuring "right-click to open options" and right clicking on any blank space in the bag window.
 
-## Features
+## Main Features
 ---
 
-* Automatic filters that partition items into several sections:
-  * Blizzard gear managet item sets
-  * Junk items
-  * Quest items
-  * Equipment
-  * Auction house category
-  * New items
-  * Custom filters and seconds
-  * Free space aggregation
-* Character currencies:
-  * Ability to display only the currencies desired
-* Character gold/silver/copper display
-* Full-text item name searching with highlighting
-* Automatic item sorting within each section
-* Automatic section layout
-* Bag sorting
-* Hide unused sections
-* ...and more!
+### Filter Partitions
+AdiBags will automatically filter and group items into partitions so that all like-items are always grouped together. AdiBags tries to make sure there are intelligent defaults that require little-to-no out of the box configuration for item grouping. The partiions them selves are layed out automatically as well, with no human interaction. The result is a beautiful item and bag experience, right from the start!
+<p align="center">
+  <span><img width="570" height="625" src="https://i.imgur.com/42dVGzz.gif"></span>
+  <br>
+  <i>Automatic filters based on Auction House categories, gear sets, and more!</i>
+</p>
+
+### Character Currencies
+AdiBags supports in-frame display of currencies. The specific currencies to display can be configured in the options panel, and currency display supports a dynamic layout that grows to
+the number of columns configured.
+<p align="center">
+  <span><img width="417" height="160" src="https://i.imgur.com/dXICYfR.gif"></span>
+  <br>
+  <i>Currencies viewable directly in your bags.</i>
+</p>
+
+### Full-text Item Searching
+AdiBags has built-in support for item searching based on item names. Results are highlighted directly in the bag frame so they can be utilized right away.
+<p align="center">
+  <span><img width="417" height="160" src="https://i.imgur.com/9Vc98w8.gif"></span>
+  <br>
+  <i>Items fade away when they don't match a search term.</i>
+</p>
+
 
 ## Modules
 
@@ -52,7 +59,7 @@ We highly suggest installing both [BugGrabber](https://www.curseforge.com/wow/ad
 ## Roadmap and Future Thoughts
 ---
 ### Guild Bank
-AdiBags is an abstraction on top of Blizzard bags, and as such, does not work to make Blizzard bags consistent or sorted. As such, two users of AdiBags accessing the same underlying store, such as a guild bank, may see two different views. For this reason, we've shied away from implementing a Guild Bank for now. However, there is renewed interest in solving this problem overall, so stay tuned for changes in this space.
+AdiBags is an abstraction on top of Blizzard bags, and does not work to make Blizzard bags consistent or sorted. Due to this abstraction, two users of AdiBags accessing the same underlying store, such as a guild bank, may see two different views. For this reason, we've shied away from implementing a Guild Bank for now. However, there is renewed interest in solving this problem overall, so stay tuned for changes in this space.
 
 ### Alt Bags and Bank
 For the moment, alt bags and banks are not supported. Once we invest a bit more time into our abstraction engine, we may revisit this as an added feature.
@@ -63,7 +70,7 @@ Limited skinning is available using LibSharedMedia-1.0, however it is not as com
 
 ### In-Depth Filter Editing
 
-According to my experience with Baggins, comprehensive editor is awful to write as an author and awful to use as an user. Hence I focus on creating filters that have a smart built-in behavior and only a few options. I try to avoid the 20% of features that would require 80% of development effort.
+There are no plans to add a fully featured, scriptable, or logic/waterfall based filtering engine at this time.
 
 ## License
 ---
