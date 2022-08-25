@@ -115,7 +115,11 @@ end
 
 function mod:OnEnable()
 	self:UpdateOptions()
-	self:RegisterEvent('CURSOR_CHANGED')
+	if addon.isRetail or addon.isWrath then
+		self:RegisterEvent('CURSOR_CHANGED')
+	else
+		self:RegisterEvent('CURSOR_UPDATE', 'CURSOR_CHANGED')
+	end
 	addon.RegisterSectionHeaderScript(self, 'OnTooltipUpdate', 'OnTooltipUpdateSectionHeader')
 	addon.RegisterSectionHeaderScript(self, 'OnClick', 'OnClickSectionHeader')
 	self:CURSOR_CHANGED()

@@ -281,7 +281,7 @@ local function __GetDistinctItemID(link)
 			"", -- Relic 2
 			"", -- Relic 3
 			"", -- Crafter GUID
-			itemData.extraEnchantID
+			itemData.extraEnchantID or "" -- Fix for non-retail.
 			)
 		end
 		return newLink
