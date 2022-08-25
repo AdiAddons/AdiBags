@@ -35,6 +35,7 @@ local CreateFrame = _G.CreateFrame
 local ExpandCurrencyList = _G.C_CurrencyInfo.ExpandCurrencyList
 local format = _G.format
 local GetCurrencyListInfo = _G.C_CurrencyInfo.GetCurrencyListInfo
+local GetCurrencyInfo = _G.C_CurrencyInfo.GetCurrencyInfo
 local GetCurrencyListSize = _G.C_CurrencyInfo.GetCurrencyListSize
 local hooksecurefunc = _G.hooksecurefunc
 local ipairs = _G.ipairs
@@ -189,13 +190,14 @@ local ICON_STRING = " \124T%s:0:0:0:0:64:64:5:59:5:59\124t  "
 
 local values = {}
 local updating
-function mod:Update(currencyType, currencyQuantity)
+function mod:Update(event, currencyType, currencyQuantity)
 	if not self.widget or updating then return end
 	updating = true
 
 	-- Refresh only the affected cell.
 	if currencyType ~= nil then
-		local cell = self.currencyToCell[currencyType]
+		local info = GetCurrencyInfo(currencyType)
+		local cell = self.currencyToCell[info.name]
 		cell.text = cell.icon .. currencyQuantity
 		cell.fs:SetText(cell.text)
 		cell.frame:SetSize(
@@ -203,9 +205,10 @@ function mod:Update(currencyType, currencyQuantity)
 			ceil(cell.fs:GetStringHeight())+3
 		)
 		local column = cell.frame:GetParent()
-		if column.frame:GetWidth() < cell.frame:GetWidth() then
-			column.frame:SetWidth(cell.frame:GetWidth())
+		if column:GetWidth() < cell.frame:GetWidth() then
+			column:SetWidth(cell.frame:GetWidth())
 		end
+		updating = false
 		return
 	end
 
@@ -233,8 +236,7 @@ function mod:Update(currencyType, currencyQuantity)
 			tinsert(values, {
 				quantity = BreakUpLargeNumbers(currencyListInfo.quantity),
 				icon = format(ICON_STRING, currencyListInfo.iconFileID),
-				name = currencyListInfo.name,
-				index = i
+				name = currencyListInfo.name
 			})
 		end
 	end
@@ -263,8 +265,7 @@ function mod:Update(currencyType, currencyQuantity)
 				column.frame:SetWidth(cell.frame:GetWidth())
 			end
 			column.frame:SetHeight(column.frame:GetHeight() + cell.frame:GetHeight())
-
-			self.currencyToCell[value.index] = cell
+			self.currencyToCell[value.name] = cell
 		end
 
 		-- Loop over every active column and get the total width
