@@ -115,10 +115,10 @@ end
 
 function mod:OnEnable()
 	self:UpdateOptions()
-	self:RegisterEvent('CURSOR_UPDATE')
+	self:RegisterEvent('CURSOR_CHANGED')
 	addon.RegisterSectionHeaderScript(self, 'OnTooltipUpdate', 'OnTooltipUpdateSectionHeader')
 	addon.RegisterSectionHeaderScript(self, 'OnClick', 'OnClickSectionHeader')
-	self:CURSOR_UPDATE()
+	self:CURSOR_CHANGED()
 end
 
 function mod:OnDisable()
@@ -480,7 +480,7 @@ end
 function mod:OnTooltipUpdateSectionHeader(_, header, tooltip)
 	if GetCursorInfo() == "item" then
 		if header.section.name ~= FREE_SPACE then
-			tooltip:AddLine(L["Drop your item there to add it to this section."])
+			tooltip:AddLine(L["Click here with your item to add it to this section."])
 			tooltip:AddLine(L["Press Alt while doing so to open a dropdown menu."])
 		end
 	elseif header.section:GetKey() ~= JUNK_KEY  then
@@ -521,7 +521,7 @@ function mod:OnReceiveDragSectionHeader(_, header)
 	end
 end
 
-function mod:CURSOR_UPDATE()
+function mod:CURSOR_CHANGED()
 	if GetCursorInfo() == "item" then
 		addon.RegisterSectionHeaderScript(self, 'OnReceiveDrag', 'OnReceiveDragSectionHeader')
 	else

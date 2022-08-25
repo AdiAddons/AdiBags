@@ -33,8 +33,17 @@ local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
 local geterrorhandler = _G.geterrorhandler
 local GetItemFamily = _G.GetItemFamily
 local GetItemInfo = _G.GetItemInfo
-local ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
-local ITEM_QUALITY_UNCOMMON = _G.Enum.ItemQuality.Uncommon
+local ITEM_QUALITY_POOR
+local ITEM_QUALITY_UNCOMMON
+
+if addon.isRetail then
+	ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
+	ITEM_QUALITY_UNCOMMON = _G.Enum.ItemQuality.Uncommon
+else
+	ITEM_QUALITY_POOR = _G.LE_ITEM_QUALITY_POOR
+	ITEM_QUALITY_UNCOMMON = _G.LE_ITEM_QUALITY_UNCOMMON
+end
+
 local pairs = _G.pairs
 local pcall = _G.pcall
 local select = _G.select
@@ -145,6 +154,12 @@ function addon.SetupTooltip(widget, content, anchor, xOffset, yOffset)
 	end
 end
 
+function addon.RemoveTooltip(widget)
+	widget:SetScript('OnEnter', nil)
+	widget:SetScript('OnLeave', nil)
+	widget.tooltipCallback = nil
+	widget.UpdateTooltip = nil
+end
 --------------------------------------------------------------------------------
 -- Item link checking
 --------------------------------------------------------------------------------

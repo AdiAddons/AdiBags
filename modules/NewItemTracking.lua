@@ -30,7 +30,15 @@ local GetContainerItemInfo = _G.GetContainerItemInfo
 local GetContainerNumSlots = _G.GetContainerNumSlots
 local GetInventoryItemID = _G.GetInventoryItemID
 local GetInventoryItemLink = _G.GetInventoryItemLink
-local ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
+
+local ITEM_QUALITY_POOR
+
+if addon.isRetail then
+	ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
+else
+	ITEM_QUALITY_POOR = _G.LE_ITEM_QUALITY_POOR
+end
+
 local next = _G.next
 local pairs = _G.pairs
 local PlaySound = _G.PlaySound

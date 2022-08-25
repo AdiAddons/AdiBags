@@ -21,6 +21,7 @@
 ## Interface-Retail: 90207
 ## Interface-Classic: 11403
 ## Interface-BCC: 20504
+## Interface-Wrath: 30400
 
 ## Title: AdiBags
 ## Notes: Adirelle's bag addon.
