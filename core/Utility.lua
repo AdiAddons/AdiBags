@@ -174,12 +174,10 @@ end
 -- ParseItemLink parses an item link for it's distinct attributes and
 -- returns a table with every attribute. Updated as of retail 9.2.7.
 function addon.ParseItemLink(link)
-
 	-- Parse the first elements that have no variable length
 	local _, itemID, enchantID, gemID1, gemID2, gemID3, gemID4,
 	suffixID, uniqueID, linkLevel, specializationID, modifiersMask,
 	itemContext, rest = strsplit(":", link, 14)
-
 
 	-- The next several link items have a variable length and must be parsed
 	-- out one by one. There is definitely a more clever way of doing this,
@@ -229,7 +227,9 @@ function addon.ParseItemLink(link)
 		relic3BonusIDs = strsplittable(":", rest, (tonumber(relic3NumBonusIDs))+1)
 		rest = table.remove(relic3BonusIDs, splits)
 	end
+
 	local crafterGUID, extraEnchantID = strsplit(":", rest, 3)
+
 	return {
 		itemID = itemID,
 		enchantID = enchantID,
