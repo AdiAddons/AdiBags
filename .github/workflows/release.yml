@@ -34,15 +34,3 @@ jobs:
       # once cloned, we just run the GitHub Action for the packager project
       - name: Package and release
         uses: BigWigsMods/packager@v2.0.8
-      - name: Package and release Classic
-        uses: BigWigsMods/packager@v2.0.8
-        with:
-          args: -g classic
-      - name: Package and release TBC
-        uses: BigWigsMods/packager@v2.0.8
-        with:
-          args: -g bcc
-      - name: Package and release Wrath
-        uses: BigWigsMods/packager@v2.0.8
-        with:
-          args: -g wrath
