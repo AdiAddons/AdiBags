@@ -83,6 +83,7 @@ function mod:OnEnable()
 
 	self:RegisterMessage('AdiBags_UpdateButton', 'UpdateButton')
 	self:RegisterMessage('AdiBags_AddNewItem', 'AddNewItem')
+	self:RegisterMessage('AdiBags_ButtonProtoRelease', 'StopButtonGlow')
 	self:RegisterEvent('BAG_NEW_ITEMS_UPDATED')
 end
 
@@ -124,14 +125,18 @@ end
 
 function mod:UpdateButton(event, button)
 	if addon.BAG_IDS.BANK[button.bag] then
-		self:ShowLegacyGlow(button, false)
-		self:ShowBlizzardGlow(button, false)
+		self:StopButtonGlow(event, button)
 		return
 	end
 	local isNew = self:IsNew(button.bag, button.slot, button.itemLink)
 	self:ShowLegacyGlow(button, isNew and mod.db.profile.highlight == "legacy")
 	self:ShowBlizzardGlow(button, isNew and mod.db.profile.highlight == "blizzard")
 	self:UpdateModuleButton()
+end
+
+function mod:StopButtonGlow(event, button)
+	self:ShowLegacyGlow(button, false)
+	self:ShowBlizzardGlow(button, false)
 end
 
 function mod:UpdateModuleButton()
