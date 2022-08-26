@@ -659,9 +659,9 @@ function containerProto:UpdateContent(bag)
 				if sameItem then
 					-- Items that are the same item but have mutated are marked as "new" to make them more visble.
 					-- However, only things with a new texture are marked as new, i.e. wrapped items.
-					if prevTexture ~= texture and equipSlot ~= prevEquipSlot then
-						sameChanged[slotData.slotId] = slotData
-						addon:SendMessage('AdiBags_AddNewItem', slotData.link)
+					if prevTexture ~= texture then
+						changed[slotData.slotId] = slotData
+						--addon:SendMessage('AdiBags_AddNewItem', slotData.link)
 					else
 						changed[slotData.slotId] = slotData
 					end
