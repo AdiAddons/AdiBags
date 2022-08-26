@@ -62,7 +62,7 @@ function mod:OnInitialize()
 			glowScale = 1.5,
 			glowColor = { 0.3, 1, 0.3, 0.7 },
 			ignoreJunk = false,
-			highlightChangedItems = true,
+			highlightChangedItems = false,
 		},
 	})
 
@@ -123,7 +123,11 @@ function mod:OnBagFrameCreated(bag)
 end
 
 function mod:UpdateButton(event, button)
-	if addon.BAG_IDS.BANK[button.bag] then return end
+	if addon.BAG_IDS.BANK[button.bag] then
+		self:ShowLegacyGlow(button, false)
+		self:ShowBlizzardGlow(button, false)
+		return
+	end
 	local isNew = self:IsNew(button.bag, button.slot, button.itemLink)
 	self:ShowLegacyGlow(button, isNew and mod.db.profile.highlight == "legacy")
 	self:ShowBlizzardGlow(button, isNew and mod.db.profile.highlight == "blizzard")
@@ -232,6 +236,7 @@ end
 --------------------------------------------------------------------------------
 
 function mod:ShowBlizzardGlow(button, enable)
+	if not button.NewItemTexture then return end
 	if enable then
 		local _, _, _, quality = GetContainerItemInfo(button.bag, button.slot)
 		if quality and NEW_ITEM_ATLAS_BY_QUALITY[quality] then
