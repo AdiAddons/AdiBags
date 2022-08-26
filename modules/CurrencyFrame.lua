@@ -194,19 +194,24 @@ function mod:Update(event, currencyType, currencyQuantity)
 	if not self.widget or updating then return end
 	updating = true
 
-	-- Refresh only the affected cell.
+	local info
+	local updateCell
 	if currencyType ~= nil then
-		local info = GetCurrencyInfo(currencyType)
-		local cell = self.currencyToCell[info.name]
-		cell.text = cell.icon .. currencyQuantity
-		cell.fs:SetText(cell.text)
-		cell.frame:SetSize(
-			cell.fs:GetStringWidth(),
-			ceil(cell.fs:GetStringHeight())+3
+		info = GetCurrencyInfo(currencyType)
+		updateCell = self.currencyToCell[info.name]
+	end
+
+	-- Refresh only the affected cell.
+	if updateCell ~= nil then
+		updateCell.text = updateCell.icon .. BreakUpLargeNumbers(currencyQuantity)
+		updateCell.fs:SetText(updateCell.text)
+		updateCell.frame:SetSize(
+			updateCell.fs:GetStringWidth(),
+			ceil(updateCell.fs:GetStringHeight())+3
 		)
-		local column = cell.frame:GetParent()
-		if column:GetWidth() < cell.frame:GetWidth() then
-			column:SetWidth(cell.frame:GetWidth())
+		local column = updateCell.frame:GetParent()
+		if column:GetWidth() < updateCell.frame:GetWidth() then
+			column:SetWidth(updateCell.frame:GetWidth())
 		end
 		updating = false
 		return
