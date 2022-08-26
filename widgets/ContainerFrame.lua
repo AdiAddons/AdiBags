@@ -618,8 +618,11 @@ function containerProto:UpdateContent(bag)
 		local link = GetContainerItemLink(bag, slot)
 		local guid = ""
 		local itemLocation = ItemLocation:CreateFromBagAndSlot(bag, slot)
-		if itemLocation:IsValid() then
-			guid = GetItemGUID(itemLocation)
+
+		if addon.isRetail then
+			if itemLocation and itemLocation:IsValid() then
+				guid = GetItemGUID(itemLocation)
+			end
 		end
 		if not itemId or (link and addon.IsValidItemLink(link)) then
 			local slotData = content[slot]
@@ -656,9 +659,13 @@ function containerProto:UpdateContent(bag)
 				local prevLink = slotData.link
 				local prevGUID = slotData.guid
 				local prevTexture = slotData.texture
-
+				local sameItem
 				-- Use the new guid system to detect if an item is actually the same.
-				local sameItem = prevGUID == guid
+				if addon.isRetail then
+					sameItem = prevGUID == guid
+				else
+					sameItem = addon.IsSameLinkButLevel(slotData.link, link)
+				end
 
 				slotData.count = count
 				slotData.link = link
@@ -669,16 +676,23 @@ function containerProto:UpdateContent(bag)
 				slotData.maxStack = maxStack or (link and 1 or 0)
 
 				if sameItem then
-					local context = self.itemGUIDtoItem[guid]
 					-- If this item is in the inventory, in the same slot, and has been indexed before,
 					-- i.e. not the first time the bag was opened, and the texture has changed, this means
 					-- the item has updated in some material way (i.e. wrapped in wrapping paper, unwrapped),
 					-- and it must be marked as new.
-					if context and context:IsValid() and prevTexture ~= slotData.texture then
-						sameChanged[slotData.slotId] = slotData
-						addon:SendMessage('AdiBags_AddNewItem', slotData.link)
+					--
+					-- This new method only works on retail, as Blizzard did not backport GUID's to classic
+					-- game modes.
+					if addon.isRetail then
+						local context = self.itemGUIDtoItem[guid]
+						if context and context:IsValid() and prevTexture ~= slotData.texture then
+							sameChanged[slotData.slotId] = slotData
+							addon:SendMessage('AdiBags_AddNewItem', slotData.link)
+						else
+							-- Otherwise, just a normal change, i.e. enchanted, gem, etc.
+							changed[slotData.slotId] = slotData
+						end
 					else
-						-- Otherwise, just a normal change, i.e. enchanted, gem, etc.
 						changed[slotData.slotId] = slotData
 					end
 				else
@@ -686,10 +700,12 @@ function containerProto:UpdateContent(bag)
 					added[slotData.slotId] = slotData
 					-- Remove the old item, and add the new item to the
 					-- item index.
-					if prevGUID then
-						self.itemGUIDtoItem[prevGUID] = nil
+					if addon.isRetail then
+						if prevGUID then
+							self.itemGUIDtoItem[prevGUID] = nil
+						end
+						self.itemGUIDtoItem[guid] = slotData.itemLocation
 					end
-					self.itemGUIDtoItem[guid] = slotData.itemLocation
 				end
 			elseif slotData.count ~= count then
 				slotData.count = count
