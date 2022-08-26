@@ -122,6 +122,8 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.changed = {}
 	self.sameChanged = {}
 
+	self.itemGUIDtoItem = {}
+
 	local ids
 	for bagId in pairs(BAG_IDS[isBank and "BANK" or "BAGS"]) do
 		self.content[bagId] = { size = 0 }
@@ -603,7 +605,6 @@ end
 --------------------------------------------------------------------------------
 -- Bag content scanning
 --------------------------------------------------------------------------------
-local itemGUIDtoItem = {}
 
 function containerProto:UpdateContent(bag)
 	self:Debug('UpdateContent', bag)
@@ -668,7 +669,7 @@ function containerProto:UpdateContent(bag)
 				slotData.maxStack = maxStack or (link and 1 or 0)
 
 				if sameItem then
-					local context = itemGUIDtoItem[guid]
+					local context = self.itemGUIDtoItem[guid]
 					-- If this item is in the inventory, in the same slot, and has been indexed before,
 					-- i.e. not the first time the bag was opened, and the texture has changed, this means
 					-- the item has updated in some material way (i.e. wrapped in wrapping paper, unwrapped),
@@ -686,9 +687,9 @@ function containerProto:UpdateContent(bag)
 					-- Remove the old item, and add the new item to the
 					-- item index.
 					if prevGUID then
-						itemGUIDtoItem[prevGUID] = nil
+						self.itemGUIDtoItem[prevGUID] = nil
 					end
-					itemGUIDtoItem[guid] = slotData.itemLocation
+					self.itemGUIDtoItem[guid] = slotData.itemLocation
 				end
 			elseif slotData.count ~= count then
 				slotData.count = count
