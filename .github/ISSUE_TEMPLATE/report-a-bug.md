@@ -28,6 +28,9 @@ If applicable, add screenshots to help explain your problem.
 **World of Warcraft Release and Version (Retail 9.2.7, etc)**
  - Retail 9.2.7, etc, etc
 
+**AdiBags Version**
+- vx.x.x...
+
 **Have you tried disabling all your other addons to ensure only this addon causes the issue?**
  - Yes/No
 
