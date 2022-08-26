@@ -598,7 +598,14 @@ function stackProto:Update()
 	end
 end
 
-stackProto.FullUpdate = stackProto.Update
+function stackProto:FullUpdate()
+	if not self:CanUpdate() then return end
+	self:UpdateVisibleSlot()
+	self:UpdateCount()
+	if self.button then
+		self.button:FullUpdate()
+	end
+end
 
 function stackProto:UpdateCount()
 	local count = 0

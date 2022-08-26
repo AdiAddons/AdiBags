@@ -39,6 +39,7 @@ local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
 local GetContainerNumSlots = _G.GetContainerNumSlots
 local GetCursorInfo = _G.GetCursorInfo
 local GetItemInfo = _G.GetItemInfo
+local GetItemGUID = _G.C_Item.GetItemGUID
 local GetMerchantItemLink = _G.GetMerchantItemLink
 local ipairs = _G.ipairs
 local max = _G.max
@@ -602,6 +603,7 @@ end
 --------------------------------------------------------------------------------
 -- Bag content scanning
 --------------------------------------------------------------------------------
+local itemGUIDtoItem = {}
 
 function containerProto:UpdateContent(bag)
 	self:Debug('UpdateContent', bag)
@@ -613,6 +615,11 @@ function containerProto:UpdateContent(bag)
 	for slot = 1, newSize do
 		local itemId = GetContainerItemID(bag, slot)
 		local link = GetContainerItemLink(bag, slot)
+		local guid = ""
+		local itemLocation = ItemLocation:CreateFromBagAndSlot(bag, slot)
+		if itemLocation:IsValid() then
+			guid = GetItemGUID(itemLocation)
+		end
 		if not itemId or (link and addon.IsValidItemLink(link)) then
 			local slotData = content[slot]
 			if not slotData then
@@ -643,31 +650,45 @@ function containerProto:UpdateContent(bag)
 				link, count = false, 0
 			end
 
-			if slotData.link ~= link or slotData.texture ~= texture then
+			if slotData.guid ~= guid or slotData.texture ~= texture then
 				local prevSlotId = slotData.slotId
 				local prevLink = slotData.link
+				local prevGUID = slotData.guid
 				local prevTexture = slotData.texture
-				local prevEquipSlot = slotData.equipSlot
-				-- If links only differ in character level that's the same item
-				local sameItem = addon.IsSameLinkButLevel(slotData.link, link)
+
+				-- Use the new guid system to detect if an item is actually the same.
+				local sameItem = prevGUID == guid
 
 				slotData.count = count
 				slotData.link = link
 				slotData.itemId = itemId
+				slotData.guid = guid
+				slotData.itemLocation = itemLocation
 				slotData.name, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass, slotData.equipSlot, slotData.texture, slotData.vendorPrice = name, quality, iLevel, reqLevel, class, subclass, equipSlot, texture, vendorPrice
 				slotData.maxStack = maxStack or (link and 1 or 0)
+
 				if sameItem then
-					-- Items that are the same item but have mutated are marked as "new" to make them more visble.
-					-- However, only things with a new texture are marked as new, i.e. wrapped items.
-					if prevTexture ~= texture then
-						changed[slotData.slotId] = slotData
-						--addon:SendMessage('AdiBags_AddNewItem', slotData.link)
+					local context = itemGUIDtoItem[guid]
+					-- If this item is in the inventory, in the same slot, and has been indexed before,
+					-- i.e. not the first time the bag was opened, and the texture has changed, this means
+					-- the item has updated in some material way (i.e. wrapped in wrapping paper, unwrapped),
+					-- and it must be marked as new.
+					if context and context:IsValid() and prevTexture ~= slotData.texture then
+						sameChanged[slotData.slotId] = slotData
+						addon:SendMessage('AdiBags_AddNewItem', slotData.link)
 					else
+						-- Otherwise, just a normal change, i.e. enchanted, gem, etc.
 						changed[slotData.slotId] = slotData
 					end
 				else
 					removed[prevSlotId] = prevLink
 					added[slotData.slotId] = slotData
+					-- Remove the old item, and add the new item to the
+					-- item index.
+					if prevGUID then
+						itemGUIDtoItem[prevGUID] = nil
+					end
+					itemGUIDtoItem[guid] = slotData.itemLocation
 				end
 			elseif slotData.count ~= count then
 				slotData.count = count
@@ -843,10 +864,14 @@ function containerProto:UpdateButtons()
 	for slotId in pairs(changed) do
 		buttons[slotId]:FullUpdate()
 	end
-	
-	for slotId, slotData in pairs(sameChanged) do
-		self:DispatchItem(slotData)
-		buttons[slotId]:FullUpdate()
+
+	if next(sameChanged) then
+		self:SendMessage('AdiBags_PreFilter', self)
+		for slotId, slotData in pairs(sameChanged) do
+			self:DispatchItem(slotData)
+			buttons[slotId]:FullUpdate()
+		end
+		self:SendMessage('AdiBags_PostFilter', self)
 	end
 
 	self:SendMessage('AdiBags_PostContentUpdate', self, added, removed, changed)

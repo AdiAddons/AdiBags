@@ -62,6 +62,7 @@ function mod:OnInitialize()
 			glowScale = 1.5,
 			glowColor = { 0.3, 1, 0.3, 0.7 },
 			ignoreJunk = false,
+			highlightChangedItems = true,
 		},
 	})
 
@@ -134,7 +135,9 @@ function mod:UpdateModuleButton()
 end
 
 function mod:AddNewItem(event, link)
-	newItems[link] = true
+	if self.db.profile.highlightChangedItems then
+		newItems[link] = true
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -215,6 +218,12 @@ function mod:GetOptions()
 			end,
 			width = 'double',
 		},
+		highlightChangedItems = {
+			name = L['Highlight items that have changed'],
+			type = 'toggle',
+			order = 50,
+			width = 'double'
+		}
 	}, addon:GetOptionHandler(self)
 end
 
