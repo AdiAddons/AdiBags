@@ -115,6 +115,7 @@ function buttonProto:OnRelease()
 	self.texture = nil
 	self.bagFamily = nil
 	self.stack = nil
+	addon:SendMessage('AdiBags_ButtonProtoRelease', self)
 end
 
 function buttonProto:ToString()
@@ -469,6 +470,7 @@ function stackProto:OnRelease()
 	self:SetSection(nil)
 	self.key = nil
 	self.container = nil
+	addon:SendMessage('AdiBags_ButtonProtoRelease', self)
 	wipe(self.slots)
 end
 
@@ -598,7 +600,14 @@ function stackProto:Update()
 	end
 end
 
-stackProto.FullUpdate = stackProto.Update
+function stackProto:FullUpdate()
+	if not self:CanUpdate() then return end
+	self:UpdateVisibleSlot()
+	self:UpdateCount()
+	if self.button then
+		self.button:FullUpdate()
+	end
+end
 
 function stackProto:UpdateCount()
 	local count = 0
