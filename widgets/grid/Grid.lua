@@ -79,6 +79,13 @@ function gridProto:AddColumn()
   return column
 end
 
+local function Cell_OnDragStart(self)
+  self:StartMoving()
+end
+
+local function Cell_OnDragStop(self)
+  self:StopMovingOrSizing()
+end
 -- AddCell will take the given frame and add it as a cell in
 -- the grid.
 function gridProto:AddCell(frame)
@@ -88,8 +95,12 @@ function gridProto:AddCell(frame)
   else
     column = self.columns[1]
   end
-
   column:AddCell(frame)
+  frame:EnableMouse(true)
+  frame:SetMovable(true)
+  frame:RegisterForDrag("LeftButton")
+  frame:SetScript("OnDragStart", Cell_OnDragStart)
+  frame:SetScript("OnDragStop", Cell_OnDragStop)
   self:Update()
 end
 
