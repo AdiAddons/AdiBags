@@ -95,6 +95,13 @@ local SimpleLayeredRegion = addon:GetClass("SimpleLayeredRegion")
 
 local bagSlots = {}
 function containerProto:OnCreate(name, isBank, bagObject)
+	self.grid = addon:CreateGridFrame("testing")
+	self.grid:AddColumn()
+	self.grid:AddColumn()
+
+--	local testSection = addon:AcquireSection(self, "Test", "Test")
+--	self.grid:AddCell(testSection)
+
 	self:SetParent(UIParent)
 	containerParentProto.OnCreate(self)
 	Mixin(self, BackdropTemplateMixin)
