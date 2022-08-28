@@ -39,7 +39,10 @@ function gridProto:OnCreate(name, cellCreateFn)
   Mixin(self, BackdropTemplateMixin)
 
   self.name = name
+  self.updateDeferred = false
   self.columns = {}
+  self.minimumColumnWidth = 0
+
   self:SetSize(300,500)
   self:SetPoint("CENTER", UIParent, "CENTER")
 
@@ -83,10 +86,29 @@ function gridProto:AddCell(frame)
   if #self.columns < 1 then
     column = self:AddColumn()
   else
-    column = self.columns[#self.columns]
+    column = self.columns[1]
   end
 
   column:AddCell(frame)
+  self:Update()
+end
+
+-- SetMinimumColumnWidth sets the minium column width for all
+-- columns in this grid.
+function gridProto:SetMinimumColumnWidth(width)
+  self.minimumColumnWidth = width
+  self:Update()
+end
+
+-- DeferUpdate prevents grid updates from triggering until
+-- DoUpdate is called.
+function gridProto:DeferUpdate()
+  self.updateDeferred = true
+end
+
+-- DoUpdate undeferres update calls and triggers an update.
+function gridProto:DoUpdate()
+  self.updateDeferred = false
   self:Update()
 end
 
@@ -94,15 +116,21 @@ end
 -- based on the properties of the grid, and ensuring positions
 -- are correct.
 function gridProto:Update()
-  self:Debug("Update")
+  self:Debug("Grid Update With Deferred Status", self.updateDeferred)
+  if self.updateDeferred then return end
   for i, column in ipairs(self.columns) do
-    local width = 0
-    for _, cell in ipairs(column.cells) do
+    local width = self.minimumColumnWidth
+    for cellPos, cell in ipairs(column.cells) do
       if cell:GetWidth() > width then
         width = cell:GetWidth()
       end
+      if cellPos == 1 then
+        cell:SetPoint("TOPLEFT", column)
+      else
+        cell:SetPoint("TOPLEFT", column.cells[cellPos-1], "BOTTOMLEFT")
+      end
     end
-    column:SetWidth(width+100)
+    column:SetWidth(width)
     column:SetHeight(self:GetHeight())
     self:Debug("Column Width and Height", column:GetWidth(), column:GetHeight())
   end
