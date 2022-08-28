@@ -79,28 +79,32 @@ function gridProto:AddColumn()
   return column
 end
 
-local function Cell_OnDragStart(self)
-  self:StartMoving()
+local function Cell_OnDragStart(frame)
+  frame:StartMoving()
 end
 
-local function Cell_OnDragStop(self)
-  self:StopMovingOrSizing()
+local function Cell_OnDragStop(frame)
+  frame:StopMovingOrSizing()
 end
+
 -- AddCell will take the given frame and add it as a cell in
 -- the grid.
-function gridProto:AddCell(frame)
+function gridProto:AddCell(frame, dragHandle)
   local column
   if #self.columns < 1 then
     column = self:AddColumn()
   else
     column = self.columns[1]
   end
+
   column:AddCell(frame)
-  frame:EnableMouse(true)
+
+  frame.dragHandle = dragHandle or frame
+  frame.dragHandle:EnableMouse(true)
   frame:SetMovable(true)
-  frame:RegisterForDrag("LeftButton")
-  frame:SetScript("OnDragStart", Cell_OnDragStart)
-  frame:SetScript("OnDragStop", Cell_OnDragStop)
+  frame.dragHandle:RegisterForDrag("LeftButton")
+  frame.dragHandle:SetScript("OnDragStart", function(...) Cell_OnDragStart(frame) end)
+  frame.dragHandle:SetScript("OnDragStop", function(...) Cell_OnDragStop(frame) end)
   self:Update()
 end
 
