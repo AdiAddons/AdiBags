@@ -55,11 +55,14 @@ function columnProto:OnCreate(name)
   self:Show()
 end
 
+-- SetMinimumWidth sets the minimum width for this column.
 function columnProto:SetMinimumWidth(width)
   self.minimumWidth = width
   self:Update()
 end
 
+-- AddCell adds a cell to this column at the given position, or at the
+-- end of the column if no position is given.
 function columnProto:AddCell(cell, position)
   cell:ClearAllPoints()
   cell:SetParent(self)
@@ -68,6 +71,7 @@ function columnProto:AddCell(cell, position)
   table.insert(self.cells, position, cell)
 end
 
+-- GetCellPosition returns the cell's position as an integer in this column.
 function columnProto:GetCellPosition(cell)
   for i, c in ipairs(self.cells) do
     if cell == c then return i end
@@ -80,7 +84,6 @@ function columnProto:RemoveCell(cell)
   for i, c in ipairs(self.cells) do
     if cell == c then
       cell:ClearAllPoints()
-      -- TODO(lobato): remember previous position setting in case we snap back due to invalid drop placement.
       table.remove(self.cells, i)
       break
     end
@@ -88,6 +91,9 @@ function columnProto:RemoveCell(cell)
   self:Update()
 end
 
+-- Update will fully redraw a column and snap all cells into the correct
+-- position.
+-- TODO(lobato): Add animation for cell movement.
 function columnProto:Update()
   local width = self.minimumWidth
   for cellPos, cell in ipairs(self.cells) do
