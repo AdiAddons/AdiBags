@@ -108,5 +108,6 @@ function columnProto:Update()
   end
   self:SetWidth(width)
   self:SetHeight(self:GetParent():GetHeight())
+  self:Debug("In Column Rect:", self:GetRect())
   self:Debug("Column Width and Height", self:GetWidth(), self:GetHeight())
 end
