@@ -41,7 +41,7 @@ function gridProto:OnCreate(name, cellCreateFn)
   self.name = name
   self.updateDeferred = false
   self.columns = {}
-  self.minimumColumnWidth = 0
+  self.cellToColumn = {}
 
   self:SetSize(300,500)
   self:SetPoint("CENTER", UIParent, "CENTER")
@@ -79,17 +79,30 @@ function gridProto:AddColumn()
   return column
 end
 
-local function Cell_OnDragStart(frame)
+local function Cell_OnDragStart(self, frame)
+  local column = self.cellToColumn[frame]
+  column:RemoveCell(frame)
   frame:StartMoving()
+  frame:ClearAllPoints()
 end
 
-local function Cell_OnDragStop(frame)
+local function Cell_OnDragStop(self, frame)
   frame:StopMovingOrSizing()
+  for _, column in ipairs(self.columns) do
+    if column:IsMouseOver() then
+      column:AddCell(frame)
+      column:Update()
+      -- TODO(lobato): Anchor logic here
+      self:Debug("Mouse Over Frame", column)
+    end
+  end
 end
 
 -- AddCell will take the given frame and add it as a cell in
 -- the grid.
 function gridProto:AddCell(frame, dragHandle)
+  assert(frame and frame.SetMovable, "Invalid cell added to frame!")
+  assert(not dragHandle or dragHandle.EnableMouse, "Invalid drag handle added to frame!")
   local column
   if #self.columns < 1 then
     column = self:AddColumn()
@@ -98,20 +111,23 @@ function gridProto:AddCell(frame, dragHandle)
   end
 
   column:AddCell(frame)
+  self.cellToColumn[frame] = column
 
   frame.dragHandle = dragHandle or frame
   frame.dragHandle:EnableMouse(true)
   frame:SetMovable(true)
   frame.dragHandle:RegisterForDrag("LeftButton")
-  frame.dragHandle:SetScript("OnDragStart", function(...) Cell_OnDragStart(frame) end)
-  frame.dragHandle:SetScript("OnDragStop", function(...) Cell_OnDragStop(frame) end)
+  frame.dragHandle:SetScript("OnDragStart", function(...) Cell_OnDragStart(self, frame) end)
+  frame.dragHandle:SetScript("OnDragStop", function(...) Cell_OnDragStop(self, frame) end)
   self:Update()
 end
 
 -- SetMinimumColumnWidth sets the minium column width for all
 -- columns in this grid.
 function gridProto:SetMinimumColumnWidth(width)
-  self.minimumColumnWidth = width
+  for _, column in ipairs(self.columns) do
+    column:SetMinimumWidth(width)
+  end
   self:Update()
 end
 
@@ -134,19 +150,6 @@ function gridProto:Update()
   self:Debug("Grid Update With Deferred Status", self.updateDeferred)
   if self.updateDeferred then return end
   for i, column in ipairs(self.columns) do
-    local width = self.minimumColumnWidth
-    for cellPos, cell in ipairs(column.cells) do
-      if cell:GetWidth() > width then
-        width = cell:GetWidth()
-      end
-      if cellPos == 1 then
-        cell:SetPoint("TOPLEFT", column)
-      else
-        cell:SetPoint("TOPLEFT", column.cells[cellPos-1], "BOTTOMLEFT")
-      end
-    end
-    column:SetWidth(width)
-    column:SetHeight(self:GetHeight())
-    self:Debug("Column Width and Height", column:GetWidth(), column:GetHeight())
+    column:Update()
   end
 end
