@@ -37,6 +37,7 @@ function columnProto:OnCreate(name)
 
   self.name = name
   self.cells = {}
+  self.minimumWidth = 0
 
   local backdropInfo =
   {
@@ -50,14 +51,50 @@ function columnProto:OnCreate(name)
   }
   self:SetBackdrop(backdropInfo)
   self:SetBackdropColor(1, 0, 0)
+  self:EnableMouse(true)
   self:Show()
 end
 
-function columnProto:AddCell(cell)
+function columnProto:SetMinimumWidth(width)
+  self.minimumWidth = width
+  self:Update()
+end
+
+function columnProto:AddCell(cell, position)
+  cell:ClearAllPoints()
   cell:SetParent(self)
   cell:Show()
-  table.insert(self.cells, cell)
+  position = position or #self.cells + 1
+  table.insert(self.cells, position, cell)
+end
+
+-- RemoveCell removes a cell from this column and reanchors
+-- the cell below it (if any) to the cell above it.
+function columnProto:RemoveCell(cell)
+  for i, c in ipairs(self.cells) do
+    if cell == c then
+      cell:ClearAllPoints()
+      -- TODO(lobato): remember previous position setting in case we snap back due to invalid drop placement.
+      table.remove(self.cells, i)
+      break
+    end
+  end
+  self:Update()
 end
 
 function columnProto:Update()
+  local width = self.minimumWidth
+  for cellPos, cell in ipairs(self.cells) do
+    if cell:GetWidth() > width then
+      width = cell:GetWidth()
+    end
+    if cellPos == 1 then
+      cell:SetPoint("TOPLEFT", self)
+    else
+      cell:SetPoint("TOPLEFT", self.cells[cellPos-1], "BOTTOMLEFT")
+    end
+  end
+  self:SetWidth(width)
+  self:SetHeight(self:GetParent():GetHeight())
+  self:Debug("Column Width and Height", self:GetWidth(), self:GetHeight())
 end
