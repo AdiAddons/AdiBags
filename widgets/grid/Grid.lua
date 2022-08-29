@@ -128,6 +128,7 @@ local function Cell_OnDragStop(self, button, frame)
     return
   end
 
+  -- TODO(lobato): delete a column if it is empty
   self.sideFrame:Hide()
   for _, column in ipairs(self.columns) do
     self:Debug("Column Drag Stop Check", column)
