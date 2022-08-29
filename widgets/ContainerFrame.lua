@@ -102,7 +102,8 @@ function containerProto:GridTest()
 	self.grid:AddColumn()
 	self.grid:SetMinimumColumnWidth(120)
 	for i = 1, 3 do
-		local t = CreateFrame("Frame", "TestGridFrame")
+		local name = string.format("TestGridFrame%d",i)
+		local t = CreateFrame("Frame", name)
 		Mixin(t, BackdropTemplateMixin)
   	local backdropInfo =
   	{

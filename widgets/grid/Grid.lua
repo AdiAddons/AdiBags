@@ -42,6 +42,7 @@ function gridProto:OnCreate(name, cellCreateFn)
   self.updateDeferred = false
   self.columns = {}
   self.cellToColumn = {}
+  self.cellToHandle = {}
 
   self:SetSize(300,500)
   self:SetPoint("CENTER", UIParent, "CENTER")
@@ -90,10 +91,11 @@ local function Cell_OnDragStop(self, frame)
   frame:StopMovingOrSizing()
   for _, column in ipairs(self.columns) do
     if column:IsMouseOver() then
+      self.cellToColumn[frame] = column
       column:AddCell(frame)
       column:Update()
-      -- TODO(lobato): Anchor logic here
       self:Debug("Mouse Over Frame", column)
+      return
     end
   end
 end
@@ -112,13 +114,13 @@ function gridProto:AddCell(frame, dragHandle)
 
   column:AddCell(frame)
   self.cellToColumn[frame] = column
+  self.cellToHandle[frame] = dragHandle or frame
 
-  frame.dragHandle = dragHandle or frame
-  frame.dragHandle:EnableMouse(true)
+  self.cellToHandle[frame]:EnableMouse(true)
   frame:SetMovable(true)
-  frame.dragHandle:RegisterForDrag("LeftButton")
-  frame.dragHandle:SetScript("OnDragStart", function(...) Cell_OnDragStart(self, frame) end)
-  frame.dragHandle:SetScript("OnDragStop", function(...) Cell_OnDragStop(self, frame) end)
+  self.cellToHandle[frame]:RegisterForDrag("LeftButton")
+  self.cellToHandle[frame]:SetScript("OnDragStart", function(...) Cell_OnDragStart(self, frame) end)
+  self.cellToHandle[frame]:SetScript("OnDragStop", function(...) Cell_OnDragStop(self, frame) end)
   self:Update()
 end
 
