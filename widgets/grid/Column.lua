@@ -68,6 +68,12 @@ function columnProto:AddCell(cell, position)
   table.insert(self.cells, position, cell)
 end
 
+function columnProto:GetCellPosition(cell)
+  for i, c in ipairs(self.cells) do
+    if cell == c then return i end
+  end
+end
+
 -- RemoveCell removes a cell from this column and reanchors
 -- the cell below it (if any) to the cell above it.
 function columnProto:RemoveCell(cell)

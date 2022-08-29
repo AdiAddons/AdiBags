@@ -43,6 +43,7 @@ function gridProto:OnCreate(name, cellCreateFn)
   self.columns = {}
   self.cellToColumn = {}
   self.cellToHandle = {}
+  self.cellToPosition = {}
 
   self:SetSize(300,500)
   self:SetPoint("CENTER", UIParent, "CENTER")
@@ -82,6 +83,7 @@ end
 
 local function Cell_OnDragStart(self, frame)
   local column = self.cellToColumn[frame]
+  self.cellToPosition[frame] = column:GetCellPosition(frame)
   column:RemoveCell(frame)
   frame:StartMoving()
   frame:ClearAllPoints()
@@ -98,6 +100,10 @@ local function Cell_OnDragStop(self, frame)
       return
     end
   end
+
+  -- Cell did not drag onto a column, restore it's position.
+  self.cellToColumn[frame]:AddCell(frame, self.cellToPosition[frame])
+  self.cellToColumn[frame]:Update()
 end
 
 -- AddCell will take the given frame and add it as a cell in
