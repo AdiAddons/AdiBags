@@ -44,6 +44,7 @@ function gridProto:OnCreate(name, cellCreateFn)
   self.cellToColumn = {}
   self.cellToHandle = {}
   self.cellToPosition = {}
+  self.cellMoving = {}
   self.minimumColumnWidth = 0
   self.sideFrame = CreateFrame("Frame", name .. "SideFrame", self)
   self.sideFrame:SetFrameLevel(self:GetFrameLevel() + 1)
@@ -97,8 +98,11 @@ end
 -- Cell_OnDragStart is called when a cell is dragged.
 local function Cell_OnDragStart(self, button, frame)
   if button ~= "LeftButton" then return end
-  self.sideFrame:Show()
   local column = self.cellToColumn[frame]
+  if #column.cells < 2 and self.columns[#self.columns] ~= column then return end
+  self.cellMoving[frame] = true
+
+  self.sideFrame:Show()
   self.cellToPosition[frame] = column:GetCellPosition(frame)
   column:RemoveCell(frame)
   frame:StartMoving()
@@ -107,6 +111,9 @@ end
 
 -- Cell_OnDragStop is called when a cell stops being dragged.
 local function Cell_OnDragStop(self, button, frame)
+  if not self.cellMoving[frame] then return end
+  self.cellMoving[frame] = nil
+
   frame:StopMovingOrSizing()
   if self.sideFrame:IsMouseOver() then
     self:DeferUpdate()
