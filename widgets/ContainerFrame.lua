@@ -98,8 +98,8 @@ local bagSlots = {}
 function containerProto:GridTest()
 	self.grid = addon:CreateGridFrame("testing")
 	self.grid:DeferUpdate()
---	self.grid:AddColumn()
---	self.grid:AddColumn()
+	--self.grid:AddColumn()
+	--self.grid:AddColumn()
 	self.grid:SetMinimumColumnWidth(120)
 	for i = 1, 3 do
 		local name = string.format("TestGridFrame%d",i)
