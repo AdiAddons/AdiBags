@@ -95,6 +95,19 @@ function gridProto:AddColumn()
   return column
 end
 
+function gridProto:DeleteColumn(column)
+  assert(#column.cells == 0, "Tried to delete a column with cells in it.")
+  column:SetParent(UIParent)
+  column:ClearAllPoints()
+  column:Hide()
+  for i, c in ipairs(self.columns) do
+    if c == column then
+      table.remove(self.columns, i)
+      break
+    end
+  end
+end
+
 -- Cell_OnDragStart is called when a cell is dragged.
 local function Cell_OnDragStart(self, button, frame)
   if button ~= "LeftButton" then return end
@@ -102,6 +115,7 @@ local function Cell_OnDragStart(self, button, frame)
   if #column.cells < 2 and self.columns[#self.columns] ~= column then return end
   self.cellMoving[frame] = true
 
+  self.sideFrame:SetPoint("TOPLEFT", self.columns[#self.columns], "TOPRIGHT")
   self.sideFrame:Show()
   self.cellToPosition[frame] = column:GetCellPosition(frame)
   column:RemoveCell(frame)
@@ -113,11 +127,14 @@ end
 local function Cell_OnDragStop(self, button, frame)
   if not self.cellMoving[frame] then return end
   self.cellMoving[frame] = nil
-
+  local currentColumn = self.cellToColumn[frame]
+  self:Debug("Current Column Cell Count", #currentColumn.cells)
   frame:StopMovingOrSizing()
-  if self.sideFrame:IsMouseOver() then
+  if self.sideFrame:IsMouseOver() and #currentColumn.cells > 0 then
     self:DeferUpdate()
     self.sideFrame:Hide()
+    self.sideFrame:ClearAllPoints()
+
     local column = self:AddColumn()
     column:SetMinimumWidth(self.minimumColumnWidth)
 
@@ -138,6 +155,10 @@ local function Cell_OnDragStop(self, button, frame)
       column:AddCell(frame)
       column:Update()
       self:Debug("Mouse Over Frame", column)
+      if #currentColumn.cells == 0 then
+        self:Debug("Deleting Column", currentColumn)
+        self:DeleteColumn(currentColumn)
+      end
       return
     end
   end
