@@ -44,6 +44,17 @@ function gridProto:OnCreate(name, cellCreateFn)
   self.cellToColumn = {}
   self.cellToHandle = {}
   self.cellToPosition = {}
+  self.sideFrame = CreateFrame("Frame", name .. "SideFrame", self)
+  self.sideFrame:SetFrameLevel(self:GetFrameLevel() + 1)
+  self.sideFrame:SetPoint("RIGHT", self, "RIGHT", 0, 0)
+  Mixin(self.sideFrame, BackdropTemplateMixin)
+  self.sideFrame:SetBackdrop({
+    bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+    edgeSize = 16,
+    insets = { left = 4, right = 4, top = 4, bottom = 4 },
+  })
+  self.sideFrame:Hide()
 
   self:SetSize(300,500)
   self:SetPoint("CENTER", UIParent, "CENTER")
@@ -62,6 +73,7 @@ function gridProto:OnCreate(name, cellCreateFn)
   self:SetBackdrop(backdropInfo)
   -- End Debugging
   self:Show()
+  self:Update()
   self:Debug("Grid created", name)
 end
 
@@ -81,7 +93,10 @@ function gridProto:AddColumn()
   return column
 end
 
-local function Cell_OnDragStart(self, frame)
+-- Cell_OnDragStart is called when a cell is dragged.
+local function Cell_OnDragStart(self, button, frame)
+  if button ~= "LeftButton" then return end
+  self.sideFrame:Show()
   local column = self.cellToColumn[frame]
   self.cellToPosition[frame] = column:GetCellPosition(frame)
   column:RemoveCell(frame)
@@ -89,8 +104,12 @@ local function Cell_OnDragStart(self, frame)
   frame:ClearAllPoints()
 end
 
-local function Cell_OnDragStop(self, frame)
+-- Cell_OnDragStop is called when a cell stops being dragged.
+local function Cell_OnDragStop(self, button, frame)
+  if button ~= "LeftButton" then return end
   frame:StopMovingOrSizing()
+  -- TODO(lobato): check if the cell is over the side frame, make a new column, and put the cell there.
+  self.sideFrame:Hide()
   for _, column in ipairs(self.columns) do
     if column:IsMouseOver() then
       self.cellToColumn[frame] = column
@@ -125,8 +144,8 @@ function gridProto:AddCell(frame, dragHandle)
   self.cellToHandle[frame]:EnableMouse(true)
   frame:SetMovable(true)
   self.cellToHandle[frame]:RegisterForDrag("LeftButton")
-  self.cellToHandle[frame]:SetScript("OnDragStart", function(...) Cell_OnDragStart(self, frame) end)
-  self.cellToHandle[frame]:SetScript("OnDragStop", function(...) Cell_OnDragStop(self, frame) end)
+  self.cellToHandle[frame]:SetScript("OnMouseDown", function(e, button) Cell_OnDragStart(self, button, frame) end)
+  self.cellToHandle[frame]:SetScript("OnMouseUp", function(e, button) Cell_OnDragStop(self, button, frame) end)
   self:Update()
 end
 
@@ -160,4 +179,5 @@ function gridProto:Update()
   for i, column in ipairs(self.columns) do
     column:Update()
   end
+  self.sideFrame:SetSize(25, self:GetHeight())
 end
