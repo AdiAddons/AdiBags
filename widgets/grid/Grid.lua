@@ -48,7 +48,6 @@ function gridProto:OnCreate(name, cellCreateFn)
   self.minimumColumnWidth = 0
   self.sideFrame = CreateFrame("Frame", name .. "SideFrame", self)
   self.sideFrame:SetFrameLevel(self:GetFrameLevel() + 1)
-  self.sideFrame:SetPoint("RIGHT", self, "RIGHT", 0, 0)
   Mixin(self.sideFrame, BackdropTemplateMixin)
   self.sideFrame:SetBackdrop({
     bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
