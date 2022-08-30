@@ -29,6 +29,7 @@ local _G = _G
 local columnClass, columnProto, columnParentProto = addon:NewClass("Column", "LayeredRegion", "ABEvent-1.0")
 
 function addon:CreateColumnFrame(...) return columnClass:Create(...) end
+local columnPool = addon:CreatePool(columnClass, "AcquireColumn")
 
 -- OnCreate is called every time a new column is created via addon:CreateColumnFrame().
 function columnProto:OnCreate(name)
@@ -38,7 +39,7 @@ function columnProto:OnCreate(name)
   self.name = name
   self.cells = {}
   self.minimumWidth = 0
-
+  --
   local backdropInfo =
   {
      bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
@@ -51,8 +52,10 @@ function columnProto:OnCreate(name)
   }
   self:SetBackdrop(backdropInfo)
   self:SetBackdropColor(1, 0, 0)
+  --
   self:EnableMouse(true)
   self:Show()
+  self:Debug("Column Created ID: ", self:GetName())
 end
 
 -- SetMinimumWidth sets the minimum width for this column.
@@ -95,19 +98,16 @@ end
 -- position.
 -- TODO(lobato): Add animation for cell movement.
 function columnProto:Update()
-  local width = self.minimumWidth
+  local w = self.minimumWidth
+  local h = 0
   for cellPos, cell in ipairs(self.cells) do
-    if cell:GetWidth() > width then
-      width = cell:GetWidth()
-    end
+    h = h + cell:GetHeight()
+    w = math.max(w, cell:GetWidth())
     if cellPos == 1 then
       cell:SetPoint("TOPLEFT", self)
     else
       cell:SetPoint("TOPLEFT", self.cells[cellPos-1], "BOTTOMLEFT")
     end
   end
-  self:SetWidth(width)
-  self:SetHeight(self:GetParent():GetHeight())
-  self:Debug("In Column Rect:", self:GetRect())
-  self:Debug("Column Width and Height", self:GetWidth(), self:GetHeight())
+  self:SetSize(w, h)
 end

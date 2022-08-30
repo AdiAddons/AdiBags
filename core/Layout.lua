@@ -60,6 +60,7 @@ end
 
 local function AnchoredBagLayout(self)
 	self.anchor:ApplySettings()
+	self:Debug("Anchor Bag Layout")
 
 	local nextBag, data, firstIndex = self:IterateBags(true)
 	local index, bag = nextBag(data, firstIndex)
