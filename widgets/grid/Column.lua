@@ -39,7 +39,7 @@ function columnProto:OnCreate(name)
   self.name = name
   self.cells = {}
   self.minimumWidth = 0
-  --
+  --[[
   local backdropInfo =
   {
      bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
@@ -52,7 +52,7 @@ function columnProto:OnCreate(name)
   }
   self:SetBackdrop(backdropInfo)
   self:SetBackdropColor(1, 0, 0)
-  --
+  --]]
   self:EnableMouse(true)
   self:Show()
   self:Debug("Column Created ID: ", self:GetName())
@@ -102,7 +102,7 @@ function columnProto:Update()
   local h = 0
   for cellPos, cell in ipairs(self.cells) do
     h = h + cell:GetHeight()
-    w = math.max(w, cell:GetWidth())
+    w = math.max(w, cell:GetWidth()+4)
     if cellPos == 1 then
       cell:SetPoint("TOPLEFT", self)
     else
