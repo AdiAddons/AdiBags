@@ -58,7 +58,7 @@ function gridProto:OnCreate(name, parent)
   self.sideFrame:Hide()
 
 
-  -- Debugging only, remove in prod
+  --[[ Debugging only, remove in prod
   --self:SetSize(300,500)
   --self:SetPoint("CENTER", UIParent, "CENTER")
 
@@ -74,7 +74,7 @@ function gridProto:OnCreate(name, parent)
   }
   self:SetBackdrop(backdropInfo)
   -- End Debugging
-  --
+  --]]
   self:Show()
   self:Update()
   self:Debug("Grid created", name)
@@ -88,7 +88,7 @@ function gridProto:AddColumn()
     column:SetPoint("TOPLEFT", self, "TOPLEFT")
   else
     local p = self.columns[#self.columns]
-    column:SetPoint("TOPLEFT", p, "TOPRIGHT")
+    column:SetPoint("TOPLEFT", p, "TOPRIGHT", 4, 0)
   end
   table.insert(self.columns, column)
   self:Debug("Added Column")
@@ -232,7 +232,7 @@ function gridProto:Update()
   end
 
   self:Debug("w and h for grid update", w, h)
-  self:SetSize(w,h)
+  self:SetSize(w + 4,h)
   self.sideFrame:SetSize(25, self:GetHeight())
   -- TODO(lobato): Resize grid to fit columns
 end
