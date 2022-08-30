@@ -234,5 +234,5 @@ function gridProto:Update()
   self:Debug("w and h for grid update", w, h)
   self:SetSize(w + 4,h)
   self.sideFrame:SetSize(25, self:GetHeight())
-  -- TODO(lobato): Resize grid to fit columns
+  addon:SendMessage("AdiBags_GridUpdate", self)
 end
