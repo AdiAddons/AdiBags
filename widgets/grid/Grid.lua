@@ -33,8 +33,8 @@ local gridClass, gridProto, gridParentProto = addon:NewClass("Grid", "LayeredReg
 function addon:CreateGridFrame(...) return gridClass:Create(...) end
 
 -- OnCreate is called every time a new grid is created via addon:CreateGridFrame().
-function gridProto:OnCreate(name, cellCreateFn)
-  self:SetParent(UIParent)
+function gridProto:OnCreate(name, parent)
+  self:SetParent(parent)
   gridParentProto.OnCreate(self)
   Mixin(self, BackdropTemplateMixin)
 
@@ -57,10 +57,11 @@ function gridProto:OnCreate(name, cellCreateFn)
   })
   self.sideFrame:Hide()
 
-  self:SetSize(300,500)
-  self:SetPoint("CENTER", UIParent, "CENTER")
 
   -- Debugging only, remove in prod
+  --self:SetSize(300,500)
+  --self:SetPoint("CENTER", UIParent, "CENTER")
+
   local backdropInfo =
   {
     bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
@@ -73,6 +74,7 @@ function gridProto:OnCreate(name, cellCreateFn)
   }
   self:SetBackdrop(backdropInfo)
   -- End Debugging
+  --
   self:Show()
   self:Update()
   self:Debug("Grid created", name)
@@ -80,7 +82,7 @@ end
 
 -- AddColumn adds a new column to the grid on the right hand side.
 function gridProto:AddColumn()
-  local column = addon:CreateColumnFrame(self.name .. "Column" .. #self.columns + 1)
+  local column = addon:AcquireColumn(self, self.name .. "Column" .. #self.columns + 1, self.name)
   column:SetParent(self)
   if #self.columns < 1 then
     column:SetPoint("TOPLEFT", self, "TOPLEFT")
@@ -140,7 +142,6 @@ local function Cell_OnDragStop(self, button, frame)
     self.cellToColumn[frame] = column
     column:AddCell(frame)
     self:DoUpdate()
-    self:Debug("New Column Rect:", column:GetRect())
     return
   end
 
@@ -152,7 +153,7 @@ local function Cell_OnDragStop(self, button, frame)
       self:Debug("Dropping Cell in Column", column)
       self.cellToColumn[frame] = column
       column:AddCell(frame)
-      column:Update()
+      self:Update()
       self:Debug("Mouse Over Frame", column)
       if #currentColumn.cells == 0 then
         self:Debug("Deleting Column", currentColumn)
@@ -164,7 +165,7 @@ local function Cell_OnDragStop(self, button, frame)
 
   -- Cell did not drag onto a column, restore it's position.
   self.cellToColumn[frame]:AddCell(frame, self.cellToPosition[frame])
-  self.cellToColumn[frame]:Update()
+  self:Update()
 end
 
 -- AddCell will take the given frame and add it as a cell in
@@ -220,9 +221,18 @@ end
 function gridProto:Update()
   self:Debug("Grid Update With Deferred Status", self.updateDeferred)
   if self.updateDeferred then return end
+  local w, h = 0, 0
   for i, column in ipairs(self.columns) do
     column:Update()
-    self:Debug("Column Rect:", column:GetRect())
+    w = w + column:GetWidth()
+    h = math.max(h, column:GetHeight())
   end
+  for i, column in ipairs(self.columns) do
+    column:SetHeight(h)
+  end
+
+  self:Debug("w and h for grid update", w, h)
+  self:SetSize(w,h)
   self.sideFrame:SetSize(25, self:GetHeight())
+  -- TODO(lobato): Resize grid to fit columns
 end

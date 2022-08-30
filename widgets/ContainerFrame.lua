@@ -134,11 +134,11 @@ function containerProto:GridTest()
 end
 
 function containerProto:OnCreate(name, isBank, bagObject)
-	self:GridTest()
+	--self:GridTest()
 	self:SetParent(UIParent)
 	containerParentProto.OnCreate(self)
 	Mixin(self, BackdropTemplateMixin)
-
+	self:SetSize(500,500)
 	--self:EnableMouse(true)
 	self:SetFrameStrata("HIGH")
 	local frameLevel = 2 + (isBank and 5 or 0)
@@ -276,7 +276,8 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	toSortSection.Header:RegisterForClicks("AnyUp")
 	toSortSection.Header:SetScript("OnClick", function() self:FullUpdate() end)
 
-	local content = CreateFrame("Frame", nil, self)
+	local content = addon:CreateGridFrame((isBank and "AdiBagsBankGrid" or "AdiBagsInvGrid"), self)
+	--local content = CreateFrame("Frame", nil, self)
 	content:SetPoint("TOPLEFT", toSortSection, "BOTTOMLEFT", 0, -ITEM_SPACING)
 	self.Content = content
 	self:AddWidget(content)
@@ -766,6 +767,8 @@ function containerProto:GetSection(name, category)
 	if not section then
 		section = addon:AcquireSection(self, name, category)
 		self.sections[key] = section
+		self.Content:AddCell(section, section.Header)
+		--TODO(lobato): Add section to grid
 	end
 	return section
 end
@@ -1077,6 +1080,8 @@ local ROW_SPACING = ITEM_SPACING*2
 local SECTION_SPACING = COLUMN_SPACING / 2
 
 function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, sections)
+	self.Content:Update()
+	--[[
 	self:Debug('LayoutSections', maxHeight, columnWidth, minWidth)
 	local heights, widths, rows = { 0 }, {}, {}
 	local columnPixelWidth = (ITEM_SIZE + ITEM_SPACING) * columnWidth - ITEM_SPACING + SECTION_SPACING
@@ -1131,6 +1136,7 @@ function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, section
 	end
 
 	return x - COLUMN_SPACING, contentHeight - ITEM_SPACING
+	--]]
 end
 
 function containerProto:FullUpdate()
@@ -1160,7 +1166,8 @@ function containerProto:FullUpdate()
 		local maxHeight = max(maxSectionHeight, settings.maxHeight * uiHeight * uiScale / selfScale - (ITEM_SIZE + ITEM_SPACING + HEADER_SIZE))
 
 		local contentWidth, contentHeight = self:LayoutSections(maxHeight, columnWidth, self.minWidth, sections)
-		self.Content:SetSize(contentWidth, contentHeight)
+		--self.Content:SetSize(500,500)
+		--self.Content:SetSize(contentWidth, contentHeight)
 	end
 
 	self:ResizeToSortSection(true)
