@@ -662,7 +662,7 @@ function containerProto:UpdateContent(bag)
 				local sameItem
 				-- Use the new guid system to detect if an item is actually the same.
 				if addon.isRetail then
-					sameItem = prevGUID == guid and not (prevGUID == "" or guid == "")
+					sameItem = (prevGUID == guid and not (prevGUID == "" or guid == "")) or addon.IsSameLinkButLevel(slotData.link, link)
 				else
 					sameItem = addon.IsSameLinkButLevel(slotData.link, link)
 				end
@@ -685,7 +685,11 @@ function containerProto:UpdateContent(bag)
 					-- game modes.
 					if addon.isRetail then
 						local context = self.itemGUIDtoItem[guid]
-						if context and context:IsValid() and prevTexture ~= slotData.texture then
+						if context and context:IsValid() and
+							(prevTexture ~= slotData.texture and
+								(prevTexture ~= 0 or slotData.texture ~= 0 or
+							 		prevTexture ~= nil or slotData.texture ~= nil
+						)) then
 							sameChanged[slotData.slotId] = slotData
 							addon:SendMessage('AdiBags_AddNewItem', slotData.link)
 						else
