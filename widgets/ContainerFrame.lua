@@ -662,7 +662,7 @@ function containerProto:UpdateContent(bag)
 				local sameItem
 				-- Use the new guid system to detect if an item is actually the same.
 				if addon.isRetail then
-					sameItem = prevGUID == guid
+					sameItem = prevGUID == guid and not (prevGUID == "" or guid == "")
 				else
 					sameItem = addon.IsSameLinkButLevel(slotData.link, link)
 				end
