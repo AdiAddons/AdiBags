@@ -35,7 +35,6 @@ local columnPool = addon:CreatePool(columnClass, "AcquireColumn")
 function columnProto:OnCreate(name)
   columnParentProto.OnCreate(self)
   Mixin(self, BackdropTemplateMixin)
-
   self.name = name
   self.cells = {}
   self.minimumWidth = 0
@@ -53,7 +52,10 @@ function columnProto:OnCreate(name)
   self:SetBackdrop(backdropInfo)
   self:SetBackdropColor(1, 0, 0)
   --]]
-  self:EnableMouse(true)
+  --self:SetScript("OnMouseDown", function()
+  --  self:Debug("Clicked Column")
+  --end)
+  --self:EnableMouse(true)
   self:Show()
   self:Debug("Column Created ID: ", self:GetName())
 end
