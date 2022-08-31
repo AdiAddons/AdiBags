@@ -138,7 +138,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self:SetParent(UIParent)
 	containerParentProto.OnCreate(self)
 	Mixin(self, BackdropTemplateMixin)
-	self:SetSize(500,500)
+
 	--self:EnableMouse(true)
 	self:SetFrameStrata("HIGH")
 	local frameLevel = 2 + (isBank and 5 or 0)
@@ -1167,7 +1167,6 @@ function containerProto:FullUpdate()
 		local maxHeight = max(maxSectionHeight, settings.maxHeight * uiHeight * uiScale / selfScale - (ITEM_SIZE + ITEM_SPACING + HEADER_SIZE))
 
 		local contentWidth, contentHeight = self:LayoutSections(maxHeight, columnWidth, self.minWidth, sections)
-		--self.Content:SetSize(500,500)
 		--self.Content:SetSize(contentWidth, contentHeight)
 	end
 
