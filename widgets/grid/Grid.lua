@@ -88,7 +88,7 @@ function gridProto:AddColumn()
     column:SetPoint("TOPLEFT", self, "TOPLEFT")
   else
     local p = self.columns[#self.columns]
-    column:SetPoint("TOPLEFT", p, "TOPRIGHT", 4, 0)
+    column:SetPoint("TOPLEFT", p, "TOPRIGHT", 12, 0)
   end
   table.insert(self.columns, column)
   self:Debug("Added Column")
@@ -232,7 +232,7 @@ function gridProto:Update()
   end
 
   self:Debug("w and h for grid update", w, h)
-  self:SetSize(w + 4,h)
+  self:SetSize(w + ((#self.columns-1) * 12),h)
   self.sideFrame:SetSize(25, self:GetHeight())
   addon:SendMessage("AdiBags_GridUpdate", self)
 end
