@@ -275,9 +275,12 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	toSortSection.UpdateHeaderScripts = function() end
 	toSortSection.Header:RegisterForClicks("AnyUp")
 	toSortSection.Header:SetScript("OnClick", function() self:FullUpdate() end)
-
-	local content = addon:CreateGridFrame((isBank and "AdiBagsBankGrid" or "AdiBagsInvGrid"), self)
-	--local content = CreateFrame("Frame", nil, self)
+	local content
+	if addon.db.profile.gridLayout then
+		content = addon:CreateGridFrame((isBank and "AdiBagsBankGrid" or "AdiBagsInvGrid"), self)
+	else
+		content = CreateFrame("Frame", nil, self)
+	end
 	content:SetPoint("TOPLEFT", toSortSection, "BOTTOMLEFT", 0, -ITEM_SPACING)
 	self.Content = content
 	self:AddWidget(content)
@@ -768,8 +771,9 @@ function containerProto:GetSection(name, category)
 	if not section then
 		section = addon:AcquireSection(self, name, category)
 		self.sections[key] = section
-		self.Content:AddCell(section, section.Header)
-		--TODO(lobato): Add section to grid
+		if addon.db.profile.gridLayout then
+			self.Content:AddCell(section, section.Header)
+		end
 	end
 	return section
 end
@@ -1081,8 +1085,10 @@ local ROW_SPACING = ITEM_SPACING*2
 local SECTION_SPACING = COLUMN_SPACING / 2
 
 function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, sections)
-	self.Content:Update()
-	--[[
+	if addon.db.profile.gridLayout then
+		self.Content:Update()
+		return
+	end
 	self:Debug('LayoutSections', maxHeight, columnWidth, minWidth)
 	local heights, widths, rows = { 0 }, {}, {}
 	local columnPixelWidth = (ITEM_SIZE + ITEM_SPACING) * columnWidth - ITEM_SPACING + SECTION_SPACING
@@ -1137,7 +1143,6 @@ function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, section
 	end
 
 	return x - COLUMN_SPACING, contentHeight - ITEM_SPACING
-	--]]
 end
 
 function containerProto:FullUpdate()
@@ -1165,8 +1170,10 @@ function containerProto:FullUpdate()
 		local uiScale, uiWidth, uiHeight = UIParent:GetEffectiveScale(), UIParent:GetSize()
 		local selfScale = self:GetEffectiveScale()
 		local maxHeight = max(maxSectionHeight, settings.maxHeight * uiHeight * uiScale / selfScale - (ITEM_SIZE + ITEM_SPACING + HEADER_SIZE))
-
 		local contentWidth, contentHeight = self:LayoutSections(maxHeight, columnWidth, self.minWidth, sections)
+		if not addon.db.profile.gridLayout then
+			self.Content:SetSize(contentWidth, contentHeight)
+		end
 		--self.Content:SetSize(contentWidth, contentHeight)
 	end
 
