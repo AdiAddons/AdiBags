@@ -342,6 +342,9 @@ end
 --------------------------------------------------------------------------------
 
 local function BuildSectionKey(name, category)
+	-- TODO(lobato): I think this is a bug, but I'm not sure. If the name is nil, then the category is used as the key,
+	-- which leads to duplicate keys.
+	assert(name ~= nil and name ~= "", "Tried to build a section key with no name. Report this to github.com/AdiAddons/AdiBags/issues please!")
 	if name ~= nil then
 		return strjoin('#', tostring(category or name), tostring(name))
 	end
