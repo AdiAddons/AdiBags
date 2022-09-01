@@ -39,10 +39,10 @@ function gridProto:OnCreate(name, parent)
   Mixin(self, BackdropTemplateMixin)
 
   self.name = name
+  self.showCovers = false
   self.updateDeferred = false
   self.columns = {}
   self.cellToColumn = {}
-  self.cellToHandle = {}
   self.cellToPosition = {}
   self.cellMoving = {}
   self.minimumColumnWidth = 0
@@ -172,9 +172,8 @@ end
 
 -- AddCell will take the given frame and add it as a cell in
 -- the grid.
-function gridProto:AddCell(frame, dragHandle)
+function gridProto:AddCell(frame)
   assert(frame and frame.SetMovable, "Invalid cell added to frame!")
-  assert(not dragHandle or dragHandle.EnableMouse, "Invalid drag handle added to frame!")
   local column
   if #self.columns < 1 then
     column = self:AddColumn()
@@ -182,16 +181,14 @@ function gridProto:AddCell(frame, dragHandle)
   else
     column = self.columns[1]
   end
+  frame:SetMovable(true)
 
   column:AddCell(frame)
+  local cover = column:GetCover(frame)
+  cover:RegisterForDrag("LeftButton")
+  cover:SetScript("OnMouseDown", function(e, button) Cell_OnDragStart(self, button, frame) end)
+  cover:SetScript("OnMouseUp", function(e, button) Cell_OnDragStop(self, button, frame) end)
   self.cellToColumn[frame] = column
-  self.cellToHandle[frame] = dragHandle or frame
-
-  self.cellToHandle[frame]:EnableMouse(true)
-  frame:SetMovable(true)
-  self.cellToHandle[frame]:RegisterForDrag("LeftButton")
-  self.cellToHandle[frame]:SetScript("OnMouseDown", function(e, button) Cell_OnDragStart(self, button, frame) end)
-  self.cellToHandle[frame]:SetScript("OnMouseUp", function(e, button) Cell_OnDragStop(self, button, frame) end)
   self:Update()
 end
 
@@ -243,10 +240,20 @@ function gridProto:ShowCovers()
   for i, column in ipairs(self.columns) do
     column:ShowCovers()
   end
+  self.showCovers = true
 end
 
 function gridProto:HideCovers()
   for i, column in ipairs(self.columns) do
     column:HideCovers()
+  end
+  self.showCovers = false
+end
+
+function gridProto:ToggleCovers()
+  if self.showCovers then
+    self:HideCovers()
+  else
+    self:ShowCovers()
   end
 end

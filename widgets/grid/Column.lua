@@ -79,8 +79,8 @@ function columnProto:AddCell(cell, position)
   local cover = CreateFrame("Frame")
   cover:SetParent(cell)
   cover:SetAllPoints(cell)
-  cover:SetScript("OnEnter", function() print("test on enter") end)
-  cover:Show()
+  cover:EnableMouse(true)
+  cover:Hide()
   self.covers[cell] = cover
   -- TODO(lobato): Release and acquire pool for drops.
   -- Create a drop zone for both above and below the cell
@@ -104,9 +104,12 @@ function columnProto:RemoveCell(cell)
     if cell == c then
       cell:ClearAllPoints()
       table.remove(self.cells, i)
-      -- TODO(lobato): Release and acquire pool for drops.
+      -- TODO(lobato): Release and acquire pool for drops and covers.
       self.drops[cell] = nil
-      self.covers[cell] = nil
+      self.covers[cell]:ClearAllPoints()
+      self.covers[cell]:SetParent(nil)
+      self.covers[cell]:SetSize(0, 0)
+      self.covers[cell]:Hide()
       break
     end
   end
@@ -124,6 +127,11 @@ function columnProto:HideCovers()
     cover:Hide()
   end
 end
+
+function columnProto:GetCover(cell)
+  return self.covers[cell]
+end
+
 -- Update will fully redraw a column and snap all cells into the correct
 -- position.
 -- TODO(lobato): Add animation for cell movement.

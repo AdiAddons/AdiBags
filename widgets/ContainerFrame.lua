@@ -260,6 +260,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 		end
 		self:CreateSortButton()
 	end
+
 	local toSortSection = addon:AcquireSection(self, L["Recent Items"], self.name)
 	toSortSection:SetPoint("TOPLEFT", BAG_INSET, -addon.TOP_PADDING)
 	toSortSection:Show()
@@ -278,6 +279,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	local content
 	if addon.db.profile.gridLayout then
 		content = addon:CreateGridFrame((isBank and "AdiBagsBankGrid" or "AdiBagsInvGrid"), self)
+		self:CreateLockButton()
 	else
 		content = CreateFrame("Frame", nil, self)
 	end
@@ -392,6 +394,17 @@ function containerProto:CreateSortButton()
 			self.forceLayout = true
 		end,
 		L["(Blizzard's) Sort items"]
+	)
+end
+
+function containerProto:CreateLockButton()
+	self:CreateModuleButton(
+		"L",
+		20,
+		function()
+			self.Content:ToggleCovers()
+		end,
+		L["Lock/Unlock sections so they can be moved."]
 	)
 end
 
