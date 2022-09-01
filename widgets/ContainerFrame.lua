@@ -622,6 +622,7 @@ function containerProto:UpdateContent(bag)
 		if addon.isRetail then
 			if itemLocation and itemLocation:IsValid() then
 				guid = GetItemGUID(itemLocation)
+				self.itemGUIDtoItem[guid] = itemLocation
 			end
 		end
 		if not itemId or (link and addon.IsValidItemLink(link)) then
@@ -658,11 +659,10 @@ function containerProto:UpdateContent(bag)
 				local prevSlotId = slotData.slotId
 				local prevLink = slotData.link
 				local prevGUID = slotData.guid
-				local prevTexture = slotData.texture
 				local sameItem
 				-- Use the new guid system to detect if an item is actually the same.
 				if addon.isRetail then
-					sameItem = prevGUID == guid
+					sameItem = (prevGUID == guid and not (prevGUID == "" or guid == ""))
 				else
 					sameItem = addon.IsSameLinkButLevel(slotData.link, link)
 				end
@@ -674,27 +674,8 @@ function containerProto:UpdateContent(bag)
 				slotData.itemLocation = itemLocation
 				slotData.name, slotData.quality, slotData.iLevel, slotData.reqLevel, slotData.class, slotData.subclass, slotData.equipSlot, slotData.texture, slotData.vendorPrice = name, quality, iLevel, reqLevel, class, subclass, equipSlot, texture, vendorPrice
 				slotData.maxStack = maxStack or (link and 1 or 0)
-
 				if sameItem then
-					-- If this item is in the inventory, in the same slot, and has been indexed before,
-					-- i.e. not the first time the bag was opened, and the texture has changed, this means
-					-- the item has updated in some material way (i.e. wrapped in wrapping paper, unwrapped),
-					-- and it must be marked as new.
-					--
-					-- This new method only works on retail, as Blizzard did not backport GUID's to classic
-					-- game modes.
-					if addon.isRetail then
-						local context = self.itemGUIDtoItem[guid]
-						if context and context:IsValid() and prevTexture ~= slotData.texture then
-							sameChanged[slotData.slotId] = slotData
-							addon:SendMessage('AdiBags_AddNewItem', slotData.link)
-						else
-							-- Otherwise, just a normal change, i.e. enchanted, gem, etc.
-							changed[slotData.slotId] = slotData
-						end
-					else
 						changed[slotData.slotId] = slotData
-					end
 				else
 					removed[prevSlotId] = prevLink
 					added[slotData.slotId] = slotData
@@ -704,7 +685,6 @@ function containerProto:UpdateContent(bag)
 						if prevGUID then
 							self.itemGUIDtoItem[prevGUID] = nil
 						end
-						self.itemGUIDtoItem[guid] = slotData.itemLocation
 					end
 				end
 			elseif slotData.count ~= count then
