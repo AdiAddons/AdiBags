@@ -37,6 +37,8 @@ function columnProto:OnCreate(name)
   Mixin(self, BackdropTemplateMixin)
   self.name = name
   self.cells = {}
+  self.covers = {}
+  self.drops = {}
   self.minimumWidth = 0
   --[[
   local backdropInfo =
@@ -74,6 +76,18 @@ function columnProto:AddCell(cell, position)
   cell:Show()
   position = position or #self.cells + 1
   table.insert(self.cells, position, cell)
+  local cover = CreateFrame("Frame")
+  cover:SetParent(cell)
+  cover:SetAllPoints(cell)
+  cover:SetScript("OnEnter", function() print("test on enter") end)
+  cover:Show()
+  self.covers[cell] = cover
+  -- TODO(lobato): Release and acquire pool for drops.
+  -- Create a drop zone for both above and below the cell
+  self.drops[cell] = {
+    above = addon:CreateDropzoneFrame("DropzoneAbove"..position, cell),
+    below = addon:CreateDropzoneFrame("DropzoneBelow"..position, cell),
+  }
 end
 
 -- GetCellPosition returns the cell's position as an integer in this column.
@@ -90,12 +104,26 @@ function columnProto:RemoveCell(cell)
     if cell == c then
       cell:ClearAllPoints()
       table.remove(self.cells, i)
+      -- TODO(lobato): Release and acquire pool for drops.
+      self.drops[cell] = nil
+      self.covers[cell] = nil
       break
     end
   end
   self:Update()
 end
 
+function columnProto:ShowCovers()
+  for _, cover in pairs(self.covers) do
+    cover:Show()
+  end
+end
+
+function columnProto:HideCovers()
+  for _, cover in pairs(self.covers) do
+    cover:Hide()
+  end
+end
 -- Update will fully redraw a column and snap all cells into the correct
 -- position.
 -- TODO(lobato): Add animation for cell movement.

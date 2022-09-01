@@ -122,11 +122,13 @@ local function Cell_OnDragStart(self, button, frame)
   column:RemoveCell(frame)
   frame:StartMoving()
   frame:ClearAllPoints()
+  self:ShowCovers()
 end
 
 -- Cell_OnDragStop is called when a cell stops being dragged.
 local function Cell_OnDragStop(self, button, frame)
   if not self.cellMoving[frame] then return end
+  self:HideCovers()
   self.cellMoving[frame] = nil
   local currentColumn = self.cellToColumn[frame]
   self:Debug("Current Column Cell Count", #currentColumn.cells)
@@ -235,4 +237,16 @@ function gridProto:Update()
   self:SetSize(w + ((#self.columns-1) * 12),h)
   self.sideFrame:SetSize(25, self:GetHeight())
   addon:SendMessage("AdiBags_GridUpdate", self)
+end
+
+function gridProto:ShowCovers()
+  for i, column in ipairs(self.columns) do
+    column:ShowCovers()
+  end
+end
+
+function gridProto:HideCovers()
+  for i, column in ipairs(self.columns) do
+    column:HideCovers()
+  end
 end
