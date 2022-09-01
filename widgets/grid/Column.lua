@@ -37,7 +37,6 @@ function columnProto:OnCreate(name)
   Mixin(self, BackdropTemplateMixin)
   self.name = name
   self.cells = {}
-  self.covers = {}
   self.drops = {}
   self.minimumWidth = 0
   --[[
@@ -76,14 +75,9 @@ function columnProto:AddCell(cell, position)
   cell:Show()
   position = position or #self.cells + 1
   table.insert(self.cells, position, cell)
-  local cover = CreateFrame("Frame")
-  cover:SetParent(cell)
-  cover:SetAllPoints(cell)
-  cover:EnableMouse(true)
-  cover:Hide()
-  self.covers[cell] = cover
   -- TODO(lobato): Release and acquire pool for drops.
   -- Create a drop zone for both above and below the cell
+  -- TODO(lobato): Move drops to the grid class?
   self.drops[cell] = {
     above = addon:CreateDropzoneFrame("DropzoneAbove"..position, cell),
     below = addon:CreateDropzoneFrame("DropzoneBelow"..position, cell),
@@ -104,32 +98,12 @@ function columnProto:RemoveCell(cell)
     if cell == c then
       cell:ClearAllPoints()
       table.remove(self.cells, i)
-      -- TODO(lobato): Release and acquire pool for drops and covers.
+      -- TODO(lobato): Release and acquire pool for drops.
       self.drops[cell] = nil
-      self.covers[cell]:ClearAllPoints()
-      self.covers[cell]:SetParent(nil)
-      self.covers[cell]:SetSize(0, 0)
-      self.covers[cell]:Hide()
       break
     end
   end
   self:Update()
-end
-
-function columnProto:ShowCovers()
-  for _, cover in pairs(self.covers) do
-    cover:Show()
-  end
-end
-
-function columnProto:HideCovers()
-  for _, cover in pairs(self.covers) do
-    cover:Hide()
-  end
-end
-
-function columnProto:GetCover(cell)
-  return self.covers[cell]
 end
 
 -- Update will fully redraw a column and snap all cells into the correct

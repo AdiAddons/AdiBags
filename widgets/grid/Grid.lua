@@ -42,6 +42,8 @@ function gridProto:OnCreate(name, parent)
   self.showCovers = false
   self.updateDeferred = false
   self.columns = {}
+  self.covers = {}
+
   self.cellToColumn = {}
   self.cellToPosition = {}
   self.cellMoving = {}
@@ -122,13 +124,13 @@ local function Cell_OnDragStart(self, button, frame)
   column:RemoveCell(frame)
   frame:StartMoving()
   frame:ClearAllPoints()
-  self:ShowCovers()
+  -- TODO(lobato): Figure out why frame strata isn't working.
+  self:Debug("Moving Frame", frame)
 end
 
 -- Cell_OnDragStop is called when a cell stops being dragged.
 local function Cell_OnDragStop(self, button, frame)
   if not self.cellMoving[frame] then return end
-  self:HideCovers()
   self.cellMoving[frame] = nil
   local currentColumn = self.cellToColumn[frame]
   self:Debug("Current Column Cell Count", #currentColumn.cells)
@@ -184,11 +186,17 @@ function gridProto:AddCell(frame)
   frame:SetMovable(true)
 
   column:AddCell(frame)
-  local cover = column:GetCover(frame)
+  local cover = CreateFrame("Frame")
+  cover:SetParent(frame)
+  cover:SetAllPoints(frame)
+  cover:EnableMouse(true)
+  cover:Hide()
+
   cover:RegisterForDrag("LeftButton")
   cover:SetScript("OnMouseDown", function(e, button) Cell_OnDragStart(self, button, frame) end)
   cover:SetScript("OnMouseUp", function(e, button) Cell_OnDragStop(self, button, frame) end)
   self.cellToColumn[frame] = column
+  self.covers[frame] = cover
   self:Update()
 end
 
@@ -237,15 +245,15 @@ function gridProto:Update()
 end
 
 function gridProto:ShowCovers()
-  for i, column in ipairs(self.columns) do
-    column:ShowCovers()
+  for _, cover in pairs(self.covers) do
+    cover:Show()
   end
   self.showCovers = true
 end
 
 function gridProto:HideCovers()
-  for i, column in ipairs(self.columns) do
-    column:HideCovers()
+  for _, cover in pairs(self.covers) do
+    cover:Hide()
   end
   self.showCovers = false
 end
