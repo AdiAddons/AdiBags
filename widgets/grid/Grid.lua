@@ -46,6 +46,8 @@ function gridProto:OnCreate(name, parent)
 
   self.cellToColumn = {}
   self.cellToPosition = {}
+  self.cellToKey = {}
+
   self.cellMoving = {}
   self.minimumColumnWidth = 0
   self.sideFrame = CreateFrame("Frame", name .. "SideFrame", self)
@@ -199,6 +201,7 @@ function gridProto:AddCell(key, frame)
   cover:SetScript("OnMouseDown", function(e, button) Cell_OnDragStart(self, button, frame) end)
   cover:SetScript("OnMouseUp", function(e, button) Cell_OnDragStop(self, button, frame) end)
   self.cellToColumn[frame] = column
+  self.cellToKey[frame] = key
   self.covers[frame] = cover
   self:Update()
 end
@@ -267,4 +270,15 @@ function gridProto:ToggleCovers()
   else
     self:ShowCovers()
   end
+end
+
+function gridProto:GetLayout()
+  local layout = {}
+  for i, column in ipairs(self.columns) do
+    layout[i] = {}
+    for ci, cell in ipairs(column.cells) do
+      layout[i][ci] = self.cellToKey[cell]
+    end
+  end
+  return layout
 end
