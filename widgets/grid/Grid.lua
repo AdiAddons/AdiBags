@@ -172,10 +172,13 @@ local function Cell_OnDragStop(self, button, frame)
   self:Update()
 end
 
+---@param key string The key of the cell to add, used for layout saving/loading.
+---@param frame Frame The frame to add to the grid.
 -- AddCell will take the given frame and add it as a cell in
 -- the grid.
-function gridProto:AddCell(frame)
-  assert(frame and frame.SetMovable, "Invalid cell added to frame!")
+function gridProto:AddCell(key, frame)
+  assert(key and key ~= "", "Key must be a non-empty string.")
+  assert(frame and frame.SetMovable, "Invalid cell added to frame.")
   local column
   if #self.columns < 1 then
     column = self:AddColumn()
