@@ -1042,18 +1042,22 @@ function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, section
 	local columnPixelWidth = (ITEM_SIZE + ITEM_SPACING) * columnWidth - ITEM_SPACING + SECTION_SPACING
 	local getSection = addon.db.profile.compactLayout and FindFittingSection or GetNextSection
 
-	local numRows, x, y, rowHeight, maxSectionHeight, previous = 0, 0, 0, 0, 0
+	local numRows, x, y, rowHeight, maxSectionHeight, previous = 0, 0, 0, 0, 0, nil
 	while next(sections) do
 		local section
 		if x > 0 then
 			section = getSection(columnPixelWidth - x, sections)
 			if section and previous then
-				section:SetPoint('TOPLEFT', previous, 'TOPRIGHT', SECTION_SPACING, 0)
+				-- Quick hack -- sometimes the same section is inserted twice for unknown reasons.
+				if section ~= previous then
+					section:SetPoint('TOPLEFT', previous, 'TOPRIGHT', SECTION_SPACING, 0)
+				end
 			else
 				x = 0
 				y = y + rowHeight + ROW_SPACING
 			end
 		end
+
 		if x == 0 then
 			section = tremove(sections, 1)
 			rowHeight = section:GetHeight()
@@ -1064,11 +1068,14 @@ function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, section
 				section:SetPoint('TOPLEFT', rows[numRows-1], 'BOTTOMLEFT', 0, -ROW_SPACING)
 			end
 		end
-		x = x + section:GetWidth() + SECTION_SPACING
-		widths[numRows] = x - SECTION_SPACING
-		previous = section
-		maxSectionHeight = max(maxSectionHeight, section:GetHeight())
-		rowHeight = max(rowHeight, section:GetHeight())
+
+		if section ~= previous then
+			x = x + section:GetWidth() + SECTION_SPACING
+			widths[numRows] = x - SECTION_SPACING
+			previous = section
+			maxSectionHeight = max(maxSectionHeight, section:GetHeight())
+			rowHeight = max(rowHeight, section:GetHeight())
+		end
 	end
 
 	local totalHeight = y + rowHeight
