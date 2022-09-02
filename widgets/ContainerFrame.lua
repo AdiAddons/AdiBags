@@ -95,46 +95,7 @@ local SimpleLayeredRegion = addon:GetClass("SimpleLayeredRegion")
 
 local bagSlots = {}
 
-function containerProto:GridTest()
-	self.grid = addon:CreateGridFrame("testing")
-	self.grid:DeferUpdate()
-	--self.grid:AddColumn()
-	--self.grid:AddColumn()
-	--self.grid:SetMinimumColumnWidth(120)
-	for i = 1, 3 do
-		local name = string.format("TestGridFrame%d",i)
-		local t = CreateFrame("Frame", name)
-		Mixin(t, BackdropTemplateMixin)
-  	local backdropInfo =
-  	{
-  	  bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-  	   edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-  	   tile = true,
-  	   tileEdge = true,
-  	   tileSize = 8,
-  	   edgeSize = 8,
-  	   insets = { left = 1, right = 1, top = 1, bottom = 1 },
-  	}
-  	t:SetBackdrop(backdropInfo)
-  	t:SetBackdropColor(0, 1, 0)
-		t:SetSize(100, 30)
-		local ff = CreateFrame("Frame")
-		local fs = ff:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-		fs:SetPoint("TOP")
-		fs:SetText(name)
-		ff:SetParent(t)
-		ff:SetPoint("TOP", 0, -2)
-		ff:SetSize(fs:GetStringWidth(), fs:GetStringHeight())
-
-		self.grid:AddCell(t, ff)
-	end
-	self.grid:DoUpdate()
---	local testSection = addon:AcquireSection(self, "Test", "Test")
---	self.grid:AddCell(testSection)
-end
-
 function containerProto:OnCreate(name, isBank, bagObject)
-	--self:GridTest()
 	self:SetParent(UIParent)
 	containerParentProto.OnCreate(self)
 	Mixin(self, BackdropTemplateMixin)

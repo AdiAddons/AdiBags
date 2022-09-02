@@ -124,6 +124,7 @@ local function Cell_OnDragStart(self, button, frame)
   self.sideFrame:Show()
   self.cellToPosition[frame] = column:GetCellPosition(frame)
   column:RemoveCell(frame)
+  column:Update()
   frame:StartMoving()
   frame:ClearAllPoints()
   -- TODO(lobato): Figure out why frame strata isn't working.
