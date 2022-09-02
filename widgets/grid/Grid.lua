@@ -47,6 +47,7 @@ function gridProto:OnCreate(name, parent)
   self.cellToColumn = {}
   self.cellToPosition = {}
   self.cellToKey = {}
+  self.keyToCell = {}
 
   self.cellMoving = {}
   self.minimumColumnWidth = 0
@@ -203,6 +204,7 @@ function gridProto:AddCell(key, frame)
   cover:SetScript("OnMouseUp", function(e, button) Cell_OnDragStop(self, button, frame) end)
   self.cellToColumn[frame] = column
   self.cellToKey[frame] = key
+  self.keyToCell[key] = frame
   self.covers[frame] = cover
   self:Update()
 end
@@ -291,9 +293,14 @@ function gridProto:SetLayout(layout)
       local key = layout[i][ci]
       local frame = self.keyToCell[key]
       if frame then
+        self:Debug("Putting Key in Column and pos", key, i, ci)
         -- TODO(lobato): Put it in the right place?
         self.cellToColumn[frame]:RemoveCell(frame)
-        self.columns[i]:AddCell(frame, ci)
+        local column = self.columns[i]
+        if not column then
+          column = self:AddColumn()
+        end
+        column:AddCell(frame, ci)
       end
     end
   end

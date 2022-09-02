@@ -602,6 +602,11 @@ function containerProto:OnLayout()
 		BAG_INSET * 2 + max(minWidth, self.Content:GetWidth()),
 		addon.TOP_PADDING + BAG_INSET + bottomHeight + self.Content:GetHeight() + self.ToSortSection:GetHeight() + ITEM_SPACING
 	)
+	if addon.db.profile.gridLayout then
+		addon.db.profile.gridData = addon.db.profile.gridData or {}
+		addon.db.profile.gridData[self.name] = self.Content:GetLayout()
+		self:Debug("Saving Grid Layout")
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -971,7 +976,6 @@ end
 
 function containerProto:RedispatchAllItems()
 	self:Debug('RedispatchAllItems')
-
 	self:SendMessage('AdiBags_PreContentUpdate', self, self.added, self.removed, self.changed)
 
 	local content = self.content
@@ -1132,6 +1136,10 @@ function containerProto:FullUpdate()
 		self.forceLayout = true
 		return
 	end
+	if addon.db.profile.gridLayout then
+		self.Content:DeferUpdate()
+	end
+
 	self.forceLayout = false
 	self:Debug('Do FullUpdate')
 
@@ -1144,7 +1152,10 @@ function containerProto:FullUpdate()
 	local sections = {}
 
 	local maxSectionHeight = self:PrepareSections(columnWidth, sections)
-
+	if addon.db.profile.gridLayout then
+		addon.db.profile.gridData = addon.db.profile.gridData or {}
+		self.Content:SetLayout(addon.db.profile.gridData[self.name])
+	end
 	if #sections == 0 then
 		self.Content:SetSize(self.minWidth, 0.5)
 	else
@@ -1159,4 +1170,8 @@ function containerProto:FullUpdate()
 	end
 
 	self:ResizeToSortSection(true)
+	if addon.db.profile.gridLayout then
+		self.Content:DoUpdate()
+	end
+
 end
