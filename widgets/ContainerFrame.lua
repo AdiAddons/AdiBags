@@ -112,6 +112,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.bagObject = bagObject
 	self.isBank = isBank
 	self.isReagentBank = false
+	self.firstLoad = true
 
 	self.buttons = {}
 	self.content = {}
@@ -1152,7 +1153,7 @@ function containerProto:FullUpdate()
 	local sections = {}
 
 	local maxSectionHeight = self:PrepareSections(columnWidth, sections)
-	if addon.db.profile.gridLayout then
+	if addon.db.profile.gridLayout and self.firstLoad then
 		addon.db.profile.gridData = addon.db.profile.gridData or {}
 		self.Content:SetLayout(addon.db.profile.gridData[self.name])
 	end
@@ -1173,5 +1174,5 @@ function containerProto:FullUpdate()
 	if addon.db.profile.gridLayout then
 		self.Content:DoUpdate()
 	end
-
+	self.firstLoad = false
 end
