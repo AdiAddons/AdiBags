@@ -301,6 +301,7 @@ function gridProto:SetLayout(layout)
           column = self:AddColumn()
         end
         column:AddCell(frame, ci)
+        self.cellToColumn[frame] = column
       end
     end
   end
