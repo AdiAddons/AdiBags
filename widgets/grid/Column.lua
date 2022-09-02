@@ -64,7 +64,6 @@ end
 -- SetMinimumWidth sets the minimum width for this column.
 function columnProto:SetMinimumWidth(width)
   self.minimumWidth = width
-  self:Update()
 end
 
 -- AddCell adds a cell to this column at the given position, or at the
@@ -103,7 +102,6 @@ function columnProto:RemoveCell(cell)
       break
     end
   end
-  self:Update()
 end
 
 -- Update will fully redraw a column and snap all cells into the correct

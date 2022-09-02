@@ -282,3 +282,19 @@ function gridProto:GetLayout()
   end
   return layout
 end
+
+function gridProto:SetLayout(layout)
+  self:DeferUpdate()
+  for i in ipairs(layout) do
+    for ci in ipairs(layout[i]) do
+      local key = layout[i][ci]
+      local frame = self.keyToCell[key]
+      if frame then
+        -- TODO(lobato): Put it in the right place?
+        self.cellToColumn[frame]:RemoveCell(frame)
+        self.columns[i]:AddCell(frame, ci)
+      end
+    end
+  end
+  self:DoUpdate()
+end
