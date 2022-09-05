@@ -122,13 +122,15 @@ function columnProto:Update()
   for cellPos, cell in ipairs(self.cells) do
     h = h + cell:GetHeight()
     w = math.max(w, cell:GetWidth()+4)
-    self.drops[cell].above:SetWidth(w)
-    self.drops[cell].below:SetWidth(w)
     if cellPos == 1 then
       cell:SetPoint("TOPLEFT", self)
     else
       cell:SetPoint("TOPLEFT", self.cells[cellPos-1], "BOTTOMLEFT")
     end
+  end
+  for _, drop in pairs(self.drops) do
+    drop.above:SetWidth(w)
+    drop.below:SetWidth(w)
   end
   self:SetSize(w, h)
 end

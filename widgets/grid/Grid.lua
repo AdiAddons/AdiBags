@@ -153,12 +153,21 @@ local function Cell_OnDragStop(self, button, frame)
 
     self.cellToColumn[frame] = column
     column:AddCell(self.cellToKey[frame], frame)
+    for _, column in ipairs(self.columns) do
+      column:HideDrops()
+    end
     self:DoUpdate()
     return
   end
 
   -- TODO(lobato): delete a column if it is empty
   self.sideFrame:Hide()
+
+  -- Check for specific position drops here.
+  for _, column in ipairs(self.columns) do
+    column:HideDrops()
+  end
+
   for _, column in ipairs(self.columns) do
     self:Debug("Column Drag Stop Check", column)
     if column:IsMouseOver() then
