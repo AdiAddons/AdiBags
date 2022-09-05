@@ -129,6 +129,9 @@ local function Cell_OnDragStart(self, button, frame)
   column:Update()
   frame:StartMoving()
   frame:ClearAllPoints()
+  for _, column in ipairs(self.columns) do
+    column:ShowDrops()
+  end
   -- TODO(lobato): Figure out why frame strata isn't working.
   self:Debug("Moving Frame", frame)
 end

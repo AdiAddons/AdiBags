@@ -39,8 +39,8 @@ function columnProto:OnCreate(name)
   self.cells = {}
   self.drops = {}
   self.minimumWidth = 0
-  --[[
-  local backdropInfo =
+
+  self.backdropInfo =
   {
      bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
      edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -50,8 +50,9 @@ function columnProto:OnCreate(name)
      edgeSize = 8,
      insets = { left = 1, right = 1, top = 1, bottom = 1 },
   }
-  self:SetBackdrop(backdropInfo)
-  self:SetBackdropColor(1, 0, 0)
+  --self:SetBackdrop(self.backdropInfo)
+  --self:SetBackdropColor(1, 0, 0)
+  --[[
   --]]
   --self:SetScript("OnMouseDown", function()
   --  self:Debug("Clicked Column")
@@ -81,10 +82,12 @@ function columnProto:AddCell(key, cell, position)
       above = addon:CreateDropzoneFrame("DropzoneAbove"..key, cell),
       below = addon:CreateDropzoneFrame("DropzoneBelow"..key, cell),
     }
-    self.drops[cell].above:SetPoint("CENTER", cell, "TOP", 0, 0)
-    self.drops[cell].below:SetPoint("CENTER", cell, "BOTTOM", 0, 0)
-    self.drops[cell].above:SetHeight(15)
-    self.drops[cell].below:SetHeight(15)
+    self.drops[cell].above:SetHeight(45)
+    self.drops[cell].below:SetHeight(45)
+    self.drops[cell].above:SetPoint("BOTTOMLEFT", cell, "TOPLEFT", 0, -37)
+    self.drops[cell].below:SetPoint("TOPLEFT", cell, "BOTTOMLEFT", 0, 10)
+    self.drops[cell].above:SetBackdrop(self.backdropInfo)
+    self.drops[cell].below:SetBackdrop(self.backdropInfo)
 end
 
 -- GetCellPosition returns the cell's position as an integer in this column.
@@ -131,7 +134,7 @@ function columnProto:Update()
 end
 
 function columnProto:ShowDrops()
-  for i, cell in self.cells do
+  for i, cell in ipairs(self.cells) do
     self.drops[cell].above:Show()
     if i == #self.cells then
       self.drops[cell].below:Show()
@@ -140,7 +143,7 @@ function columnProto:ShowDrops()
 end
 
 function columnProto:HideDrops()
-  for _, cell in self.cells do
+  for _, cell in ipairs(self.cells) do
     self.drops[cell].above:Hide()
     self.drops[cell].below:Hide()
   end

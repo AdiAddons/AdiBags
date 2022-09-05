@@ -45,6 +45,8 @@ function addon:CreateDropzoneFrame(...) return dropzoneClass:Create(...) end
 ---@param name string The name of the frame.
 ---@param parent Frame The parent frame.
 function dropzoneProto:OnCreate(name, parent)
+  --dropzoneParentProto:OnCreate(self)
+  Mixin(self, BackdropTemplateMixin)
   self.name = name
   self:SetParent(parent)
   self:SetWidth(parent:GetWidth())
