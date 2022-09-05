@@ -48,15 +48,5 @@ function dropzoneProto:OnCreate(name, parent)
   self.name = name
   self:SetParent(parent)
   self:SetWidth(parent:GetWidth())
-end
-
----@param frame any The frame to resize to.
-function dropzoneProto:Grow(frame)
-  local w, h = frame:GetSize()
-  self:SetSize(frame:GetSize())
-end
-
-function dropzoneProto:Shrink()
-  local w = self:GetParent():GetWidth()
-  self:SetSize(w, 0)
+  self:Hide()
 end

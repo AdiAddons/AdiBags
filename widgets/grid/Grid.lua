@@ -43,6 +43,7 @@ function gridProto:OnCreate(name, parent)
   self.updateDeferred = false
   self.columns = {}
   self.covers = {}
+  self.drops = {}
 
   self.cellToColumn = {}
   self.cellToPosition = {}
@@ -148,7 +149,7 @@ local function Cell_OnDragStop(self, button, frame)
     column:SetMinimumWidth(self.minimumColumnWidth)
 
     self.cellToColumn[frame] = column
-    column:AddCell(frame)
+    column:AddCell(self.cellToKey[frame], frame)
     self:DoUpdate()
     return
   end
@@ -160,7 +161,7 @@ local function Cell_OnDragStop(self, button, frame)
     if column:IsMouseOver() then
       self:Debug("Dropping Cell in Column", column)
       self.cellToColumn[frame] = column
-      column:AddCell(frame)
+      column:AddCell(self.cellToKey[frame], frame)
       self:Update()
       self:Debug("Mouse Over Frame", column)
       if #currentColumn.cells == 0 then
@@ -172,7 +173,7 @@ local function Cell_OnDragStop(self, button, frame)
   end
 
   -- Cell did not drag onto a column, restore it's position.
-  self.cellToColumn[frame]:AddCell(frame, self.cellToPosition[frame])
+  self.cellToColumn[frame]:AddCell(self.cellToKey[frame], frame, self.cellToPosition[frame])
   self:Update()
 end
 
@@ -190,9 +191,10 @@ function gridProto:AddCell(key, frame)
   else
     column = self.columns[1]
   end
+
   frame:SetMovable(true)
 
-  column:AddCell(frame)
+  column:AddCell(key, frame)
   local cover = CreateFrame("Frame")
   cover:SetParent(frame)
   cover:SetAllPoints(frame)
@@ -300,7 +302,7 @@ function gridProto:SetLayout(layout)
         if not column then
           column = self:AddColumn()
         end
-        column:AddCell(frame, ci)
+        column:AddCell(key, frame, ci)
         self.cellToColumn[frame] = column
       end
     end

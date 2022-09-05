@@ -68,7 +68,7 @@ end
 
 -- AddCell adds a cell to this column at the given position, or at the
 -- end of the column if no position is given.
-function columnProto:AddCell(cell, position)
+function columnProto:AddCell(key, cell, position)
   cell:ClearAllPoints()
   cell:SetParent(self)
   cell:Show()
@@ -77,10 +77,14 @@ function columnProto:AddCell(cell, position)
   -- TODO(lobato): Release and acquire pool for drops.
   -- Create a drop zone for both above and below the cell
   -- TODO(lobato): Move drops to the grid class?
-  self.drops[cell] = {
-    above = addon:CreateDropzoneFrame("DropzoneAbove"..position, cell),
-    below = addon:CreateDropzoneFrame("DropzoneBelow"..position, cell),
-  }
+    self.drops[cell] = {
+      above = addon:CreateDropzoneFrame("DropzoneAbove"..key, cell),
+      below = addon:CreateDropzoneFrame("DropzoneBelow"..key, cell),
+    }
+    self.drops[cell].above:SetPoint("CENTER", cell, "TOP", 0, 0)
+    self.drops[cell].below:SetPoint("CENTER", cell, "BOTTOM", 0, 0)
+    self.drops[cell].above:SetHeight(15)
+    self.drops[cell].below:SetHeight(15)
 end
 
 -- GetCellPosition returns the cell's position as an integer in this column.
@@ -98,6 +102,8 @@ function columnProto:RemoveCell(cell)
       cell:ClearAllPoints()
       table.remove(self.cells, i)
       -- TODO(lobato): Release and acquire pool for drops.
+      self.drops[cell].above:ClearAllPoints()
+      self.drops[cell].below:ClearAllPoints()
       self.drops[cell] = nil
       break
     end
@@ -113,6 +119,8 @@ function columnProto:Update()
   for cellPos, cell in ipairs(self.cells) do
     h = h + cell:GetHeight()
     w = math.max(w, cell:GetWidth()+4)
+    self.drops[cell].above:SetWidth(w)
+    self.drops[cell].below:SetWidth(w)
     if cellPos == 1 then
       cell:SetPoint("TOPLEFT", self)
     else
@@ -120,4 +128,20 @@ function columnProto:Update()
     end
   end
   self:SetSize(w, h)
+end
+
+function columnProto:ShowDrops()
+  for i, cell in self.cells do
+    self.drops[cell].above:Show()
+    if i == #self.cells then
+      self.drops[cell].below:Show()
+    end
+  end
+end
+
+function columnProto:HideDrops()
+  for _, cell in self.cells do
+    self.drops[cell].above:Hide()
+    self.drops[cell].below:Hide()
+  end
 end
