@@ -29,7 +29,8 @@ local _G = _G
 local columnClass, columnProto, columnParentProto = addon:NewClass("Column", "LayeredRegion", "ABEvent-1.0")
 
 function addon:CreateColumnFrame(...) return columnClass:Create(...) end
-local columnPool = addon:CreatePool(columnClass, "AcquireColumn")
+addon:CreatePool(columnClass, "AcquireColumn")
+--TODO(lobato): Use OnAcquire and OnRelease to handle the pool, remove OnCreate code.
 
 -- OnCreate is called every time a new column is created via addon:CreateColumnFrame().
 function columnProto:OnCreate(name)
@@ -37,7 +38,6 @@ function columnProto:OnCreate(name)
   Mixin(self, BackdropTemplateMixin)
   self.name = name
   self.cells = {}
-  self.drops = {}
   self.minimumWidth = 0
 
   self.backdropInfo =
@@ -69,16 +69,18 @@ end
 
 -- AddCell adds a cell to this column at the given position, or at the
 -- end of the column if no position is given.
-function columnProto:AddCell(key, cell, position)
-  cell:ClearAllPoints()
-  cell:SetParent(self)
-  cell:Show()
+function columnProto:AddCell(cell, position)
+  self:Debug("Cell Is Being Added To Column", cell, cell.frame)
+  cell.frame:ClearAllPoints()
+  cell.frame:SetParent(self)
+  cell.frame:Show()
   position = position or #self.cells + 1
   table.insert(self.cells, position, cell)
   -- TODO(lobato): Release and acquire pool for drops.
   -- Create a drop zone for both above and below the cell
   -- TODO(lobato): Move drops to the grid class?
-    self.drops[cell] = {
+--[[
+  self.drops[cell] = {
       above = addon:CreateDropzoneFrame("DropzoneAbove"..key, cell),
       below = addon:CreateDropzoneFrame("DropzoneBelow"..key, cell),
     }
@@ -88,6 +90,7 @@ function columnProto:AddCell(key, cell, position)
     self.drops[cell].below:SetPoint("TOPLEFT", cell, "BOTTOMLEFT", 0, 10)
     self.drops[cell].above:SetBackdrop(self.backdropInfo)
     self.drops[cell].below:SetBackdrop(self.backdropInfo)
+]]--
 end
 
 -- GetCellPosition returns the cell's position as an integer in this column.
@@ -102,12 +105,8 @@ end
 function columnProto:RemoveCell(cell)
   for i, c in ipairs(self.cells) do
     if cell == c then
-      cell:ClearAllPoints()
+      cell.frame:ClearAllPoints()
       table.remove(self.cells, i)
-      -- TODO(lobato): Release and acquire pool for drops.
-      self.drops[cell].above:ClearAllPoints()
-      self.drops[cell].below:ClearAllPoints()
-      self.drops[cell] = nil
       break
     end
   end
@@ -120,33 +119,45 @@ function columnProto:Update()
   local w = self.minimumWidth
   local h = 0
   for cellPos, cell in ipairs(self.cells) do
-    h = h + cell:GetHeight()
-    w = math.max(w, cell:GetWidth()+4)
+    h = h + cell.frame:GetHeight()
+    w = math.max(w, cell.frame:GetWidth()+4)
     if cellPos == 1 then
-      cell:SetPoint("TOPLEFT", self)
+      cell.frame:SetPoint("TOPLEFT", self)
     else
-      cell:SetPoint("TOPLEFT", self.cells[cellPos-1], "BOTTOMLEFT")
+      cell.frame:SetPoint("TOPLEFT", self.cells[cellPos-1], "BOTTOMLEFT")
     end
   end
-  for _, drop in pairs(self.drops) do
-    drop.above:SetWidth(w)
-    drop.below:SetWidth(w)
+  for _, cell in pairs(self.cells) do
+    cell.above:SetWidth(w)
+    cell.below:SetWidth(w)
   end
   self:SetSize(w, h)
 end
 
 function columnProto:ShowDrops()
-  for i, cell in ipairs(self.cells) do
-    self.drops[cell].above:Show()
+  for i, cell in pairs(self.cells) do
+    cell.above:Show()
     if i == #self.cells then
-      self.drops[cell].below:Show()
+      cell.below:Show()
     end
   end
 end
 
 function columnProto:HideDrops()
+  for _, cell in pairs(self.cells) do
+    cell.above:Hide()
+    cell.below:Hide()
+  end
+end
+
+function columnProto:ShowCovers()
   for _, cell in ipairs(self.cells) do
-    self.drops[cell].above:Hide()
-    self.drops[cell].below:Hide()
+    cell:Show()
+  end
+end
+
+function columnProto:HideCovers()
+  for _, cell in ipairs(self.cells) do
+    cell:Hide()
   end
 end

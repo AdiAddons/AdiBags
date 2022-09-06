@@ -33,22 +33,31 @@ local dropzoneClass
 local dropzoneProto
 local dropzoneParentProto
 
-dropzoneClass, dropzoneProto, dropzoneParentProto = addon:NewClass("Dropzone", "LayeredRegion", "ABEvent-1.0")
+dropzoneClass, dropzoneProto = addon:NewClass("Dropzone", "Frame", "ABEvent-1.0")
 
 ---@return dropzone
 function addon:CreateDropzoneFrame(...) return dropzoneClass:Create(...) end
+addon:CreatePool(dropzoneClass, "AcquireDropzone")
 
 -- A dropzone is a frame that acts as a placeholder for where an item can be dropped.
 -- It is used to display a visual feedback when an item is being dragged over a dropzone.
 -- Dropzones will dynamically resize to match the size of the frame that is being dragged.
 
+function dropzoneProto:OnCreate()
+  Mixin(self, BackdropTemplateMixin)
+end
+
 ---@param name string The name of the frame.
 ---@param parent Frame The parent frame.
-function dropzoneProto:OnCreate(name, parent)
-  --dropzoneParentProto:OnCreate(self)
-  Mixin(self, BackdropTemplateMixin)
+function dropzoneProto:OnAcquire(name, parent)
   self.name = name
   self:SetParent(parent)
-  self:SetWidth(parent:GetWidth())
   self:Hide()
+end
+
+function dropzoneProto:OnRelease()
+  self.name = nil
+  self:Hide()
+  self:SetParent(UIParent)
+  self:ClearAllPoints()
 end

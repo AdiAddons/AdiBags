@@ -104,6 +104,7 @@ end
 
 function gridProto:DeleteColumn(column)
   assert(#column.cells == 0, "Tried to delete a column with cells in it.")
+  --TODO(lobato): Use column release
   column:SetParent(UIParent)
   column:ClearAllPoints()
   column:Hide()
@@ -116,33 +117,34 @@ function gridProto:DeleteColumn(column)
 end
 
 -- Cell_OnDragStart is called when a cell is dragged.
-local function Cell_OnDragStart(self, button, frame)
+local function Cell_OnDragStart(self, button, cell)
+  self:Debug("DRAG START", self, button, cell)
   if button ~= "LeftButton" then return end
-  local column = self.cellToColumn[frame]
+  local column = self.cellToColumn[cell]
   if #column.cells < 2 and self.columns[#self.columns] ~= column then return end
-  self.cellMoving[frame] = true
+  self.cellMoving[cell] = true
 
   self.sideFrame:SetPoint("TOPLEFT", self.columns[#self.columns], "TOPRIGHT")
   self.sideFrame:Show()
-  self.cellToPosition[frame] = column:GetCellPosition(frame)
-  column:RemoveCell(frame)
+  self.cellToPosition[cell] = column:GetCellPosition(cell)
+  column:RemoveCell(cell)
   column:Update()
-  frame:StartMoving()
-  frame:ClearAllPoints()
+  cell.frame:StartMoving()
+  cell.frame:ClearAllPoints()
   for _, column in ipairs(self.columns) do
     column:ShowDrops()
   end
   -- TODO(lobato): Figure out why frame strata isn't working.
-  self:Debug("Moving Frame", frame)
+  self:Debug("Moving Frame", cell)
 end
 
 -- Cell_OnDragStop is called when a cell stops being dragged.
-local function Cell_OnDragStop(self, button, frame)
-  if not self.cellMoving[frame] then return end
-  self.cellMoving[frame] = nil
-  local currentColumn = self.cellToColumn[frame]
+local function Cell_OnDragStop(self, button, cell)
+  if not self.cellMoving[cell] then return end
+  self.cellMoving[cell] = nil
+  local currentColumn = self.cellToColumn[cell]
   self:Debug("Current Column Cell Count", #currentColumn.cells)
-  frame:StopMovingOrSizing()
+  cell.frame:StopMovingOrSizing()
   if self.sideFrame:IsMouseOver() and #currentColumn.cells > 0 then
     self:DeferUpdate()
     self.sideFrame:Hide()
@@ -151,8 +153,8 @@ local function Cell_OnDragStop(self, button, frame)
     local column = self:AddColumn()
     column:SetMinimumWidth(self.minimumColumnWidth)
 
-    self.cellToColumn[frame] = column
-    column:AddCell(self.cellToKey[frame], frame)
+    self.cellToColumn[cell] = column
+    column:AddCell(cell)
     for _, column in ipairs(self.columns) do
       column:HideDrops()
     end
@@ -172,8 +174,8 @@ local function Cell_OnDragStop(self, button, frame)
     self:Debug("Column Drag Stop Check", column)
     if column:IsMouseOver() then
       self:Debug("Dropping Cell in Column", column)
-      self.cellToColumn[frame] = column
-      column:AddCell(self.cellToKey[frame], frame)
+      self.cellToColumn[cell] = column
+      column:AddCell(cell)
       self:Update()
       self:Debug("Mouse Over Frame", column)
       if #currentColumn.cells == 0 then
@@ -185,7 +187,7 @@ local function Cell_OnDragStop(self, button, frame)
   end
 
   -- Cell did not drag onto a column, restore it's position.
-  self.cellToColumn[frame]:AddCell(self.cellToKey[frame], frame, self.cellToPosition[frame])
+  self.cellToColumn[cell]:AddCell(cell, self.cellToPosition[cell])
   self:Update()
 end
 
@@ -203,23 +205,16 @@ function gridProto:AddCell(key, frame)
   else
     column = self.columns[1]
   end
+  local cell = addon:AcquireCell(key, frame)
 
-  frame:SetMovable(true)
+  self:Debug("About to add cell from gridproto", cell, cell.frame, frame, key)
+  column:AddCell(cell)
 
-  column:AddCell(key, frame)
-  local cover = CreateFrame("Frame")
-  cover:SetParent(frame)
-  cover:SetAllPoints(frame)
-  cover:EnableMouse(true)
-  cover:Hide()
-
-  cover:RegisterForDrag("LeftButton")
-  cover:SetScript("OnMouseDown", function(e, button) Cell_OnDragStart(self, button, frame) end)
-  cover:SetScript("OnMouseUp", function(e, button) Cell_OnDragStop(self, button, frame) end)
-  self.cellToColumn[frame] = column
-  self.cellToKey[frame] = key
-  self.keyToCell[key] = frame
-  self.covers[frame] = cover
+  cell:SetScript("OnMouseDown", function(e, button) Cell_OnDragStart(self, button, cell) end)
+  cell:SetScript("OnMouseUp", function(e, button) Cell_OnDragStop(self, button, cell) end)
+  self.cellToColumn[cell] = column
+  self.cellToKey[cell] = key
+  self.keyToCell[key] = cell
   self:Update()
 end
 
@@ -268,15 +263,15 @@ function gridProto:Update()
 end
 
 function gridProto:ShowCovers()
-  for _, cover in pairs(self.covers) do
-    cover:Show()
+  for _, column in ipairs(self.columns) do
+    column:ShowCovers()
   end
   self.showCovers = true
 end
 
 function gridProto:HideCovers()
-  for _, cover in pairs(self.covers) do
-    cover:Hide()
+  for _, column in ipairs(self.columns) do
+    column:HideCovers()
   end
   self.showCovers = false
 end
@@ -305,17 +300,18 @@ function gridProto:SetLayout(layout)
   for i in ipairs(layout) do
     for ci in ipairs(layout[i]) do
       local key = layout[i][ci]
-      local frame = self.keyToCell[key]
-      if frame then
+      local cell = self.keyToCell[key]
+      if cell then
         self:Debug("Putting Key in Column and pos", key, i, ci)
         -- TODO(lobato): Put it in the right place?
-        self.cellToColumn[frame]:RemoveCell(frame)
+        self.cellToColumn[cell]:RemoveCell(cell)
         local column = self.columns[i]
         if not column then
           column = self:AddColumn()
         end
-        column:AddCell(key, frame, ci)
-        self.cellToColumn[frame] = column
+        self:Debug("About to add cell in layout", cell)
+        column:AddCell(cell, ci)
+        self.cellToColumn[cell] = column
       end
     end
   end

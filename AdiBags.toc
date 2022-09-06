@@ -57,6 +57,7 @@ core\OO.lua
 
 widgets\LayeredRegion.lua
 widgets\grid\Dropzone.lua
+widgets\grid\Cell.lua
 widgets\grid\Column.lua
 widgets\grid\Grid.lua
 widgets\ContainerFrame.lua
