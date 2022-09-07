@@ -200,7 +200,7 @@ function addon:SetupDefaultFilters()
 			if slotData.class == QUEST or slotData.subclass == QUEST then
 				return QUEST
 			else
-				if addon.isRetail then
+				if addon.isRetail or addon.isWrath then
 					local isQuestItem, questId = GetContainerItemQuestInfo(slotData.bag, slotData.slot)
 					return (questId or isQuestItem) and QUEST
 				else
