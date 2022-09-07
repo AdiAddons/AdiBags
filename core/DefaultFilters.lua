@@ -67,7 +67,7 @@ function addon:SetupDefaultFilters()
 	}
 
 	-- [90] Parts of an equipment set
-	if addon.isRetail then
+	if addon.isRetail or addon.isWrath then
 		do
 			local setFilter = addon:RegisterFilter("ItemSets", 90, "ABEvent-1.0", "ABBucket-1.0")
 			setFilter.uiName = L['Gear manager item sets']
@@ -112,8 +112,13 @@ function addon:SetupDefaultFilters()
 					if itemIDs and locations then
 						for invId, location in pairs(locations) do
 							if location ~= 0 and location ~= 1 and itemIDs[invId] ~= 0 then
-								local player, bank, bags, voidstorage, slot, container  = EquipmentManager_UnpackLocation(location)
+								local player, bank, bags, voidstorage, slot, container
 								local slotId
+								if addon.isWrath then
+									player, bank, bags, slot, container  = EquipmentManager_UnpackLocation(location)
+								else
+									player, bank, bags, voidstorage, slot, container  = EquipmentManager_UnpackLocation(location)
+								end
 								if bags and slot and container then
 									slotId = GetSlotId(container, slot)
 								elseif bank and slot then
