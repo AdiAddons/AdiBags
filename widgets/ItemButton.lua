@@ -385,7 +385,7 @@ if addon.isRetail then
 end
 
 local function GetBorder(bag, slot, itemId, settings)
-	if addon.isRetail then
+	if addon.isRetail or addon.isWrath then
 		if settings.questIndicator then
 			local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
 			if questId and not isActive then
