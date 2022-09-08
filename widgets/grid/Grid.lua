@@ -165,9 +165,23 @@ local function Cell_OnDragStop(self, button, cell)
   -- TODO(lobato): delete a column if it is empty
   self.sideFrame:Hide()
 
+  local dropped = false
   -- Check for specific position drops here.
   for _, column in ipairs(self.columns) do
+    for _, tcell in ipairs(column.cells) do
+      if dropped then break end
+      if tcell.above:IsMouseOver() then
+        column:AddCell(cell, tcell.position - 1)
+        self.cellToColumn[cell] = column
+        dropped = true
+      end
+    end
     column:HideDrops()
+  end
+
+  if dropped then
+    self:Update()
+    return
   end
 
   for _, column in ipairs(self.columns) do

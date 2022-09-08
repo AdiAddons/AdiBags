@@ -74,7 +74,12 @@ function columnProto:AddCell(cell, position)
   cell.frame:ClearAllPoints()
   cell.frame:SetParent(self)
   cell.frame:Show()
-  position = position or #self.cells + 1
+  if position and position < 1 then
+    position = 1
+  else
+    position = position or #self.cells + 1
+  end
+  cell.position = position
   table.insert(self.cells, position, cell)
   -- TODO(lobato): Release and acquire pool for drops.
   -- Create a drop zone for both above and below the cell
