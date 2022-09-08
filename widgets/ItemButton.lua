@@ -75,7 +75,7 @@ else
 	buttonClass, buttonProto = addon:NewClass("ItemButton", "Button", "ContainerFrameItemButtonTemplate", "ABEvent-1.0")
 end
 
-local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture", "NewItemTexture" }
+local childrenNames = { "Cooldown", "IconTexture", "IconQuestTexture", "Count", "Stock", "NormalTexture", "NewItemTexture", "IconOverlay2" }
 
 function buttonProto:OnCreate()
 	local name = self:GetName()
@@ -327,6 +327,7 @@ function buttonProto:Update()
 	self:UpdateNew()
 	if addon.isRetail then
 		self:UpdateUpgradeIcon()
+		self:UpdateOverlay()
 	end
 	if self.UpdateSearch then
 		self:UpdateSearch()
@@ -437,6 +438,11 @@ function buttonProto:UpdateBorder(isolatedEvent)
 	if isolatedEvent then
 		addon:SendMessage('AdiBags_UpdateBorder', self)
 	end
+end
+
+function buttonProto:UpdateOverlay()
+	local _, _, _, quality = GetContainerItemInfo(self.bag, self.slot)
+	SetItemButtonOverlay(self, self.itemId or self.itemLink or 0, quality)
 end
 
 --------------------------------------------------------------------------------
