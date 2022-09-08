@@ -124,6 +124,7 @@ function columnProto:Update()
   local w = self.minimumWidth
   local h = 0
   for cellPos, cell in ipairs(self.cells) do
+    cell.position = cellPos
     h = h + cell.frame:GetHeight()
     w = math.max(w, cell.frame:GetWidth()+4)
     if cellPos == 1 then

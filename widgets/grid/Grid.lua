@@ -171,8 +171,14 @@ local function Cell_OnDragStop(self, button, cell)
     for _, tcell in ipairs(column.cells) do
       if dropped then break end
       if tcell.above:IsMouseOver() then
-        column:AddCell(cell, tcell.position - 1)
+        self:Debug("Dropped Above and dropping into", tcell.key, tcell.position)
         self.cellToColumn[cell] = column
+        column:AddCell(cell, tcell.position)
+        dropped = true
+      elseif tcell.below:IsMouseOver() then
+        self:Debug("Dropped Below and dropping into", tcell.key, tcell.position)
+        self.cellToColumn[cell] = column
+        column:AddCell(cell, tcell.position + 1)
         dropped = true
       end
     end
@@ -180,6 +186,10 @@ local function Cell_OnDragStop(self, button, cell)
   end
 
   if dropped then
+    if #currentColumn.cells == 0 then
+      self:Debug("Deleting Column", currentColumn)
+      self:DeleteColumn(currentColumn)
+    end
     self:Update()
     return
   end
