@@ -447,7 +447,8 @@ do
 			-- Use the item level range for that level
 			local minLevel, maxLevel = unpack(maxLevelRanges[playerLevel])
 			if level < minLevel then
-				return GetItemQualityColor(0)
+				local r, g, b = GetItemQualityColor(0)
+				return r, g, b
 			else
 				return colorGradient(level - minLevel, maxLevel - minLevel, unpack(maxLevelColors))
 			end
