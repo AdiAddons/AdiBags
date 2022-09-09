@@ -410,9 +410,15 @@ local function GetBorder(bag, slot, itemId, settings)
 	end
 end
 
+-- Bugfix: This fixes a bug where hasItem might be set to 1 by
+-- some internal Blizzard code.
+local function hasItem(i)
+	return i and i ~= 1
+end
+
 function buttonProto:UpdateBorder(isolatedEvent)
 	local texture, r, g, b, a, x1, x2, y1, y2, blendMode
-	if self.hasItem then
+	if hasItem(self.hasItem) then
 		texture, r, g, b, a, x1, x2, y1, y2, blendMode = GetBorder(self.bag, self.slot, self.itemLink or self.itemId, addon.db.profile)
 	end
 	if not texture then
@@ -431,7 +437,7 @@ function buttonProto:UpdateBorder(isolatedEvent)
 		border:Show()
 	end
 	if self.JunkIcon then
-		local quality = self.hasItem and select(3, GetItemInfo(self.itemLink or self.itemId))
+		local quality = hasItem(self.hasItem) and select(3, GetItemInfo(self.itemLink or self.itemId))
 		self.JunkIcon:SetShown(quality == ITEM_QUALITY_POOR and addon:GetInteractingWindow() == "MERCHANT")
 	end
 	if isolatedEvent then
