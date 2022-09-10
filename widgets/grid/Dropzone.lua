@@ -45,6 +45,28 @@ addon:CreatePool(dropzoneClass, "AcquireDropzone")
 
 function dropzoneProto:OnCreate()
   Mixin(self, BackdropTemplateMixin)
+  local marker = CreateFrame("Frame", nil, self)
+  marker:SetPoint("CENTER")
+  marker:SetWidth(100)
+  marker:SetHeight(5)
+  --marker:SetAllPoints()
+  -- TODO(lobato): on show handler
+
+  local tex = marker:CreateTexture("OVERLAY")
+  tex:SetAllPoints(marker)
+  tex:SetTexture("Interface\\Tooltips\\UI-Tooltip-Background")
+  tex:SetBlendMode("ADD")
+  marker.Texture = tex
+
+  local group = marker:CreateAnimationGroup()
+  group:SetLooping("BOUNCE")
+
+  local anim = group:CreateAnimation("Alpha")
+  anim:SetOrder(1)
+  anim:SetDuration(0.5)
+  anim:SetFromAlpha(0.1)
+  anim:SetToAlpha(0.8)
+  group:Play()
 end
 
 ---@param name string The name of the frame.
