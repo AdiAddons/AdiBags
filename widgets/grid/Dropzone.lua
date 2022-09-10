@@ -46,11 +46,9 @@ addon:CreatePool(dropzoneClass, "AcquireDropzone")
 function dropzoneProto:OnCreate()
   Mixin(self, BackdropTemplateMixin)
   local marker = CreateFrame("Frame", nil, self)
-  marker:SetPoint("CENTER")
+  marker:SetPoint("LEFT")
   marker:SetWidth(100)
   marker:SetHeight(5)
-  --marker:SetAllPoints()
-  -- TODO(lobato): on show handler
 
   local tex = marker:CreateTexture("OVERLAY")
   tex:SetAllPoints(marker)
@@ -66,7 +64,19 @@ function dropzoneProto:OnCreate()
   anim:SetDuration(0.5)
   anim:SetFromAlpha(0.1)
   anim:SetToAlpha(0.8)
-  group:Play()
+  self.group = group
+  self.marker = marker
+  self:SetScript("OnShow", self.OnShow)
+  self:SetScript("OnHide", self.OnHide)
+end
+
+function dropzoneProto:OnShow()
+  self.marker:SetWidth(self:GetWidth())
+  self.group:Play()
+end
+
+function dropzoneProto:OnHide()
+ self.group:Stop()
 end
 
 ---@param name string The name of the frame.
