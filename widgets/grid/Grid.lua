@@ -52,15 +52,9 @@ function gridProto:OnCreate(name, parent)
 
   self.cellMoving = {}
   self.minimumColumnWidth = 0
-  self.sideFrame = CreateFrame("Frame", name .. "SideFrame", self)
+  self.sideFrame = addon:AcquireDropzone("DropzoneSideframe", self)
   self.sideFrame:SetFrameLevel(self:GetFrameLevel() + 1)
-  Mixin(self.sideFrame, BackdropTemplateMixin)
-  self.sideFrame:SetBackdrop({
-    bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-    edgeSize = 16,
-    insets = { left = 4, right = 4, top = 4, bottom = 4 },
-  })
+  self.sideFrame.marker:SetWidth(1)
   self.sideFrame:Hide()
 
 
@@ -124,7 +118,7 @@ local function Cell_OnDragStart(self, button, cell)
   if #column.cells < 2 and self.columns[#self.columns] ~= column then return end
   self.cellMoving[cell] = true
 
-  self.sideFrame:SetPoint("TOPLEFT", self.columns[#self.columns], "TOPRIGHT")
+  self.sideFrame:SetPoint("TOPLEFT", self:GetParent(), "TOPRIGHT", 5, -37)
   self.sideFrame:Show()
   self.cellToPosition[cell] = column:GetCellPosition(cell)
   column:RemoveCell(cell)
@@ -283,6 +277,7 @@ function gridProto:Update()
   self:Debug("w and h for grid update", w, h)
   self:SetSize(w + ((#self.columns-1) * 12),h)
   self.sideFrame:SetSize(25, self:GetHeight())
+  self.sideFrame.marker:SetHeight(self:GetHeight())
   addon:SendMessage("AdiBags_GridUpdate", self)
 end
 
