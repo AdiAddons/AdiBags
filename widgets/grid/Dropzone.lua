@@ -44,15 +44,17 @@ addon:CreatePool(dropzoneClass, "AcquireDropzone")
 -- Dropzones will dynamically resize to match the size of the frame that is being dragged.
 
 function dropzoneProto:OnCreate()
+  self.dropzone = true
   Mixin(self, BackdropTemplateMixin)
   local marker = CreateFrame("Frame", nil, self)
   marker:SetPoint("LEFT")
-  marker:SetHeight(1)
+  marker:SetHeight(3)
 
   local tex = marker:CreateTexture("OVERLAY")
   tex:SetAllPoints(marker)
   tex:SetTexture("Interface\\Tooltips\\UI-Tooltip-Background")
   tex:SetBlendMode("ADD")
+  tex:SetColorTexture(249/255, 220/255, 92/255)
   marker.Texture = tex
 
   local group = marker:CreateAnimationGroup()
@@ -60,22 +62,13 @@ function dropzoneProto:OnCreate()
 
   local anim = group:CreateAnimation("Alpha")
   anim:SetOrder(1)
-  anim:SetDuration(0.5)
-  anim:SetFromAlpha(0.1)
+  anim:SetDuration(0.3)
+  anim:SetFromAlpha(0.5)
   anim:SetToAlpha(0.8)
+  anim:SetSmoothing("IN_OUT")
   self.group = group
   self.marker = marker
-  self:SetScript("OnShow", self.OnShow)
-  self:SetScript("OnHide", self.OnHide)
-end
-
-function dropzoneProto:OnShow()
-  self.marker:SetWidth(self:GetWidth())
-  self.group:Play()
-end
-
-function dropzoneProto:OnHide()
- self.group:Stop()
+  self.marker:Hide()
 end
 
 ---@param name string The name of the frame.
@@ -91,4 +84,19 @@ function dropzoneProto:OnRelease()
   self:Hide()
   self:SetParent(UIParent)
   self:ClearAllPoints()
+end
+
+function dropzoneProto:OnHover()
+  if self.animating then return end
+  self.animating = true
+  self.marker:SetWidth(self:GetWidth())
+  self.marker:Show()
+  self.group:Play()
+end
+
+function dropzoneProto:OnLeave()
+  if not self.animating then return end
+  self.animating = false
+  self.group:Stop()
+  self.marker:Hide()
 end

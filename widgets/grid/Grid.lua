@@ -26,6 +26,7 @@ local L = addon.L
 local _G = _G
 local CreateFrame = _G.CreateFrame
 local UIParent = _G.UIParent
+local GetFrameStack = C_System.GetFrameStack()
 --GLOBALS>
 
 local gridClass, gridProto, gridParentProto = addon:NewClass("Grid", "LayeredRegion", "ABEvent-1.0")
@@ -128,6 +129,26 @@ local function Cell_OnDragStart(self, button, cell)
   for _, column in ipairs(self.columns) do
     column:ShowDrops()
   end
+  cell.frame:SetScript("OnUpdate", function()
+    local stack = C_System.GetFrameStack()
+    for _, frame in ipairs(stack) do
+      if frame.dropzone and cell.hoverOver ~= frame then
+        if cell.hoverOver then
+          cell.hoverOver:OnLeave()
+        end
+        cell.hoverOver = frame
+        frame:OnHover()
+        return
+      elseif cell.hoverOver == frame then
+        return
+      end
+    end
+    -- No longer hovering over any frame, remove any animations.
+    if cell.hoverOver then
+      cell.hoverOver:OnLeave()
+      cell.hoverOver = nil
+    end
+  end)
   -- TODO(lobato): Figure out why frame strata isn't working.
   self:Debug("Moving Frame", cell)
 end
@@ -139,6 +160,7 @@ local function Cell_OnDragStop(self, button, cell)
   local currentColumn = self.cellToColumn[cell]
   self:Debug("Current Column Cell Count", #currentColumn.cells)
   cell.frame:StopMovingOrSizing()
+  cell.frame:SetScript("OnUpdate", nil)
   if self.sideFrame:IsMouseOver() and #currentColumn.cells > 0 then
     self:DeferUpdate()
     self.sideFrame:Hide()
