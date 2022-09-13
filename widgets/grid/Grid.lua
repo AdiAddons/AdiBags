@@ -161,6 +161,10 @@ local function Cell_OnDragStop(self, button, cell)
   self:Debug("Current Column Cell Count", #currentColumn.cells)
   cell.frame:StopMovingOrSizing()
   cell.frame:SetScript("OnUpdate", nil)
+  if cell.hoverOver then
+    cell.hoverOver:OnLeave()
+    cell.hoverOver = nil
+  end
   if self.sideFrame:IsMouseOver() and #currentColumn.cells > 0 then
     self:DeferUpdate()
     self.sideFrame:Hide()
