@@ -240,7 +240,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	toSortSection.Header:SetScript("OnClick", function() self:FullUpdate() end)
 	local content
 	if addon.db.profile.gridLayout then
-		content = addon:CreateGridFrame((isBank and "AdiBagsBankGrid" or "AdiBagsInvGrid"), self)
+		content = addon:CreateGridFrame((isBank and "Bank" or "Backpack"), self)
 		self:CreateLockButton()
 	else
 		content = CreateFrame("Frame", nil, self)

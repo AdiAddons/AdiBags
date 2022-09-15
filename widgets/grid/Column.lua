@@ -123,14 +123,28 @@ end
 function columnProto:Update()
   local w = self.minimumWidth
   local h = 0
+	local settings = addon.db.profile
+	local columnWidth = settings.columnWidth[self:GetParent().name]
+  local previousRow = 0
+  local cellOffset = 1
   for cellPos, cell in ipairs(self.cells) do
     cell.position = cellPos
     h = h + cell.frame:GetHeight()
     w = math.max(w, cell.frame:GetWidth()+4)
     if cellPos == 1 then
       cell.frame:SetPoint("TOPLEFT", self)
+      previousRow = cell.frame.count
     else
-      cell.frame:SetPoint("TOPLEFT", self.cells[cellPos-1], "BOTTOMLEFT")
+      if addon.db.profile.compactLayout and (cell.frame.count + previousRow) <= columnWidth then
+        self:Debug("Sorting Section with button count, width", cell.key, cell.frame.count, columnWidth)
+        cell.frame:SetPoint("TOPLEFT", self.cells[cellPos-1].frame, "TOPRIGHT", 0, 0)
+        previousRow = previousRow + cell.frame.count
+        cellOffset = cellOffset + 1
+        else
+        cell.frame:SetPoint("TOPLEFT", self.cells[cellPos-cellOffset], "BOTTOMLEFT")
+        previousRow = cell.frame.count
+        cellOffset = 1
+      end
     end
   end
   for _, cell in pairs(self.cells) do
