@@ -70,6 +70,7 @@ end
 function cellProto:OnRelease()
   self.frame:SetMovable(false)
   self.frame = nil
+  self.compact = false
   self.above:Release()
   self.below:Release()
   self:ClearAllPoints()
