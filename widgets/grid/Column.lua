@@ -129,22 +129,25 @@ function columnProto:Update()
   local cellOffset = 1
   for cellPos, cell in ipairs(self.cells) do
     cell.position = cellPos
-    h = h + cell.frame:GetHeight()
     w = math.max(w, cell.frame:GetWidth()+4)
+    cell.compact = false
     if cellPos == 1 then
       cell.frame:SetPoint("TOPLEFT", self)
       previousRow = cell.frame.count
+      h = h + cell.frame:GetHeight()
     elseif addon.db.profile.compactLayout and (cell.frame.count + previousRow) <= columnWidth then
         self:Debug("Sorting Section with button count, width", cell.key, cell.frame.count, columnWidth)
-        cell.frame:SetPoint("TOPLEFT", self.cells[cellPos-1].frame, "TOPRIGHT", 0, 0)
+        cell.frame:SetPoint("TOPLEFT", self.cells[cellPos-1].frame, "TOPRIGHT", 10, 0)
         cell.compact = true
         previousRow = previousRow + cell.frame.count
         cellOffset = cellOffset + 1
+        w = math.min(w, w + cell.frame:GetWidth())
+        self:Debug("Setting w to w", w)
     else
         cell.frame:SetPoint("TOPLEFT", self.cells[cellPos-cellOffset], "BOTTOMLEFT")
         previousRow = cell.frame.count
         cellOffset = 1
-        cell.compact = false
+        h = h + cell.frame:GetHeight()
     end
   end
   for _, cell in pairs(self.cells) do
