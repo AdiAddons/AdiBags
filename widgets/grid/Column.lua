@@ -137,11 +137,11 @@ function columnProto:Update()
       h = h + cell.frame:GetHeight()
     elseif addon.db.profile.compactLayout and (cell.frame.count + previousRow) <= columnWidth then
         self:Debug("Sorting Section with button count, width", cell.key, cell.frame.count, columnWidth)
-        cell.frame:SetPoint("TOPLEFT", self.cells[cellPos-1].frame, "TOPRIGHT", 10, 0)
+        cell.frame:SetPoint("TOPLEFT", self.cells[cellPos-1].frame, "TOPRIGHT", 4, 0)
         cell.compact = true
         previousRow = previousRow + cell.frame.count
         cellOffset = cellOffset + 1
-        w = math.min(w, w + cell.frame:GetWidth())
+        w = math.min(w, w + cell.frame:GetWidth()+4)
         self:Debug("Setting w to w", w)
     else
         cell.frame:SetPoint("TOPLEFT", self.cells[cellPos-cellOffset], "BOTTOMLEFT")
