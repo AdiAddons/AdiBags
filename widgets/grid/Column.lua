@@ -144,10 +144,10 @@ function columnProto:Update()
         w = math.min(w, w + cell.frame:GetWidth()+4)
         self:Debug("Setting w to w", w)
     else
-        cell.frame:SetPoint("TOPLEFT", self.cells[cellPos-cellOffset], "BOTTOMLEFT")
+        cell.frame:SetPoint("TOPLEFT", self.cells[cellPos-cellOffset], "BOTTOMLEFT", 0, -4)
         previousRow = cell.frame.count
         cellOffset = 1
-        h = h + cell.frame:GetHeight()
+        h = h + cell.frame:GetHeight() + 4
     end
   end
   for _, cell in pairs(self.cells) do
