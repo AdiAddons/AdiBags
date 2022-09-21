@@ -150,11 +150,21 @@ function columnProto:Update()
         h = h + cell.frame:GetHeight() + 4
     end
   end
-  for _, cell in pairs(self.cells) do
-    cell.above:SetWidth(w)
-    cell.below:SetWidth(w)
-  end
+
   self:SetSize(w, h)
+
+  for _, cell in pairs(self.cells) do
+    cell.below:SetWidth(w)
+    cell.above:SetWidth(w)
+--[[
+    if cell.compact then
+      self:Debug("cell compact")
+      cell:SetCompact()
+    else
+      cell:ClearCompact()
+    end
+    ]]--
+  end
 end
 
 function columnProto:ShowDrops()

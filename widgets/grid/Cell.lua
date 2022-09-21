@@ -80,3 +80,19 @@ function cellProto:OnRelease()
   self:SetScript("OnMouseUp", nil)
   self:Hide()
 end
+
+function cellProto:SetCompact()
+  self.above:ClearAllPoints()
+  self.above:SetPoint("RIGHT", self, "LEFT", 10, 0)
+  self.above:SetWidth(20)
+  self.above:SetHeight(self:GetHeight())
+  self.above:SetVertical()
+end
+
+function cellProto:ClearCompact()
+  self.above:ClearAllPoints()
+  self.above:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0, -37)
+  self.above:SetWidth(self:GetWidth())
+  self.above:SetHeight(3)
+  self.above:SetHorizontal()
+end

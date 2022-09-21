@@ -47,8 +47,6 @@ function dropzoneProto:OnCreate()
   self.dropzone = true
   Mixin(self, BackdropTemplateMixin)
   local marker = CreateFrame("Frame", nil, self)
-  marker:SetPoint("LEFT")
-  marker:SetHeight(3)
 
   local tex = marker:CreateTexture("OVERLAY")
   tex:SetAllPoints(marker)
@@ -69,6 +67,7 @@ function dropzoneProto:OnCreate()
   self.group = group
   self.marker = marker
   self.marker:Hide()
+  self:SetHorizontal()
 end
 
 ---@param name string The name of the frame.
@@ -89,7 +88,6 @@ end
 function dropzoneProto:OnHover()
   if self.animating then return end
   self.animating = true
-  self.marker:SetWidth(self:GetWidth())
   self.marker:Show()
   self.group:Play()
 end
@@ -99,4 +97,20 @@ function dropzoneProto:OnLeave()
   self.animating = false
   self.group:Stop()
   self.marker:Hide()
+end
+
+function dropzoneProto:SetVertical()
+  self.vertical = true
+  self.marker:ClearAllPoints()
+  self.marker:SetPoint("TOP")
+  self.marker:SetPoint("BOTTOM")
+  self.marker:SetWidth(3)
+end
+
+function dropzoneProto:SetHorizontal()
+  self.vertical = false
+  self.marker:ClearAllPoints()
+  self.marker:SetPoint("LEFT")
+  self.marker:SetPoint("RIGHT")
+  self.marker:SetHeight(3)
 end
