@@ -26,8 +26,6 @@ local L = addon.L
 local _G = _G
 local abs = _G.math.abs
 local GetItemInfo = _G.GetItemInfo
-local ITEM_QUALITY_HEIRLOOM = _G.Enum.ItemQuality.Heirloom
-local ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
 local LE_ITEM_CLASS_ARMOR = _G.LE_ITEM_CLASS_ARMOR
 local LE_ITEM_CLASS_GEM = _G.LE_ITEM_CLASS_GEM
 local LE_ITEM_CLASS_MISCELLANEOUS = _G.LE_ITEM_CLASS_MISCELLANEOUS
@@ -35,6 +33,17 @@ local LE_ITEM_MISCELLANEOUS_COMPANION_PET = _G.LE_ITEM_MISCELLANEOUS_COMPANION_P
 local LE_ITEM_GEM_ARTIFACTRELIC = _G.LE_ITEM_GEM_ARTIFACTRELIC
 local LE_ITEM_CLASS_CONSUMABLE = _G.LE_ITEM_CLASS_CONSUMABLE
 local ITEM_CONSUMABLE_OTHER = 8 -- there is no subcategory enum for consumables
+local ITEM_QUALITY_HEIRLOOM
+local ITEM_QUALITY_POOR
+
+if addon.isRetail then
+	ITEM_QUALITY_HEIRLOOM = _G.Enum.ItemQuality.Heirloom
+	ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
+else
+	ITEM_QUALITY_HEIRLOOM = _G.LE_ITEM_QUALITY_HEIRLOOM
+	ITEM_QUALITY_POOR = _G.LE_ITEM_QUALITY_POOR
+end
+
 local QuestDifficultyColors = _G.QuestDifficultyColors
 local UnitLevel = _G.UnitLevel
 local modf = _G.math.modf
@@ -44,8 +53,11 @@ local pairs = _G.pairs
 local select = _G.select
 local unpack = _G.unpack
 local wipe = _G.wipe
-local ExtractLink = _G.LinkUtil.ExtractLink
 local IsItemConduitByItemInfo = _G.C_Soulbinds.IsItemConduitByItemInfo
+local ExtractLink
+if addon.isRetail then
+	ExtractLink = _G.LinkUtil.ExtractLink
+end
 --GLOBALS>
 
 local mod = addon:NewModule('ItemLevel', 'ABEvent-1.0')
@@ -160,6 +172,14 @@ local function CreateText(button)
 end
 
 function mod:UpdateButton(event, button)
+	if addon.isRetail then
+		mod:UpdateButton_Retail(event, button)
+	else
+		mod:UpdateButton_Classic(event, button)
+	end
+end
+
+function mod:UpdateButton_Retail(event, button)
 	local settings = self.db.profile
 	local text = texts[button]
 	local link = button:GetItemLink()
@@ -240,6 +260,46 @@ function mod:UpdateButton(event, button)
 			updateCache[button] = link
 			text:Hide()
 		end
+	end
+end
+
+function mod:UpdateButton_Classic(event, button)
+	local settings = self.db.profile
+	local link = button:GetItemLink()
+	local text = texts[button]
+
+	if link then
+		local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
+		local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
+		local level = item and item:GetCurrentItemLevel() or 0
+		if level >= settings.minLevel
+			and (quality ~= LE_ITEM_QUALITY_POOR or not settings.ignoreJunk)
+			and (loc ~= "" or not settings.equippableOnly)
+		then
+			if SyLevel then
+				if settings.useSyLevel then
+					if text then
+						text:Hide()
+					end
+					SyLevel:CallFilters('Adibags', button, link)
+					return
+				else
+					SyLevel:CallFilters('Adibags', button, nil)
+				end
+			end
+			if not text then
+				text = CreateText(button)
+			end
+			text:SetText(level)
+			text:SetTextColor(colorSchemes[settings.colorScheme](level, quality, reqLevel, (loc ~= "")))
+			return text:Show()
+		end
+	end
+	if SyLevel then
+		SyLevel:CallFilters('Adibags', button, nil)
+	end
+	if text then
+		text:Hide()
 	end
 end
 

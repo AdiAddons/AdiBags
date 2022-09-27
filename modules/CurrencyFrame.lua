@@ -22,6 +22,11 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 local addonName, addon = ...
 local L = addon.L
 
+-- Don't load this file at all unless AdiBags is in retail.
+if not addon.isRetail then
+	return
+end
+
 --<GLOBALS
 local _G = _G
 local BreakUpLargeNumbers = _G.BreakUpLargeNumbers
@@ -30,6 +35,7 @@ local CreateFrame = _G.CreateFrame
 local ExpandCurrencyList = _G.C_CurrencyInfo.ExpandCurrencyList
 local format = _G.format
 local GetCurrencyListInfo = _G.C_CurrencyInfo.GetCurrencyListInfo
+local GetCurrencyInfo = _G.C_CurrencyInfo.GetCurrencyInfo
 local GetCurrencyListSize = _G.C_CurrencyInfo.GetCurrencyListSize
 local hooksecurefunc = _G.hooksecurefunc
 local ipairs = _G.ipairs
@@ -47,13 +53,16 @@ mod.uiName = L['Currency']
 mod.uiDesc = L['Display character currency at bottom left of the backpack.']
 
 function mod:OnInitialize()
+	self.currencyToCell = {}
+	self.columns = {}
 	self.db = addon.db:RegisterNamespace(
 		self.moduleName,
 		{
 			profile = {
 				shown = { ['*'] = true },
 				hideZeroes = true,
-				text = addon:GetFontDefaults(NumberFontNormalLarge)
+				text = addon:GetFontDefaults(NumberFontNormalLarge),
+				width = 4,
 			}
 		}
 	)
@@ -70,6 +79,7 @@ function mod:OnEnable()
 	if self.widget then
 		self.widget:Show()
 	end
+
 	self:RegisterEvent('CURRENCY_DISPLAY_UPDATE', "Update")
 	if not self.hooked then
 		if IsAddOnLoaded('Blizzard_TokenUI') then
@@ -99,18 +109,47 @@ function mod:OnBagFrameCreated(bag)
 	if bag.bagName ~= "Backpack" then return end
 	local frame = bag:GetFrame()
 
-	local widget =CreateFrame("Button", addonName.."CurrencyFrame", frame)
+	local widget = CreateFrame("Button", addonName.."CurrencyFrame", frame)
 	self.widget = widget
 	widget:SetHeight(16)
-	widget:RegisterForClicks("RightButtonUp")
-	widget:SetScript('OnClick', function() self:OpenOptions() end)
-	addon.SetupTooltip(widget, { L['Currency'], L['Right-click to configure.'] }, "ANCHOR_BOTTOMLEFT")
 
-	local fs = widget:CreateFontString(nil, "OVERLAY")
-	fs:SetFontObject(self.font)
-	fs:SetPoint("BOTTOMLEFT", 0, 1)
-	self.fontstring = fs
+	-- Create the columns used for currency display. Each column has the maximum amount
+	-- of possible cells for the minimum width / the max number of currencies.
+	for i = 1, 10 do
+		local columnFrame = CreateFrame("Button", string.format("%sCurrencyColumnFrame%d", addonName, i), widget)
+		columnFrame:Show()
+		if i == 1 then
+			columnFrame:SetPoint("TOPLEFT", widget, "TOPLEFT")
+		else
+			columnFrame:SetPoint("TOPLEFT", self.columns[i-1].frame, "TOPRIGHT")
+		end
+		local column = {
+			frame = columnFrame,
+			cells = {}
+		}
 
+		for ii = 1, ceil(GetCurrencyListSize() / 3)+1 do
+			local cellFrame = CreateFrame("Button", string.format("%sCurrencyCellFrame%d%d", addonName, i, ii), columnFrame)
+			if ii == 1 then
+				cellFrame:SetPoint("TOPLEFT", columnFrame, "TOPLEFT")
+			else
+				cellFrame:SetPoint("TOPLEFT", column.cells[ii-1].frame, "BOTTOMLEFT")
+			end
+
+			cellFrame:Show()
+			local fs = cellFrame:CreateFontString(nil, "OVERLAY")
+			fs:SetFontObject(self.font)
+			fs:SetPoint("BOTTOMLEFT", 0, 1)
+			table.insert(column.cells, {
+				frame = cellFrame,
+				fs = fs,
+				text = "",
+				icon = "",
+				name = "",
+			})
+		end
+		table.insert(self.columns, column)
+	end
 	self:Update()
 	frame:AddBottomWidget(widget, "LEFT", 50)
 end
@@ -151,31 +190,104 @@ local ICON_STRING = " \124T%s:0:0:0:0:64:64:5:59:5:59\124t  "
 
 local values = {}
 local updating
-function mod:Update()
+function mod:Update(event, currencyType, currencyQuantity)
 	if not self.widget or updating then return end
 	updating = true
 
+	local info
+	local updateCell
+	if currencyType ~= nil then
+		info = GetCurrencyInfo(currencyType)
+		updateCell = self.currencyToCell[info.name]
+	end
+
+	-- Refresh only the affected cell.
+	if updateCell ~= nil then
+		updateCell.text = updateCell.icon .. BreakUpLargeNumbers(currencyQuantity)
+		updateCell.fs:SetText(updateCell.text)
+		updateCell.frame:SetSize(
+			updateCell.fs:GetStringWidth(),
+			ceil(updateCell.fs:GetStringHeight())+3
+		)
+		local column = updateCell.frame:GetParent()
+		if column:GetWidth() < updateCell.frame:GetWidth() then
+			column:SetWidth(updateCell.frame:GetWidth())
+		end
+		updating = false
+		return
+	end
+
+	-- This is a full refresh of all cells, called on first load or layout changes.
+
+	-- Clear the currency -> cell map.
+	wipe(self.currencyToCell)
+
+	-- Clear all cells and columns completely.
+	for i, column in ipairs(self.columns) do
+		for ii, cell in ipairs(column.cells) do
+			cell.fs:SetText("")
+			cell.text = ""
+			cell.name = ""
+			cell.icon = ""
+			addon.RemoveTooltip(cell.frame)
+		end
+		column.frame:SetSize(0,0)
+	end
+
+	-- Get all the currency information from the player and store it.
 	local shown, hideZeroes = self.db.profile.shown, self.db.profile.hideZeroes
 	for i, currencyListInfo in IterateCurrencies() do
 		if shown[currencyListInfo.name] and (currencyListInfo.quantity > 0 or not hideZeroes) then
-			tinsert(values, BreakUpLargeNumbers(currencyListInfo.quantity))
-			tinsert(values, format(ICON_STRING, currencyListInfo.iconFileID))
+			tinsert(values, {
+				quantity = BreakUpLargeNumbers(currencyListInfo.quantity),
+				icon = format(ICON_STRING, currencyListInfo.iconFileID),
+				name = currencyListInfo.name
+			})
 		end
 	end
 
 	local widget, fs = self.widget, self.fontstring
+	-- Set the cell values.
 	if #values > 0 then
-		fs:SetText(tconcat(values, ""))
-		widget:Show()
-		widget:SetSize(
-			fs:GetStringWidth(),
-			ceil(fs:GetStringHeight()) + 3
-		)
+		for i, value in ipairs(values) do
+			local columnPosition = ((i-1) % self.db.profile.width)+1
+			local rowPosition = ceil(i / self.db.profile.width)
+			local column = self.columns[columnPosition]
+			local cell = column.cells[rowPosition]
+			cell.icon = value.icon
+			cell.name = value.name
+			cell.text = value.icon .. value.quantity
+			cell.fs:SetText(cell.text)
+			cell.frame:SetSize(
+				cell.fs:GetStringWidth(),
+				ceil(cell.fs:GetStringHeight())+3
+			)
+			-- Set the cell's tooltip.
+			addon.SetupTooltip(cell.frame, cell.name, "ANCHOR_BOTTOMLEFT")
+
+			-- Resize the columns as needed.
+			if column.frame:GetWidth() < cell.frame:GetWidth() then
+				column.frame:SetWidth(cell.frame:GetWidth())
+			end
+			column.frame:SetHeight(column.frame:GetHeight() + cell.frame:GetHeight())
+			self.currencyToCell[value.name] = cell
+		end
+
+		-- Loop over every active column and get the total width
+		-- of all columns for the parent widget.
+		local totalWidth = 0
+		for i = 1, self.db.profile.width do
+			totalWidth = totalWidth + self.columns[i].frame:GetWidth()
+		end
+
+		-- The first column will always be the longest column, so get the height
+		-- of the first column and set the parent widget to this size.
+		widget:SetSize(totalWidth, self.columns[1].frame:GetHeight())
 		wipe(values)
 	else
 		widget:Hide()
 	end
-
+	widget:Show()
 	updating = false
 end
 
@@ -201,6 +313,21 @@ function mod:GetOptions()
 			type = 'toggle',
 			order = 20,
 		},
-		text = addon:CreateFontOptions(self.font, nil, 30)
+		text = addon:CreateFontOptions(self.font, nil, 30),
+		layout = {
+			name = L['Layout'],
+			type = 'group',
+			order = 100,
+			inline = true,
+			args = {
+				width = {
+					name = L['Currencies per row'],
+					type = 'range',
+					min = 3,
+					max = 10,
+					step = 1
+				}
+			}
+		},
 	}, addon:GetOptionHandler(self, false, function() return self:Update() end)
 end

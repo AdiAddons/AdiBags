@@ -20,3 +20,4 @@ move-folders:
 ignore:
   - tests
   - deploy
+  - install-deps.sh

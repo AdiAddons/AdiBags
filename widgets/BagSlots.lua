@@ -215,8 +215,12 @@ end
 --------------------------------------------------------------------------------
 -- Regular bag buttons
 --------------------------------------------------------------------------------
-
-local bagButtonClass, bagButtonProto = addon:NewClass("BagSlotButton", "ItemButton", nil, "ABEvent-1.0")
+local bagButtonClass, bagButtonProto
+if addon.isRetail then
+	bagButtonClass, bagButtonProto = addon:NewClass("BagSlotButton", "ItemButton", nil, "ABEvent-1.0")
+else
+	bagButtonClass, bagButtonProto = addon:NewClass("BagSlotButton", "Button", "ItemButtonTemplate", "ABEvent-1.0")
+end
 
 function bagButtonProto:OnCreate(bag)
 	self.bag = bag

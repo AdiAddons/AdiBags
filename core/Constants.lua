@@ -22,6 +22,12 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 local addonName, addon = ...
 local L = addon.L
 
+-- Constants for detecting WoW version.
+addon.isRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+addon.isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+addon.isBCC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
+addon.isWrath = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+
 --<GLOBALS
 local _G = _G
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
@@ -36,17 +42,25 @@ local pairs = _G.pairs
 local BAGS = { [BACKPACK_CONTAINER] = BACKPACK_CONTAINER }
 for i = 1, NUM_BAG_SLOTS do BAGS[i] = i end
 
--- Base nank bags
-local BANK_ONLY = { [BANK_CONTAINER] = BANK_CONTAINER }
-for i = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do BANK_ONLY[i] = i end
-
---- Reagent bank bags
-local REAGENTBANK_ONLY = { [REAGENTBANK_CONTAINER] = REAGENTBANK_CONTAINER }
-
--- All bank bags
 local BANK = {}
-for _, bags in ipairs { BANK_ONLY, REAGENTBANK_ONLY } do
-	for id in pairs(bags) do BANK[id] = id end
+local BANK_ONLY = {}
+local REAGENTBANK_ONLY = {}
+
+if addon.isRetail then
+	-- Base nank bags
+	BANK_ONLY = { [BANK_CONTAINER] = BANK_CONTAINER }
+	for i = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do BANK_ONLY[i] = i end
+
+	--- Reagent bank bags
+	REAGENTBANK_ONLY = { [REAGENTBANK_CONTAINER] = REAGENTBANK_CONTAINER }
+
+	-- All bank bags
+	for _, bags in ipairs { BANK_ONLY, REAGENTBANK_ONLY } do
+		for id in pairs(bags) do BANK[id] = id end
+	end
+else
+	BANK = { [BANK_CONTAINER] = BANK_CONTAINER }
+	for i = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do BANK[i] = i end
 end
 
 -- All bags
