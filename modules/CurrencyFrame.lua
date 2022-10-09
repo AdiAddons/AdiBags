@@ -22,8 +22,8 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 local addonName, addon = ...
 local L = addon.L
 
--- Don't load this file at all unless AdiBags is in retail.
-if not addon.isRetail then
+-- Don't load this file at all unless AdiBags is in retail or wrath.
+if not addon.isRetail and not addon.isWrath then
 	return
 end
 
@@ -34,9 +34,9 @@ local CreateFont = _G.CreateFont
 local CreateFrame = _G.CreateFrame
 local ExpandCurrencyList = _G.C_CurrencyInfo.ExpandCurrencyList
 local format = _G.format
-local GetCurrencyListInfo = _G.C_CurrencyInfo.GetCurrencyListInfo
-local GetCurrencyInfo = _G.C_CurrencyInfo.GetCurrencyInfo
-local GetCurrencyListSize = _G.C_CurrencyInfo.GetCurrencyListSize
+local GetCurrencyListInfoRetail = _G.C_CurrencyInfo.GetCurrencyListInfo
+local GetCurrencyInfoRetail = _G.C_CurrencyInfo.GetCurrencyInfo
+local GetCurrencyListSizeRetail = _G.C_CurrencyInfo.GetCurrencyListSize
 local hooksecurefunc = _G.hooksecurefunc
 local ipairs = _G.ipairs
 local IsAddOnLoaded = _G.IsAddOnLoaded
@@ -127,7 +127,7 @@ function mod:OnBagFrameCreated(bag)
 			frame = columnFrame,
 			cells = {}
 		}
-
+		
 		for ii = 1, ceil(GetCurrencyListSize() / 3)+1 do
 			local cellFrame = CreateFrame("Button", string.format("%sCurrencyCellFrame%d%d", addonName, i, ii), columnFrame)
 			if ii == 1 then
@@ -154,13 +154,48 @@ function mod:OnBagFrameCreated(bag)
 	frame:AddBottomWidget(widget, "LEFT", 50)
 end
 
+-- Handles differences between the retail and wrath currency apis
+-- There's probably a better way to handle this. I couldn't come up with anything else, so I'm open to suggestions.
+local function GetCurrencyListInfoAgnostic(index)
+	if addon.isRetail then
+		return GetCurrencyListInfoRetail(index)
+	elseif addon.isWrath then
+		return GetCurrencyListInfo(index)
+	end
+end
+
+local function GetCurrencyInfoAgnostic(currencyType)
+	if addon.isRetail then
+		return GetCurrencyInfoRetail(currencyType)
+	elseif addon.isWrath then
+		return GetCurrencyInfo(currencyType)
+	end
+end
+
+local function GetCurrencyListSizeAgnostic()
+	if addon.isRetail then
+		return GetCurrencyListSizeRetail()
+	elseif addon.isWrath then
+		return GetCurrencyListSize()
+	end
+end
+
 local IterateCurrencies
 do
 	local function iterator(collapse, index)
 		if not index then return end
 		repeat
 			index = index + 1
-			local currencyListInfo = GetCurrencyListInfo(index)
+			local currencyListInfo
+			if addon.isRetail then
+				currencyListInfo = GetCurrencyListInfoAgnostic(index)
+			elseif addon.isWrath then
+				local name, isHeader, isExpanded, isUnused, isWatched, count, icon, maximum, hasWeeklyLimit, currentWeeklyAmount, unknown, itemID = GetCurrencyListInfoAgnostic(index)
+				
+				-- Converts the Patch 3.1.0 (Wrath) format to that of Patch 9.0.1 (Shadowlands) to minimize refactoring work
+				currencyListInfo = { name = name, isHeader = isHeader, isHeaderExpanded = isExpanded, isUnused = isUnused, isWatched = isWatched, quantity = count, iconFileID = icon, 
+									 maximum = maximum, hasWeeklyLimit = hasWeeklyLimit, currentWeeklyAmount = currentWeeklyAmount, unknown = unknown, itemID = itemID }
+			end
 			if currencyListInfo then
 				if currencyListInfo.name then
 					if currencyListInfo.isHeader then
@@ -173,7 +208,7 @@ do
 					end
 				end
 			end
-		until index > GetCurrencyListSize()
+		until index > GetCurrencyListSizeAgnostic()
 		for i, index in ipairs(collapse) do
 			ExpandCurrencyList(index, false)
 		end
@@ -197,7 +232,7 @@ function mod:Update(event, currencyType, currencyQuantity)
 	local info
 	local updateCell
 	if currencyType ~= nil then
-		info = GetCurrencyInfo(currencyType)
+		info = GetCurrencyInfoAgnostic(currencyType)
 		updateCell = self.currencyToCell[info.name]
 	end
 
