@@ -338,6 +338,27 @@ do
 	end
 end
 
+local maxLevelRanges = {}
+do
+	if addon.isRetail then
+		maxLevelRanges = {
+			[50] = {  72, 140 }, -- Battle for Azeroth
+			[60] = { 158, 233 }, -- Shadowlands
+		}
+	else
+		maxLevelRanges = {
+			[60]  = {  66,  92 },
+			[70]  = { 100, 164 },
+			[80]  = { 187, 284 },
+			[85]  = { 333, 416 },
+			[90]  = { 450, 616 },
+			[100] = { 615, 735 },
+			[110] = { 805, 905 },
+			[120] = { 310, 350 },
+		}
+	end
+end
+
 -- Color scheme based on player Level
 do
 	-- Color gradient function taken from my customized oUF
@@ -425,11 +446,6 @@ do
 
 		end
 	end
-
-	local maxLevelRanges = {
-		[50] = {  72, 140 }, -- Battle for Azeroth
-		[60] = { 158, 233 }, -- Shadowlands
-	}
 
 	local maxLevelColors = {}
 	do
