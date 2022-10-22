@@ -1042,6 +1042,9 @@ function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, section
 	local columnPixelWidth = (ITEM_SIZE + ITEM_SPACING) * columnWidth - ITEM_SPACING + SECTION_SPACING
 	local getSection = addon.db.profile.compactLayout and FindFittingSection or GetNextSection
 
+	-- reset all sections so they aren't relative to each other
+	for key, section in pairs(sections) do section:ClearAllPoints() end
+	
 	local numRows, x, y, rowHeight, maxSectionHeight, previous = 0, 0, 0, 0, 0, nil
 	while next(sections) do
 		local section
