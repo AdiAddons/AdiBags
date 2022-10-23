@@ -52,11 +52,12 @@ end
 
 function mod:OnEnable()
 	if not self.hooked then
-		GameTooltip:HookScript('OnTooltipSetItem', function(...)
-			if self:IsEnabled() then
-				return self:OnTooltipSetItem(...)
-			end
-		end)
+		-- @TODO: OnTooltipSetItem has been removed : 10.0.2
+		-- GameTooltip:HookScript('OnTooltipSetItem', function(...)
+		-- 	if self:IsEnabled() then
+		-- 		return self:OnTooltipSetItem(...)
+		-- 	end
+		-- end)
 		self.hooked = true
 	end
 end

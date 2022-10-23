@@ -38,6 +38,98 @@ local NUM_BANKBAGSLOTS = _G.NUM_BANKBAGSLOTS
 local pairs = _G.pairs
 --GLOBALS>
 
+addon.itemQuality = {}
+addon.itemClass = {}
+addon.itemSubClass = {}
+
+--<GLOBALS Item Quality
+if addon.isRetail then
+	
+	addon.itemQuality.Poor  			= _G.Enum.ItemQuality.Poor
+	addon.itemQuality.Uncommon 			= _G.Enum.ItemQuality.Uncommon
+	addon.itemQuality.Common 			= _G.Enum.ItemQuality.common
+	addon.itemQuality.Rare	 			= _G.Enum.ItemQuality.Rare
+	addon.itemQuality.Epic	 			= _G.Enum.ItemQuality.Epic
+	addon.itemQuality.Legendary			= _G.Enum.ItemQuality.Legendary
+	addon.itemQuality.Artifact			= _G.Enum.ItemQuality.Artifact
+	addon.itemQuality.Heirloom			= _G.Enum.ItemQuality.Heirloom
+	addon.itemQuality.WoWToken			= _G.Enum.ItemQuality.WoWToken
+else
+	addon.itemQuality.Poor  			= _G.LE_ITEM_QUALITY_POOR
+	addon.itemQuality.Uncommon 			= _G.LE_ITEM_QUALITY_UNCOMMON
+	addon.itemQuality.Common 			= _G.LE_ITEM_QUALITY_COMMON
+	addon.itemQuality.Rare	 			= _G.LE_ITEM_QUALITY_RARE
+	addon.itemQuality.Epic	 			= _G.LE_ITEM_QUALITY_EPIC
+	addon.itemQuality.Legendary			= _G.LE_ITEM_QUALITY_LEGENDARY
+end
+--GLOBALS Item Quality>
+
+
+--<GLOBALS Item Class
+if addon.isRetail then
+	addon.itemClass.Consumable			= _G.Enum.ItemClass.Consumable
+	addon.itemClass.Container			= _G.Enum.ItemClass.Container
+	addon.itemClass.Weapon				= _G.Enum.ItemClass.Weapon
+	addon.itemClass.Gem					= _G.Enum.ItemClass.Gem
+	addon.itemClass.Armor				= _G.Enum.ItemClass.Armor
+	addon.itemClass.Reagent				= _G.Enum.ItemClass.Reagent
+	addon.itemClass.Projectile			= _G.Enum.ItemClass.Projectile
+	addon.itemClass.Tradegoods			= _G.Enum.ItemClass.Tradegoods
+	addon.itemClass.ItemEnhancement		= _G.Enum.ItemClass.ItemEnhancement
+	addon.itemClass.Recipe				= _G.Enum.ItemClass.Recipe
+	addon.itemClass.CurrencyToken 		= _G.Enum.ItemClass.CurrencyTokenObsolete
+	addon.itemClass.Quiver				= _G.Enum.ItemClass.Quiver
+	addon.itemClass.Questitem			= _G.Enum.ItemClass.Questitem
+	addon.itemClass.Key					= _G.Enum.ItemClass.Key
+	addon.itemClass.Permanent 			= _G.Enum.ItemClass.PermanentObsolete
+	addon.itemClass.Miscellaneous		= _G.Enum.ItemClass.Miscellaneous
+	addon.itemClass.Glyph				= _G.Enum.ItemClass.Glyph
+	addon.itemClass.Battlepet			= _G.Enum.ItemClass.Battlepet
+	addon.itemClass.WoWToken			= _G.Enum.ItemClass.WoWToken
+else
+	addon.itemClass.Consumable			= _G.LE_ITEM_CLASS_CONSUMABLE
+	addon.itemClass.Container			= _G.LE_ITEM_CLASS_CONTAINER
+	addon.itemClass.Weapon				= _G.LE_ITEM_CLASS_WEAPON
+	addon.itemClass.Gem					= _G.LE_ITEM_CLASS_GEM
+	addon.itemClass.Armor				= _G.LE_ITEM_CLASS_ARMOR
+	addon.itemClass.Reagent				= _G.LE_ITEM_CLASS_REAGENT
+	addon.itemClass.Projectile			= _G.LE_ITEM_CLASS_PROJECTILE
+	addon.itemClass.Tradegoods			= _G.LE_ITEM_CLASS_TRADEGOODS
+	addon.itemClass.ItemEnhancement		= _G.LE_ITEM_CLASS_ITEMENHANCEMENT
+	addon.itemClass.Recipe				= _G.LE_ITEM_CLASS_RECIPE
+	addon.itemClass.CurrencyToken		= _G.LE_ITEM_CLASS_CURRENCYTOKEN
+	addon.itemClass.Quiver				= _G.LE_ITEM_CLASS_QUIVER
+	addon.itemClass.Questitem			= _G.LE_ITEM_CLASS_QUESTITEM
+	addon.itemClass.Key					= _G.LE_ITEM_CLASS_CLASSKEY
+	addon.itemClass.Permanent			= _G.LE_ITEM_CLASS_PERMANENT
+	addon.itemClass.Miscellaneous		= _G.LE_ITEM_CLASS_MISCELLANEOUS
+	addon.itemClass.Glyph				= _G.LE_ITEM_CLASS_GLYPH
+	addon.itemClass.Battlepet			= _G.LE_ITEM_CLASS_BATTLEPET
+	addon.itemClass.WoWToken			= _G.LE_ITEM_CLASS_WOWTOKEN
+end
+--GLOBALS Item  Class>
+
+--<GLOBALS Item Sub Class
+addon.itemSubClass.Misc = {}
+addon.itemSubClass.Gem = {}
+if addon.isRetail then
+	-- addon.itemSublass		= _G.Enum.
+	-- Miscellaneous
+	addon.itemSubClass.Misc.Pet			= _G.Enum.ItemMiscellaneousSubclass.CompanionPet
+	-- Gem
+	addon.itemSubClass.Gem.Artifactrelic	= _G.Enum.ItemGemSubclass.Artifactrelic
+else
+	-- Miscellaneous
+	addon.itemSubClass.Misc.Pet			= _G.LE_ITEM_MISCELLANEOUS_COMPANION_PET
+	-- Gem
+	addon.itemSubClass.Gem.Artifactrelic	= _G.LE_ITEM_GEM_ARTIFACTRELIC
+end
+--GLOBALS Item  Class>
+
+
+
+
+
 -- Backpack and bags
 local BAGS = { [BACKPACK_CONTAINER] = BACKPACK_CONTAINER }
 for i = 1, NUM_BAG_SLOTS do BAGS[i] = i end

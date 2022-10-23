@@ -31,12 +31,12 @@ local BANK_CONTAINER = _G.BANK_CONTAINER
 local ceil = _G.ceil
 local CreateFrame = _G.CreateFrame
 local format = _G.format
-local GetContainerFreeSlots = _G.GetContainerFreeSlots
-local GetContainerItemID = _G.GetContainerItemID
-local GetContainerItemInfo = _G.GetContainerItemInfo
-local GetContainerItemLink = _G.GetContainerItemLink
-local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
-local GetContainerNumSlots = _G.GetContainerNumSlots
+local GetContainerFreeSlots = _G.C_Container.GetContainerFreeSlots
+local GetContainerItemID = _G.C_Container.GetContainerItemID
+local GetContainerItemInfo = _G.C_Container.GetContainerItemInfo
+local GetContainerItemLink = _G.C_Container.GetContainerItemLink
+local GetContainerNumFreeSlots = _G.C_Container.GetContainerNumFreeSlots
+local GetContainerNumSlots = _G.C_Container.GetContainerNumSlots
 local GetCursorInfo = _G.GetCursorInfo
 local GetItemInfo = _G.GetItemInfo
 local GetItemGUID = _G.C_Item.GetItemGUID
@@ -270,12 +270,14 @@ function containerProto:OnCreate(name, isBank, bagObject)
 		LibStub('ABEvent-1.0').RegisterEvent(name, 'EQUIPMENT_SWAP_FINISHED', ForceFullLayout)
 
 		-- Force full layout on sort
-		if isBank then
-			hooksecurefunc('SortBankBags', ForceFullLayout)
-			hooksecurefunc('SortReagentBankBags', ForceFullLayout)
-		else
-			hooksecurefunc('SortBags', ForceFullLayout)
-		end
+		-- if isBank then
+		-- 	hooksecurefunc('C_Container.SortBankBags', ForceFullLayout)
+		-- 	hooksecurefunc('C_Container.SortReagentBankBags', ForceFullLayout)
+		-- else
+		-- 	hooksecurefunc('C_Container.SortBags', ForceFullLayout)
+		-- end
+
+		-- @ TODO: broken at the moment
 	end
 end
 
@@ -780,7 +782,7 @@ local function FilterByBag(slotData)
 	end
 end
 
-local MISCELLANEOUS = GetItemClassInfo(LE_ITEM_CLASS_MISCELLANEOUS)
+local MISCELLANEOUS = GetItemClassInfo(addon.itemClass.Miscellaneous)
 local FREE_SPACE = L["Free space"]
 function containerProto:FilterSlot(slotData)
 	if self.BagSlotPanel:IsShown() then
