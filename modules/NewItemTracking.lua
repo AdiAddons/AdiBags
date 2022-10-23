@@ -31,14 +31,6 @@ local GetContainerNumSlots = _G.GetContainerNumSlots
 local GetInventoryItemID = _G.GetInventoryItemID
 local GetInventoryItemLink = _G.GetInventoryItemLink
 
-local ITEM_QUALITY_POOR
-
-if addon.isRetail then
-	ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
-else
-	ITEM_QUALITY_POOR = _G.LE_ITEM_QUALITY_POOR
-end
-
 local next = _G.next
 local pairs = _G.pairs
 local PlaySound = _G.PlaySound
@@ -161,7 +153,7 @@ function mod:IsNew(bag, slot, link)
 	elseif not addon.BAG_IDS.BANK[bag]
 		and C_NewItems.IsNewItem(bag, slot)
 		and not IsBattlePayItem(bag, slot)
-		and (not self.db.profile.ignoreJunk or select(4, GetContainerItemInfo(bag, slot)) ~= ITEM_QUALITY_POOR)
+		and (not self.db.profile.ignoreJunk or select(4, GetContainerItemInfo(bag, slot)) ~= addon.itemQuality.Poor)
 	then
 		newItems[link] = true
 		return true

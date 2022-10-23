@@ -26,23 +26,7 @@ local L = addon.L
 local _G = _G
 local abs = _G.math.abs
 local GetItemInfo = _G.GetItemInfo
-local LE_ITEM_CLASS_ARMOR = _G.LE_ITEM_CLASS_ARMOR
-local LE_ITEM_CLASS_GEM = _G.LE_ITEM_CLASS_GEM
-local LE_ITEM_CLASS_MISCELLANEOUS = _G.LE_ITEM_CLASS_MISCELLANEOUS
-local LE_ITEM_MISCELLANEOUS_COMPANION_PET = _G.LE_ITEM_MISCELLANEOUS_COMPANION_PET
-local LE_ITEM_GEM_ARTIFACTRELIC = _G.LE_ITEM_GEM_ARTIFACTRELIC
-local LE_ITEM_CLASS_CONSUMABLE = _G.LE_ITEM_CLASS_CONSUMABLE
 local ITEM_CONSUMABLE_OTHER = 8 -- there is no subcategory enum for consumables
-local ITEM_QUALITY_HEIRLOOM
-local ITEM_QUALITY_POOR
-
-if addon.isRetail then
-	ITEM_QUALITY_HEIRLOOM = _G.Enum.ItemQuality.Heirloom
-	ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
-else
-	ITEM_QUALITY_HEIRLOOM = _G.LE_ITEM_QUALITY_HEIRLOOM
-	ITEM_QUALITY_POOR = _G.LE_ITEM_QUALITY_POOR
-end
 
 local QuestDifficultyColors = _G.QuestDifficultyColors
 local UnitLevel = _G.UnitLevel
@@ -209,21 +193,21 @@ function mod:UpdateButton_Retail(event, button)
 			local _, _, quality, _, reqLevel, _, _, _, loc, _, _, itemClassID, itemSubClassID = GetItemInfo(link)
 			local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
 			local equippable = (loc ~= "INVTYPE_BAG" and loc ~= "")
-					or itemClassID == LE_ITEM_CLASS_ARMOR
-					or (itemClassID == LE_ITEM_CLASS_GEM and itemSubClassID == LE_ITEM_GEM_ARTIFACTRELIC)
-					or (itemClassID == LE_ITEM_CLASS_CONSUMABLE and itemSubClassID == ITEM_CONSUMABLE_OTHER and IsItemConduitByItemInfo(link))
+					or itemClassID == addon.itemClass.Armor
+					or (itemClassID == addon.itemClass.Gem and itemSubClassID == addon.itemSublass.Gem.Artifactrelic)
+					or (itemClassID == addon.itemClass.Consumable and itemSubClassID == ITEM_CONSUMABLE_OTHER and IsItemConduitByItemInfo(link))
 			level = item and item:GetCurrentItemLevel() or 0
 			-- sometimes the link doesn't have all the right info yet so we shouldn't cache the result
 			if (itemClassID ~= nil) then
 				updateCache[button] = link
 			end
-			if settings.showBattlePetLevels and itemClassID == LE_ITEM_CLASS_MISCELLANEOUS and itemSubClassID == LE_ITEM_MISCELLANEOUS_COMPANION_PET then
+			if settings.showBattlePetLevels and itemClassID == addon.itemClass.Miscellaneous and itemSubClassID == addon.itemSubClass.Misc.Pet then
 				level = 1
 				shouldShow = true
 			elseif level >= settings.minLevel
-				and (quality ~= ITEM_QUALITY_POOR or not settings.ignoreJunk)
+				and (quality ~= addon.itemQuality.Poor or not settings.ignoreJunk)
 				and (equippable or not settings.equippableOnly)
-				and (quality ~= ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
+				and (quality ~= addon.itemQuality.Heirloom or not settings.ignoreHeirloom)
 			then
 				color = {colorSchemes[settings.colorScheme](level, quality, reqLevel, equippable)}
 				shouldShow = true
@@ -273,7 +257,7 @@ function mod:UpdateButton_Classic(event, button)
 		local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
 		local level = item and item:GetCurrentItemLevel() or 0
 		if level >= settings.minLevel
-			and (quality ~= LE_ITEM_QUALITY_POOR or not settings.ignoreJunk)
+			and (quality ~= addon.itemQuality.Poor or not settings.ignoreJunk)
 			and (loc ~= "" or not settings.equippableOnly)
 		then
 			if SyLevel then
@@ -467,6 +451,7 @@ do
 		maxLevelRanges = {
 			[50] = {  72, 140 }, -- Battle for Azeroth
 			[60] = { 158, 233 }, -- Shadowlands
+			[70] = { 258, 400 },
 		}
 	else
 		maxLevelRanges = {

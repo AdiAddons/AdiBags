@@ -33,16 +33,6 @@ local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
 local geterrorhandler = _G.geterrorhandler
 local GetItemFamily = _G.GetItemFamily
 local GetItemInfo = _G.GetItemInfo
-local ITEM_QUALITY_POOR
-local ITEM_QUALITY_UNCOMMON
-
-if addon.isRetail then
-	ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
-	ITEM_QUALITY_UNCOMMON = _G.Enum.ItemQuality.Uncommon
-else
-	ITEM_QUALITY_POOR = _G.LE_ITEM_QUALITY_POOR
-	ITEM_QUALITY_UNCOMMON = _G.LE_ITEM_QUALITY_UNCOMMON
-end
 
 local pairs = _G.pairs
 local pcall = _G.pcall
@@ -331,10 +321,10 @@ end
 -- Basic junk test
 --------------------------------------------------------------------------------
 
-local JUNK = GetItemSubClassInfo(LE_ITEM_CLASS_MISCELLANEOUS, 0)
+local JUNK = GetItemSubClassInfo(addon.itemClass.Miscellaneous, 0)
 function addon:IsJunk(itemId)
 	local _, _, quality, _, _, class, subclass = GetItemInfo(itemId)
-	return quality == ITEM_QUALITY_POOR or (quality and quality < ITEM_QUALITY_UNCOMMON and (class == JUNK or subclass == JUNK))
+	return quality == addon.itemQuality.Poor or (quality and quality < addon.itemQuality.Uncommon and (class == JUNK or subclass == JUNK))
 end
 
 --------------------------------------------------------------------------------

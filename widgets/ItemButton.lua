@@ -27,26 +27,17 @@ local BankButtonIDToInvSlotID = _G.BankButtonIDToInvSlotID
 local BANK_CONTAINER = _G.BANK_CONTAINER
 local ContainerFrame_UpdateCooldown = _G.ContainerFrame_UpdateCooldown
 local format = _G.format
-local GetContainerItemID = _G.GetContainerItemID
-local GetContainerItemInfo = _G.GetContainerItemInfo
-local GetContainerItemLink = _G.GetContainerItemLink
-local GetContainerItemQuestInfo = _G.GetContainerItemQuestInfo
-local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
+local GetContainerItemID = _G.C_Container.GetContainerItemID
+local GetContainerItemInfo = _G.C_Container.GetContainerItemInfo
+local GetContainerItemLink = _G.C_Container.GetContainerItemLink
+local GetContainerItemQuestInfo = _G.C_Container.GetContainerItemQuestInfo
+local GetContainerNumFreeSlots = _G.C_Container.GetContainerNumFreeSlots
+local IsBattlePayItem = _G.C_Container.IsBattlePayItem
+local IsContainerItemAnUpgrade = _G.IsContainerItemAnUpgrade
 local GetItemInfo = _G.GetItemInfo
 local GetItemQualityColor = _G.GetItemQualityColor
 local hooksecurefunc = _G.hooksecurefunc
-local IsContainerItemAnUpgrade = _G.IsContainerItemAnUpgrade
 local IsInventoryItemLocked = _G.IsInventoryItemLocked
-local ITEM_QUALITY_COMMON
-local ITEM_QUALITY_POOR
-
-if addon.isRetail then
-	ITEM_QUALITY_COMMON = _G.Enum.ItemQuality.Common
-	ITEM_QUALITY_POOR = _G.Enum.ItemQuality.Poor
-else
-	ITEM_QUALITY_COMMON = _G.LE_ITEM_QUALITY_COMMON
-	ITEM_QUALITY_POOR = _G.LE_ITEM_QUALITY_POOR
-end
 
 local next = _G.next
 local pairs = _G.pairs
@@ -401,7 +392,7 @@ if addon.isRetail then
 	function buttonProto:UpdateUpgradeIcon()
 		-- Use Pawn's (third-party addon) function if present; else fallback to Blizzard's.
 		local PawnIsContainerItemAnUpgrade = _G.PawnIsContainerItemAnUpgrade
-		local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot) or IsContainerItemAnUpgrade(self.bag, self.slot)
+		local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot) -- or IsContainerItemAnUpgrade(self.bag, self.slot) -- @TODO: broken at the moment
 		self.UpgradeIcon:SetShown(itemIsUpgrade or false)
 	end
 end
@@ -422,11 +413,11 @@ local function GetBorder(bag, slot, itemId, settings)
 		return
 	end
 	local _, _, _, quality = GetContainerItemInfo(bag, slot)
-	if quality == ITEM_QUALITY_POOR and settings.dimJunk then
+	if quality == addon.itemQuality.Poor and settings.dimJunk then
 		local v = 1 - 0.5 * settings.qualityOpacity
 		return true, v, v, v, 1, nil, nil, nil, nil, "MOD"
 	end
-	local color = quality ~= ITEM_QUALITY_COMMON and BAG_ITEM_QUALITY_COLORS[quality]
+	local color = quality ~= addon.itemQuality.Common and BAG_ITEM_QUALITY_COLORS[quality]
 	if color then
 		return [[Interface\Buttons\UI-ActionButton-Border]], color.r, color.g, color.b, settings.qualityOpacity, 14/64, 49/64, 15/64, 50/64, "ADD"
 	end
@@ -460,7 +451,7 @@ function buttonProto:UpdateBorder(isolatedEvent)
 	end
 	if self.JunkIcon then
 		local quality = hasItem(self.hasItem) and select(3, GetItemInfo(self.itemLink or self.itemId))
-		self.JunkIcon:SetShown(quality == ITEM_QUALITY_POOR and addon:GetInteractingWindow() == "MERCHANT")
+		self.JunkIcon:SetShown(quality == addon.itemQuality.Poor and addon:GetInteractingWindow() == "MERCHANT")
 	end
 	if isolatedEvent then
 		addon:SendMessage('AdiBags_UpdateBorder', self)

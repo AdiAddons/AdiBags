@@ -29,7 +29,7 @@ function addon:SetupDefaultFilters()
 	local BANK_CONTAINER_INVENTORY_OFFSET = _G.BANK_CONTAINER_INVENTORY_OFFSET
 	local EquipmentManager_UnpackLocation = _G.EquipmentManager_UnpackLocation
 	local format = _G.format
-	local GetContainerItemQuestInfo = _G.GetContainerItemQuestInfo
+	local GetContainerItemQuestInfo = _G.C_Container.GetContainerItemQuestInfo
 	local GetEquipmentSetInfo = _G.C_EquipmentSet.GetEquipmentSetInfo
 	local GetItemIDs = _G.C_EquipmentSet.GetItemIDs
 	local GetEquipmentSetIDs = _G.C_EquipmentSet.GetEquipmentSetIDs
@@ -41,16 +41,16 @@ function addon:SetupDefaultFilters()
 	local L = addon.L
 
 	-- Make some strings local to speed things
-	local CONSUMMABLE = GetItemClassInfo(LE_ITEM_CLASS_CONSUMABLE)
-	local GEM = GetItemClassInfo(LE_ITEM_CLASS_GEM)
-	local GLYPH = GetItemClassInfo(LE_ITEM_CLASS_GLYPH)
-	local JUNK = GetItemSubClassInfo(LE_ITEM_CLASS_MISCELLANEOUS, 0)
-	local MISCELLANEOUS = GetItemClassInfo(LE_ITEM_CLASS_MISCELLANEOUS)
-	local QUEST = GetItemClassInfo(LE_ITEM_CLASS_QUESTITEM)
-	local RECIPE = GetItemClassInfo(LE_ITEM_CLASS_RECIPE)
-	local TRADE_GOODS = GetItemClassInfo(LE_ITEM_CLASS_TRADEGOODS)
-	local WEAPON = GetItemClassInfo(LE_ITEM_CLASS_WEAPON)
-	local ARMOR = GetItemClassInfo(LE_ITEM_CLASS_ARMOR)
+	local CONSUMMABLE = GetItemClassInfo(addon.itemClass.Consumable)
+	local GEM = GetItemClassInfo(addon.itemClass.Gem)
+	local GLYPH = GetItemClassInfo(addon.itemClass.Glyph)
+	local JUNK = GetItemSubClassInfo(addon.itemClass.Miscellaneous, 0)
+	local MISCELLANEOUS = GetItemClassInfo(addon.itemClass.Miscellaneous)
+	local QUEST = GetItemClassInfo(addon.itemClass.Questitem)
+	local RECIPE = GetItemClassInfo(addon.itemClass.Recipe)
+	local TRADE_GOODS = GetItemClassInfo(addon.itemClass.Tradegoods)
+	local WEAPON = GetItemClassInfo(addon.itemClass.Weapon)
+	local ARMOR = GetItemClassInfo(addon.itemClass.Armor)
 	local JEWELRY = L['Jewelry']
 	local EQUIPMENT = L['Equipment']
 	local AMMUNITION = L['Ammunition']
