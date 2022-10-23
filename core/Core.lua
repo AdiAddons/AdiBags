@@ -159,8 +159,6 @@ function addon:OnEnable()
 	self:RegisterEvent('TRADE_CLOSED', 'UpdateInteractingWindow')
 	self:RegisterEvent('GUILDBANKFRAME_OPENED', 'UpdateInteractingWindow')
 	self:RegisterEvent('GUILDBANKFRAME_CLOSED', 'UpdateInteractingWindow')
-	self:RegisterEvent('VOID_STORAGE_OPEN', 'UpdateInteractingWindow')
-	self:RegisterEvent('VOID_STORAGE_CLOSE', 'UpdateInteractingWindow')
 	self:RegisterEvent('SOCKET_INFO_UPDATE', 'UpdateInteractingWindow')
 	self:RegisterEvent('SOCKET_INFO_CLOSE', 'UpdateInteractingWindow')
 

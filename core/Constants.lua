@@ -175,6 +175,7 @@ addon.DEFAULT_SETTINGS = {
 		upgradeIconAnchor = "TOPLEFT",
 		upgradeIconOffsetX = 0,
 		upgradeIconOffsetY = 0,
+		gridLayout = false,
 	},
 	char = {
 		collapsedSections = {

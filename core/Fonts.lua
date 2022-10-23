@@ -96,7 +96,7 @@ end
 
 function proto:ApplySettings()
 	local db = self:GetDB()
-	self:SetFont(LSM:Fetch(FONT, db.name), db.size)
+	self:SetFont(LSM:Fetch(FONT, db.name), db.size, "")
 	self:SetTextColor(db.r, db.g, db.b)
 end
 
