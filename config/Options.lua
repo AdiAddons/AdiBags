@@ -394,6 +394,7 @@ local function GetOptions()
 									addon:SendMessage('AdiBags_LayoutChanged')
 								end,
 							},
+							--[[
 							gridLayout = {
 								name = L['(BETA) Grid Layout'],
 								desc = L['When enabled, AdiBags switches to a grid layout with dragable sections.'],
@@ -405,6 +406,7 @@ local function GetOptions()
 									addon:SendMessage('AdiBags_GridLayoutChanged')
 								end,
 							},
+							--]]
 							columnWidth = {
 								name = L['Column width'],
 								desc = L['Adjust the width of the bag columns.'],
