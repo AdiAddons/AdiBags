@@ -94,6 +94,7 @@ function addon:CreateContainerFrame(...) return containerClass:Create(...) end
 local SimpleLayeredRegion = addon:GetClass("SimpleLayeredRegion")
 
 local bagSlots = {}
+
 function containerProto:OnCreate(name, isBank, bagObject)
 	self:SetParent(UIParent)
 	containerParentProto.OnCreate(self)
@@ -111,6 +112,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.bagObject = bagObject
 	self.isBank = isBank
 	self.isReagentBank = false
+	self.firstLoad = true
 
 	self.buttons = {}
 	self.content = {}
@@ -220,6 +222,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 		end
 		self:CreateSortButton()
 	end
+
 	local toSortSection = addon:AcquireSection(self, L["Recent Items"], self.name)
 	toSortSection:SetPoint("TOPLEFT", BAG_INSET, -addon.TOP_PADDING)
 	toSortSection:Show()
@@ -235,8 +238,13 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	toSortSection.UpdateHeaderScripts = function() end
 	toSortSection.Header:RegisterForClicks("AnyUp")
 	toSortSection.Header:SetScript("OnClick", function() self:FullUpdate() end)
-
-	local content = CreateFrame("Frame", nil, self)
+	local content
+	if addon.db.profile.gridLayout then
+		content = addon:CreateGridFrame((isBank and "Bank" or "Backpack"), self)
+		self:CreateLockButton()
+	else
+		content = CreateFrame("Frame", nil, self)
+	end
 	content:SetPoint("TOPLEFT", toSortSection, "BOTTOMLEFT", 0, -ITEM_SPACING)
 	self.Content = content
 	self:AddWidget(content)
@@ -257,6 +265,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	RegisterMessage(name, 'AdiBags_LayoutChanged', self.FullUpdate, self)
 	RegisterMessage(name, 'AdiBags_ConfigChanged', self.ConfigChanged, self)
 	RegisterMessage(name, 'AdiBags_ForceFullLayout', ForceFullLayout)
+	RegisterMessage(name, 'AdiBags_GridUpdate', self.OnLayout, self)
 	if addon.isRetail then
 		LibStub('ABEvent-1.0').RegisterEvent(name, 'EQUIPMENT_SWAP_FINISHED', ForceFullLayout)
 
@@ -347,6 +356,17 @@ function containerProto:CreateSortButton()
 			self.forceLayout = true
 		end,
 		L["(Blizzard's) Sort items"]
+	)
+end
+
+function containerProto:CreateLockButton()
+	self:CreateModuleButton(
+		"L",
+		20,
+		function()
+			self.Content:ToggleCovers()
+		end,
+		L["Lock/Unlock sections so they can be moved."]
 	)
 end
 
@@ -583,6 +603,11 @@ function containerProto:OnLayout()
 		BAG_INSET * 2 + max(minWidth, self.Content:GetWidth()),
 		addon.TOP_PADDING + BAG_INSET + bottomHeight + self.Content:GetHeight() + self.ToSortSection:GetHeight() + ITEM_SPACING
 	)
+	if addon.db.profile.gridLayout then
+		addon.db.profile.gridData = addon.db.profile.gridData or {}
+		addon.db.profile.gridData[self.name] = self.Content:GetLayout()
+		self:Debug("Saving Grid Layout")
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -726,6 +751,9 @@ function containerProto:GetSection(name, category)
 	if not section then
 		section = addon:AcquireSection(self, name, category)
 		self.sections[key] = section
+		if addon.db.profile.gridLayout then
+			self.Content:AddCell(key, section)
+		end
 	end
 	return section
 end
@@ -949,7 +977,6 @@ end
 
 function containerProto:RedispatchAllItems()
 	self:Debug('RedispatchAllItems')
-
 	self:SendMessage('AdiBags_PreContentUpdate', self, self.added, self.removed, self.changed)
 
 	local content = self.content
@@ -1037,6 +1064,10 @@ local ROW_SPACING = ITEM_SPACING*2
 local SECTION_SPACING = COLUMN_SPACING / 2
 
 function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, sections)
+	if addon.db.profile.gridLayout then
+		self.Content:Update()
+		return
+	end
 	self:Debug('LayoutSections', maxHeight, columnWidth, minWidth)
 	local heights, widths, rows = { 0 }, {}, {}
 	local columnPixelWidth = (ITEM_SIZE + ITEM_SPACING) * columnWidth - ITEM_SPACING + SECTION_SPACING
@@ -1106,6 +1137,10 @@ function containerProto:FullUpdate()
 		self.forceLayout = true
 		return
 	end
+	if addon.db.profile.gridLayout then
+		self.Content:DeferUpdate()
+	end
+
 	self.forceLayout = false
 	self:Debug('Do FullUpdate')
 
@@ -1118,17 +1153,26 @@ function containerProto:FullUpdate()
 	local sections = {}
 
 	local maxSectionHeight = self:PrepareSections(columnWidth, sections)
-
+	if addon.db.profile.gridLayout and self.firstLoad then
+		addon.db.profile.gridData = addon.db.profile.gridData or {}
+		self.Content:SetLayout(addon.db.profile.gridData[self.name])
+	end
 	if #sections == 0 then
 		self.Content:SetSize(self.minWidth, 0.5)
 	else
 		local uiScale, uiWidth, uiHeight = UIParent:GetEffectiveScale(), UIParent:GetSize()
 		local selfScale = self:GetEffectiveScale()
 		local maxHeight = max(maxSectionHeight, settings.maxHeight * uiHeight * uiScale / selfScale - (ITEM_SIZE + ITEM_SPACING + HEADER_SIZE))
-
 		local contentWidth, contentHeight = self:LayoutSections(maxHeight, columnWidth, self.minWidth, sections)
-		self.Content:SetSize(contentWidth, contentHeight)
+		if not addon.db.profile.gridLayout then
+			self.Content:SetSize(contentWidth, contentHeight)
+		end
+		--self.Content:SetSize(contentWidth, contentHeight)
 	end
 
 	self:ResizeToSortSection(true)
+	if addon.db.profile.gridLayout then
+		self.Content:DoUpdate()
+	end
+	self.firstLoad = false
 end
