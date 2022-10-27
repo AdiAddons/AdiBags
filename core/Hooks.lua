@@ -77,7 +77,7 @@ function addon:GetContainerFrame(id, spawn)
 	if spawn then
 		local size = GetContainerNumSlots(id)
 		if size > 0 then
-			local frame = ContainerFrame_GetOpenFrame()
+			local frame = ContainerFrame_GetOpenFrame(id)
 			ContainerFrame_GenerateFrame(frame, size, id)
 		end
 	end
