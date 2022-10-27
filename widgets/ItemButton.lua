@@ -368,7 +368,8 @@ function buttonProto:UpdateSearch()
 end
 
 function buttonProto:UpdateCooldown()
-	return ContainerFrame_UpdateCooldown(self.bag, self)
+	-- TODO(lobato): Figure out where this function disappeared to?
+	--return ContainerFrame_UpdateCooldown(self.bag, self)
 end
 
 function buttonProto:UpdateNew()
