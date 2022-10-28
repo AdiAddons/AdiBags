@@ -25,7 +25,7 @@ local addonName, addon = ...
 local _G = _G
 local BankButtonIDToInvSlotID = _G.BankButtonIDToInvSlotID
 local BANK_CONTAINER = _G.BANK_CONTAINER
-local ContainerFrame_UpdateCooldowns = _G.ContainerFrame_UpdateCooldowns
+local ContainerFrame_UpdateCooldown = _G.ContainerFrame_UpdateCooldown
 local format = _G.format
 local GetContainerItemID = _G.GetContainerItemID
 local GetContainerItemInfo = _G.GetContainerItemInfo
@@ -364,6 +364,14 @@ function buttonProto:UpdateSearch()
 		self.searchOverlay:Show();
 	else
 		self.searchOverlay:Hide();
+	end
+end
+
+do
+	if not addon.isRetail then
+		function buttonProto:UpdateCooldown()
+			return ContainerFrame_UpdateCooldown(self.bag, self)
+		end
 	end
 end
 
