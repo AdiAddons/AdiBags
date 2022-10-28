@@ -254,7 +254,7 @@ end
 --------------------------------------------------------------------------------
 
 function buttonProto:OnShow()
-	self:RegisterEvent('BAG_UPDATE_COOLDOWN', 'UpdateCooldown')
+	self:RegisterEvent('BAG_UPDATE_COOLDOWN', 'UpdateCooldownCallback')
 	self:RegisterEvent('ITEM_LOCK_CHANGED', 'UpdateLock')
 	self:RegisterEvent('QUEST_ACCEPTED', 'UpdateBorder')
 	self:RegisterEvent('BAG_NEW_ITEMS_UPDATED', 'UpdateNew')
@@ -369,10 +369,14 @@ end
 
 do
 	if not addon.isRetail then
-		function buttonProto:UpdateCooldown()
+		function buttonProto:UpdateCooldown(texture)
 			return ContainerFrame_UpdateCooldown(self.bag, self)
 		end
 	end
+end
+
+function buttonProto:UpdateCooldownCallback()
+	self:UpdateCooldown(self.texture)
 end
 
 function buttonProto:UpdateNew()
