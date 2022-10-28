@@ -254,7 +254,7 @@ end
 --------------------------------------------------------------------------------
 
 function buttonProto:OnShow()
-	self:RegisterEvent('BAG_UPDATE_COOLDOWN', 'UpdateCooldown')
+	self:RegisterEvent('BAG_UPDATE_COOLDOWN', 'UpdateCooldownCallback')
 	self:RegisterEvent('ITEM_LOCK_CHANGED', 'UpdateLock')
 	self:RegisterEvent('QUEST_ACCEPTED', 'UpdateBorder')
 	self:RegisterEvent('BAG_NEW_ITEMS_UPDATED', 'UpdateNew')
@@ -322,7 +322,7 @@ function buttonProto:Update()
 	end
 	self:UpdateCount()
 	self:UpdateBorder()
-	self:UpdateCooldown()
+	self:UpdateCooldown(self.texture)
 	self:UpdateLock()
 	self:UpdateNew()
 	if addon.isRetail then
@@ -367,9 +367,16 @@ function buttonProto:UpdateSearch()
 	end
 end
 
-function buttonProto:UpdateCooldown()
-	-- TODO(lobato): Figure out where this function disappeared to?
-	--return ContainerFrame_UpdateCooldown(self.bag, self)
+do
+	if not addon.isRetail then
+		function buttonProto:UpdateCooldown(texture)
+			return ContainerFrame_UpdateCooldown(self.bag, self)
+		end
+	end
+end
+
+function buttonProto:UpdateCooldownCallback()
+	self:UpdateCooldown(self.texture)
 end
 
 function buttonProto:UpdateNew()
