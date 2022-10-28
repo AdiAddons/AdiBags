@@ -25,7 +25,7 @@ local addonName, addon = ...
 local _G = _G
 local BankButtonIDToInvSlotID = _G.BankButtonIDToInvSlotID
 local BANK_CONTAINER = _G.BANK_CONTAINER
-local ContainerFrame_UpdateCooldown = _G.ContainerFrame_UpdateCooldown
+local ContainerFrame_UpdateCooldowns = _G.ContainerFrame_UpdateCooldowns
 local format = _G.format
 local GetContainerItemID = _G.GetContainerItemID
 local GetContainerItemInfo = _G.GetContainerItemInfo
@@ -322,7 +322,7 @@ function buttonProto:Update()
 	end
 	self:UpdateCount()
 	self:UpdateBorder()
-	self:UpdateCooldown()
+	self:UpdateCooldown(self.texture)
 	self:UpdateLock()
 	self:UpdateNew()
 	if addon.isRetail then
@@ -365,11 +365,6 @@ function buttonProto:UpdateSearch()
 	else
 		self.searchOverlay:Hide();
 	end
-end
-
-function buttonProto:UpdateCooldown()
-	-- TODO(lobato): Figure out where this function disappeared to?
-	--return ContainerFrame_UpdateCooldown(self.bag, self)
 end
 
 function buttonProto:UpdateNew()
