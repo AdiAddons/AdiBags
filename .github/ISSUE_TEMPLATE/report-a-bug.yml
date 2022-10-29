@@ -1,0 +1,58 @@
+name: Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["Bug", "Pending"]
+assignees:
+  - Cidan
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please fillout the form below to submit your bug report.
+  - type: input
+    id: addon-version
+    attributes:
+      label: Addon Version
+      description: What version of AdiBags did this error happen on?
+      placeholder: v1.9.xx
+    validations:
+      required: true
+  - type: dropdown
+    id: wow-version
+    attributes:
+      label: World of Warcraft Version
+      description: What World of Warcraft version did this happen on?
+      options:
+        - Retail
+        - Retail PTR
+        - Retail Beta
+        - Wrath
+        - Wrath PTR
+        - Classic
+        - Classic PTR
+    validations:
+      required: true
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Describe the bug
+      description: Please provide a clear and concise description of what the bug is.
+      placeholder: When opening the bag...
+    validations:
+      required: true
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Describe the bug
+      description: Please provide a clear and concise description of what the bug is.
+      placeholder: When opening the bag...
+    validations:
+      required: true
+  - type: checkboxes
+    id: addon-verify
+    attributes:
+      label: Verification
+      description: Please ensure you have done the following items
+      options:
+        - label: I have disabled all other addons and made sure this bug is triggered only with AdiBags enabled
+          required: true
