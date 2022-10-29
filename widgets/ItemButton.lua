@@ -380,6 +380,7 @@ do
 end
 
 function buttonProto:UpdateCooldownCallback()
+	if not self.UpdateCooldown then return end
 	--TODO(lobato): This is an incredibly ugly hack to work around the fact that
 	-- Blizzard protects the item button frame if self.bagID is set.
 	-- There is a condition in which Blizzard code checks for bagID, fails, checks for the parent's
