@@ -1,0 +1,27 @@
+name: Feature Request
+description: File a new feature request
+title: "[Feature]: "
+labels: ["Feature", "Pending"]
+assignees:
+  - Cidan
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please fillout the form below to submit your feature request.
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Describe the feature
+      description: Please give us a brief overview (1-2 sentences) of what you would like to see added
+      placeholder: I'd really love it if AdiBags would be able to...
+    validations:
+      required: true
+  - type: textarea
+    id: feature-implementation
+    attributes:
+      label: Describe the implementation
+      description: Describe how you would like to see this feature implemented
+      placeholder: When I go to the config options, I would like xyz in a menu so I can do abc.
+    validations:
+      required: true
