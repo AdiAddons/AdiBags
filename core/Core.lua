@@ -134,18 +134,7 @@ function addon:OnEnable()
 
 	self:RegisterMessage('AdiBags_BagOpened', 'LayoutBags')
 	self:RegisterMessage('AdiBags_BagClosed', 'LayoutBags')
-
-	self:RawHook("OpenAllBags", true)
-	self:RawHook("CloseAllBags", true)
-	self:RawHook("ToggleAllBags", true)
-	self:RawHook("ToggleBackpack", true)
-	self:RawHook("ToggleBag", true)
-	self:RawHook("OpenBag", true)
-	self:RawHook("CloseBag", true)
-	self:RawHook("OpenBackpack", true)
-	self:RawHook("CloseBackpack", true)
-	self:RawHook('CloseSpecialWindows', true)
-
+	
 	-- Track most windows involving items
 	self:RegisterEvent('BANKFRAME_OPENED', 'UpdateInteractingWindow')
 	self:RegisterEvent('BANKFRAME_CLOSED', 'UpdateInteractingWindow')
@@ -185,6 +174,32 @@ function addon:OnDisable()
 	self.anchor:Hide()
 	self:CloseAllBags()
 	self:Debug('Disabled')
+end
+
+function addon:EnableHooks()
+	self:RawHook("OpenAllBags", true)
+	self:RawHook("CloseAllBags", true)
+	self:RawHook("ToggleAllBags", true)
+	self:RawHook("ToggleBackpack", true)
+	self:RawHook("ToggleBag", true)
+	self:RawHook("OpenBag", true)
+	self:RawHook("CloseBag", true)
+	self:RawHook("OpenBackpack", true)
+	self:RawHook("CloseBackpack", true)
+	self:RawHook('CloseSpecialWindows', true)
+end
+
+function addon:DisableHooks()
+	self:Unhook("OpenAllBags")
+	self:Unhook("CloseAllBags")
+	self:Unhook("ToggleAllBags")
+	self:Unhook("ToggleBackpack")
+	self:Unhook("ToggleBag")
+	self:Unhook("OpenBag")
+	self:Unhook("CloseBag")
+	self:Unhook("OpenBackpack")
+	self:Unhook("CloseBackpack")
+	self:Unhook('CloseSpecialWindows')
 end
 
 function addon:Reconfigure()
