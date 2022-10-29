@@ -384,7 +384,7 @@ function buttonProto:UpdateCooldownCallback()
 	-- ID, and then fails again, leading to nil error spam if badID is not set.
 	-- I am unsure what is causing the second check to fail (GetParent), but this hack works around it.
 	-- Absolute worst case, some items may not have cooldowns displayed for the time being.
-	if self.bagID or (self:GetParent() ~= nil and self:GetParent():GetID() ~= nil) or not addon.isRetail then
+	if self.bagID or (self.GetParent ~= nil and self:GetParent() ~= nil and self:GetParent().GetID ~= nil and self:GetParent():GetID() ~= nil) or not addon.isRetail then
 		self:UpdateCooldown(self.texture)
 	end
 end
