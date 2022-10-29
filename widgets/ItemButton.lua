@@ -102,6 +102,8 @@ function buttonProto:OnAcquire(container, bag, slot)
 	self.slot = slot
 	self.stack = nil
 	self:SetParent(addon.itemParentFrames[bag])
+	--TODO(lobato): Add this when (if?) Blizzard fixes taint for bags
+	--self:SetBagID(bag)
 	self:SetID(slot)
 	self:FullUpdate()
 end
@@ -322,9 +324,7 @@ function buttonProto:Update()
 	end
 	self:UpdateCount()
 	self:UpdateBorder()
-	if self.UpdateCooldown then
-		self:UpdateCooldown(self.texture)
-	end
+	self:UpdateCooldown(self.texture)
 	self:UpdateLock()
 	self:UpdateNew()
 	if addon.isRetail then
@@ -378,7 +378,15 @@ do
 end
 
 function buttonProto:UpdateCooldownCallback()
-	self:UpdateCooldown(self.texture)
+	--TODO(lobato): This is an incredibly ugly hack to work around the fact that
+	-- Blizzard protects the item button frame if self.bagID is set.
+	-- There is a condition in which Blizzard code checks for bagID, fails, checks for the parent's
+	-- ID, and then fails again, leading to nil error spam if badID is not set.
+	-- I am unsure what is causing the second check to fail (GetParent), but this hack works around it.
+	-- Absolute worst case, some items may not have cooldowns displayed for the time being.
+	if self.bagID or (self:GetParent() ~= nil and self:GetParent():GetID() ~= nil) or not addon.isRetail then
+		self:UpdateCooldown(self.texture)
+	end
 end
 
 function buttonProto:UpdateNew()
