@@ -36,8 +36,16 @@ body:
     id: bug-description
     attributes:
       label: Describe the bug
-      description: Please provide a clear and concise description of what the bug is.
+      description: Please provide a clear and concise description of what the bug is, and include any stacktraces.
       placeholder: When opening the bag...
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce this issue so we can fix it?
+      placeholder: 1. Open the bag while jumping...
     validations:
       required: true
   - type: checkboxes
