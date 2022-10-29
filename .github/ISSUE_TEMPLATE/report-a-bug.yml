@@ -40,14 +40,6 @@ body:
       placeholder: When opening the bag...
     validations:
       required: true
-  - type: textarea
-    id: bug-description
-    attributes:
-      label: Describe the bug
-      description: Please provide a clear and concise description of what the bug is.
-      placeholder: When opening the bag...
-    validations:
-      required: true
   - type: checkboxes
     id: addon-verify
     attributes:
