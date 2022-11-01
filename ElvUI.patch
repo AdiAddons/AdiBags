@@ -1,0 +1,219 @@
+Index: widgets/ItemButton.lua
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/widgets/ItemButton.lua b/widgets/ItemButton.lua
+--- a/widgets/ItemButton.lua	(revision 7b1f0216361ab2d3338e6d33b0206419c788a04b)
++++ b/widgets/ItemButton.lua	(date 1667300833406)
+@@ -90,6 +90,16 @@
+ 	self:SetScript('OnHide', self.OnHide)
+ 	self:SetWidth(ITEM_SIZE)
+ 	self:SetHeight(ITEM_SIZE)
++	if ElvUI then
++		self:SetTemplate(nil, true)
++		self:StyleButton()
++		self.IconOverlay:SetInside()
++		if self.IconOverlay2 then
++			self.IconOverlay2:SetInside()
++		end
++	end
++	self:SetNormalTexture(nil)
++
+ 	if self.NewItemTexture then
+ 		self.NewItemTexture:Hide()
+ 	end
+@@ -312,8 +322,11 @@
+ 		icon:SetTexture(self.texture)
+ 		icon:SetTexCoord(0,1,0,1)
+ 	else
+-		icon:SetTexture([[Interface\BUTTONS\UI-EmptySlot]])
+-		icon:SetTexCoord(12/64, 51/64, 12/64, 51/64)
++		icon:SetTexture()
++	end
++	if ElvUI then
++		icon:SetTexCoord(unpack(ElvUI[1].TexCoords))
++		icon:SetInside()
+ 	end
+ 	local tag = (not self.itemId or addon.db.profile.showBagType) and addon:GetFamilyTag(self.bagFamily)
+ 	if tag then
+@@ -438,20 +451,59 @@
+ end
+ 
+ function buttonProto:UpdateBorder(isolatedEvent)
++	if ElvUI then
++		self:SetBackdropBorderColor(unpack(ElvUI[1].media.bordercolor))
++	end
+ 	local texture, r, g, b, a, x1, x2, y1, y2, blendMode
+ 	if hasItem(self.hasItem) then
+ 		texture, r, g, b, a, x1, x2, y1, y2, blendMode = GetBorder(self.bag, self.slot, self.itemLink or self.itemId, addon.db.profile)
+ 	end
+ 	if not texture then
+ 		self.IconQuestTexture:Hide()
++	elseif not texture and texture ~= nil then
++		border:Hide()
+ 	else
+ 		local border = self.IconQuestTexture
+ 		if texture == true then
+-			border:SetVertexColor(1, 1, 1, 1)
+-			border:SetColorTexture(r or 1, g or 1, b or 1, a or 1)
++			if ElvUI then
++				border:SetColorTexture(r or 1, g or 1, b or 1, a or 1)
++			else
++				border:SetVertexColor(1, 1, 1, 1)
++				border:SetColorTexture(r or 1, g or 1, b or 1, a or 1)
++			end
+ 		else
+-			border:SetTexture(texture)
+-			border:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
++			if ElvUI or KlixUI then
++				if IsAddOnLoaded("AddOnSkins") then
++					border:SetTexture()
++					self:SetBackdropBorderColor(r, g, b, a)
++				else
++					self.borders = {}
++					local E, _, V, P, G = unpack(ElvUI)
++
++					for i=1, 4 do
++						self.borders[i] = self:CreateLine(nil, "BACKGROUND", nil, 0)
++						local l = self.borders[i]
++						l:SetThickness(E.global.general.UIScale)
++						l:SetColorTexture(r or 0, g or 0, b or 0, a or 1)
++						if i==1 then
++							l:SetStartPoint("TOPLEFT")
++							l:SetEndPoint("TOPRIGHT")
++						elseif i==2 then
++							l:SetStartPoint("TOPRIGHT")
++							l:SetEndPoint("BOTTOMRIGHT")
++						elseif i==3 then
++							l:SetStartPoint("BOTTOMRIGHT")
++							l:SetEndPoint("BOTTOMLEFT")
++						else
++							l:SetStartPoint("BOTTOMLEFT")
++							l:SetEndPoint("TOPLEFT")
++						end
++					end
++				end
++			else
++				border:SetTexture(texture)
++				border:SetVertexColor(r or 1, g or 1, b or 1, a or 1)
++			end
+ 		end
+ 		border:SetTexCoord(x1 or 0, x2 or 1, y1 or 0, y2 or 1)
+ 		border:SetBlendMode(blendMode or "BLEND")
+Index: widgets/BagSlots.lua
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/widgets/BagSlots.lua b/widgets/BagSlots.lua
+--- a/widgets/BagSlots.lua	(revision 7b1f0216361ab2d3338e6d33b0206419c788a04b)
++++ b/widgets/BagSlots.lua	(date 1667300833397)
+@@ -426,6 +426,10 @@
+ 	else
+ 		self:SetBackdropBorderColor(0.5+(0.5*r/m), 0.5+(0.5*g/m), 0.5+(0.5*b/m), a)
+ 	end
++	self:StripTextures()
++	if ElvUI then
++		self:SetTemplate("Transparent")
++	end
+ end
+ 
+ local function Panel_ConfigChanged(self, event, name)
+@@ -441,6 +445,9 @@
+ function addon:CreateBagSlotPanel(container, name, bags, isBank)
+ 	local self = CreateFrame("Frame", container:GetName().."Bags", container, "BackdropTemplate")
+ 	self:SetPoint("BOTTOMLEFT", container, "TOPLEFT", 0, 4)
++	if ElvUI then
++		self:SetPoint("BOTTOMLEFT", container, "TOPLEFT", 0, 4)
++	end
+ 
+ 	self.openSound = isBank and SOUNDKIT.IG_MAINMENU_OPEN or SOUNDKIT.IG_BACKPACK_OPEN
+ 	self.closeSound = isBank and SOUNDKIT.IG_MAINMENU_CLOSE or SOUNDKIT.IG_BACKPACK_CLOSE
+@@ -465,6 +472,15 @@
+ 			button:SetParent(self)
+ 			button:SetPoint("TOPLEFT", x, -TOP_PADDING)
+ 			button:Show()
++			button:SetTemplate(nil, true)
++			button:StyleButton()
++			button:SetNormalTexture(nil)
++			if ElvUI then
++				button.icon:SetTexCoord(unpack(ElvUI[1].TexCoords))
++			elseif KlixUI then
++				button.icon:SetTexCoord(unpack(KlixUI[1].TexCoords))
++			end
++			button.icon:SetInside()
+ 			x = x + ITEM_SIZE + ITEM_SPACING
+ 			tinsert(self.buttons, button)
+ 		end
+Index: widgets/ContainerFrame.lua
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/widgets/ContainerFrame.lua b/widgets/ContainerFrame.lua
+--- a/widgets/ContainerFrame.lua	(revision 7b1f0216361ab2d3338e6d33b0206419c788a04b)
++++ b/widgets/ContainerFrame.lua	(date 1667300833389)
+@@ -179,11 +179,20 @@
+ 	closeButton:SetPoint("TOPRIGHT", -2, -2)
+ 	addon.SetupTooltip(closeButton, L["Close"])
+ 	closeButton:SetFrameLevel(frameLevel)
++	if ElvUI then
++		ElvUI[1]:GetModule("Skins"):HandleCloseButton(self.CloseButton) -- ElvUI Mod!
++	end
+ 
+ 	local bagSlotButton = CreateFrame("CheckButton", nil, self)
+ 	bagSlotButton:SetNormalTexture([[Interface\Buttons\Button-Backpack-Up]])
++	if ElvUI then
++		bagSlotButton:SetCheckedTexture(ElvUI[1].media.normTex)
++	end
+ 	bagSlotButton:SetCheckedTexture([[Interface\Buttons\CheckButtonHilight]])
+ 	bagSlotButton:GetCheckedTexture():SetBlendMode("ADD")
++	if ElvUI then
++		ElvUI[1]:GetModule("Skins"):HandleIcon(bagSlotButton:GetNormalTexture(), true)
++	end
+ 	bagSlotButton:SetScript('OnClick', BagSlotButton_OnClick)
+ 	bagSlotButton.panel = bagSlotPanel
+ 	bagSlotButton:SetWidth(18)
+@@ -197,9 +206,18 @@
+ 
+ 	local searchBox = CreateFrame("EditBox", self:GetName().."SearchBox", self, "BagSearchBoxTemplate")
+ 	searchBox:SetSize(130, 20)
++	if ElvUI then
++		searchBox:SetSize(130, 18)
++	end
+ 	searchBox:SetFrameLevel(frameLevel)
++	if ElvUI then
++		headerRightRegion:AddWidget(searchBox, -10, 130, 0, -1)
++	end
+ 	headerRightRegion:AddWidget(searchBox, -10, 130, 0, -1)
+ 	tinsert(_G.ITEM_SEARCHBAR_LIST, searchBox:GetName())
++	if ElvUI then
++		ElvUI[1]:GetModule("Skins"):HandleEditBox(searchBox) -- ElvUI Mod!
++	end
+ 
+ 	local title = self:CreateFontString(self:GetName().."Title","OVERLAY")
+ 	self.Title = title
+@@ -287,6 +305,9 @@
+ 	button:SetSize(20, 20)
+ 	button:SetScript("OnClick", onClick)
+ 	button:RegisterForClicks("AnyUp")
++	if ElvUI then
++		ElvUI[1]:GetModule("Skins"):HandleButton(button)
++	end
+ 	if order then
+ 		self:AddHeaderWidget(button, order)
+ 	end
+@@ -625,6 +646,12 @@
+ 	else
+ 		self:SetBackdropBorderColor(0.5+(0.5*r/m), 0.5+(0.5*g/m), 0.5+(0.5*b/m), a)
+ 	end
++
++	-- ElvUI Mod!
++	self:StripTextures()
++	if ElvUI then
++		self:SetTemplate("Transparent")
++	end
+ end
+ 
+ --------------------------------------------------------------------------------
