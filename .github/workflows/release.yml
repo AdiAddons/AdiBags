@@ -30,6 +30,9 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0  # gets git history for changelogs
+          
+      - name: Apply ElvUI style patch
+        run: git apply ElvUI_MOD.patch
 
       # once cloned, we just run the GitHub Action for the packager project
       - name: Package and release
