@@ -43,6 +43,8 @@ local strsplit = _G.strsplit
 local type = _G.type
 local unpack = _G.unpack
 --GLOBALS>
+local _, _, _, tocversion = GetBuildInfo()
+
 
 LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'ABEvent-1.0', 'ABBucket-1.0', 'AceHook-3.0', 'AceConsole-3.0')
 --@debug@
