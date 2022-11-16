@@ -201,7 +201,8 @@ function addon:SetupDefaultFilters()
 				return QUEST
 			else
 				if addon.isRetail or addon.isWrath then
-					local isQuestItem, questId = GetContainerItemQuestInfo(slotData.bag, slotData.slot)
+					local questItemInfo = GetContainerItemQuestInfo(slotData.bag, slotData.slot)
+					local isQuestItem, questId = questItemInfo.isQuestItem, questItemInfo.questID
 					return (questId or isQuestItem) and QUEST
 				else
 					return false

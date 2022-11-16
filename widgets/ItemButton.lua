@@ -309,11 +309,12 @@ end
 
 function buttonProto:FullUpdate()
 	local bag, slot = self.bag, self.slot
-	self.itemId = GetContainerItemID(bag, slot)
-	self.itemLink = GetContainerItemLink(bag, slot)
+	local containerInfo = GetContainerItemInfo(bag, slot)
+	-- @TODO Lua error when oppening bag ?????? but nothing is broken everything shows
+	self.texture = containerInfo.iconFileID
+	self.itemId = containerInfo.itemID
+	self.itemLink = containerInfo.hyperlink
 	self.hasItem = not not self.itemId
-	self.itemInfo = GetContainerItemInfo(bag, slot)
-	self.texture = self.itemInfo.iconFileID
 	self.bagFamily = select(2, GetContainerNumFreeSlots(bag))
 	self:Update()
 end
@@ -422,7 +423,8 @@ end
 local function GetBorder(bag, slot, itemId, settings)
 	if addon.isRetail or addon.isWrath then
 		if settings.questIndicator then
-			local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
+			local questItemInfo = GetContainerItemQuestInfo(bag, slot)
+			local isQuestItem, questId, isActive = questItemInfo.isQuestItem, questItemInfo.questID, questItemInfo.isActive
 			if questId and not isActive then
 				return TEXTURE_ITEM_QUEST_BANG
 			end
@@ -434,12 +436,12 @@ local function GetBorder(bag, slot, itemId, settings)
 	if not settings.qualityHighlight then
 		return
 	end
-	local _, _, _, quality = GetContainerItemInfo(bag, slot)
-	if quality == addon.itemQuality.Poor and settings.dimJunk then
+	local ContainerItemInfo = GetContainerItemInfo(bag, slot)
+	if ContainerItemInfo.quality == addon.itemQuality.Poor and settings.dimJunk then
 		local v = 1 - 0.5 * settings.qualityOpacity
 		return true, v, v, v, 1, nil, nil, nil, nil, "MOD"
 	end
-	local color = quality ~= addon.itemQuality.Common and BAG_ITEM_QUALITY_COLORS[quality]
+	local color = ContainerItemInfo.quality ~= addon.itemQuality.Common and BAG_ITEM_QUALITY_COLORS[quality]
 	if color then
 		return [[Interface\Buttons\UI-ActionButton-Border]], color.r, color.g, color.b, settings.qualityOpacity, 14/64, 49/64, 15/64, 50/64, "ADD"
 	end
