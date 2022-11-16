@@ -34,7 +34,7 @@ local select = _G.select
 local setmetatable = _G.setmetatable
 local tonumber = _G.tonumber
 local type = _G.type
-local UseContainerItem = _G.UseContainerItem
+local UseContainerItem = addon.UseContainerItem
 local wipe = _G.wipe
 --GLOBALS>
 

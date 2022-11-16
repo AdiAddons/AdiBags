@@ -31,12 +31,6 @@ local BANK_CONTAINER = _G.BANK_CONTAINER
 local ceil = _G.ceil
 local CreateFrame = _G.CreateFrame
 local format = _G.format
-local GetContainerFreeSlots = _G.C_Container.GetContainerFreeSlots
-local GetContainerItemID = _G.C_Container.GetContainerItemID
-local GetContainerItemInfo = _G.C_Container.GetContainerItemInfo
-local GetContainerItemLink = _G.C_Container.GetContainerItemLink
-local GetContainerNumFreeSlots = _G.C_Container.GetContainerNumFreeSlots
-local GetContainerNumSlots = _G.C_Container.GetContainerNumSlots
 local GetCursorInfo = _G.GetCursorInfo
 local GetItemInfo = _G.GetItemInfo
 local GetItemGUID = _G.C_Item.GetItemGUID
@@ -57,6 +51,15 @@ local tremove = _G.tremove
 local tsort = _G.table.sort
 local UIParent = _G.UIParent
 local wipe = _G.wipe
+
+local GetContainerItemInfo = addon.GetContainerItemInfo
+local GetContainerNumSlots = addon.GetContainerNumSlots
+local GetContainerNumFreeSlots 	= addon.GetContainerNumFreeSlots
+local GetContainerItemID = addon.GetContainerItemID
+local GetContainerItemLink = addon.GetContainerItemLink
+local GetContainerFreeSlots = addon.GetContainerFreeSlots
+local GetContainerItemInfo = addon.GetContainerItemInfo
+
 --GLOBALS>
 
 local GetSlotId = addon.GetSlotId
@@ -270,11 +273,21 @@ function containerProto:OnCreate(name, isBank, bagObject)
 		LibStub('ABEvent-1.0').RegisterEvent(name, 'EQUIPMENT_SWAP_FINISHED', ForceFullLayout)
 
 		-- Force full layout on sort
-		if isBank then
-			hooksecurefunc(C_Container, 'SortBankBags', ForceFullLayout)
-			hooksecurefunc(C_Container, 'SortReagentBankBags', ForceFullLayout)
+		if addon.isRetail
+		then
+			if isBank then
+				hooksecurefunc(C_Container, 'SortBankBags', ForceFullLayout)
+				hooksecurefunc(C_Container, 'SortReagentBankBags', ForceFullLayout)
+			else
+				hooksecurefunc(C_Container, 'SortBags', ForceFullLayout)
+			end
 		else
-			hooksecurefunc(C_Container, 'SortBags', ForceFullLayout)
+			if isBank then
+				hooksecurefunc('SortBankBags', ForceFullLayout)
+				hooksecurefunc('SortReagentBankBags', ForceFullLayout)
+			else
+				hooksecurefunc('SortBags', ForceFullLayout)
+			end
 		end
 	end
 end

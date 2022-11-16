@@ -25,14 +25,16 @@ local L = addon.L
 --<GLOBALS
 local _G = _G
 local format = _G.format
-local GetContainerNumFreeSlots = _G.C_Container.GetContainerNumFreeSlots
-local GetContainerNumSlots = _G.C_Container.GetContainerNumSlots
 local ipairs = _G.ipairs
 local pairs = _G.pairs
 local strjoin = _G.strjoin
 local tconcat = _G.table.concat
 local tinsert = _G.tinsert
 local wipe = _G.wipe
+
+
+local GetContainerNumSlots = addon.GetContainerNumSlots
+local GetContainerNumFreeSlots 	= addon.GetContainerNumFreeSlots
 --GLOBALS>
 
 local mod = addon:NewModule('DataSource', 'ABEvent-1.0', 'ABBucket-1.0')

@@ -26,8 +26,8 @@ local L = addon.L
 local _G = _G
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
 local CreateFrame = _G.CreateFrame
-local GetContainerItemInfo = _G.GetContainerItemInfo
-local GetContainerNumSlots = _G.GetContainerNumSlots
+local GetContainerItemInfo = addon.GetContainerItemInfo
+local IsBattlePayItem = addon.IsBattlePayItem
 local GetInventoryItemID = _G.GetInventoryItemID
 local GetInventoryItemLink = _G.GetInventoryItemLink
 

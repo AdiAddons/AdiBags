@@ -20,6 +20,7 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
+local L = addon.L
 
 --<GLOBALS
 local _G = _G
@@ -27,13 +28,6 @@ local BankButtonIDToInvSlotID = _G.BankButtonIDToInvSlotID
 local BANK_CONTAINER = _G.BANK_CONTAINER
 local ContainerFrame_UpdateCooldown = _G.ContainerFrame_UpdateCooldown
 local format = _G.format
-local GetContainerItemID = _G.C_Container.GetContainerItemID
-local GetContainerItemInfo = _G.C_Container.GetContainerItemInfo
-local GetContainerItemLink = _G.C_Container.GetContainerItemLink
-local GetContainerItemQuestInfo = _G.C_Container.GetContainerItemQuestInfo
-local GetContainerNumFreeSlots = _G.C_Container.GetContainerNumFreeSlots
-local IsBattlePayItem = _G.C_Container.IsBattlePayItem
--- local IsContainerItemAnUpgrade = _G.IsContainerItemAnUpgrade -- -- @TODO : not yet migrated to C_container
 local GetItemInfo = _G.GetItemInfo
 local GetItemQualityColor = _G.GetItemQualityColor
 local hooksecurefunc = _G.hooksecurefunc
@@ -48,6 +42,24 @@ local TEXTURE_ITEM_QUEST_BANG = _G.TEXTURE_ITEM_QUEST_BANG
 local TEXTURE_ITEM_QUEST_BORDER = _G.TEXTURE_ITEM_QUEST_BORDER
 local tostring = _G.tostring
 local wipe = _G.wipe
+
+
+local GetContainerNumFreeSlots 	= addon.GetContainerNumFreeSlots
+local GetContainerItemInfo = addon.GetContainerItemInfo
+local GetContainerItemQuestInfo = addon.GetContainerItemQuestInfo
+local GetContainerItemID = addon.GetContainerItemID
+local GetContainerItemLink = addon.GetContainerItemLink
+local IsBattlePayItem = addon.IsBattlePayItem
+
+if addon.isRetail
+then
+	
+	-- local IsContainerItemAnUpgrade = _G.IsContainerItemAnUpgrade -- -- @TODO : not yet migrated to C_container
+else
+	local IsContainerItemAnUpgrade = _G.IsContainerItemAnUpgrade
+end
+
+
 --GLOBALS>
 
 local GetSlotId = addon.GetSlotId
@@ -291,8 +303,7 @@ function buttonProto:FullUpdate()
 	self.itemId = GetContainerItemID(bag, slot)
 	self.itemLink = GetContainerItemLink(bag, slot)
 	self.hasItem = not not self.itemId
-	self.itemInfo = GetContainerItemInfo(bag, slot)
-	self.texture = self.itemInfo.iconFileID
+	self.texture = GetContainerItemInfo(bag, slot)
 	self.bagFamily = select(2, GetContainerNumFreeSlots(bag))
 	self:Update()
 end
@@ -393,7 +404,14 @@ if addon.isRetail then
 	function buttonProto:UpdateUpgradeIcon()
 		-- Use Pawn's (third-party addon) function if present; else fallback to Blizzard's.
 		local PawnIsContainerItemAnUpgrade = _G.PawnIsContainerItemAnUpgrade
-		local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot) -- or IsContainerItemAnUpgrade(self.bag, self.slot) -- @TODO : not yet migrated to C_container		self.UpgradeIcon:SetShown(itemIsUpgrade or false)
+
+		if addon.isRetail
+		then
+			local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot) -- @TODO : not yet migrated to C_container		self.UpgradeIcon:SetShown(itemIsUpgrade or false)
+		else
+			local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot) or IsContainerItemAnUpgrade(self.bag, self.slot) 
+		end
+		self.UpgradeIcon:SetShown(itemIsUpgrade or false)
 	end
 end
 
@@ -512,6 +530,7 @@ end
 function stackProto:UpdateVisibleSlot()
 	local bestLockedId, bestLockedCount
 	local bestUnlockedId, bestUnlockedCount
+	--@TODO: unknown error from here :(
 	if self.slotId and self.slots[self.slotId] then
 		local _, count, locked = GetContainerItemInfo(GetBagSlotFromId(self.slotId))
 		count = count or 1

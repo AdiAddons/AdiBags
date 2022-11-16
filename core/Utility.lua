@@ -51,6 +51,106 @@ local type = _G.type
 local FAMILY_TAGS = addon.FAMILY_TAGS
 local FAMILY_ICONS = addon.FAMILY_ICONS
 
+
+
+--------------------------------------------------------------------------------
+-- Retail / Classic conversion
+--------------------------------------------------------------------------------
+
+function addon.GetContainerItemInfo(containerIndex, slotIndex)
+	if addon.isRetail then
+		if containerIndex ~= nil and slotIndex ~= nil then
+			local info = _G.C_Container.GetContainerItemInfo(containerIndex, slotIndex)
+			return info.iconFileID, info.stackCount, info.isLocked, info.quality, info.isReadable, info.hasLoot, info.hyperlink, info.isFiltered, info.hasNoValue, info.itemID, info.isBound
+		else 
+			return {}
+		end
+	else
+		return _G.GetContainerItemInfo(containerIndex, slotIndex)
+	end
+end
+
+function addon.GetContainerItemQuestInfo(containerIndex, slotIndex)
+	if addon.isRetail then
+		local info =_G.C_Container.GetContainerItemQuestInfo(containerIndex, slotIndex)
+		return info.isQuestItem, info.questID, info.isActive
+	else
+		return _G.GetContainerItemQuestInfo(containerIndex, slotIndex)
+	end
+end
+
+function addon.GetContainerNumSlots(containerIndex)
+	if addon.isRetail then
+		return _G.C_Container.GetContainerNumSlots(containerIndex)
+	else
+		return _G.GetContainerItemQuestInfo(containerIndex)
+	end
+end
+
+function addon.GetContainerNumFreeSlots(bagIndex)
+	if addon.isRetail then
+		return _G.C_Container.GetContainerNumFreeSlots(bagIndex)
+	else
+		return _G.GetContainerNumFreeSlots(bagIndex)
+	end
+end
+
+function addon.GetContainerItemID(containerIndex, slotIndex)
+	if addon.isRetail then
+		return _G.C_Container.GetContainerItemID(containerIndex, slotIndex)
+	else
+		return _G.GetContainerItemID(containerIndex, slotIndex)
+	end
+end
+
+function addon.ContainerIDToInventoryID(containerID)
+	if addon.isRetail then
+		return _G.C_Container.ContainerIDToInventoryID(containerID)
+	else
+		return _G.ContainerIDToInventoryID(containerID)
+	end
+end
+
+function addon.GetContainerItemLink(containerIndex, slotIndex)
+	if addon.isRetail then
+		return _G.C_Container.GetContainerItemLink(containerIndex, slotIndex)
+	else
+		return _G.GetContainerItemLink(containerIndex, slotIndex)
+	end
+end
+
+function addon.IsBattlePayItem(containerIndex, slotIndex)
+	if addon.isRetail then
+		return _G.C_Container.IsBattlePayItem(containerIndex, slotIndex)
+	else
+		return _G.IsBattlePayItem(containerIndex, slotIndex)
+	end
+end
+
+function addon.GetContainerFreeSlots(containerIndex)
+	if addon.isRetail then
+		return _G.C_Container.GetContainerFreeSlots(containerIndex)
+	else
+		return _G.GetContainerFreeSlots(containerIndex)
+	end
+end
+
+function addon.PickupContainerItem(containerIndex, slotIndex)
+	if addon.isRetail then
+		return _G.C_Container.PickupContainerItem(containerIndex, slotIndex)
+	else
+		return _G.PickupContainerItem(containerIndex, slotIndex)
+	end
+end
+
+function addon.UseContainerItem(containerIndex, slotIndex, unitToken, reagentBankOpen)
+	if addon.isRetail then
+		return _G.C_Container.UseContainerItem(containerIndex, slotIndex, unitToken, reagentBankOpen)
+	else
+		return _G.UseContainerItem(containerIndex, slotIndex, unitToken, reagentBankOpen)
+	end
+end
+
 --------------------------------------------------------------------------------
 -- (bag,slot) <=> slotId conversion
 --------------------------------------------------------------------------------

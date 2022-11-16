@@ -31,22 +31,14 @@ local BANK_BAG = _G.BANK_BAG
 local BANK_BAG_PURCHASE = _G.BANK_BAG_PURCHASE
 local BANK_CONTAINER = _G.BANK_CONTAINER
 local ClearCursor = _G.ClearCursor
-local ContainerIDToInventoryID = _G.C_Container.ContainerIDToInventoryID
 local COSTS_LABEL = _G.COSTS_LABEL
 local CreateFrame = _G.CreateFrame
 local CursorHasItem = _G.CursorHasItem
 local CursorUpdate = _G.CursorUpdate
-local GameTooltip = _G.C_TooltipInfo.GameTooltip
-local GetBankSlotCost = _G.C_Container.GetBankSlotCost
 local GetCoinTextureString = _G.GetCoinTextureString
-local GetContainerItemID = _G.C_Container.GetContainerItemID
-local GetContainerItemInfo = _G.C_Container.GetContainerItemInfo
-local GetContainerNumFreeSlots = _G.C_Container.GetContainerNumFreeSlots
-local GetContainerNumSlots = _G.C_Container.GetContainerNumSlots
 local geterrorhandler = _G.geterrorhandler
 local GetInventoryItemTexture = _G.GetInventoryItemTexture
 local GetItemInfo = _G.GetItemInfo
-local GetNumBankSlots = _G.C_Container.GetNumBankSlots
 local ipairs = _G.ipairs
 local IsInventoryItemLocked = _G.IsInventoryItemLocked
 local next = _G.next
@@ -55,7 +47,6 @@ local NUM_BANKGENERIC_SLOTS = _G.NUM_BANKGENERIC_SLOTS
 local pairs = _G.pairs
 local pcall = _G.pcall
 local PickupBagFromSlot = _G.PickupBagFromSlot
-local PickupContainerItem = _G.C_Container.PickupContainerItem
 local PlaySound = _G.PlaySound
 local PutItemInBag = _G.PutItemInBag
 local select = _G.select
@@ -68,6 +59,18 @@ local tinsert = _G.tinsert
 local tsort = _G.table.sort
 local unpack = _G.unpack
 local wipe = _G.wipe
+
+
+local GetBankSlotCost = _G.GetBankSlotCost
+local GetNumBankSlots = _G.GetNumBankSlots
+local GameTooltip = _G.GameTooltip
+
+local GetContainerItemInfo = addon.GetContainerItemInfo
+local GetContainerNumFreeSlots 	= addon.GetContainerNumFreeSlots
+local GetContainerNumSlots = addon.GetContainerNumSlots
+local GetContainerItemID = addon.GetContainerItemID
+local ContainerIDToInventoryID = addon.ContainerIDToInventoryID
+local PickupContainerItem = addon.PickupContainerItem
 --GLOBALS>
 
 local ITEM_SIZE = addon.ITEM_SIZE
