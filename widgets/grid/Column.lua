@@ -131,6 +131,7 @@ function columnProto:Update()
     cell.position = cellPos
     w = math.max(w, cell.frame:GetWidth()+4)
     cell.compact = false
+    cell:ClearCompact()
     if cellPos == 1 then
       cell.frame:SetPoint("TOPLEFT", self)
       previousRow = cell.frame.count
@@ -139,10 +140,17 @@ function columnProto:Update()
         self:Debug("Sorting Section with button count, width", cell.key, cell.frame.count, columnWidth)
         cell.frame:SetPoint("TOPLEFT", self.cells[cellPos-1].frame, "TOPRIGHT", 4, 0)
         cell.compact = true
+        cell:SetCompact()
         previousRow = previousRow + cell.frame.count
         cellOffset = cellOffset + 1
         w = math.min(w, w + cell.frame:GetWidth()+4)
         self:Debug("Setting w to w", w)
+        local nextCell = self.cells[cellPos+1]
+        
+        if nextCell ~= nil and previousRow + nextCell.frame.count > columnWidth then
+          -- TODO(lobato): The current cell will be the last one of this row, expand
+          -- the drop zone for this cell all the way across the column.
+        end
     else
         cell.frame:SetPoint("TOPLEFT", self.cells[cellPos-cellOffset], "BOTTOMLEFT", 0, -4)
         previousRow = cell.frame.count

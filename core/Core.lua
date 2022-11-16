@@ -43,6 +43,12 @@ local strsplit = _G.strsplit
 local type = _G.type
 local unpack = _G.unpack
 --GLOBALS>
+local _, _, _, tocversion = GetBuildInfo()
+if tocversion > 100000 then
+	print("AdiBags is disabled for 10.0.2 until the authors fix the addon for 10.0.2.")
+	print("Please keep an eye out for a new release before the end of the month!")
+	return
+end
 
 LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'ABEvent-1.0', 'ABBucket-1.0', 'AceHook-3.0', 'AceConsole-3.0')
 --@debug@
@@ -134,18 +140,7 @@ function addon:OnEnable()
 
 	self:RegisterMessage('AdiBags_BagOpened', 'LayoutBags')
 	self:RegisterMessage('AdiBags_BagClosed', 'LayoutBags')
-
-	self:RawHook("OpenAllBags", true)
-	self:RawHook("CloseAllBags", true)
-	self:RawHook("ToggleAllBags", true)
-	self:RawHook("ToggleBackpack", true)
-	self:RawHook("ToggleBag", true)
-	self:RawHook("OpenBag", true)
-	self:RawHook("CloseBag", true)
-	self:RawHook("OpenBackpack", true)
-	self:RawHook("CloseBackpack", true)
-	self:RawHook('CloseSpecialWindows', true)
-
+	
 	-- Track most windows involving items
 	self:RegisterEvent('BANKFRAME_OPENED', 'UpdateInteractingWindow')
 	self:RegisterEvent('BANKFRAME_CLOSED', 'UpdateInteractingWindow')
@@ -186,6 +181,32 @@ function addon:OnDisable()
 	self.anchor:Hide()
 	self:CloseAllBags()
 	self:Debug('Disabled')
+end
+
+function addon:EnableHooks()
+	self:RawHook("OpenAllBags", true)
+	self:RawHook("CloseAllBags", true)
+	self:RawHook("ToggleAllBags", true)
+	self:RawHook("ToggleBackpack", true)
+	self:RawHook("ToggleBag", true)
+	self:RawHook("OpenBag", true)
+	self:RawHook("CloseBag", true)
+	self:RawHook("OpenBackpack", true)
+	self:RawHook("CloseBackpack", true)
+	self:RawHook('CloseSpecialWindows', true)
+end
+
+function addon:DisableHooks()
+	self:Unhook("OpenAllBags")
+	self:Unhook("CloseAllBags")
+	self:Unhook("ToggleAllBags")
+	self:Unhook("ToggleBackpack")
+	self:Unhook("ToggleBag")
+	self:Unhook("OpenBag")
+	self:Unhook("CloseBag")
+	self:Unhook("OpenBackpack")
+	self:Unhook("CloseBackpack")
+	self:Unhook('CloseSpecialWindows')
 end
 
 function addon:Reconfigure()

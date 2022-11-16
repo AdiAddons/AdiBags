@@ -95,6 +95,8 @@ function buttonProto:OnAcquire(container, bag, slot)
 	self.slot = slot
 	self.stack = nil
 	self:SetParent(addon.itemParentFrames[bag])
+	--TODO(lobato): Add this when (if?) Blizzard fixes taint for bags
+	--self:SetBagID(bag)
 	self:SetID(slot)
 	self:FullUpdate()
 end
@@ -266,7 +268,7 @@ end
 --------------------------------------------------------------------------------
 
 function buttonProto:OnShow()
-	self:RegisterEvent('BAG_UPDATE_COOLDOWN', 'UpdateCooldown')
+	self:RegisterEvent('BAG_UPDATE_COOLDOWN', 'UpdateCooldownCallback')
 	self:RegisterEvent('ITEM_LOCK_CHANGED', 'UpdateLock')
 	self:RegisterEvent('QUEST_ACCEPTED', 'UpdateBorder')
 	self:RegisterEvent('BAG_NEW_ITEMS_UPDATED', 'UpdateNew')
@@ -335,7 +337,9 @@ function buttonProto:Update()
 	self:UpdateOverlay()
 	self:UpdateCount()
 	self:UpdateBorder()
-	self:UpdateCooldown()
+	if self.UpdateCooldown then
+		self:UpdateCooldown(self.texture)
+	end
 	self:UpdateLock()
 	self:UpdateNew()
 	if addon.isRetail then
@@ -380,8 +384,25 @@ function buttonProto:UpdateSearch()
 	end
 end
 
-function buttonProto:UpdateCooldown()
-	return ContainerFrame_UpdateCooldown(self.bag, self)
+do
+	if not addon.isRetail then
+		function buttonProto:UpdateCooldown(texture)
+			return ContainerFrame_UpdateCooldown(self.bag, self)
+		end
+	end
+end
+
+function buttonProto:UpdateCooldownCallback()
+	if not self.UpdateCooldown then return end
+	--TODO(lobato): This is an incredibly ugly hack to work around the fact that
+	-- Blizzard protects the item button frame if self.bagID is set.
+	-- There is a condition in which Blizzard code checks for bagID, fails, checks for the parent's
+	-- ID, and then fails again, leading to nil error spam if badID is not set.
+	-- I am unsure what is causing the second check to fail (GetParent), but this hack works around it.
+	-- Absolute worst case, some items may not have cooldowns displayed for the time being.
+	if self.bagID or (self.GetParent ~= nil and self:GetParent() ~= nil and self:GetParent().GetID ~= nil and self:GetParent():GetID() ~= nil) or not addon.isRetail then
+		self:UpdateCooldown(self.texture)
+	end
 end
 
 function buttonProto:UpdateNew()
@@ -426,7 +447,7 @@ end
 -- Bugfix: This fixes a bug where hasItem might be set to 1 by
 -- some internal Blizzard code.
 local function hasItem(i)
-	return i and i ~= 1
+	return i
 end
 
 function buttonProto:UpdateBorder(isolatedEvent)

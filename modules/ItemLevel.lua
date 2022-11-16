@@ -201,13 +201,17 @@ function mod:UpdateButton_Retail(event, button)
 			if (itemClassID ~= nil) then
 				updateCache[button] = link
 			end
-			if settings.showBattlePetLevels and itemClassID == addon.itemClass.Miscellaneous and itemSubClassID == addon.itemSubClass.Misc.Pet then
+			if settings.showBattlePetLevels 
+				and itemClassID == addon.itemClass.Miscellaneous 
+				and itemSubClassID == addon.itemSubClass.Misc.Pet 
+			then
 				level = 1
 				shouldShow = true
 			elseif level >= settings.minLevel
 				and (quality ~= addon.itemQuality.Poor or not settings.ignoreJunk)
 				and (equippable or not settings.equippableOnly)
 				and (quality ~= addon.itemQuality.Heirloom or not settings.ignoreHeirloom)
+				and colorSchemes[settings.colorScheme] ~= nil
 			then
 				color = {colorSchemes[settings.colorScheme](level, quality, reqLevel, equippable)}
 				shouldShow = true
@@ -259,6 +263,7 @@ function mod:UpdateButton_Classic(event, button)
 		if level >= settings.minLevel
 			and (quality ~= addon.itemQuality.Poor or not settings.ignoreJunk)
 			and (loc ~= "" or not settings.equippableOnly)
+			and colorSchemes[settings.colorScheme] ~= nil
 		then
 			if SyLevel then
 				if settings.useSyLevel then
