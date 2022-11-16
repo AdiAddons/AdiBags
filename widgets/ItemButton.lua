@@ -33,7 +33,7 @@ local GetContainerItemLink = _G.C_Container.GetContainerItemLink
 local GetContainerItemQuestInfo = _G.C_Container.GetContainerItemQuestInfo
 local GetContainerNumFreeSlots = _G.C_Container.GetContainerNumFreeSlots
 local IsBattlePayItem = _G.C_Container.IsBattlePayItem
-local IsContainerItemAnUpgrade = _G.IsContainerItemAnUpgrade
+-- local IsContainerItemAnUpgrade = _G.IsContainerItemAnUpgrade -- -- @TODO : not yet migrated to C_container
 local GetItemInfo = _G.GetItemInfo
 local GetItemQualityColor = _G.GetItemQualityColor
 local hooksecurefunc = _G.hooksecurefunc
@@ -312,7 +312,8 @@ function buttonProto:FullUpdate()
 	self.itemId = GetContainerItemID(bag, slot)
 	self.itemLink = GetContainerItemLink(bag, slot)
 	self.hasItem = not not self.itemId
-	self.texture = GetContainerItemInfo(bag, slot)
+	self.itemInfo = GetContainerItemInfo(bag, slot)
+	self.texture = self.itemInfo.iconFileID
 	self.bagFamily = select(2, GetContainerNumFreeSlots(bag))
 	self:Update()
 end
@@ -409,12 +410,12 @@ function buttonProto:UpdateNew()
 	self.BattlepayItemTexture:SetShown(IsBattlePayItem(self.bag, self.slot))
 end
 
+
 if addon.isRetail then
 	function buttonProto:UpdateUpgradeIcon()
 		-- Use Pawn's (third-party addon) function if present; else fallback to Blizzard's.
 		local PawnIsContainerItemAnUpgrade = _G.PawnIsContainerItemAnUpgrade
-		local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot) -- or IsContainerItemAnUpgrade(self.bag, self.slot) -- @TODO: broken at the moment
-		self.UpgradeIcon:SetShown(itemIsUpgrade or false)
+		local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot) -- or IsContainerItemAnUpgrade(self.bag, self.slot) -- @TODO : not yet migrated to C_container		self.UpgradeIcon:SetShown(itemIsUpgrade or false)
 	end
 end
 

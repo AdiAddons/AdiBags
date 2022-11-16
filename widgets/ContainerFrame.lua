@@ -300,14 +300,12 @@ function containerProto:OnCreate(name, isBank, bagObject)
 		LibStub('ABEvent-1.0').RegisterEvent(name, 'EQUIPMENT_SWAP_FINISHED', ForceFullLayout)
 
 		-- Force full layout on sort
-		-- if isBank then
-		-- 	hooksecurefunc('C_Container.SortBankBags', ForceFullLayout)
-		-- 	hooksecurefunc('C_Container.SortReagentBankBags', ForceFullLayout)
-		-- else
-		-- 	hooksecurefunc('C_Container.SortBags', ForceFullLayout)
-		-- end
-
-		-- @ TODO: broken at the moment
+		if isBank then
+			hooksecurefunc(C_Container, 'SortBankBags', ForceFullLayout)
+			hooksecurefunc(C_Container, 'SortReagentBankBags', ForceFullLayout)
+		else
+			hooksecurefunc(C_Container, 'SortBags', ForceFullLayout)
+		end
 	end
 end
 

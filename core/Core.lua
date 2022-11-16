@@ -44,11 +44,7 @@ local type = _G.type
 local unpack = _G.unpack
 --GLOBALS>
 local _, _, _, tocversion = GetBuildInfo()
-if tocversion > 100000 then
-	print("AdiBags is disabled for 10.0.2 until the authors fix the addon for 10.0.2.")
-	print("Please keep an eye out for a new release before the end of the month!")
-	return
-end
+
 
 LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'ABEvent-1.0', 'ABBucket-1.0', 'AceHook-3.0', 'AceConsole-3.0')
 --@debug@
