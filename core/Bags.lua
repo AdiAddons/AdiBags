@@ -221,7 +221,11 @@ do
 
 	function backpack:Sort()
 		PlaySound(SOUNDKIT.UI_BAG_SORTING_01)
-		SortBags()
+		if addon.isRetail then
+			C_Container.SortBags()
+		else
+			SortBags()
+		end
 		C_Timer.After(1, function() addon:OpenBackpack() end)
 	end
 
