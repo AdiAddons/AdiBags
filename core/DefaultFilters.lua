@@ -36,21 +36,22 @@ function addon:SetupDefaultFilters()
 	local GetItemLocations = _G.C_EquipmentSet.GetItemLocations
 	local pairs = _G.pairs
 	local wipe = _G.wipe
+
 	--GLOBALS>
 
 	local L = addon.L
 
 	-- Make some strings local to speed things
-	local CONSUMMABLE = GetItemClassInfo(LE_ITEM_CLASS_CONSUMABLE)
-	local GEM = GetItemClassInfo(LE_ITEM_CLASS_GEM)
-	local GLYPH = GetItemClassInfo(LE_ITEM_CLASS_GLYPH)
-	local JUNK = GetItemSubClassInfo(LE_ITEM_CLASS_MISCELLANEOUS, 0)
-	local MISCELLANEOUS = GetItemClassInfo(LE_ITEM_CLASS_MISCELLANEOUS)
-	local QUEST = GetItemClassInfo(LE_ITEM_CLASS_QUESTITEM)
-	local RECIPE = GetItemClassInfo(LE_ITEM_CLASS_RECIPE)
-	local TRADE_GOODS = GetItemClassInfo(LE_ITEM_CLASS_TRADEGOODS)
-	local WEAPON = GetItemClassInfo(LE_ITEM_CLASS_WEAPON)
-	local ARMOR = GetItemClassInfo(LE_ITEM_CLASS_ARMOR)
+	local CONSUMMABLE = GetItemClassInfo(_G.Enum.ItemClass.Consumable)
+	local GEM = GetItemClassInfo(_G.Enum.ItemClass.Gem)
+	local GLYPH = GetItemClassInfo(_G.Enum.ItemClass.Glyph)
+	local JUNK = GetItemSubClassInfo(_G.Enum.ItemClass.Miscellaneous, 0)
+	local MISCELLANEOUS = GetItemClassInfo(_G.Enum.ItemClass.Miscellaneous)
+	local QUEST = GetItemClassInfo(_G.Enum.ItemClass.Questitem)
+	local RECIPE = GetItemClassInfo(_G.Enum.ItemClass.Recipe)
+	local TRADE_GOODS = GetItemClassInfo(_G.Enum.ItemClass.Tradegoods)
+	local WEAPON = GetItemClassInfo(_G.Enum.ItemClass.Weapon)
+	local ARMOR = GetItemClassInfo(_G.Enum.ItemClass.Armor)
 	local JEWELRY = L['Jewelry']
 	local EQUIPMENT = L['Equipment']
 	local AMMUNITION = L['Ammunition']

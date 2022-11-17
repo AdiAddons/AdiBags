@@ -780,7 +780,7 @@ local function FilterByBag(slotData)
 	end
 end
 
-local MISCELLANEOUS = GetItemClassInfo(LE_ITEM_CLASS_MISCELLANEOUS)
+local MISCELLANEOUS = GetItemClassInfo(_G.Enum.ItemClass.Miscellaneous)
 local FREE_SPACE = L["Free space"]
 function containerProto:FilterSlot(slotData)
 	if self.BagSlotPanel:IsShown() then
