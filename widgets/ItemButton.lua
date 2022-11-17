@@ -63,6 +63,15 @@ local GetBagSlotFromId = addon.GetBagSlotFromId
 
 local ITEM_SIZE = addon.ITEM_SIZE
 
+-- Helper function, guard nil table access
+function SafeGetItem(table, key)
+	if table ~= nil then
+		return table[key]
+	else
+		return nil
+	end
+end
+
 --------------------------------------------------------------------------------
 -- Button initialization
 --------------------------------------------------------------------------------
@@ -296,10 +305,11 @@ end
 
 function buttonProto:FullUpdate()
 	local bag, slot = self.bag, self.slot
+	local itemInfo = GetContainerItemInfo(bag, slot)
 	self.itemId = GetContainerItemID(bag, slot)
 	self.itemLink = GetContainerItemLink(bag, slot)
 	self.hasItem = not not self.itemId
-	self.texture = GetContainerItemInfo(bag, slot)
+	self.texture = SafeGetItem(itemInfo, "iconFileID")
 	self.bagFamily = select(2, GetContainerNumFreeSlots(bag))
 	self:Update()
 end
@@ -362,7 +372,7 @@ function buttonProto:UpdateLock(isolatedEvent)
 end
 
 function buttonProto:UpdateSearch()
-	local _, _, _, _, _, _, _, isFiltered = GetContainerItemInfo(self.bag, self.slot)
+	local isFiltered = SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "isFiltered")
 	if isFiltered then
 		self.searchOverlay:Show();
 	else
@@ -420,7 +430,7 @@ local function GetBorder(bag, slot, itemId, settings)
 	if not settings.qualityHighlight then
 		return
 	end
-	local _, _, _, quality = GetContainerItemInfo(bag, slot)
+	local quality = SafeGetItem(GetContainerItemInfo(bag, slot), "quality")
 	if quality == ITEM_QUALITY_POOR and settings.dimJunk then
 		local v = 1 - 0.5 * settings.qualityOpacity
 		return true, v, v, v, 1, nil, nil, nil, nil, "MOD"
@@ -521,7 +531,10 @@ function stackProto:UpdateVisibleSlot()
 	local bestLockedId, bestLockedCount
 	local bestUnlockedId, bestUnlockedCount
 	if self.slotId and self.slots[self.slotId] then
-		local _, count, locked = GetContainerItemInfo(GetBagSlotFromId(self.slotId))
+		local itemInfo = GetContainerItemInfo(GetBagSlotFromId(self.slotId))
+		local count = SafeGetItem(itemInfo, "stackCount")
+		local locked = SafeGetItem(itemInfo, "isLocked")
+
 		count = count or 1
 		if locked then
 			bestLockedId, bestLockedCount = self.slotId, count
@@ -530,7 +543,10 @@ function stackProto:UpdateVisibleSlot()
 		end
 	end
 	for slotId in pairs(self.slots) do
-		local _, count, locked = GetContainerItemInfo(GetBagSlotFromId(slotId))
+		local itemInfo = GetContainerItemInfo(GetBagSlotFromId(slotId))
+		local count = SafeGetItem(itemInfo, "stackCount")
+		local locked = SafeGetItem(itemInfo, "isLocked")
+
 		count = count or 1
 		if locked then
 			if not bestLockedId or count > bestLockedCount then
@@ -671,7 +687,7 @@ local function StackSlotIterator(self, previous)
 	local slotId = next(self.slots, previous)
 	if slotId then
 		local bag, slot = GetBagSlotFromId(slotId)
-		local _, count = GetContainerItemInfo(bag, slot)
+		local count = SafeGetItem(GetContainerItemInfo(bag, slot), "stackCount")
 		return slotId, bag, slot, self:GetItemId(), count
 	end
 end
