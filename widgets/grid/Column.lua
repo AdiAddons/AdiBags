@@ -146,7 +146,7 @@ function columnProto:Update()
         w = math.min(w, w + cell.frame:GetWidth()+4)
         self:Debug("Setting w to w", w)
         local nextCell = self.cells[cellPos+1]
-        
+
         if nextCell ~= nil and previousRow + nextCell.frame.count > columnWidth then
           -- TODO(lobato): The current cell will be the last one of this row, expand
           -- the drop zone for this cell all the way across the column.

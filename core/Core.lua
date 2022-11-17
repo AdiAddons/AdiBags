@@ -134,7 +134,7 @@ function addon:OnEnable()
 
 	self:RegisterMessage('AdiBags_BagOpened', 'LayoutBags')
 	self:RegisterMessage('AdiBags_BagClosed', 'LayoutBags')
-	
+
 	-- Track most windows involving items
 	self:RegisterEvent('BANKFRAME_OPENED', 'UpdateInteractingWindow')
 	self:RegisterEvent('BANKFRAME_CLOSED', 'UpdateInteractingWindow')
