@@ -656,7 +656,7 @@ function stackProto:UpdateCount()
 	local count = 0
 	for slotId in pairs(self.slots) do
 		itemCount = SafeGetItem(GetContainerItemInfo(GetBagSlotFromId(slotId)), "stackCount") or 1
-s
+		count = count + itemCount
 	end
 	self.count = count
 	self.dirtyCount = nil
