@@ -36,7 +36,6 @@ function addon:SetupDefaultFilters()
 	local GetItemLocations = _G.C_EquipmentSet.GetItemLocations
 	local pairs = _G.pairs
 	local wipe = _G.wipe
-
 	--GLOBALS>
 
 	local L = addon.L
@@ -202,8 +201,8 @@ function addon:SetupDefaultFilters()
 				return QUEST
 			else
 				if addon.isRetail or addon.isWrath then
-					local isQuestItem, questId = GetContainerItemQuestInfo(slotData.bag, slotData.slot)
-					return (questId or isQuestItem) and QUEST
+					local questInfo = GetContainerItemQuestInfo(slotData.bag, slotData.slot)
+					return (questInfo.questId or questInfo.isQuestItem) and QUEST
 				else
 					return false
 				end
