@@ -133,7 +133,7 @@ function buttonProto:ToString()
 end
 
 function buttonProto:IsLocked()
-	return select(3, GetContainerItemInfo(self.bag, self.slot))
+	return SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "isLocked")
 end
 
 function buttonProto:SplitStack(split)
@@ -221,7 +221,7 @@ function buttonProto:GetItemLink()
 end
 
 function buttonProto:GetCount()
-	return select(2, GetContainerItemInfo(self.bag, self.slot)) or 0
+	return SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "stackCount") or 0
 end
 
 function buttonProto:GetBagFamily()
@@ -418,11 +418,11 @@ end
 local function GetBorder(bag, slot, itemId, settings)
 	if addon.isRetail or addon.isWrath then
 		if settings.questIndicator then
-			local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
-			if questId and not isActive then
+			local questInfo = GetContainerItemQuestInfo(bag, slot)
+			if questInfo.questId and not questInfo.isActive then
 				return TEXTURE_ITEM_QUEST_BANG
 			end
-			if questId or isQuestItem then
+			if questInfo.questId or questInfo.isQuestItem then
 				return TEXTURE_ITEM_QUEST_BORDER
 			end
 		end
@@ -532,7 +532,7 @@ function stackProto:UpdateVisibleSlot()
 	local bestUnlockedId, bestUnlockedCount
 	if self.slotId and self.slots[self.slotId] then
 		local itemInfo = GetContainerItemInfo(GetBagSlotFromId(self.slotId))
-		local count = SafeGetItem(itemInfo, "stackCount")
+		local count = SafeGetItem(itemInfo, "stackCount") or 1
 		local locked = SafeGetItem(itemInfo, "isLocked")
 
 		count = count or 1
@@ -544,7 +544,7 @@ function stackProto:UpdateVisibleSlot()
 	end
 	for slotId in pairs(self.slots) do
 		local itemInfo = GetContainerItemInfo(GetBagSlotFromId(slotId))
-		local count = SafeGetItem(itemInfo, "stackCount")
+		local count = SafeGetItem(itemInfo, "stackCount") or 1
 		local locked = SafeGetItem(itemInfo, "isLocked")
 
 		count = count or 1
@@ -655,7 +655,8 @@ end
 function stackProto:UpdateCount()
 	local count = 0
 	for slotId in pairs(self.slots) do
-		count = count + (select(2, GetContainerItemInfo(GetBagSlotFromId(slotId))) or 1)
+		itemCount = SafeGetItem(GetContainerItemInfo(GetBagSlotFromId(slotId)), "stackCount") or 1
+s
 	end
 	self.count = count
 	self.dirtyCount = nil
@@ -687,7 +688,7 @@ local function StackSlotIterator(self, previous)
 	local slotId = next(self.slots, previous)
 	if slotId then
 		local bag, slot = GetBagSlotFromId(slotId)
-		local count = SafeGetItem(GetContainerItemInfo(bag, slot), "stackCount")
+		local count = SafeGetItem(GetContainerItemInfo(bag, slot), "stackCount") or 1
 		return slotId, bag, slot, self:GetItemId(), count
 	end
 end

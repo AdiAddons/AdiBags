@@ -675,7 +675,12 @@ function containerProto:UpdateContent(bag)
 					local _, speciesID = strsplit(":", link)
 					name = C_PetJournal.GetPetInfoBySpeciesID(speciesID)
 				end
-				count = select(2, GetContainerItemInfo(bag, slot)) or 0
+				local itemInfo = GetContainerItemInfo(bag, slot)
+				if itemInfo ~= nil then
+					count = itemInfo.stackCount
+				else
+					count = 0
+				end
 			else
 				link, count = false, 0
 			end
