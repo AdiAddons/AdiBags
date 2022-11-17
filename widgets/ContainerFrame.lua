@@ -31,12 +31,12 @@ local BANK_CONTAINER = _G.BANK_CONTAINER
 local ceil = _G.ceil
 local CreateFrame = _G.CreateFrame
 local format = _G.format
-local GetContainerFreeSlots = _G.GetContainerFreeSlots
-local GetContainerItemID = _G.GetContainerItemID
-local GetContainerItemInfo = _G.GetContainerItemInfo
-local GetContainerItemLink = _G.GetContainerItemLink
-local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
-local GetContainerNumSlots = _G.GetContainerNumSlots
+local GetContainerFreeSlots = C_Container.GetContainerFreeSlots
+local GetContainerItemID = C_Container.GetContainerItemID
+local GetContainerItemInfo = C_Container.GetContainerItemInfo
+local GetContainerItemLink = C_Container.GetContainerItemLink
+local GetContainerNumFreeSlots = C_Container.GetContainerNumFreeSlots
+local GetContainerNumSlots = C_Container.GetContainerNumSlots
 local GetCursorInfo = _G.GetCursorInfo
 local GetItemInfo = _G.GetItemInfo
 local GetItemGUID = _G.C_Item.GetItemGUID
@@ -274,7 +274,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 			hooksecurefunc('SortBankBags', ForceFullLayout)
 			hooksecurefunc('SortReagentBankBags', ForceFullLayout)
 		else
-			hooksecurefunc('SortBags', ForceFullLayout)
+			hooksecurefunc(C_Container, 'SortBags', ForceFullLayout)
 		end
 	end
 end

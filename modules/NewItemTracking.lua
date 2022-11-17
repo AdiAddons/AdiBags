@@ -26,8 +26,8 @@ local L = addon.L
 local _G = _G
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
 local CreateFrame = _G.CreateFrame
-local GetContainerItemInfo = _G.GetContainerItemInfo
-local GetContainerNumSlots = _G.GetContainerNumSlots
+local GetContainerItemInfo = C_Container.GetContainerItemInfo
+local GetContainerNumSlots = C_Container.GetContainerNumSlots
 local GetInventoryItemID = _G.GetInventoryItemID
 local GetInventoryItemLink = _G.GetInventoryItemLink
 
@@ -160,7 +160,7 @@ function mod:IsNew(bag, slot, link)
 		return true
 	elseif not addon.BAG_IDS.BANK[bag]
 		and C_NewItems.IsNewItem(bag, slot)
-		and not IsBattlePayItem(bag, slot)
+		and not C_Container.IsBattlePayItem(bag, slot)
 		and (not self.db.profile.ignoreJunk or select(4, GetContainerItemInfo(bag, slot)) ~= ITEM_QUALITY_POOR)
 	then
 		newItems[link] = true

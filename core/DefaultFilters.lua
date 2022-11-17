@@ -29,7 +29,7 @@ function addon:SetupDefaultFilters()
 	local BANK_CONTAINER_INVENTORY_OFFSET = _G.BANK_CONTAINER_INVENTORY_OFFSET
 	local EquipmentManager_UnpackLocation = _G.EquipmentManager_UnpackLocation
 	local format = _G.format
-	local GetContainerItemQuestInfo = _G.GetContainerItemQuestInfo
+	local GetContainerItemQuestInfo = C_Container.GetContainerItemQuestInfo
 	local GetEquipmentSetInfo = _G.C_EquipmentSet.GetEquipmentSetInfo
 	local GetItemIDs = _G.C_EquipmentSet.GetItemIDs
 	local GetEquipmentSetIDs = _G.C_EquipmentSet.GetEquipmentSetIDs

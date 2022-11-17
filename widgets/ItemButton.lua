@@ -27,15 +27,14 @@ local BankButtonIDToInvSlotID = _G.BankButtonIDToInvSlotID
 local BANK_CONTAINER = _G.BANK_CONTAINER
 local ContainerFrame_UpdateCooldown = _G.ContainerFrame_UpdateCooldown
 local format = _G.format
-local GetContainerItemID = _G.GetContainerItemID
-local GetContainerItemInfo = _G.GetContainerItemInfo
-local GetContainerItemLink = _G.GetContainerItemLink
-local GetContainerItemQuestInfo = _G.GetContainerItemQuestInfo
-local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
+local GetContainerItemID = C_Container.GetContainerItemID
+local GetContainerItemInfo = C_Container.GetContainerItemInfo
+local GetContainerItemLink = C_Container.GetContainerItemLink
+local GetContainerItemQuestInfo = C_Container.GetContainerItemQuestInfo
+local GetContainerNumFreeSlots = C_Container.GetContainerNumFreeSlots
 local GetItemInfo = _G.GetItemInfo
 local GetItemQualityColor = _G.GetItemQualityColor
 local hooksecurefunc = _G.hooksecurefunc
-local IsContainerItemAnUpgrade = _G.IsContainerItemAnUpgrade
 local IsInventoryItemLocked = _G.IsInventoryItemLocked
 local ITEM_QUALITY_COMMON
 local ITEM_QUALITY_POOR
@@ -393,7 +392,7 @@ function buttonProto:UpdateCooldownCallback()
 end
 
 function buttonProto:UpdateNew()
-	self.BattlepayItemTexture:SetShown(IsBattlePayItem(self.bag, self.slot))
+	self.BattlepayItemTexture:SetShown(C_Container.IsBattlePayItem(self.bag, self.slot))
 end
 
 if addon.isRetail then
