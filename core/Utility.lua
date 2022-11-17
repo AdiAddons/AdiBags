@@ -59,9 +59,9 @@ local FAMILY_ICONS = addon.FAMILY_ICONS
 
 function addon.GetContainerItemInfo(containerIndex, slotIndex)
 	if addon.isRetail then
-		-- @TODO: FIX THIS causing error and breaking almost evrything :)
-		if containerIndex ~= nil and slotIndex ~= nil then
-			local info = _G.C_Container.GetContainerItemInfo(containerIndex, slotIndex)
+		
+		local info = _G.C_Container.GetContainerItemInfo(containerIndex, slotIndex)
+		if info ~= nil then
 			return info.iconFileID, info.stackCount, info.isLocked, info.quality, info.isReadable, info.hasLoot, info.hyperlink, info.isFiltered, info.hasNoValue, info.itemID, info.isBound
 		else 
 			return {}

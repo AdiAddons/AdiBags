@@ -26,8 +26,6 @@ local L = addon.L
 local _G = _G
 local abs = _G.math.abs
 local GetItemInfo = _G.GetItemInfo
-local ITEM_CONSUMABLE_OTHER = 8 -- there is no subcategory enum for consumables
-
 local QuestDifficultyColors = _G.QuestDifficultyColors
 local UnitLevel = _G.UnitLevel
 local modf = _G.math.modf

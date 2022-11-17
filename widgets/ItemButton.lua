@@ -530,7 +530,6 @@ end
 function stackProto:UpdateVisibleSlot()
 	local bestLockedId, bestLockedCount
 	local bestUnlockedId, bestUnlockedCount
-	--@TODO: unknown error from here :(
 	if self.slotId and self.slots[self.slotId] then
 		local _, count, locked = GetContainerItemInfo(GetBagSlotFromId(self.slotId))
 		count = count or 1

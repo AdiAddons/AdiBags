@@ -298,9 +298,17 @@ do
 	function bank:Sort(isReagentBank)
 		PlaySound(SOUNDKIT.UI_BAG_SORTING_01)
 		if isReagentBank then
-			SortReagentBankBags()
+			if addon.isRetail then
+				C_Container.SortReagentBankBags()
+			else
+				SortReagentBankBags()
+			end
 		else
-			SortBankBags()
+			if addon.isRetail then
+				C_Container.SortBankBags()
+			else
+				SortBankBags()
+			end
 		end
 	end
 
