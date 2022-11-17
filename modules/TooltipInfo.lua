@@ -52,11 +52,20 @@ end
 
 function mod:OnEnable()
 	if not self.hooked then
-		GameTooltip:HookScript('OnTooltipSetItem', function(...)
-			if self:IsEnabled() then
-				return self:OnTooltipSetItem(...)
-			end
-		end)
+		if TooltipDataProcessor then
+			TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(...)
+				if self:IsEnabled() then
+					return self:OnTooltipSetItem(...)
+				end
+			end)
+		else
+			GameTooltip:HookScript('OnTooltipSetItem', function(...)
+				if self:IsEnabled() then
+					return self:OnTooltipSetItem(...)
+				end
+			end)
+		end
+
 		self.hooked = true
 	end
 end

@@ -29,6 +29,7 @@ local OpenAllBags = _G.OpenAllBags
 local CloseAllBags = _G.CloseAllBags
 local IsBagOpen = _G.IsBagOpen
 local CloseBankFrame = _G.CloseBankFrame
+local SortBags = C_Container and C_Container.SortBags or SortBags
 local ipairs = _G.ipairs
 local pairs = _G.pairs
 local setmetatable = _G.setmetatable
