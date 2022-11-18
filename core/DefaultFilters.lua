@@ -201,9 +201,8 @@ function addon:SetupDefaultFilters()
 				return QUEST
 			else
 				if addon.isRetail then
-					local questId = SafeGetItem(GetContainerItemQuestInfo(slotData.bag, slotData.slot), "questId")
-					local isQuestItem = SafeGetItem(GetContainerItemQuestInfo(slotData.bag, slotData.slot), "isQuestItem")
-					--local questInfo = GetContainerItemQuestInfo(slotData.bag, slotData.slot)
+					local questId = addon:SafeGetItem(GetContainerItemQuestInfo(slotData.bag, slotData.slot), "questId")
+					local isQuestItem = addon:SafeGetItem(GetContainerItemQuestInfo(slotData.bag, slotData.slot), "isQuestItem")
 					return (questId or isQuestItem) and QUEST
 				elseif addon.isWrath then
 					local isQuestItem, questId = GetContainerItemQuestInfo(slotData.bag, slotData.slot)

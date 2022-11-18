@@ -66,15 +66,6 @@ local GetBagSlotFromId = addon.GetBagSlotFromId
 
 local ITEM_SIZE = addon.ITEM_SIZE
 
--- Helper function, guard nil table access
-function SafeGetItem(table, key)
-	if table ~= nil then
-		return table[key]
-	else
-		return nil
-	end
-end
-
 --------------------------------------------------------------------------------
 -- Button initialization
 --------------------------------------------------------------------------------
@@ -137,7 +128,7 @@ end
 
 function buttonProto:IsLocked()
 	if addon.isRetail then
-		return SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "isLocked")
+		return addon:SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "isLocked")
 	else
 		return select(3, GetContainerItemInfo(self.bag, self.slot))
 	end
@@ -229,7 +220,7 @@ end
 
 function buttonProto:GetCount()
 	if addon.isRetail then
-		return SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "stackCount") or 0
+		return addon:SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "stackCount") or 0
 	else
 		return select(2, GetContainerItemInfo(self.bag, self.slot)) or 0
 	end
@@ -319,9 +310,9 @@ function buttonProto:FullUpdate()
 	self.itemId = GetContainerItemID(bag, slot)
 	self.itemLink = GetContainerItemLink(bag, slot)
 	self.hasItem = not not self.itemId
-	local itemInfo = GetContainerItemInfo(bag, slot)
+	--local itemInfo = GetContainerItemInfo(bag, slot)
 	if addon.isRetail then
-		self.texture = SafeGetItem(itemInfo, "iconFileID")
+		self.texture = addon:SafeGetItem(GetContainerItemInfo(bag, slot), "iconFileID")
 	else
 		self.texture = GetContainerItemInfo(bag, slot)
 	end
@@ -388,7 +379,7 @@ end
 
 function buttonProto:UpdateSearch()
 	if addon.isRetail then
-		local isFiltered = SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "isFiltered")
+		local isFiltered = addon:SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "isFiltered")
 	else
 		local _, _, _, _, _, _, _, isFiltered = GetContainerItemInfo(self.bag, self.slot)
 	end
@@ -438,9 +429,9 @@ local function GetBorder(bag, slot, itemId, settings)
 	if addon.isRetail or addon.isWrath then
 		if settings.questIndicator then
 			if addon.isRetail then
-				local isQuestItem = SafeGetItem(GetContainerItemQuestInfo(bag, slot), "isQuestItem")
-				local questId = SafeGetItem(GetContainerItemQuestInfo(bag, slot), "questId")
-				local isActive = SafeGetItem(GetContainerItemQuestInfo(bag, slot), "isActive")
+				local isQuestItem = addon:SafeGetItem(GetContainerItemQuestInfo(bag, slot), "isQuestItem")
+				local questId = addon:SafeGetItem(GetContainerItemQuestInfo(bag, slot), "questId")
+				local isActive = addon:SafeGetItem(GetContainerItemQuestInfo(bag, slot), "isActive")
 			else
 				local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
 			end
@@ -457,7 +448,7 @@ local function GetBorder(bag, slot, itemId, settings)
 	end
 	local quality
 	if addon.isRetail then
-		quality = SafeGetItem(GetContainerItemInfo(bag, slot), "quality")
+		quality = addon:SafeGetItem(GetContainerItemInfo(bag, slot), "quality")
 	else
 		_, _, _, quality = GetContainerItemInfo(bag, slot)
 	end
@@ -563,14 +554,12 @@ function stackProto:UpdateVisibleSlot()
 	if self.slotId and self.slots[self.slotId] then
 		local count, locked
 		if addon.isRetail then
-			local itemInfo = GetContainerItemInfo(GetBagSlotFromId(self.slotId))
-			count = SafeGetItem(itemInfo, "stackCount") or 1
-			locked = SafeGetItem(itemInfo, "isLocked")
+			count = addon:SafeGetItem(GetContainerItemInfo(GetBagSlotFromId(self.slotId)), "stackCount") or 1
+			locked = addon:SafeGetItem(GetContainerItemInfo(GetBagSlotFromId(self.slotId)), "isLocked")
 		else
 			_, count, locked = GetContainerItemInfo(GetBagSlotFromId(self.slotId))
-			count = count or 1
+			count = count or 1	
 		end
-				
 		if locked then
 			bestLockedId, bestLockedCount = self.slotId, count
 		else
@@ -580,14 +569,12 @@ function stackProto:UpdateVisibleSlot()
 	for slotId in pairs(self.slots) do
 		local count, locked
 		if addon.isRetail then
-			local itemInfo = GetContainerItemInfo(GetBagSlotFromId(slotId))
-			count = SafeGetItem(itemInfo, "stackCount") or 1
-			locked = SafeGetItem(itemInfo, "isLocked")
+			count = addon:SafeGetItem(GetContainerItemInfo(GetBagSlotFromId(slotId)), "stackCount") or 1
+			locked = addon:SafeGetItem(GetContainerItemInfo(GetBagSlotFromId(slotId)), "isLocked")
 		else
 			_, count, locked = GetContainerItemInfo(GetBagSlotFromId(slotId))
-			count = count or 1
+			count = count or 1	
 		end
-
 		if locked then
 			if not bestLockedId or count > bestLockedCount then
 				bestLockedId, bestLockedCount = slotId, count
@@ -696,8 +683,7 @@ function stackProto:UpdateCount()
 	local count = 0
 	for slotId in pairs(self.slots) do
 		if addon.isRetail then
-			itemCount = SafeGetItem(GetContainerItemInfo(GetBagSlotFromId(slotId)), "stackCount") or 1
-			count = count + itemCount
+			count = count + (addon:SafeGetItem(GetContainerItemInfo(GetBagSlotFromId(slotId)), "stackCount") or 1)
 		else
 			count = count + (select(2, GetContainerItemInfo(GetBagSlotFromId(slotId))) or 1)
 		end
@@ -733,7 +719,7 @@ local function StackSlotIterator(self, previous)
 	if slotId then
 		local bag, slot, count = GetBagSlotFromId(slotId)
 		if addon.isRetail then
-			count = SafeGetItem(GetContainerItemInfo(bag, slot), "stackCount") or 1
+			count = addon:SafeGetItem(GetContainerItemInfo(bag, slot), "stackCount") or 1
 		else
 			_, count = GetContainerItemInfo(bag, slot)
 		end	

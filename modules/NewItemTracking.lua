@@ -245,11 +245,13 @@ end
 function mod:ShowBlizzardGlow(button, enable)
 	if not button.NewItemTexture then return end
 	if enable then
-		local itemInfo = GetContainerItemInfo(bag, slot)
 		local quality
-	if itemInfo ~= nil then
-		local quality = itemInfo.quality
-	end
+		if addon.isRetail then
+			quality = addon:SafeGetItem(GetContainerItemInfo(button.bag, button.slot), "quality")	
+		else
+			_, _, _, quality = GetContainerItemInfo(button.bag, button.slot)
+		end
+
 		if quality and NEW_ITEM_ATLAS_BY_QUALITY[quality] then
 			button.NewItemTexture:SetAtlas(NEW_ITEM_ATLAS_BY_QUALITY[quality])
 		else

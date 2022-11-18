@@ -86,15 +86,6 @@ local function BagSlotButton_OnClick(button)
 	button.panel:SetShown(button:GetChecked())
 end
 
--- Helper function, guard nil table access
-function SafeGetItem(table, key)
-	if table ~= nil then
-		return table[key]
-	else
-		return nil
-	end
-end
-
 --------------------------------------------------------------------------------
 -- Bag creation
 --------------------------------------------------------------------------------
@@ -705,7 +696,7 @@ function containerProto:UpdateContent(bag)
 					name = C_PetJournal.GetPetInfoBySpeciesID(speciesID)
 				end
 				if addon.isRetail then
-					count = SafeGetItem(itemInfo, "stackCount") or 0
+					count = addon:SafeGetItem(GetContainerItemInfo(bag, slot), "stackCount") or 0
 				else
 					count = select(2, GetContainerItemInfo(bag, slot)) or 0
 				end

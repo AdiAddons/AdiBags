@@ -108,13 +108,9 @@ do
 		for i, bag in pairs(bags) do
 			local scoreBonus = band(select(2, GetContainerNumFreeSlots(bag)) or 0, itemFamily) ~= 0 and maxStack or 0
 			for slot = 1, GetContainerNumSlots(bag) do
-				local texture, slotCount, locked = nil, nil, nil
-				local itemInfo GetContainerItemInfo(bag, slot)
-				if itemInfo ~= nil then
-					texture = itemInfo.iconFileID
-					slotCount = itemInfo.stackCount
-					locked = itemInfo.IsLocked
-				end
+				local texture = addon:SafeGetItem(GetContainerItemInfo(bag, slot), "iconFileID")
+				local slotCount = addon:SafeGetItem(GetContainerItemInfo(bag, slot), "stackCount")
+				local locked = addon:SafeGetItem(GetContainerItemInfo(bag, slot), "IsLocked")
 				if not locked and (not texture or GetContainerItemID(bag, slot) == itemId) then
 					slotCount = slotCount or 0
 					if slotCount + itemCount <= maxStack then

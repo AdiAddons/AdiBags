@@ -398,3 +398,12 @@ function addon:GetFamilyTag(family)
 		end
 	end
 end
+
+-- Helper function, guard nil table access
+function addon:SafeGetItem(table, key)
+	if table ~= nil then
+		return table[key]
+	else
+		return nil
+	end
+end
