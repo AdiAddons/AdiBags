@@ -270,12 +270,12 @@ local function GetOptions()
 		end
 	end
 	options = {
-		--@debug@
+		--[===[@debug@
 		name = addonName..' DEV',
-		--@end-debug@
-		--[===[@non-debug@
+		--@end-debug@]===]
+		--@non-debug@
 		name = addonName..' @project-version@',
-		--@end-non-debug@]===]
+		--@end-non-debug@
 		type = 'group',
 		handler = addon:GetOptionHandler(addon),
 		get = 'Get',

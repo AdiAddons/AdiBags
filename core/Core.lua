@@ -46,9 +46,9 @@ local unpack = _G.unpack
 --GLOBALS>
 
 LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'ABEvent-1.0', 'ABBucket-1.0', 'AceHook-3.0', 'AceConsole-3.0')
---@debug@
+--[===[@debug@
 _G[addonName] = addon
---@end-debug@
+--@end-debug@]===]
 
 --------------------------------------------------------------------------------
 -- Debug stuff
