@@ -310,7 +310,6 @@ function buttonProto:FullUpdate()
 	self.itemId = GetContainerItemID(bag, slot)
 	self.itemLink = GetContainerItemLink(bag, slot)
 	self.hasItem = not not self.itemId
-	--local itemInfo = GetContainerItemInfo(bag, slot)
 	if addon.isRetail then
 		self.texture = addon:SafeGetItem(GetContainerItemInfo(bag, slot), "iconFileID")
 	else

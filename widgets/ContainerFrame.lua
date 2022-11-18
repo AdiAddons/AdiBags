@@ -796,6 +796,8 @@ local function FilterByBag(slotData)
 	elseif addon.isRetail then
 		if bag == REAGENTBAG then
 			name = format(L["Reagent Bag"])
+		else
+			name = format(L["Bank bag #%d"], bag - NUM_BAG_SLOTS)
 		end
 	else
 		name = format(L["Bank bag #%d"], bag - NUM_BAG_SLOTS)
