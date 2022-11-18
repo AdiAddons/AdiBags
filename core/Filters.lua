@@ -145,10 +145,10 @@ function addon:Filter(slotData, defaultSection, defaultCategory)
 	for i, filter in ipairs(GetActiveFilters()) do
 		local sectionName, category = safecall(filter.Filter, filter, slotData)
 		if sectionName then
-			--@alpha@
+			--[===[@alpha@
 			assert(type(sectionName) == "string", "Filter "..filter.name.." returned "..type(sectionName).." as section name instead of a string")
 			assert(category == nil or type(category) == "string", "Filter "..filter.name.." returned "..type(category).." as category instead of a string")
-			--@end-alpha@
+			--@end-alpha@]===]
 			return sectionName, category, filter.uiName
 		end
 	end

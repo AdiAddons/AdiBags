@@ -24,19 +24,21 @@ local addonName, addon = ...
 --<GLOBALS
 local _G = _G
 local BankButtonIDToInvSlotID = _G.BankButtonIDToInvSlotID
-local BANK_CONTAINER = _G.BANK_CONTAINER
+local BANK_CONTAINER = BANK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Bank ) or -1
 local ContainerFrame_UpdateCooldown = _G.ContainerFrame_UpdateCooldown
 local format = _G.format
-local GetContainerItemID = C_Container and C_Container.GetContainerItemID or GetContainerItemID
-local GetContainerItemInfo = C_Container and C_Container.GetContainerItemInfo or GetContainerItemInfo
-local GetContainerItemLink = C_Container and C_Container.GetContainerItemLink or GetContainerItemLink
-local GetContainerNumFreeSlots = C_Container and C_Container.GetContainerNumFreeSlots or GetContainerNumFreeSlots
+local GetContainerItemID = C_Container and _G.C_Container.GetContainerItemID or _G.GetContainerItemID
+local GetContainerItemInfo = C_Container and _G.C_Container.GetContainerItemInfo or _G.GetContainerItemInfo
+local GetContainerItemLink = C_Container and _G.C_Container.GetContainerItemLink or _G.GetContainerItemLink
+local GetContainerItemQuestInfo = C_Container and _G.C_Container.GetContainerItemQuestInfo or _G.GetContainerItemQuestInfo
+local GetContainerNumFreeSlots = C_Container and _G.C_Container.GetContainerNumFreeSlots or _G.GetContainerNumFreeSlots
 local GetItemInfo = _G.GetItemInfo
 local GetItemQualityColor = _G.GetItemQualityColor
 local hooksecurefunc = _G.hooksecurefunc
-local IsBattlePayItem = C_Container and C_Container.IsBattlePayItem or IsBattlePayItem
+local IsBattlePayItem = C_Container and _G.C_Container.IsBattlePayItem or _G.IsBattlePayItem
+local IsContainerItemAnUpgrade = _G.IsContainerItemAnUpgrade
 local IsInventoryItemLocked = _G.IsInventoryItemLocked
-local SplitContainerItem = C_Container and C_Container.SplitContainerItem or SplitContainerItem
+local SplitContainerItem = C_Container and _G.C_Container.SplitContainerItem or _G.SplitContainerItem
 local ITEM_QUALITY_COMMON
 local ITEM_QUALITY_POOR
 
@@ -63,6 +65,15 @@ local GetSlotId = addon.GetSlotId
 local GetBagSlotFromId = addon.GetBagSlotFromId
 
 local ITEM_SIZE = addon.ITEM_SIZE
+
+-- Helper function, guard nil table access
+function SafeGetItem(table, key)
+	if table ~= nil then
+		return table[key]
+	else
+		return nil
+	end
+end
 
 --------------------------------------------------------------------------------
 -- Button initialization
@@ -125,7 +136,7 @@ function buttonProto:ToString()
 end
 
 function buttonProto:IsLocked()
-	return addon:GetContainerItemLocked(self.bag, self.slot)
+	return SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "isLocked")
 end
 
 function buttonProto:SplitStack(split)
@@ -213,7 +224,7 @@ function buttonProto:GetItemLink()
 end
 
 function buttonProto:GetCount()
-	return addon:GetContainerItemStackCount(self.bag, self.slot) or 0
+	return SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "stackCount") or 0
 end
 
 function buttonProto:GetBagFamily()
@@ -300,7 +311,8 @@ function buttonProto:FullUpdate()
 	self.itemId = GetContainerItemID(bag, slot)
 	self.itemLink = GetContainerItemLink(bag, slot)
 	self.hasItem = not not self.itemId
-	self.texture = addon:GetContainerItemTexture(bag, slot)
+	local itemInfo = GetContainerItemInfo(bag, slot)
+	self.texture = SafeGetItem(itemInfo, "iconFileID")
 	self.bagFamily = select(2, GetContainerNumFreeSlots(bag))
 	self:Update()
 end
@@ -312,7 +324,7 @@ function buttonProto:Update()
 		icon:SetTexture(self.texture)
 		icon:SetTexCoord(0,1,0,1)
 	else
-		icon:SetTexture([[Interface\BUTTONS\UI-EmptySlot]])
+		icon:SetTexture(130766)
 		icon:SetTexCoord(12/64, 51/64, 12/64, 51/64)
 	end
 	local tag = (not self.itemId or addon.db.profile.showBagType) and addon:GetFamilyTag(self.bagFamily)
@@ -363,7 +375,9 @@ function buttonProto:UpdateLock(isolatedEvent)
 end
 
 function buttonProto:UpdateSearch()
-	local isFiltered = addon:GetContainerItemFiltered(self.bag, self.slot)
+	--local _, _, _, _, _, _, _, isFiltered = GetContainerItemInfo(self.bag, self.slot)
+	local itemInfo = GetContainerItemInfo(self.bag, self.slot)
+	local isFiltered = SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "isFiltered")
 	if isFiltered then
 		self.searchOverlay:Show();
 	else
@@ -398,8 +412,8 @@ end
 
 if addon.isRetail then
 	function buttonProto:UpdateUpgradeIcon()
-		-- Blizzard removed their implementation, so rely on Pawn's (third-party addon) if present.
-		local PawnIsContainerItemAnUpgrade = _G.PawnIsContainerItemAnUpgrade
+		-- Use Pawn's (third-party addon) function if present; else fallback to Blizzard's.
+		-- 10.0.2 Build 46658 No longer have IsContainerItemAnUpgrade
 		local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot)
 		self.UpgradeIcon:SetShown(itemIsUpgrade or false)
 	end
@@ -408,11 +422,12 @@ end
 local function GetBorder(bag, slot, itemId, settings)
 	if addon.isRetail or addon.isWrath then
 		if settings.questIndicator then
-			local isQuestItem, questId, isActive = addon:GetContainerItemQuestInfo(bag, slot)
-			if questId and not isActive then
+			local questInfo = GetContainerItemQuestInfo(bag, slot)
+			--local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
+			if questInfo.questId and not questInfo.isActive then
 				return TEXTURE_ITEM_QUEST_BANG
 			end
-			if questId or isQuestItem then
+			if questInfo.questId or questInfo.isQuestItem then
 				return TEXTURE_ITEM_QUEST_BORDER
 			end
 		end
@@ -420,14 +435,14 @@ local function GetBorder(bag, slot, itemId, settings)
 	if not settings.qualityHighlight then
 		return
 	end
-	local quality = addon:GetContainerItemQuality(bag, slot)
+	local quality = SafeGetItem(GetContainerItemInfo(bag, slot), "quality")
 	if quality == ITEM_QUALITY_POOR and settings.dimJunk then
 		local v = 1 - 0.5 * settings.qualityOpacity
 		return true, v, v, v, 1, nil, nil, nil, nil, "MOD"
 	end
 	local color = quality ~= ITEM_QUALITY_COMMON and BAG_ITEM_QUALITY_COLORS[quality]
 	if color then
-		return [[Interface\Buttons\UI-ActionButton-Border]], color.r, color.g, color.b, settings.qualityOpacity, 14/64, 49/64, 15/64, 50/64, "ADD"
+		return 130739, color.r, color.g, color.b, settings.qualityOpacity, 14/64, 49/64, 15/64, 50/64, "ADD"
 	end
 end
 
@@ -521,7 +536,12 @@ function stackProto:UpdateVisibleSlot()
 	local bestLockedId, bestLockedCount
 	local bestUnlockedId, bestUnlockedCount
 	if self.slotId and self.slots[self.slotId] then
-		local _, count, locked = addon:GetContainerItemTextureCountLocked(GetBagSlotFromId(self.slotId))
+		--local _, count, locked = GetContainerItemInfo(GetBagSlotFromId(self.slotId))
+		local itemInfo = GetContainerItemInfo(GetBagSlotFromId(self.slotId))
+		local count = SafeGetItem(itemInfo, "stackCount") or 1
+		local locked = SafeGetItem(itemInfo, "isLocked")
+		local count, locked
+		
 		count = count or 1
 		if locked then
 			bestLockedId, bestLockedCount = self.slotId, count
@@ -530,7 +550,11 @@ function stackProto:UpdateVisibleSlot()
 		end
 	end
 	for slotId in pairs(self.slots) do
-		local _, count, locked = addon:GetContainerItemTextureCountLocked(GetBagSlotFromId(slotId))
+		--local _, count, locked = GetContainerItemInfo(GetBagSlotFromId(slotId))
+		local itemInfo = GetContainerItemInfo(GetBagSlotFromId(slotId))
+		local count = SafeGetItem(itemInfo, "stackCount") or 1
+		local locked = SafeGetItem(itemInfo, "isLocked")
+		
 		count = count or 1
 		if locked then
 			if not bestLockedId or count > bestLockedCount then
@@ -639,8 +663,8 @@ end
 function stackProto:UpdateCount()
 	local count = 0
 	for slotId in pairs(self.slots) do
-
-		count = count + (addon:GetContainerItemStackCount(GetBagSlotFromId(slotId)) or 1)
+		itemCount = SafeGetItem(GetContainerItemInfo(GetBagSlotFromId(slotId)), "stackCount") or 1
+		count = count + itemCount
 	end
 	self.count = count
 	self.dirtyCount = nil
@@ -672,7 +696,7 @@ local function StackSlotIterator(self, previous)
 	local slotId = next(self.slots, previous)
 	if slotId then
 		local bag, slot = GetBagSlotFromId(slotId)
-		local count = addon:GetContainerItemStackCount(bag, slot)
+		local count = SafeGetItem(GetContainerItemInfo(bag, slot), "stackCount") or 1
 		return slotId, bag, slot, self:GetItemId(), count
 	end
 end

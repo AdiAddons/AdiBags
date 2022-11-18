@@ -25,17 +25,19 @@ local L = addon.L
 --<GLOBALS
 local _G = _G
 local assert = _G.assert
-local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER
+local BACKPACK_CONTAINER = BACKPACK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Backpack ) or 0
+local REAGENTBAG = ( Enum.BagIndex and Enum.BagIndex.Reagentbag ) or 5
 local band = _G.bit.band
-local BANK_CONTAINER = _G.BANK_CONTAINER
+local BANK_CONTAINER = BANK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Bank ) or -1
 local ceil = _G.ceil
 local CreateFrame = _G.CreateFrame
 local format = _G.format
-local GetContainerFreeSlots = C_Container and C_Container.GetContainerFreeSlots or GetContainerFreeSlots
-local GetContainerItemID = C_Container and C_Container.GetContainerItemID or GetContainerItemID
-local GetContainerItemLink = C_Container and C_Container.GetContainerItemLink or GetContainerItemLink
-local GetContainerNumFreeSlots = C_Container and C_Container.GetContainerNumFreeSlots or GetContainerNumFreeSlots
-local GetContainerNumSlots = C_Container and C_Container.GetContainerNumSlots or GetContainerNumSlots
+local GetContainerFreeSlots = C_Container and _G.C_Container.GetContainerFreeSlots or _G.GetContainerFreeSlots
+local GetContainerItemID = C_Container and _G.C_Container.GetContainerItemID or _G.GetContainerItemID
+local GetContainerItemInfo = C_Container and _G.C_Container.GetContainerItemInfo or _G.GetContainerItemInfo
+local GetContainerItemLink = C_Container and _G.C_Container.GetContainerItemLink or _G.GetContainerItemLink
+local GetContainerNumFreeSlots = C_Container and _G.C_Container.GetContainerNumFreeSlots or _G.GetContainerNumFreeSlots
+local GetContainerNumSlots = C_Container and _G.C_Container.GetContainerNumSlots or _G.GetContainerNumSlots
 local GetCursorInfo = _G.GetCursorInfo
 local GetItemInfo = _G.GetItemInfo
 local GetItemGUID = _G.C_Item.GetItemGUID
@@ -45,6 +47,8 @@ local max = _G.max
 local min = _G.min
 local next = _G.next
 local NUM_BAG_SLOTS = _G.NUM_BAG_SLOTS
+local NUM_REAGENTBAG_SLOTS = _G.NUM_REAGENTBAG_SLOTS
+local NUM_TOTAL_EQUIPPED_BAG_SLOTS = _G.NUM_TOTAL_EQUIPPED_BAG_SLOTS
 local pairs = _G.pairs
 local PlaySound = _G.PlaySound
 local select = _G.select
@@ -343,7 +347,15 @@ function containerProto:CreateDepositButton()
 		REAGENTBANK_DEPOSIT,
 		L["auto-deposit"],
 		"autoDeposit",
-		DepositReagentBank,
+		--DepositReagentBank,
+		function()
+			DepositReagentBank()
+			for bag in pairs(self:GetBagIds()) do
+				self:UpdateContent(bag)
+			end
+			--self.bagObject:Sort(self.isReagentBank)
+			--self.forceLayout = true
+		end,
 		L["You can block auto-deposit ponctually by pressing a modified key while talking to the banker."]
 	)
 
@@ -683,7 +695,12 @@ function containerProto:UpdateContent(bag)
 					local _, speciesID = strsplit(":", link)
 					name = C_PetJournal.GetPetInfoBySpeciesID(speciesID)
 				end
-				count = addon:GetContainerItemStackCount(bag, slot) or 0
+				local itemInfo = GetContainerItemInfo(bag, slot)
+				if itemInfo ~= nil then
+					count = itemInfo.stackCount
+				else
+					count = 0
+				end
 			else
 				link, count = false, 0
 			end
@@ -777,6 +794,8 @@ local function FilterByBag(slotData)
 		name = REAGENT_BANK
 	elseif bag <= NUM_BAG_SLOTS then
 		name = format(L["Bag #%d"], bag)
+	elseif bag == REAGENTBAG then
+		name = format(L["Reagent Bag"])
 	else
 		name = format(L["Bank bag #%d"], bag - NUM_BAG_SLOTS)
 	end
@@ -788,8 +807,9 @@ local function FilterByBag(slotData)
 	end
 end
 
-local MISCELLANEOUS = GetItemClassInfo(Enum.ItemClass.Miscellaneous)
+local MISCELLANEOUS = GetItemClassInfo(_G.Enum.ItemClass.Miscellaneous)
 local FREE_SPACE = L["Free space"]
+local FREE_SPACE_REAGENT = L["Reagent Free space"]
 function containerProto:FilterSlot(slotData)
 	if self.BagSlotPanel:IsShown() then
 		return FilterByBag(slotData)
@@ -797,7 +817,11 @@ function containerProto:FilterSlot(slotData)
 		local section, category, filterName = addon:Filter(slotData, MISCELLANEOUS)
 		return section, category, filterName, addon:ShouldStack(slotData)
 	else
-		return FREE_SPACE, nil, nil, addon:ShouldStack(slotData)
+		if slotData.bag == REAGENTBAG then
+			return FREE_SPACE_REAGENT, nil, nil, addon:ShouldStack(slotData)
+		else
+			return FREE_SPACE, nil, nil, addon:ShouldStack(slotData)
+		end
 	end
 end
 

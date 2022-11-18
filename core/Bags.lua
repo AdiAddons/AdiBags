@@ -35,6 +35,9 @@ local pairs = _G.pairs
 local setmetatable = _G.setmetatable
 local tinsert = _G.tinsert
 local tsort = _G.table.sort
+local SortBags = C_Container and _G.C_Container.SortBags or _G.SortBags
+local SortBankBags = C_Container and _G.C_Container.SortBankBags or _G.SortBankBags
+local SortReagentBankBags = C_Container and _G.C_Container.SortReagentBankBags or _G.SortReagentBankBags
 --GLOBALS>
 
 local hookedBags = addon.hookedBags

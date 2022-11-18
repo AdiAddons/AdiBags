@@ -56,7 +56,7 @@ function mod:OnEnable()
 		if TooltipDataProcessor then
 			TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Item, function(frame, ...)
 				if frame == GameTooltip and self:IsEnabled() then
-					return self:OnTooltipSetItem(frame, ...)
+					return self:OnTooltipSetItem(frame, ...)			
 				end
 			end)
 		else
@@ -66,7 +66,6 @@ function mod:OnEnable()
 				end
 			end)
 		end
-
 		self.hooked = true
 	end
 end
