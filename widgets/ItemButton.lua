@@ -363,7 +363,7 @@ function buttonProto:UpdateLock(isolatedEvent)
 end
 
 function buttonProto:UpdateSearch()
-	local _, _, _, _, _, _, _, isFiltered = GetContainerItemInfo(self.bag, self.slot)
+	local isFiltered = addon:GetContainerItemFiltered(self.bag, self.slot)
 	if isFiltered then
 		self.searchOverlay:Show();
 	else

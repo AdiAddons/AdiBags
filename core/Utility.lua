@@ -409,6 +409,7 @@ local fieldMappings = {
 	stackCount = {field = "stackCount", returnSlot = 2},
 	locked = {field = "isLocked", returnSlot = 3},
 	quality = {field = "quality", returnSlot = 4},
+	filtered = {field = "isFiltered", returnSlot = 8},
 }
 
 local function unwrapItemInfo(field, ...)
@@ -447,6 +448,10 @@ function addon:GetContainerItemTextureCountLocked(containerIndex, slotIndex)
 	else
 		return texture, slotCount, locked
 	end
+end
+
+function addon:GetContainerItemFiltered(containerIndex, slotIndex)
+	return unwrapItemInfo("filtered", GetContainerItemInfo(containerIndex, slotIndex))
 end
 
 function addon:GetContainerItemQuestInfo(containerIndex, slotIndex)
