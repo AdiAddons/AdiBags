@@ -213,7 +213,7 @@ function buttonProto:GetItemLink()
 end
 
 function buttonProto:GetCount()
-	return select(2, GetContainerItemInfo(self.bag, self.slot)) or 0
+	return addon:GetContainerItemStackCount(self.bag, self.slot) or 0
 end
 
 function buttonProto:GetBagFamily()
@@ -521,7 +521,7 @@ function stackProto:UpdateVisibleSlot()
 	local bestLockedId, bestLockedCount
 	local bestUnlockedId, bestUnlockedCount
 	if self.slotId and self.slots[self.slotId] then
-		local _, count, locked = GetContainerItemInfo(GetBagSlotFromId(self.slotId))
+		local _, count, locked = addon:GetContainerItemTextureCountLocked(GetBagSlotFromId(self.slotId))
 		count = count or 1
 		if locked then
 			bestLockedId, bestLockedCount = self.slotId, count
