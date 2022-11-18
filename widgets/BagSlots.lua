@@ -367,7 +367,12 @@ end
 
 function bankButtonProto:UpdateStatus()
 	local numSlots = GetNumBankSlots()
-	local bankSlot = self.bag - NUM_TOTAL_EQUIPPED_BAG_SLOTS
+	local bankSlot
+	if addon.isRetail then
+		bankSlot = self.bag - NUM_TOTAL_EQUIPPED_BAG_SLOTS
+	else 
+		bankSlot = self.bag - NUM_BAG_SLOTS
+	end
 	self.toPurchase = nil
 	if bankSlot <= numSlots then
 		SetItemButtonTextureVertexColor(self, 1, 1, 1)
