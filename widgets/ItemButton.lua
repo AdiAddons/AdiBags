@@ -414,8 +414,9 @@ if addon.isRetail then
 	function buttonProto:UpdateUpgradeIcon()
 		-- Use Pawn's (third-party addon) function if present; else fallback to Blizzard's.
 		-- 10.0.2 Build 46658 No longer have IsContainerItemAnUpgrade
-		local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot)
-		self.UpgradeIcon:SetShown(itemIsUpgrade or false)
+		--Pawn Currently Broken and spams nil nil
+		--local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot)
+		--self.UpgradeIcon:SetShown(itemIsUpgrade or false)
 	end
 end
 
