@@ -25,11 +25,11 @@ function addon:SetupDefaultFilters()
 	-- Globals: GetEquipmentSetLocations
 	--<GLOBALS
 	local _G = _G
-	local BANK_CONTAINER = BANK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Bank ) or -1
+	local BANK_CONTAINER = _G.BANK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Bank ) or -1
 	local BANK_CONTAINER_INVENTORY_OFFSET = _G.BANK_CONTAINER_INVENTORY_OFFSET
 	local EquipmentManager_UnpackLocation = _G.EquipmentManager_UnpackLocation
 	local format = _G.format
-	local GetContainerItemQuestInfo = _G.C_Container.GetContainerItemQuestInfo
+	local GetContainerItemQuestInfo = C_Container and _G.C_Container.GetContainerItemQuestInfo or _G.GetContainerItemQuestInfo
 	local GetEquipmentSetInfo = _G.C_EquipmentSet.GetEquipmentSetInfo
 	local GetItemIDs = _G.C_EquipmentSet.GetItemIDs
 	local GetEquipmentSetIDs = _G.C_EquipmentSet.GetEquipmentSetIDs
@@ -200,9 +200,14 @@ function addon:SetupDefaultFilters()
 			if slotData.class == QUEST or slotData.subclass == QUEST then
 				return QUEST
 			else
-				if addon.isRetail or addon.isWrath then
-					local questInfo = GetContainerItemQuestInfo(slotData.bag, slotData.slot)
-					return (questInfo.questId or questInfo.isQuestItem) and QUEST
+				if addon.isRetail then
+					local questId = SafeGetItem(GetContainerItemQuestInfo(slotData.bag, slotData.slot), "questId")
+					local isQuestItem = SafeGetItem(GetContainerItemQuestInfo(slotData.bag, slotData.slot), "isQuestItem")
+					--local questInfo = GetContainerItemQuestInfo(slotData.bag, slotData.slot)
+					return (questId or isQuestItem) and QUEST
+				elseif addon.isWrath then
+					local isQuestItem, questId = GetContainerItemQuestInfo(slotData.bag, slotData.slot)
+					return (questId or isQuestItem) and QUEST					
 				else
 					return false
 				end

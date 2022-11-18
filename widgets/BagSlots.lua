@@ -24,13 +24,13 @@ local L = addon.L
 
 --<GLOBALS
 local _G = _G
-local BACKPACK_CONTAINER = BACKPACK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Backpack ) or 0
+local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Backpack ) or 0
 local REAGENTBAG = ( Enum.BagIndex and Enum.BagIndex.Reagentbag ) or 5
 local band = _G.bit.band
 local BankFrame = _G.BankFrame
 local BANK_BAG = _G.BANK_BAG
 local BANK_BAG_PURCHASE = _G.BANK_BAG_PURCHASE
-local BANK_CONTAINER = BANK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Bank ) or -1
+local BANK_CONTAINER = _G.BANK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Bank ) or -1
 local ClearCursor = _G.ClearCursor
 local ContainerIDToInventoryID = C_Container and _G.C_Container.ContainerIDToInventoryID or _G.ContainerIDToInventoryID
 local COSTS_LABEL = _G.COSTS_LABEL

@@ -136,7 +136,11 @@ function buttonProto:ToString()
 end
 
 function buttonProto:IsLocked()
-	return SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "isLocked")
+	if addon.isRetail then
+		return SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "isLocked")
+	else
+		return select(3, GetContainerItemInfo(self.bag, self.slot))
+	end
 end
 
 function buttonProto:SplitStack(split)
@@ -224,7 +228,11 @@ function buttonProto:GetItemLink()
 end
 
 function buttonProto:GetCount()
-	return SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "stackCount") or 0
+	if addon.isRetail then
+		return SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "stackCount") or 0
+	else
+		return select(2, GetContainerItemInfo(self.bag, self.slot)) or 0
+	end
 end
 
 function buttonProto:GetBagFamily()
@@ -312,7 +320,11 @@ function buttonProto:FullUpdate()
 	self.itemLink = GetContainerItemLink(bag, slot)
 	self.hasItem = not not self.itemId
 	local itemInfo = GetContainerItemInfo(bag, slot)
-	self.texture = SafeGetItem(itemInfo, "iconFileID")
+	if addon.isRetail then
+		self.texture = SafeGetItem(itemInfo, "iconFileID")
+	else
+		self.texture = GetContainerItemInfo(bag, slot)
+	end
 	self.bagFamily = select(2, GetContainerNumFreeSlots(bag))
 	self:Update()
 end
@@ -375,9 +387,11 @@ function buttonProto:UpdateLock(isolatedEvent)
 end
 
 function buttonProto:UpdateSearch()
-	--local _, _, _, _, _, _, _, isFiltered = GetContainerItemInfo(self.bag, self.slot)
-	local itemInfo = GetContainerItemInfo(self.bag, self.slot)
-	local isFiltered = SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "isFiltered")
+	if addon.isRetail then
+		local isFiltered = SafeGetItem(GetContainerItemInfo(self.bag, self.slot), "isFiltered")
+	else
+		local _, _, _, _, _, _, _, isFiltered = GetContainerItemInfo(self.bag, self.slot)
+	end
 	if isFiltered then
 		self.searchOverlay:Show();
 	else
@@ -423,12 +437,17 @@ end
 local function GetBorder(bag, slot, itemId, settings)
 	if addon.isRetail or addon.isWrath then
 		if settings.questIndicator then
-			local questInfo = GetContainerItemQuestInfo(bag, slot)
-			--local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
-			if questInfo.questId and not questInfo.isActive then
+			if addon.isRetail then
+				local isQuestItem = SafeGetItem(GetContainerItemQuestInfo(bag, slot), "isQuestItem")
+				local questId = SafeGetItem(GetContainerItemQuestInfo(bag, slot), "questId")
+				local isActive = SafeGetItem(GetContainerItemQuestInfo(bag, slot), "isActive")
+			else
+				local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
+			end
+			if questId and not isActive then
 				return TEXTURE_ITEM_QUEST_BANG
 			end
-			if questInfo.questId or questInfo.isQuestItem then
+			if questId or isQuestItem then
 				return TEXTURE_ITEM_QUEST_BORDER
 			end
 		end
@@ -436,7 +455,12 @@ local function GetBorder(bag, slot, itemId, settings)
 	if not settings.qualityHighlight then
 		return
 	end
-	local quality = SafeGetItem(GetContainerItemInfo(bag, slot), "quality")
+	local quality
+	if addon.isRetail then
+		quality = SafeGetItem(GetContainerItemInfo(bag, slot), "quality")
+	else
+		_, _, _, quality = GetContainerItemInfo(bag, slot)
+	end
 	if quality == ITEM_QUALITY_POOR and settings.dimJunk then
 		local v = 1 - 0.5 * settings.qualityOpacity
 		return true, v, v, v, 1, nil, nil, nil, nil, "MOD"
@@ -537,13 +561,16 @@ function stackProto:UpdateVisibleSlot()
 	local bestLockedId, bestLockedCount
 	local bestUnlockedId, bestUnlockedCount
 	if self.slotId and self.slots[self.slotId] then
-		--local _, count, locked = GetContainerItemInfo(GetBagSlotFromId(self.slotId))
-		local itemInfo = GetContainerItemInfo(GetBagSlotFromId(self.slotId))
-		local count = SafeGetItem(itemInfo, "stackCount") or 1
-		local locked = SafeGetItem(itemInfo, "isLocked")
 		local count, locked
-		
-		count = count or 1
+		if addon.isRetail then
+			local itemInfo = GetContainerItemInfo(GetBagSlotFromId(self.slotId))
+			count = SafeGetItem(itemInfo, "stackCount") or 1
+			locked = SafeGetItem(itemInfo, "isLocked")
+		else
+			_, count, locked = GetContainerItemInfo(GetBagSlotFromId(self.slotId))
+			count = count or 1
+		end
+				
 		if locked then
 			bestLockedId, bestLockedCount = self.slotId, count
 		else
@@ -551,12 +578,16 @@ function stackProto:UpdateVisibleSlot()
 		end
 	end
 	for slotId in pairs(self.slots) do
-		--local _, count, locked = GetContainerItemInfo(GetBagSlotFromId(slotId))
-		local itemInfo = GetContainerItemInfo(GetBagSlotFromId(slotId))
-		local count = SafeGetItem(itemInfo, "stackCount") or 1
-		local locked = SafeGetItem(itemInfo, "isLocked")
-		
-		count = count or 1
+		local count, locked
+		if addon.isRetail then
+			local itemInfo = GetContainerItemInfo(GetBagSlotFromId(slotId))
+			count = SafeGetItem(itemInfo, "stackCount") or 1
+			locked = SafeGetItem(itemInfo, "isLocked")
+		else
+			_, count, locked = GetContainerItemInfo(GetBagSlotFromId(slotId))
+			count = count or 1
+		end
+
 		if locked then
 			if not bestLockedId or count > bestLockedCount then
 				bestLockedId, bestLockedCount = slotId, count
@@ -664,8 +695,12 @@ end
 function stackProto:UpdateCount()
 	local count = 0
 	for slotId in pairs(self.slots) do
-		itemCount = SafeGetItem(GetContainerItemInfo(GetBagSlotFromId(slotId)), "stackCount") or 1
-		count = count + itemCount
+		if addon.isRetail then
+			itemCount = SafeGetItem(GetContainerItemInfo(GetBagSlotFromId(slotId)), "stackCount") or 1
+			count = count + itemCount
+		else
+			count = count + (select(2, GetContainerItemInfo(GetBagSlotFromId(slotId))) or 1)
+		end
 	end
 	self.count = count
 	self.dirtyCount = nil
@@ -696,8 +731,12 @@ end
 local function StackSlotIterator(self, previous)
 	local slotId = next(self.slots, previous)
 	if slotId then
-		local bag, slot = GetBagSlotFromId(slotId)
-		local count = SafeGetItem(GetContainerItemInfo(bag, slot), "stackCount") or 1
+		local bag, slot, count = GetBagSlotFromId(slotId)
+		if addon.isRetail then
+			count = SafeGetItem(GetContainerItemInfo(bag, slot), "stackCount") or 1
+		else
+			_, count = GetContainerItemInfo(bag, slot)
+		end	
 		return slotId, bag, slot, self:GetItemId(), count
 	end
 end

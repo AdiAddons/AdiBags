@@ -25,10 +25,10 @@ local L = addon.L
 --<GLOBALS
 local _G = _G
 local assert = _G.assert
-local BACKPACK_CONTAINER = BACKPACK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Backpack ) or 0
+local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Backpack ) or 0
 local REAGENTBAG = ( Enum.BagIndex and Enum.BagIndex.Reagentbag ) or 5
 local band = _G.bit.band
-local BANK_CONTAINER = BANK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Bank ) or -1
+local BANK_CONTAINER = _G.BANK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Bank ) or -1
 local ceil = _G.ceil
 local CreateFrame = _G.CreateFrame
 local format = _G.format
@@ -84,6 +84,15 @@ local LSM = LibStub('LibSharedMedia-3.0')
 
 local function BagSlotButton_OnClick(button)
 	button.panel:SetShown(button:GetChecked())
+end
+
+-- Helper function, guard nil table access
+function SafeGetItem(table, key)
+	if table ~= nil then
+		return table[key]
+	else
+		return nil
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -695,11 +704,10 @@ function containerProto:UpdateContent(bag)
 					local _, speciesID = strsplit(":", link)
 					name = C_PetJournal.GetPetInfoBySpeciesID(speciesID)
 				end
-				local itemInfo = GetContainerItemInfo(bag, slot)
-				if itemInfo ~= nil then
-					count = itemInfo.stackCount
+				if addon.isRetail then
+					count = SafeGetItem(itemInfo, "stackCount") or 0
 				else
-					count = 0
+					count = select(2, GetContainerItemInfo(bag, slot)) or 0
 				end
 			else
 				link, count = false, 0
@@ -794,8 +802,10 @@ local function FilterByBag(slotData)
 		name = REAGENT_BANK
 	elseif bag <= NUM_BAG_SLOTS then
 		name = format(L["Bag #%d"], bag)
-	elseif bag == REAGENTBAG then
-		name = format(L["Reagent Bag"])
+	elseif addon.isRetail then
+		if bag == REAGENTBAG then
+			name = format(L["Reagent Bag"])
+		end
 	else
 		name = format(L["Bank bag #%d"], bag - NUM_BAG_SLOTS)
 	end
@@ -817,8 +827,12 @@ function containerProto:FilterSlot(slotData)
 		local section, category, filterName = addon:Filter(slotData, MISCELLANEOUS)
 		return section, category, filterName, addon:ShouldStack(slotData)
 	else
-		if slotData.bag == REAGENTBAG then
-			return FREE_SPACE_REAGENT, nil, nil, addon:ShouldStack(slotData)
+		if addon.isRetail then
+			if slotData.bag == REAGENTBAG then
+				return FREE_SPACE_REAGENT, nil, nil, addon:ShouldStack(slotData)
+			else
+				return FREE_SPACE, nil, nil, addon:ShouldStack(slotData)
+			end
 		else
 			return FREE_SPACE, nil, nil, addon:ShouldStack(slotData)
 		end
