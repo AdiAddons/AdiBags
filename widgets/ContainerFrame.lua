@@ -857,7 +857,6 @@ function containerProto:DispatchItem(slotData, fullUpdate)
 	local sectionName, category, filterName, shouldStack, stackHint = self:FilterSlot(slotData)
 	assert(sectionName, "sectionName is nil, item: "..(slotData.link or "none"))
 	local stackKey = shouldStack and stackHint or nil
-	--print(stackHint)
 	local existing, button = self:FindExistingButton(slotId, stackKey)
 	if existing then
 		button = existing

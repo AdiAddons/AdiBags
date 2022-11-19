@@ -434,12 +434,13 @@ end
 local function GetBorder(bag, slot, itemId, settings)
 	if addon.isRetail or addon.isWrath then
 		if settings.questIndicator then
+			local isQuestItem, questId, isActive
 			if addon.isRetail then
-				local isQuestItem = addon:SafeGetItem(GetContainerItemQuestInfo(bag, slot), "isQuestItem")
-				local questId = addon:SafeGetItem(GetContainerItemQuestInfo(bag, slot), "questId")
-				local isActive = addon:SafeGetItem(GetContainerItemQuestInfo(bag, slot), "isActive")
+				isQuestItem = addon:SafeGetItem(GetContainerItemQuestInfo(bag, slot), "isQuestItem")
+				questId = addon:SafeGetItem(GetContainerItemQuestInfo(bag, slot), "questId")
+				isActive = addon:SafeGetItem(GetContainerItemQuestInfo(bag, slot), "isActive")
 			else
-				local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
+				isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
 			end
 			if questId and not isActive then
 				return TEXTURE_ITEM_QUEST_BANG
@@ -475,6 +476,7 @@ local function hasItem(i)
 end
 
 function buttonProto:UpdateBorder(isolatedEvent)
+	self.hasItem = not not GetContainerItemID(self.bag, self.slot) --Need to Reset hasItem as it Resets to 1 for some reason
 	local texture, r, g, b, a, x1, x2, y1, y2, blendMode
 	if hasItem(self.hasItem) then
 		texture, r, g, b, a, x1, x2, y1, y2, blendMode = GetBorder(self.bag, self.slot, self.itemLink or self.itemId, addon.db.profile)
