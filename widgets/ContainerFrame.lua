@@ -26,7 +26,7 @@ local L = addon.L
 local _G = _G
 local assert = _G.assert
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Backpack ) or 0
-local REAGENTBAG = ( Enum.BagIndex and Enum.BagIndex.Reagentbag ) or 5
+local REAGENTBAG_CONTAINER = ( Enum.BagIndex and Enum.BagIndex.REAGENTBAG_CONTAINER ) or 5
 local band = _G.bit.band
 local BANK_CONTAINER = _G.BANK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Bank ) or -1
 local ceil = _G.ceil
@@ -657,6 +657,9 @@ function containerProto:UpdateContent(bag)
 	local content = self.content[bag]
 	local newSize = self:GetBagIds()[bag] and GetContainerNumSlots(bag) or 0
 	local _, bagFamily = GetContainerNumFreeSlots(bag)
+	if bag == REAGENTBAG_CONTAINER then
+		bagFamily = 2048
+	end
 	content.family = bagFamily
 	for slot = 1, newSize do
 		local itemId = GetContainerItemID(bag, slot)
@@ -794,7 +797,7 @@ local function FilterByBag(slotData)
 	elseif bag <= NUM_BAG_SLOTS then
 		name = format(L["Bag #%d"], bag)
 	elseif addon.isRetail then
-		if bag == REAGENTBAG then
+		if bag == REAGENTBAG_CONTAINER then
 			name = format(L["Reagent Bag"])
 		else
 			name = format(L["Bank bag #%d"], bag - NUM_BAG_SLOTS)
@@ -812,7 +815,7 @@ end
 
 local MISCELLANEOUS = GetItemClassInfo(_G.Enum.ItemClass.Miscellaneous)
 local FREE_SPACE = L["Free space"]
-local FREE_SPACE_REAGENT = L["Reagent Free space"]
+--local FREE_SPACE_REAGENT = L["Reagent Free space"]
 function containerProto:FilterSlot(slotData)
 	if self.BagSlotPanel:IsShown() then
 		return FilterByBag(slotData)
@@ -820,15 +823,7 @@ function containerProto:FilterSlot(slotData)
 		local section, category, filterName = addon:Filter(slotData, MISCELLANEOUS)
 		return section, category, filterName, addon:ShouldStack(slotData)
 	else
-		if addon.isRetail then
-			if slotData.bag == REAGENTBAG then
-				return FREE_SPACE_REAGENT, nil, nil, addon:ShouldStack(slotData)
-			else
-				return FREE_SPACE, nil, nil, addon:ShouldStack(slotData)
-			end
-		else
-			return FREE_SPACE, nil, nil, addon:ShouldStack(slotData)
-		end
+		return FREE_SPACE, nil, nil, addon:ShouldStack(slotData)
 	end
 end
 
@@ -862,7 +857,7 @@ function containerProto:DispatchItem(slotData, fullUpdate)
 	local sectionName, category, filterName, shouldStack, stackHint = self:FilterSlot(slotData)
 	assert(sectionName, "sectionName is nil, item: "..(slotData.link or "none"))
 	local stackKey = shouldStack and stackHint or nil
-
+	--print(stackHint)
 	local existing, button = self:FindExistingButton(slotId, stackKey)
 	if existing then
 		button = existing

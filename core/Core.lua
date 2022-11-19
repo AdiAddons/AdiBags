@@ -26,7 +26,7 @@ local L = addon.L
 local _G = _G
 local ADDON_LOAD_FAILED = _G.ADDON_LOAD_FAILED
 local BANK_CONTAINER = _G.BANK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Bank ) or -1
-local REAGENTBAG = ( Enum.BagIndex and Enum.BagIndex.Reagentbag ) or 5
+local REAGENTBAG_CONTAINER = ( Enum.BagIndex and Enum.BagIndex.REAGENTBAG_CONTAINER ) or 5
 local CloseWindows = _G.CloseWindows
 local CreateFrame = _G.CreateFrame
 local format = _G.format
@@ -466,11 +466,7 @@ function addon:ShouldStack(slotData)
 	local conf = self.db.profile.virtualStacks
 	local hintSuffix = '#'..tostring(slotData.bagFamily)
 	if not slotData.link then
-		if slotData.bag == REAGENTBAG then
-			return conf.freeSpace, "*FreeReagent*"..hintSuffix
-		else
-			return conf.freeSpace, "*Free*"..hintSuffix
-		end
+		return conf.freeSpace, "*Free*"..hintSuffix
 	end
 	if not self.db.profile.showBagType then
 		hintSuffix = ''

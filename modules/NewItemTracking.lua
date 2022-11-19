@@ -25,7 +25,7 @@ local L = addon.L
 --<GLOBALS
 local _G = _G
 local BACKPACK_CONTAINER = BACKPACK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Backpack ) or 0
-local REAGENTBAG = ( Enum.BagIndex and Enum.BagIndex.Reagentbag ) or 5
+local REAGENTBAG_CONTAINER = ( Enum.BagIndex and Enum.BagIndex.REAGENTBAG_CONTAINER ) or 5
 local CreateFrame = _G.CreateFrame
 local GetContainerItemInfo = C_Container and _G.C_Container.GetContainerItemInfo or _G.GetContainerItemInfo
 local GetContainerNumSlots = C_Container and _G.C_Container.GetContainerNumSlots or _G.GetContainerNumSlots

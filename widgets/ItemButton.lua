@@ -41,6 +41,7 @@ local IsInventoryItemLocked = _G.IsInventoryItemLocked
 local SplitContainerItem = C_Container and _G.C_Container.SplitContainerItem or _G.SplitContainerItem
 local ITEM_QUALITY_COMMON
 local ITEM_QUALITY_POOR
+local REAGENTBAG_CONTAINER = ( Enum.BagIndex and Enum.BagIndex.REAGENTBAG_CONTAINER ) or 5
 
 if addon.isRetail then
 	ITEM_QUALITY_COMMON = _G.Enum.ItemQuality.Common
@@ -315,7 +316,11 @@ function buttonProto:FullUpdate()
 	else
 		self.texture = GetContainerItemInfo(bag, slot)
 	end
-	self.bagFamily = select(2, GetContainerNumFreeSlots(bag))
+	if self.bag == REAGENTBAG_CONTAINER then
+		self.bagFamily = 2048
+	else
+		self.bagFamily = select(2, GetContainerNumFreeSlots(bag))
+	end
 	self:Update()
 end
 
@@ -326,7 +331,7 @@ function buttonProto:Update()
 		icon:SetTexture(self.texture)
 		icon:SetTexCoord(0,1,0,1)
 	else
-		icon:SetTexture(130766)
+		icon:SetTexture([[Interface\BUTTONS\UI-EmptySlot]])
 		icon:SetTexCoord(12/64, 51/64, 12/64, 51/64)
 	end
 	local tag = (not self.itemId or addon.db.profile.showBagType) and addon:GetFamilyTag(self.bagFamily)
@@ -420,8 +425,9 @@ if addon.isRetail then
 		-- Use Pawn's (third-party addon) function if present; else fallback to Blizzard's.
 		-- 10.0.2 Build 46658 No longer have IsContainerItemAnUpgrade
 		--Pawn Currently Broken and spams nil nil
-		--local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot)
-		--self.UpgradeIcon:SetShown(itemIsUpgrade or false)
+		local itemIsUpgrade = PawnIsContainerItemAnUpgrade and PawnIsContainerItemAnUpgrade(self.bag, self.slot)
+		self.UpgradeIcon:SetShown(itemIsUpgrade or false)
+		self.UpgradeIcon:SetPoint("TOPLEFT", 0, -16)
 	end
 end
 
@@ -458,7 +464,7 @@ local function GetBorder(bag, slot, itemId, settings)
 	end
 	local color = quality ~= ITEM_QUALITY_COMMON and BAG_ITEM_QUALITY_COLORS[quality]
 	if color then
-		return 130739, color.r, color.g, color.b, settings.qualityOpacity, 14/64, 49/64, 15/64, 50/64, "ADD"
+		return [[Interface\Buttons\UI-ActionButton-Border]], color.r, color.g, color.b, settings.qualityOpacity, 14/64, 49/64, 15/64, 50/64, "ADD"
 	end
 end
 

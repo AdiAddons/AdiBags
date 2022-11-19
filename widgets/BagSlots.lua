@@ -25,7 +25,7 @@ local L = addon.L
 --<GLOBALS
 local _G = _G
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Backpack ) or 0
-local REAGENTBAG = ( Enum.BagIndex and Enum.BagIndex.Reagentbag ) or 5
+local REAGENTBAG_CONTAINER = ( Enum.BagIndex and Enum.BagIndex.REAGENTBAG_CONTAINER ) or 5
 local band = _G.bit.band
 local BankFrame = _G.BankFrame
 local BANK_BAG = _G.BANK_BAG
@@ -278,7 +278,7 @@ function bagButtonProto:Update()
 			self.Count:Hide()
 		end
 	else
-		icon = 136511
+		icon = [[Interface\PaperDoll\UI-PaperDoll-Slot-Bag]]
 		self.Count:Hide()
 	end
 	SetItemButtonTexture(self, icon)
@@ -470,12 +470,27 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	local x = BAG_INSET
 	local height = 0
 	for i, bag in ipairs(bags) do
-		if bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER and bag ~= REAGENTBANK_CONTAINER then
-			local button = buttonClass:Create(bag)
+		local button
+		if bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER and bag ~= REAGENTBANK_CONTAINER and bag ~= REAGENTBAG_CONTAINER then
+			button = buttonClass:Create(bag)
 			button:SetParent(self)
 			button:SetPoint("TOPLEFT", x, -TOP_PADDING)
 			button:Show()
 			x = x + ITEM_SIZE + ITEM_SPACING
+			tinsert(self.buttons, button)
+		elseif bag == REAGENTBAG_CONTAINER then
+			local titleReagent = self:CreateFontString(nil, "OVERLAY")
+			self.TitleReagent = titleReagent
+			titleReagent:SetFontObject(addon.bagFont)
+			titleReagent:SetText(L["Reagent"])
+			titleReagent:SetJustifyH("RIGHT")
+			titleReagent:SetPoint("TOPRIGHT", -BAG_INSET, -BAG_INSET)
+		
+			button = buttonClass:Create(bag)
+			button:SetParent(self)
+			button:SetPoint("TOPLEFT", x + ITEM_SIZE, -TOP_PADDING)
+			button:Show()
+			x = x + ITEM_SIZE + ITEM_SPACING + ITEM_SIZE
 			tinsert(self.buttons, button)
 		end
 	end

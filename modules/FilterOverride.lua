@@ -54,8 +54,8 @@ local wipe = _G.wipe
 local BuildSectionKey = addon.BuildSectionKey
 local SplitSectionKey = addon.SplitSectionKey
 
-local JUNK, FREE_SPACE, FREE_SPACE_REAGENT = GetItemSubClassInfo(_G.Enum.ItemClass.Miscellaneous, 0), L["Free space"], L["Reagent Free space"]
-local JUNK_KEY, FREE_SPACE_KEY, FREE_SPACE_REAGENT_KEY = BuildSectionKey(JUNK, JUNK), BuildSectionKey(FREE_SPACE, FREE_SPACE), BuildSectionKey(FREE_SPACE_REAGENT, FREE_SPACE_REAGENT)
+local JUNK, FREE_SPACE = GetItemSubClassInfo(_G.Enum.ItemClass.Miscellaneous, 0), L["Free space"]--, L["Reagent Free space"]
+local JUNK_KEY, FREE_SPACE_KEY = BuildSectionKey(JUNK, JUNK), BuildSectionKey(FREE_SPACE, FREE_SPACE)--, BuildSectionKey(FREE_SPACE_REAGENT, FREE_SPACE_REAGENT)
 
 local mod = addon:RegisterFilter("FilterOverride", 95, "ABEvent-1.0")
 mod.uiName = L['Manual filtering']
@@ -105,7 +105,7 @@ function mod:UpgradeProfile()
 	if self.db.profile.version < 3 then
 		local overrides = self.db.profile.overrides
 		for itemId, key in pairs(overrides) do
-			if key == FREE_SPACE_KEY or FREE_SPACE_REAGENT_KEY then
+			if key == FREE_SPACE_KEY then
 				overrides[itemId] = nil
 			end
 		end
@@ -164,7 +164,7 @@ function mod:GetOptions()
 
 	local categoryValues = {}
 	for name in addon:IterateCategories() do
-		if name ~= FREE_SPACE or FREE_SPACE_REAGENT then
+		if name ~= FREE_SPACE then
 			categoryValues[name] = name
 		end
 	end
