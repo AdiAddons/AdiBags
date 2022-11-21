@@ -434,7 +434,7 @@ end
 -- Bugfix: This fixes a bug where hasItem might be set to 1 by
 -- some internal Blizzard code.
 local function hasItem(i)
-	return i and i ~= 1
+	return i
 end
 
 function buttonProto:UpdateBorder(isolatedEvent)
