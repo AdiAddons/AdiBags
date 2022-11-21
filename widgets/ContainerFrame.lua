@@ -31,12 +31,11 @@ local BANK_CONTAINER = _G.BANK_CONTAINER
 local ceil = _G.ceil
 local CreateFrame = _G.CreateFrame
 local format = _G.format
-local GetContainerFreeSlots = _G.GetContainerFreeSlots
-local GetContainerItemID = _G.GetContainerItemID
-local GetContainerItemInfo = _G.GetContainerItemInfo
-local GetContainerItemLink = _G.GetContainerItemLink
-local GetContainerNumFreeSlots = _G.GetContainerNumFreeSlots
-local GetContainerNumSlots = _G.GetContainerNumSlots
+local GetContainerFreeSlots = C_Container and C_Container.GetContainerFreeSlots or GetContainerFreeSlots
+local GetContainerItemID = C_Container and C_Container.GetContainerItemID or GetContainerItemID
+local GetContainerItemLink = C_Container and C_Container.GetContainerItemLink or GetContainerItemLink
+local GetContainerNumFreeSlots = C_Container and C_Container.GetContainerNumFreeSlots or GetContainerNumFreeSlots
+local GetContainerNumSlots = C_Container and C_Container.GetContainerNumSlots or GetContainerNumSlots
 local GetCursorInfo = _G.GetCursorInfo
 local GetItemInfo = _G.GetItemInfo
 local GetItemGUID = _G.C_Item.GetItemGUID
@@ -271,10 +270,19 @@ function containerProto:OnCreate(name, isBank, bagObject)
 
 		-- Force full layout on sort
 		if isBank then
-			hooksecurefunc('SortBankBags', ForceFullLayout)
-			hooksecurefunc('SortReagentBankBags', ForceFullLayout)
+			if C_Container then
+				hooksecurefunc(C_Container, 'SortBankBags', ForceFullLayout)
+				hooksecurefunc(C_Container, 'SortReagentBankBags', ForceFullLayout)
+			else
+				hooksecurefunc('SortBankBags', ForceFullLayout)
+				hooksecurefunc('SortReagentBankBags', ForceFullLayout)
+			end
 		else
-			hooksecurefunc('SortBags', ForceFullLayout)
+			if C_Container then
+				hooksecurefunc(C_Container,'SortBags', ForceFullLayout)
+			else
+				hooksecurefunc('SortBags', ForceFullLayout)
+			end
 		end
 	end
 end
@@ -675,7 +683,7 @@ function containerProto:UpdateContent(bag)
 					local _, speciesID = strsplit(":", link)
 					name = C_PetJournal.GetPetInfoBySpeciesID(speciesID)
 				end
-				count = select(2, GetContainerItemInfo(bag, slot)) or 0
+				count = addon:GetContainerItemStackCount(bag, slot) or 0
 			else
 				link, count = false, 0
 			end
@@ -780,7 +788,7 @@ local function FilterByBag(slotData)
 	end
 end
 
-local MISCELLANEOUS = GetItemClassInfo(LE_ITEM_CLASS_MISCELLANEOUS)
+local MISCELLANEOUS = GetItemClassInfo(Enum.ItemClass.Miscellaneous)
 local FREE_SPACE = L["Free space"]
 function containerProto:FilterSlot(slotData)
 	if self.BagSlotPanel:IsShown() then
