@@ -25,7 +25,8 @@ local L = addon.L
 --<GLOBALS
 local _G = _G
 local ADDON_LOAD_FAILED = _G.ADDON_LOAD_FAILED
-local BANK_CONTAINER = _G.BANK_CONTAINER
+local BANK_CONTAINER = _G.BANK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Bank ) or -1
+local REAGENTBAG_CONTAINER = ( Enum.BagIndex and Enum.BagIndex.REAGENTBAG_CONTAINER ) or 5
 local CloseWindows = _G.CloseWindows
 local CreateFrame = _G.CreateFrame
 local format = _G.format
