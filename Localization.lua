@@ -54,6 +54,7 @@ L["ENGINEERING_BAG_TAG"] = "Eg"
 L["KEYRING_TAG"] = "Ke"
 L["GEM_BAG_TAG"] = "Ge"
 L["MINING_BAG_TAG"] = "Mi"
+L["REAGENT_BAG_TAG"] = "Re"
 L["TACKLE_BOX_TAG"] = "Fi"
 L["COOKING_BAR_TAG"] = "Co"
 
