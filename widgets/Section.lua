@@ -57,7 +57,8 @@ local HEADER_SIZE = addon.HEADER_SIZE
 --------------------------------------------------------------------------------
 
 local categoryOrder = {
-	[L["Free space"]] = -100
+	[L["Free space"]] = -100,
+	[L["Reagent Free space"]] = -101
 }
 
 function addon:SetCategoryOrder(name, order)
