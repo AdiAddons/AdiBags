@@ -467,12 +467,26 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 	local x = BAG_INSET
 	local height = 0
 	for i, bag in ipairs(bags) do
-		if bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER and bag ~= REAGENTBANK_CONTAINER then
+		if bag ~= BACKPACK_CONTAINER and bag ~= BANK_CONTAINER and bag ~= REAGENTBANK_CONTAINER and bag ~= bag ~= REAGENTBAG_CONTAINER then
 			local button = buttonClass:Create(bag)
 			button:SetParent(self)
 			button:SetPoint("TOPLEFT", x, -TOP_PADDING)
 			button:Show()
 			x = x + ITEM_SIZE + ITEM_SPACING
+			tinsert(self.buttons, button)
+		elseif bag == REAGENTBAG_CONTAINER then
+			local titleReagent = self:CreateFontString(nil, "OVERLAY")
+			self.TitleReagent = titleReagent
+			titleReagent:SetFontObject(addon.bagFont)
+			titleReagent:SetText(L["Reagent"])
+			titleReagent:SetJustifyH("RIGHT")
+			titleReagent:SetPoint("TOPRIGHT", -BAG_INSET, -BAG_INSET)
+
+			local button = buttonClass:Create(bag)
+			button:SetParent(self)
+			button:SetPoint("TOPLEFT", x + ITEM_SIZE, -TOP_PADDING)
+			button:Show()
+			x = x + ITEM_SIZE + ITEM_SPACING + ITEM_SIZE
 			tinsert(self.buttons, button)
 		end
 	end
