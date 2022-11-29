@@ -346,6 +346,7 @@ do
 		maxLevelRanges = {
 			[50] = {  72, 140 }, -- Battle for Azeroth
 			[60] = { 158, 233 }, -- Shadowlands
+			[70] = { 252, 434 }, -- Dragonflight
 		}
 	else
 		maxLevelRanges = {
