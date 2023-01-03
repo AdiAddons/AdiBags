@@ -187,7 +187,7 @@ function addon:EnableHooks()
 	self:SecureHook("CloseBag")
 	self:RawHook("OpenBackpack", true)
 	self:SecureHook("CloseBackpack")
-	self:SecureHook('CloseSpecialWindows', true)
+	self:SecureHook('CloseSpecialWindows')
 end
 
 function addon:DisableHooks()
