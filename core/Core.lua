@@ -179,15 +179,15 @@ end
 
 function addon:EnableHooks()
 	self:RawHook("OpenAllBags", true)
-	self:RawHook("CloseAllBags", true)
+	self:SecureHook("CloseAllBags")
 	self:RawHook("ToggleAllBags", true)
 	self:RawHook("ToggleBackpack", true)
 	self:RawHook("ToggleBag", true)
 	self:RawHook("OpenBag", true)
-	self:RawHook("CloseBag", true)
+	self:SecureHook("CloseBag")
 	self:RawHook("OpenBackpack", true)
-	self:RawHook("CloseBackpack", true)
-	self:RawHook('CloseSpecialWindows', true)
+	self:SecureHook("CloseBackpack")
+	self:SecureHook('CloseSpecialWindows', true)
 end
 
 function addon:DisableHooks()
