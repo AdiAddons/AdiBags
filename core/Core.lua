@@ -117,6 +117,14 @@ function addon:OnInitialize()
 	end
 	--@end-alpha@
 
+	-- Disable various tutorial windows
+	C_CVar.SetCVar("showTutorials", 0)
+	C_CVar.SetCVar("showNPETutorials", 0)
+	C_CVar.SetCVarBitfield("closedInfoFrames", LE_FRAME_TUTORIAL_CLEAN_UP_BAGS, true)
+	C_CVar.SetCVarBitfield("closedInfoFrames", LE_FRAME_TUTORIAL_BAG_SETTINGS, true)
+	C_CVar.SetCVarBitfield("closedInfoFrames", LE_FRAME_TUTORIAL_BAG_SLOTS_AUTHENTICATOR, true)
+	C_CVar.SetCVarBitfield("closedInfoFrames", LE_FRAME_TUTORIAL_AZERITE_ITEM_IN_BAG, true)
+
 	self:Debug('Initialized')
 end
 
