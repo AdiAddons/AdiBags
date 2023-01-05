@@ -213,6 +213,5 @@ function addon:ToggleBackpack()
 end
 
 function addon:CloseSpecialWindows()
-	local found = self.hooks.CloseSpecialWindows()
-	return self:CloseAllBags() or found
+	return self:CloseAllBags()
 end
