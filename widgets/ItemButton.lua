@@ -406,6 +406,8 @@ end
 function buttonProto:UpdateNew()
 	if addon.isRetail then
 		self.BattlepayItemTexture:SetShown(IsBattlePayItem(self.bag, self.slot))
+	elseif addon.isWrath then
+		self.BattlepayItemTexture:SetShown(false)
 	end
 end
 
