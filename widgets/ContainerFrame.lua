@@ -470,6 +470,9 @@ function containerProto:OnShow()
 end
 
 function containerProto:OnHide()
+	if self.isReagentBank then
+		self:ShowReagentTab(false)
+	end
 	containerParentProto.OnHide(self)
 	PlaySound(self.isBank and SOUNDKIT.IG_MAINMENU_CLOSE or SOUNDKIT.IG_BACKPACK_CLOSE)
 	self:PauseUpdates()
