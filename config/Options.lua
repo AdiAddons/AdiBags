@@ -773,3 +773,7 @@ function addon:OpenOptions(...)
 		AceConfigDialog:Open(addonName)
 	end
 end
+
+function addon:CloseOptions()
+	AceConfigDialog:Close(addonName)
+end
