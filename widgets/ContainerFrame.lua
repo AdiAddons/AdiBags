@@ -155,7 +155,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	headerLeftRegion:SetFrameLevel(frameLevel)
 
 	local headerRightRegion = SimpleLayeredRegion:Create(self, "TOPRIGHT", "LEFT", 4)
-	headerRightRegion:SetPoint("TOPRIGHT", -32, -BAG_INSET)
+	headerRightRegion:SetPoint("TOPRIGHT", -BAG_INSET, -BAG_INSET)
 	self.HeaderRightRegion = headerRightRegion
 	self:AddWidget(headerRightRegion)
 	headerRightRegion:SetFrameLevel(frameLevel)
@@ -179,9 +179,10 @@ function containerProto:OnCreate(name, isBank, bagObject)
 
 	local closeButton = CreateFrame("Button", nil, self, "UIPanelCloseButton")
 	self.CloseButton = closeButton
-	closeButton:SetPoint("TOPRIGHT", -2, -2)
+	closeButton:SetSize(20, 20)
 	addon.SetupTooltip(closeButton, L["Close"])
 	closeButton:SetFrameLevel(frameLevel)
+	headerRightRegion:AddWidget(closeButton, 200)
 
 	local bagSlotButton = CreateFrame("CheckButton", nil, self)
 	bagSlotButton:SetNormalTexture([[Interface\Buttons\Button-Backpack-Up]])
