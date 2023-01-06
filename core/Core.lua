@@ -506,8 +506,27 @@ end
 local LSM = LibStub('LibSharedMedia-3.0')
 
 function addon:GetContainerSkin(containerName, isReagentBank)
-	local skin = self.db.profile.skin
-	local r, g, b, a = unpack(skin[isReagentBank and "ReagentBankColor" or (containerName..'Color')], 1, 4)
+	local currentTheme = addon:GetCurrentTheme()
+--[[
+	print(currentTheme)
+	print(addon.db.profile.theme)
+	local backdrop = currentTheme.backpackTexture
+	if isReagentBank then
+		backdrop = currentTheme.reagentBankTexture
+	elseif containerName == "Bank" then
+		backdrop = currentTheme.bankTexture
+	end
+--]]
+	local skin
+	if isReagentBank then
+		skin = currentTheme.reagentBank
+	else
+		skin = currentTheme[string.lower(containerName)]
+	end
+
+	--local skin = self.db.profile.skin
+	print(skin)
+	local r, g, b, a = unpack(skin.color, 1, 4)
 	local backdrop = addon.BACKDROP
 	backdrop.bgFile = LSM:Fetch(LSM.MediaType.BACKGROUND, skin.background)
 	backdrop.edgeFile = LSM:Fetch(LSM.MediaType.BORDER, skin.border)

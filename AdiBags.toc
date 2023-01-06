@@ -48,6 +48,7 @@ core\EventHandlers.lua
 core\Constants.lua
 core\Utility.lua
 core\Fonts.lua
+core\Theme.lua
 core\Core.lua
 core\Hooks.lua
 core\Bags.lua

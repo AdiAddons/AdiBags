@@ -458,6 +458,7 @@ function containerProto:CanUpdate()
 end
 
 function containerProto:ConfigChanged(event, name)
+	print("conifig changed")
 	if strsplit('.', name) == 'skin' then
 		self:UpdateSkin()
 	end

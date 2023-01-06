@@ -176,6 +176,37 @@ addon.DEFAULT_SETTINGS = {
 			BankColor = { 0, 0, 0.5, 1 },
 			ReagentBankColor = { 0, 0.5, 0, 1 },
 		},
+		theme = {
+			currentTheme = "default",
+			themes = {
+				broken = {
+
+				},
+				default = {
+					backpack = {
+						background = "Blizzard Tooltip",
+						border = "Blizzard Tooltip",
+						borderWidth = 16,
+						insets = 3,
+						color = { 0, 0, 0, 1 },
+					},
+					bank = {
+						background = "Blizzard Tooltip",
+						border = "Blizzard Tooltip",
+						borderWidth = 16,
+						insets = 3,
+						color = { 0, 0, 0.5, 1 },
+					},
+					reagentBank = {
+						background = "Blizzard Tooltip",
+						border = "Blizzard Tooltip",
+						borderWidth = 16,
+						insets = 3,
+						color = { 0, 0.5, 0, 1 },
+					},
+				},
+			},
+		},
 		rightClickConfig = true,
 		autoOpen = true,
 		hideAnchor = false,

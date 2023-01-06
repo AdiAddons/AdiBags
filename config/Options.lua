@@ -436,6 +436,32 @@ local function GetOptions()
 					},
 				},
 			},
+			theme = {
+				name = L['Theme'],
+				type = 'group',
+				order = 150,
+				args = {
+					currentTheme = {
+						name = L['Theme'],
+						desc = L['Select the theme to use for displaying the bags.'],
+						type = 'select',
+						values = function()
+							local themes = {}
+							for name in pairs(addon.db.profile.theme.themes) do
+								themes[name] = name
+							end
+							return themes
+						end,
+						get = function()
+							return addon.db.profile.theme.currentTheme
+						end,
+						set = function(_, value)
+							addon:SetTheme(value)
+						end,
+						arg = { "theme", "currentTheme" },
+					}
+				}
+			},
 			skin = {
 				name = L['Skin'],
 				type = 'group',
