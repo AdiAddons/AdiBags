@@ -178,7 +178,21 @@ addon.DEFAULT_SETTINGS = {
 		},
 		theme = {
 			currentTheme = "default",
-			backpackOptions = {
+			backpack = {
+				texture = "Blizzard Tooltip",
+				border = "Blizzard Tooltip",
+				borderWidth = 16,
+				insets = 3,
+				color = { 0, 0, 0.6, 1 },
+			},
+			bank = {
+				texture = "Blizzard Tooltip",
+				border = "Blizzard Tooltip",
+				borderWidth = 16,
+				insets = 3,
+				color = { 0, 0, 0.6, 1 },
+			},
+			reagentBank = {
 				texture = "Blizzard Tooltip",
 				border = "Blizzard Tooltip",
 				borderWidth = 16,

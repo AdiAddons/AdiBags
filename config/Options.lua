@@ -235,6 +235,57 @@ local function UpdateFilterOrder()
 	end
 end
 
+local function CreateBagOptions(name, key)
+	local option = {
+		name = L[name],
+		type = 'group',
+		args = {
+			background = {
+				name = L['Background'],
+				type = 'select',
+				dialogControl = 'LSM30_Background',
+				values = AceGUIWidgetLSMlists.background,
+				order = 10,
+				arg = { "theme", key, "background" },
+			},
+			insets = {
+				name = L['Insets'],
+				type = 'range',
+				order = 20,
+				min = -16,
+				max = 16,
+				step = 1,
+				arg = { "theme", key, "insets" },
+			},
+			border = {
+				name = L['Border'],
+				type = 'select',
+				dialogControl = 'LSM30_Border',
+				values = AceGUIWidgetLSMlists.border,
+				order = 30,
+				arg = { "theme", key, "border" },
+			},
+			borderWidth = {
+				name = L['Border Width'],
+				type = 'range',
+				order = 40,
+				min = 1,
+				max = 64,
+				step = 1,
+				arg = { "theme", key, "borderWidth" },
+			},
+		color = {
+				name = L['Color'],
+				type = 'color',
+				order = 50,
+				hasAlpha = true,
+				arg = { "theme", key, "color" },
+			},
+		}
+	}
+	return option
+end
+
 --------------------------------------------------------------------------------
 -- Core options
 --------------------------------------------------------------------------------
@@ -460,53 +511,9 @@ local function GetOptions()
 						end,
 						arg = { "theme", "currentTheme" },
 					},
-					backpackOptions = {
-						name = L['Backpack'],
-						type = 'group',
-						args = {
-							texture = {
-								name = L['Texture'],
-								type = 'select',
-								dialogControl = 'LSM30_Background',
-								values = AceGUIWidgetLSMlists.background,
-								order = 10,
-								arg = { "theme", "backpackOptions", "texture" },
-							},
-							insets = {
-								name = L['Insets'],
-								type = 'range',
-								order = 20,
-								min = -16,
-								max = 16,
-								step = 1,
-								arg = { "theme", "backpackOptions", "insets" },
-							},
-							border = {
-								name = L['Border'],
-								type = 'select',
-								dialogControl = 'LSM30_Border',
-								values = AceGUIWidgetLSMlists.border,
-								order = 30,
-								arg = { "theme", "backpackOptions", "border" },
-							},
-							borderWidth = {
-								name = L['Border Width'],
-								type = 'range',
-								order = 40,
-								min = 1,
-								max = 64,
-								step = 1,
-								arg = { "theme", "backpackOptions", "borderWidth" },
-							},
-						color = {
-								name = L['Color'],
-								type = 'color',
-								order = 50,
-								hasAlpha = true,
-								arg = { "theme", "backpackOptions", "color" },
-							},
-						}
-					}
+					backpack = CreateBagOptions("Backpack", "backpack"),
+					bank = CreateBagOptions("Bank", "bank"),
+					reagentBank = CreateBagOptions("Reagent Bank", "reagentBank"),
 				}
 			},
 			skin = {

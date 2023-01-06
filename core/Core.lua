@@ -506,26 +506,11 @@ end
 local LSM = LibStub('LibSharedMedia-3.0')
 
 function addon:GetContainerSkin(containerName, isReagentBank)
-	local currentTheme = addon:GetCurrentTheme()
-
-	if not currentTheme then
-		currentTheme = addon:GetTheme('default')
-	end
---[[
-	print(currentTheme)
-	print(addon.db.profile.theme)
-	local backdrop = currentTheme.backpackTexture
-	if isReagentBank then
-		backdrop = currentTheme.reagentBankTexture
-	elseif containerName == "Bank" then
-		backdrop = currentTheme.bankTexture
-	end
---]]
 	local skin
 	if isReagentBank then
-		skin = currentTheme.reagentBank
+		skin = addon.db.profile.theme.reagentBank
 	else
-		skin = currentTheme[string.lower(containerName)]
+		skin = addon.db.profile.theme[string.lower(containerName)]
 	end
 
 	local r, g, b, a = unpack(skin.color, 1, 4)

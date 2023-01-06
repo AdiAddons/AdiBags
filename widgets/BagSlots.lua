@@ -436,7 +436,7 @@ local function Panel_UpdateSkin(self)
 end
 
 local function Panel_ConfigChanged(self, event, name)
-	if strsplit('.', name) == 'skin' then
+	if strsplit('.', name) == 'theme' then
 		return Panel_UpdateSkin(self)
 	end
 end
