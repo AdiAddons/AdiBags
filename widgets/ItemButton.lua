@@ -404,7 +404,9 @@ function buttonProto:UpdateCooldownCallback()
 end
 
 function buttonProto:UpdateNew()
-	self.BattlepayItemTexture:SetShown(IsBattlePayItem(self.bag, self.slot))
+	if addon.isRetail then
+		self.BattlepayItemTexture:SetShown(IsBattlePayItem(self.bag, self.slot))
+	end
 end
 
 if addon.isRetail then
