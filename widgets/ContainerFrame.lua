@@ -177,13 +177,6 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.BagSlotPanel = bagSlotPanel
 	wipe(bagSlots)
 
-	local closeButton = CreateFrame("Button", nil, self, "UIPanelCloseButton")
-	self.CloseButton = closeButton
-	closeButton:SetSize(20, 20)
-	addon.SetupTooltip(closeButton, L["Close"])
-	closeButton:SetFrameLevel(frameLevel)
-	headerRightRegion:AddWidget(closeButton, 200)
-
 	local bagSlotButton = CreateFrame("CheckButton", nil, self)
 	bagSlotButton:SetNormalTexture([[Interface\Buttons\Button-Backpack-Up]])
 	bagSlotButton:SetCheckedTexture([[Interface\Buttons\CheckButtonHilight]])
@@ -226,6 +219,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 		end
 		self:CreateSortButton()
 	end
+	self.CloseButton = self:CreateCloseButton()
 
 	local toSortSection = addon:AcquireSection(self, L["Recent Items"], self.name)
 	toSortSection:SetPoint("TOPLEFT", BAG_INSET, -addon.TOP_PADDING)
@@ -362,6 +356,17 @@ function containerProto:CreateDepositButton()
 		button:SetScript('OnEvent', button.Show)
 		button:RegisterEvent('REAGENTBANK_PURCHASED')
 	end
+end
+
+function containerProto:CreateCloseButton()
+	return self:CreateModuleButton(
+		"X",
+		200,
+		function()
+			self:Close()
+		end,
+		L["Close"]
+	)
 end
 
 function containerProto:CreateSortButton()
