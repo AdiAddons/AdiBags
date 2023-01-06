@@ -25,12 +25,17 @@ local LSM = LibStub('LibSharedMedia-3.0')
 
 local _G = _G
 
-function addon:AddTheme(name, theme)
-  self.db.profile.theme.themes[name] = theme
+-- UpsertTheme will create a new theme if it doesn't exist, or update an existing one.
+-- Updates are a deep copy, so partial theme updates are allowed.
+function addon:UpsertTheme(name, theme)
+  assert(type(theme) == 'table', 'Theme must be a table')
+  if not self.db.profile.theme.themes[name] then
+    self.db.profile.theme.themes[name] = {}
+  end
+  _G.MergeTable(self.db.profile.theme.themes[name], theme)
 end
 
 function addon:SetTheme(name)
-  -- TODO(lobato): Send message for theme change
   self.db.profile.theme.currentTheme = name
   addon:SendMessage('AdiBags_ThemeChanged')
 end

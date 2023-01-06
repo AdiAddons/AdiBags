@@ -178,10 +178,14 @@ addon.DEFAULT_SETTINGS = {
 		},
 		theme = {
 			currentTheme = "default",
+			backpackOptions = {
+				texture = "Blizzard Tooltip",
+				border = "Blizzard Tooltip",
+				borderWidth = 16,
+				insets = 3,
+				color = { 0, 0, 0.6, 1 },
+			},
 			themes = {
-				broken = {
-
-				},
 				default = {
 					backpack = {
 						background = "Blizzard Tooltip",
