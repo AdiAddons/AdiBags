@@ -117,11 +117,13 @@ function addon:OnInitialize()
 	end
 	--@end-alpha@
 
-	-- Disable the reagent bag tutorial
-	C_CVar.SetCVarBitfield("closedInfoFrames", LE_FRAME_TUTORIAL_EQUIP_REAGENT_BAG, true)
-	C_CVar.SetCVar("professionToolSlotsExampleShown", 1)
-	C_CVar.SetCVar("professionAccessorySlotsExampleShown", 1)
-	
+	if addon.isRetail then
+		-- Disable the reagent bag tutorial
+		C_CVar.SetCVarBitfield("closedInfoFrames", LE_FRAME_TUTORIAL_EQUIP_REAGENT_BAG, true)
+		C_CVar.SetCVar("professionToolSlotsExampleShown", 1)
+		C_CVar.SetCVar("professionAccessorySlotsExampleShown", 1)
+	end
+
 	self:Debug('Initialized')
 end
 
