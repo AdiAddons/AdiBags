@@ -74,6 +74,7 @@ modules\TooltipInfo.lua
 modules\SectionVisibilityDropdown.lua
 modules\BankSwitcher.lua
 modules\ChangeHighlight.lua
+modules\Masque.lua
 
 core\DefaultFilters.lua
 
