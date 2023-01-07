@@ -84,11 +84,25 @@ function addon:OnInitialize()
 	bfd.r, bfd.g, bfd.b = 1, 1, 1
 	self.DEFAULT_SETTINGS.profile.bagFont = bfd
 	self.DEFAULT_SETTINGS.profile.sectionFont = self:GetFontDefaults(GameFontNormalLeft)
+	
+	for _, name in ipairs({"backpack", "bank", "reagentBank"}) do
+		local bfd = self:GetFontDefaults(GameFontHighlightLarge)
+		bfd.r, bfd.g, bfd.b = 1, 1, 1
+		self.DEFAULT_SETTINGS.profile.theme[name].bagFont = bfd
+		self.DEFAULT_SETTINGS.profile.theme[name].sectionFont = self:GetFontDefaults(GameFontNormalLeft)
+	end
 
 	self.db = LibStub('AceDB-3.0'):New(addonName.."DB", self.DEFAULT_SETTINGS, true)
 	self.db.RegisterCallback(self, "OnProfileChanged")
 	self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
 	self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
+	self.fonts = {}
+	for _, name in ipairs({"backpack", "bank", "reagentBank"}) do
+		self.fonts[name] = {
+			bagFont = self:CreateFont(addonName..name.."BagFont", GameFontHighlightLarge, function() return addon.db.profile.theme[name].bagFont end),
+			sectionFont = self:CreateFont(addonName..name.."SectionFont", GameFontNormalLeft, function() return addon.db.profile.theme[name].sectionFont end)
+		}
+	end
 
 	self.bagFont = self:CreateFont(addonName.."BagFont", GameFontHighlightLarge, function() return self.db.profile.bagFont end)
 	self.sectionFont = self:CreateFont(addonName.."SectionFont", GameFontNormalLeft, function() return self.db.profile.sectionFont end)
@@ -224,7 +238,7 @@ function addon:OnProfileChanged()
 end
 
 function addon:UpgradeProfile()
-	
+
 end
 
 --------------------------------------------------------------------------------

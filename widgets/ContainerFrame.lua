@@ -200,7 +200,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 
 	local title = self:CreateFontString(self:GetName().."Title","OVERLAY")
 	self.Title = title
-	title:SetFontObject(addon.bagFont)
+	title:SetFontObject(addon.fonts[string.lower(name)].bagFont)
 	title:SetText(L[name])
 	title:SetHeight(18)
 	title:SetJustifyH("LEFT")
