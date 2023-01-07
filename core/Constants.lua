@@ -142,7 +142,6 @@ addon.DEFAULT_SETTINGS = {
 		bags = {
 			["*"] = true,
 		},
-		positionMode = "anchored",
 		positions = {
 			anchor = { point = "BOTTOMRIGHT", xOffset = -32, yOffset = 200 },
 			Backpack = { point = "BOTTOMRIGHT", xOffset = -32, yOffset = 200 },
@@ -219,7 +218,6 @@ addon.DEFAULT_SETTINGS = {
 		},
 		rightClickConfig = true,
 		autoOpen = true,
-		hideAnchor = false,
 		autoDeposit = false,
 		compactLayout = false,
 		gridLayout = false,

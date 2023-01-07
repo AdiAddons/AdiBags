@@ -275,6 +275,8 @@ function addon:UpgradeProfile()
 		addon.db.profile.bagFont = nil
 		addon.db.profile.sectionFont = nil
 	end
+	addon.db.profile.hideAnchor = nil
+	addon.db.profile.positionMode = nil
 end
 
 --------------------------------------------------------------------------------
