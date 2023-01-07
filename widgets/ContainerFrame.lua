@@ -523,12 +523,22 @@ function containerProto:ShowReagentTab(show)
 	local previousBags = self:GetBagIds()
 	self.isReagentBank = show
 
+	if self.isReagentBank then
+		self.Title:SetFontObject(addon.fonts.reagentBank.bagFont)
+	else
+		self.Title:SetFontObject(addon.fonts[string.lower(self.name)].bagFont)
+	end
+
 	for bag in pairs(previousBags) do
 		self:UpdateContent(bag)
 	end
 	self.forceLayout = true
 	self:RefreshContents()
 	self:UpdateSkin()
+
+	for _, section in pairs(self.sections) do
+		section:UpdateFont()
+	end
 end
 
 function containerProto:AUCTION_MULTISELL_UPDATE(event, current, total)

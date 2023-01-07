@@ -131,8 +131,8 @@ function sectionProto:OnAcquire(container, name, category)
 	self:SetSizeInSlots(0, 0)
 	self.count = 0
 	self.container = container
-	self.Header:SetNormalFontObject(addon.fonts[string.lower(container.name)].sectionFont)
 	self:RegisterMessage('AdiBags_OrderChanged', 'FullLayout')
+	self.Header:SetNormalFontObject(addon.fonts[string.lower(container.name)].sectionFont)
 	self.Header:SetText(self.name)
 	self:UpdateHeaderScripts()
 end
@@ -144,6 +144,14 @@ function sectionProto:OnRelease()
 	self.name = nil
 	self.category = nil
 	self.container = nil
+end
+
+function sectionProto:UpdateFont()
+	if self.container.isReagentBank then
+		self.Header:SetNormalFontObject(addon.fonts.reagentBank.sectionFont)
+	else
+		self.Header:SetNormalFontObject(addon.fonts[string.lower(self.container.name)].sectionFont)
+	end
 end
 
 function sectionProto:GetOrder()

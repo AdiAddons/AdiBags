@@ -247,7 +247,7 @@ function addon:OnProfileChanged()
 end
 
 function addon:UpgradeProfile()
-
+	-- TODO(lobato): Migrate skin settings to the theme format
 end
 
 --------------------------------------------------------------------------------
