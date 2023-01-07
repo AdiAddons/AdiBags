@@ -93,7 +93,6 @@ function sectionProto:OnCreate()
 
 	local header = CreateFrame("Button", nil, self)
 	header.section = self
-	header:SetNormalFontObject(addon.sectionFont)
 	header:SetPoint("TOPLEFT", 0, 0)
 	header:SetPoint("TOPRIGHT", SECTION_SPACING - ITEM_SPACING, 0)
 	header:SetHeight(HEADER_SIZE)
@@ -132,6 +131,7 @@ function sectionProto:OnAcquire(container, name, category)
 	self:SetSizeInSlots(0, 0)
 	self.count = 0
 	self.container = container
+	self.Header:SetNormalFontObject(addon.fonts[string.lower(container.name)].sectionFont)
 	self:RegisterMessage('AdiBags_OrderChanged', 'FullLayout')
 	self.Header:SetText(self.name)
 	self:UpdateHeaderScripts()

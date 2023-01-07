@@ -456,7 +456,7 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 
 	local title = self:CreateFontString(nil, "OVERLAY")
 	self.Title = title
-	title:SetFontObject(addon.bagFont)
+	title:SetFontObject(addon.fonts[string.lower(name)].bagFont)
 	title:SetText(L["Equipped bags"])
 	title:SetJustifyH("LEFT")
 	title:SetPoint("TOPLEFT", BAG_INSET, -BAG_INSET)
@@ -477,7 +477,7 @@ function addon:CreateBagSlotPanel(container, name, bags, isBank)
 		elseif bag == REAGENTBAG_CONTAINER then
 			local titleReagent = self:CreateFontString(nil, "OVERLAY")
 			self.TitleReagent = titleReagent
-			titleReagent:SetFontObject(addon.bagFont)
+			titleReagent:SetFontObject(addon.font.bank.bagFont)
 			titleReagent:SetText(L["Reagent"])
 			titleReagent:SetJustifyH("RIGHT")
 			titleReagent:SetPoint("TOPRIGHT", -BAG_INSET, -BAG_INSET)

@@ -79,13 +79,15 @@ end
 
 addon:SetDefaultModuleState(false)
 
+local bagKeys = {"backpack", "bank", "reagentBank"}
 function addon:OnInitialize()
 	local bfd = self:GetFontDefaults(GameFontHighlightLarge)
 	bfd.r, bfd.g, bfd.b = 1, 1, 1
 	self.DEFAULT_SETTINGS.profile.bagFont = bfd
 	self.DEFAULT_SETTINGS.profile.sectionFont = self:GetFontDefaults(GameFontNormalLeft)
 	
-	for _, name in ipairs({"backpack", "bank", "reagentBank"}) do
+	-- Create the default font settings for each bag type.
+	for _, name in ipairs(bagKeys) do
 		local bfd = self:GetFontDefaults(GameFontHighlightLarge)
 		bfd.r, bfd.g, bfd.b = 1, 1, 1
 		self.DEFAULT_SETTINGS.profile.theme[name].bagFont = bfd
@@ -96,8 +98,10 @@ function addon:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileChanged")
 	self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
 	self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
+
+	-- Create the bag font objects.
 	self.fonts = {}
-	for _, name in ipairs({"backpack", "bank", "reagentBank"}) do
+	for _, name in ipairs(bagKeys) do
 		self.fonts[name] = {
 			bagFont = self:CreateFont(addonName..name.."BagFont", GameFontHighlightLarge, function() return addon.db.profile.theme[name].bagFont end),
 			sectionFont = self:CreateFont(addonName..name.."SectionFont", GameFontNormalLeft, function() return addon.db.profile.theme[name].sectionFont end)
@@ -183,6 +187,11 @@ function addon:OnEnable()
 		else
 			module:SetEnabledState(self.db.profile.modules[module.moduleName])
 		end
+	end
+
+	for _, name in ipairs(bagKeys) do
+		self.fonts[name].bagFont:ApplySettings()
+		self.fonts[name].sectionFont:ApplySettings()
 	end
 
 	self.bagFont:ApplySettings()
