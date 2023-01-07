@@ -240,8 +240,8 @@ local function CreateBagOptions(name, key)
 		name = L[name],
 		type = 'group',
 		args = {
-			bagFont = addon:CreateFontOptions(addon.bagFont, L["Bag title"], 10),
-			sectionFont = addon:CreateFontOptions(addon.sectionFont, L["Section header"], 15),
+			bagFont = addon:CreateFontOptions(addon.bagFont, L["Bag title"], 5),
+			sectionFont = addon:CreateFontOptions(addon.sectionFont, L["Section header"], 6),
 			background = {
 				name = L['Background'],
 				type = 'select',

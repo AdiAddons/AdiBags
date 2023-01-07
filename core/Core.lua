@@ -224,65 +224,7 @@ function addon:OnProfileChanged()
 end
 
 function addon:UpgradeProfile()
-	local profile = self.db.profile
-
-	-- Remove old settings
-	profile.laxOrdering = nil
-	profile.maxWidth = nil
-	profile.automaticLayout = nil
-	profile.rowWidth = nil
-
-	-- Convert old anchor settings
-	local oldData = profile.anchor
-	if oldData then
-		local scale = oldData.scale or 0.8
-		profile.scale = scale
-
-		local newData = profile.positions.anchor
-		newData.point = oldData.pointFrom or "BOTTOMRIGHT"
-		newData.xOffset = (oldData.xOffset or -32) / scale
-		newData.yOffset = (oldData.yOffset or 200) / scale
-
-		profile.anchor = nil
-	end
-
-	-- Convert old "notWhenTrading" setting
-	if profile.virtualStacks.notWhenTrading == true then
-		profile.virtualStacks.notWhenTrading = 3
-	end
-
-	-- Convert old "backgroundColors"
-	if type(profile.backgroundColors) == "table" then
-		profile.skin.BackpackColor = profile.backgroundColors.Backpack
-		profile.skin.BankColor = profile.backgroundColors.Bank
-		profile.backgroundColors = nil
-	end
-
-	-- Convert old font settings
-	if type(profile.skin) == "table" then
-		local skin = profile.skin
-		if type(skin.font) == "string" then
-			profile.bagFont.name = skin.font
-			profile.sectionFont.name = skin.font
-			skin.font = nil
-		end
-		if skin.fontSize then
-			profile.bagFont.size = skin.fontSize
-			profile.sectionFont.size = skin.fontSize - 4
-			skin.fontSize = nil
-		end
-		if skin.fontBagColor then
-			local bagFont = profile.bagFont
-			bagFont.r, bagFont.g, bagFont.r = unpack(skin.fontBagColor)
-			skin.fontBagColor = nil
-		end
-		if skin.fontSectionColor then
-			local sectionFont = profile.sectionFont
-			sectionFont.r, sectionFont.g, sectionFont.b = unpack(skin.fontSectionColor)
-			skin.fontSectionColor = nil
-		end
-	end
-
+	
 end
 
 --------------------------------------------------------------------------------
