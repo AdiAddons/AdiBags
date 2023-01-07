@@ -168,15 +168,6 @@ addon.DEFAULT_SETTINGS = {
 			freeSpace = true,
 			notWhenTrading = 1,
 		},
-		skin = {
-			background = "Blizzard Tooltip",
-			border = "Blizzard Tooltip",
-			borderWidth = 16,
-			insets = 3,
-			BackpackColor = { 0, 0, 0, 1 },
-			BankColor = { 0, 0, 0.5, 1 },
-			ReagentBankColor = { 0, 0.5, 0, 1 },
-		},
 		theme = {
 			currentTheme = "default",
 			backpack = {

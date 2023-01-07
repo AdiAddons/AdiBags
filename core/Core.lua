@@ -81,11 +81,6 @@ addon:SetDefaultModuleState(false)
 
 local bagKeys = {"backpack", "bank", "reagentBank"}
 function addon:OnInitialize()
-	local bfd = self:GetFontDefaults(GameFontHighlightLarge)
-	bfd.r, bfd.g, bfd.b = 1, 1, 1
-	self.DEFAULT_SETTINGS.profile.bagFont = bfd
-	self.DEFAULT_SETTINGS.profile.sectionFont = self:GetFontDefaults(GameFontNormalLeft)
-	
 	-- Create the default font settings for each bag type.
 	for _, name in ipairs(bagKeys) do
 		local bfd = self:GetFontDefaults(GameFontHighlightLarge)
@@ -99,6 +94,8 @@ function addon:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileChanged")
 	self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
 
+	self:UpgradeProfile()
+
 	-- Create the bag font objects.
 	self.fonts = {}
 	for _, name in ipairs(bagKeys) do
@@ -107,9 +104,6 @@ function addon:OnInitialize()
 			sectionFont = self:CreateFont(addonName..name.."SectionFont", GameFontNormalLeft, function() return addon.db.profile.theme[name].sectionFont end)
 		}
 	end
-
-	self.bagFont = self:CreateFont(addonName.."BagFont", GameFontHighlightLarge, function() return self.db.profile.bagFont end)
-	self.sectionFont = self:CreateFont(addonName.."SectionFont", GameFontNormalLeft, function() return self.db.profile.sectionFont end)
 
 	self.itemParentFrames = {}
 
@@ -121,8 +115,6 @@ function addon:OnInitialize()
 	-- Persistant handlers
 	self.RegisterBucketMessage(addonName, 'AdiBags_ConfigChanged', 0.2, function(...) addon:ConfigChanged(...) end)
 	self.RegisterEvent(addonName, 'PLAYER_ENTERING_WORLD', function() if self.db.profile.enabled then self:Enable() end end)
-
-	self:UpgradeProfile()
 
 	self:RegisterChatCommand("adibags", function(cmd)
 		addon:OpenOptions(strsplit(' ', cmd or ""))
@@ -194,8 +186,6 @@ function addon:OnEnable()
 		self.fonts[name].sectionFont:ApplySettings()
 	end
 
-	self.bagFont:ApplySettings()
-	self.sectionFont:ApplySettings()
 	self:UpdatePositionMode()
 
 	self:Debug('Enabled')
@@ -247,7 +237,44 @@ function addon:OnProfileChanged()
 end
 
 function addon:UpgradeProfile()
-	-- TODO(lobato): Migrate skin settings to the theme format
+	-- Copy over skin settings to the new theme format.
+	local skin = addon.db.profile.skin
+	if skin then
+		for _, key in ipairs(bagKeys) do
+			-- Update the basic theme data.
+			addon.db.profile.theme[key].background = skin.background
+			addon.db.profile.theme[key].border = skin.border
+			addon.db.profile.theme[key].insets = skin.insets
+			addon.db.profile.theme[key].borderWidth = skin.borderWidth
+
+			-- Update font data, taking care not to create a new table as this breaks the font object.
+			if addon.db.profile.bagFont then
+				for k, v in pairs(addon.db.profile.bagFont) do
+					addon.db.profile.theme[key].bagFont[k] = v
+				end
+			end
+			if addon.db.profile.sectionFont then
+				for k, v in pairs(addon.db.profile.sectionFont) do
+					addon.db.profile.theme[key].sectionFont[k] = v
+				end
+			end
+
+			-- Update the color data.
+			if key == "backpack" then
+				addon.db.profile.theme[key].color = skin.BackpackColor
+			elseif key == "bank" then
+				addon.db.profile.theme[key].color = skin.BankColor
+			elseif key == "reagentBank" then
+				addon.db.profile.theme[key].color = skin.ReagentBankColor
+			end
+
+		end
+
+		-- Delete the old skin and font profile data.
+		addon.db.profile.skin = nil
+		addon.db.profile.bagFont = nil
+		addon.db.profile.sectionFont = nil
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -375,7 +402,7 @@ function addon:ConfigChanged(vars)
 				end
 			elseif strmatch(name, 'columnWidth') then
 				return self:SendMessage('AdiBags_LayoutChanged')
-			elseif strmatch(name, '^skin%.font') then
+			elseif strmatch(name, '^theme%.font') then
 				return self:UpdateFonts()
 			end
 		end
