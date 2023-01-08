@@ -28,6 +28,7 @@ local _G = _G
 -- UpsertTheme will create a new theme if it doesn't exist, or update an existing one.
 -- Updates are a deep copy, so partial theme updates are allowed.
 function addon:UpsertTheme(name, theme)
+  assert("Not available yet!")
   assert(type(theme) == 'table', 'Theme must be a table')
   if not self.db.profile.theme.themes[name] then
     self.db.profile.theme.themes[name] = {}
@@ -36,10 +37,12 @@ function addon:UpsertTheme(name, theme)
 end
 
 function addon:SetTheme(name)
+  assert("Not available yet!")
   self.db.profile.theme.currentTheme = name
   addon:SendMessage('AdiBags_ThemeChanged')
 end
 
 function addon:GetCurrentTheme()
+  assert("Not available yet!")
   return self.db.profile.theme.themes[self.db.profile.theme.currentTheme]
 end

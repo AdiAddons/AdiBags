@@ -457,6 +457,8 @@ local function GetOptions()
 				type = 'group',
 				order = 150,
 				args = {
+					-- TODO(lobato): Implement at a later date.
+					--[[
 					currentTheme = {
 						name = L['Theme'],
 						desc = L['Select the theme to use for displaying the bags.'],
@@ -476,6 +478,7 @@ local function GetOptions()
 						end,
 						arg = { "theme", "currentTheme" },
 					},
+					]]--
 					backpack = CreateBagOptions("Backpack", "backpack"),
 					bank = CreateBagOptions("Bank", "bank"),
 					reagentBank = CreateBagOptions("Reagent Bank", "reagentBank"),
