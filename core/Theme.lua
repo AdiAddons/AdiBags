@@ -28,8 +28,9 @@ local _G = _G
 -- UpsertTheme will create a new theme if it doesn't exist, or update an existing one.
 -- Updates are a deep copy, so partial theme updates are allowed.
 function addon:UpsertTheme(name, theme)
-  assert("Not available yet!")
   assert(type(theme) == 'table', 'Theme must be a table')
+  assert(name ~= 'default', 'Cannot overwrite the default theme.')
+
   if not self.db.profile.theme.themes[name] then
     self.db.profile.theme.themes[name] = {}
   end
@@ -37,12 +38,57 @@ function addon:UpsertTheme(name, theme)
 end
 
 function addon:SetTheme(name)
-  assert("Not available yet!")
+  assert(self:ThemeExists(name), 'No theme by that name exists.')
+  local skin = self.db.profile.theme.themes[name]
+
+  -- Copy each section over manually, so we don't break font settings.
+  for _, key in ipairs({'backpack', 'bank', 'reagentBank'}) do
+    addon.db.profile.theme[key].background = skin[key].background
+    addon.db.profile.theme[key].border = skin[key].border
+    addon.db.profile.theme[key].insets = skin[key].insets
+    addon.db.profile.theme[key].borderWidth = skin[key].borderWidth
+    for k, v in pairs(skin[key].bagFont) do
+      addon.db.profile.theme[key].bagFont[k] = v
+    end
+    for k, v in pairs(skin[key].sectionFont) do
+      addon.db.profile.theme[key].sectionFont[k] = v
+    end
+  end
+  
   self.db.profile.theme.currentTheme = name
   addon:SendMessage('AdiBags_ThemeChanged')
 end
 
 function addon:GetCurrentTheme()
-  assert("Not available yet!")
   return self.db.profile.theme.themes[self.db.profile.theme.currentTheme]
+end
+
+function addon:NewTheme(name)
+  assert(not self:ThemeExists(name), 'A theme by this name already exists.')
+  local theme = {
+    backpack = _G.CopyTable(addon.db.profile.theme.backpack),
+    bank = _G.CopyTable(addon.db.profile.theme.bank),
+    reagentBank = _G.CopyTable(addon.db.profile.theme.reagentBank)
+  }
+  self:UpsertTheme(name, theme)
+end
+
+function addon:SaveTheme()
+  assert(addon:GetCurrentTheme() ~= 'default', 'Cannot save over the default theme.')
+  local theme = {
+    backpack = _G.CopyTable(addon.db.profile.theme.backpack),
+    bank = _G.CopyTable(addon.db.profile.theme.bank),
+    reagentBank = _G.CopyTable(addon.db.profile.theme.reagentBank)
+  }
+  self:UpsertTheme(self.db.profile.theme.currentTheme, theme)
+end
+
+function addon:ThemeExists(name)
+  return self.db.profile.theme.themes[name] ~= nil
+end
+
+function addon:DeleteTheme()
+  assert(self.db.profile.theme.currentTheme ~= 'default', 'Cannot delete the default theme.')
+  self.db.profile.theme.themes[self.db.profile.theme.currentTheme] = nil
+  self:SetTheme('default')
 end

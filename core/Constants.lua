@@ -136,6 +136,10 @@ addon.BACKDROP = {
 	insets = { left = 3, right = 3, top = 3, bottom = 3 },
 }
 
+addon.BagFontDefault = addon:GetFontDefaults(GameFontHighlightLarge)
+addon.BagFontDefault.r, addon.BagFontDefault.g, addon.BagFontDefault.b = 1, 1, 1
+addon.SectionFontDefault = addon:GetFontDefaults(GameFontNormalLeft)
+
 addon.DEFAULT_SETTINGS = {
 	profile = {
 		enabled = true,
@@ -198,6 +202,8 @@ addon.DEFAULT_SETTINGS = {
 						borderWidth = 16,
 						insets = 3,
 						color = { 0, 0, 0, 1 },
+						bagFont = addon.BagFontDefault,
+						sectionFont = addon.SectionFontDefault,
 					},
 					bank = {
 						background = "Blizzard Dialog Background",
@@ -205,6 +211,9 @@ addon.DEFAULT_SETTINGS = {
 						borderWidth = 16,
 						insets = 3,
 						color = { 0, 0, 0.0, 1 },
+						bagFont = addon.BagFontDefault,
+						sectionFont = addon.SectionFontDefault,
+
 					},
 					reagentBank = {
 						background = "Blizzard Dialog Background",
@@ -212,6 +221,8 @@ addon.DEFAULT_SETTINGS = {
 						borderWidth = 16,
 						insets = 3,
 						color = { 0, 0.0, 0, 1 },
+						bagFont = addon.BagFontDefault,
+						sectionFont = addon.SectionFontDefault,
 					},
 				},
 			},

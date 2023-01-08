@@ -264,6 +264,8 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	RegisterMessage(name, 'AdiBags_ConfigChanged', self.ConfigChanged, self)
 	RegisterMessage(name, 'AdiBags_ForceFullLayout', ForceFullLayout)
 	RegisterMessage(name, 'AdiBags_GridUpdate', self.OnLayout, self)
+	RegisterMessage(name, 'AdiBags_ThemeChanged', self.UpdateSkin, self)
+	RegisterMessage(name..'SectionFonts', 'AdiBags_ThemeChanged', self.UpdateSectionFonts, self)
 	if addon.isRetail then
 		LibStub('ABEvent-1.0').RegisterEvent(name, 'EQUIPMENT_SWAP_FINISHED', ForceFullLayout)
 
@@ -535,7 +537,10 @@ function containerProto:ShowReagentTab(show)
 	self.forceLayout = true
 	self:RefreshContents()
 	self:UpdateSkin()
+	self:UpdateSectionFonts()
+end
 
+function containerProto:UpdateSectionFonts()
 	for _, section in pairs(self.sections) do
 		section:UpdateFont()
 	end
@@ -661,6 +666,7 @@ function containerProto:UpdateSkin()
 	else
 		self:SetBackdropBorderColor(0.5+(0.5*r/m), 0.5+(0.5*g/m), 0.5+(0.5*b/m), a)
 	end
+	addon.fonts[string.lower(self.name)].bagFont:ApplySettings()
 end
 
 --------------------------------------------------------------------------------

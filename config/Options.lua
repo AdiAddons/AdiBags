@@ -35,6 +35,7 @@ local unpack = _G.unpack
 
 local safecall = addon.safecall
 
+local AceGUI = LibStub("AceGUI-3.0");
 local AceConfigDialog = LibStub('AceConfigDialog-3.0')
 local LSM = LibStub('LibSharedMedia-3.0')
 
@@ -245,6 +246,7 @@ local function CreateBagOptions(name, key)
 			background = {
 				name = L['Background'],
 				type = 'select',
+				disabled = function() return addon.db.profile.theme.currentTheme == 'default' end,
 				dialogControl = 'LSM30_Background',
 				values = AceGUIWidgetLSMlists.background,
 				order = 10,
@@ -253,6 +255,7 @@ local function CreateBagOptions(name, key)
 			insets = {
 				name = L['Insets'],
 				type = 'range',
+				disabled = function() return addon.db.profile.theme.currentTheme == 'default' end,
 				order = 20,
 				min = -16,
 				max = 16,
@@ -262,6 +265,7 @@ local function CreateBagOptions(name, key)
 			border = {
 				name = L['Border'],
 				type = 'select',
+				disabled = function() return addon.db.profile.theme.currentTheme == 'default' end,
 				dialogControl = 'LSM30_Border',
 				values = AceGUIWidgetLSMlists.border,
 				order = 30,
@@ -270,6 +274,7 @@ local function CreateBagOptions(name, key)
 			borderWidth = {
 				name = L['Border Width'],
 				type = 'range',
+				disabled = function() return addon.db.profile.theme.currentTheme == 'default' end,
 				order = 40,
 				min = 1,
 				max = 64,
@@ -279,6 +284,7 @@ local function CreateBagOptions(name, key)
 		color = {
 				name = L['Color'],
 				type = 'color',
+				disabled = function() return addon.db.profile.theme.currentTheme == 'default' end,
 				order = 50,
 				hasAlpha = true,
 				arg = { "theme", key, "color" },
@@ -458,11 +464,11 @@ local function GetOptions()
 				order = 150,
 				args = {
 					-- TODO(lobato): Implement at a later date.
-					--[[
 					currentTheme = {
-						name = L['Theme'],
+						name = L['Theme Selection'],
 						desc = L['Select the theme to use for displaying the bags.'],
 						type = 'select',
+						order = 10,
 						values = function()
 							local themes = {}
 							for name in pairs(addon.db.profile.theme.themes) do
@@ -478,7 +484,50 @@ local function GetOptions()
 						end,
 						arg = { "theme", "currentTheme" },
 					},
-					]]--
+					themeControls = {
+						name = L['Theme Controls'],
+						type = 'group',
+						inline = true,
+						args = {
+							topDescription = {
+								type = 'description',
+								order = 0,
+								name = L['All controls are disabled if the selected theme is the default theme. Make a new theme below to edit your theme.'],
+							},
+							saveTheme = {
+								name = L['Save Theme'],
+								desc = L['Save the current theme settings to the selected theme name.'],
+								type = 'execute',
+								order = 10,
+								confirm = function() return "Are you sure you want to save and overwrite the theme '"..addon.db.profile.theme.currentTheme.."'?" end,
+								disabled = function() return addon.db.profile.theme.currentTheme == 'default' end,
+								func = function() addon:SaveTheme() end,
+							},
+							deleteTheme = {
+								name = L['Delete Theme'],
+								desc = L['Delete the selected theme from the database.'],
+								type = 'execute',
+								order = 20,
+								confirm = function() return "Are you sure you want to delete the theme '"..addon.db.profile.theme.currentTheme.."'?" end,
+								disabled = function() return addon.db.profile.theme.currentTheme == 'default' end,
+								func = function() addon:DeleteTheme() end,
+							},
+							bottomDescription = {
+								type = 'description',
+								order = 30,
+								name = L['Type in a new theme in the input below and hit enter to create a new theme.'],
+							},
+							newThemeName = {
+								name = L['New Theme Name'],
+								desc = L['Type in the name of the new theme to create.'],
+								type = 'input',
+								order = 40,
+								validate = function(_, value) return (not addon:ThemeExists(value) and true) or "A theme by that name already exists." end,
+								get = function() return "" end,
+								set = function(_, value) addon:NewTheme(value) addon:SetTheme(value) end,
+							},
+						}
+					},
 					backpack = CreateBagOptions("Backpack", "backpack"),
 					bank = CreateBagOptions("Bank", "bank"),
 					reagentBank = CreateBagOptions("Reagent Bank", "reagentBank"),

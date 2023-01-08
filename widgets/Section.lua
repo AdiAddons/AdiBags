@@ -147,10 +147,15 @@ function sectionProto:OnRelease()
 end
 
 function sectionProto:UpdateFont()
+	local font
 	if self.container.isReagentBank then
-		self.Header:SetNormalFontObject(addon.fonts.reagentBank.sectionFont)
+		font = addon.fonts.reagentBank.sectionFont
+		self.Header:SetNormalFontObject(font)
+		font:ApplySettings()
 	else
-		self.Header:SetNormalFontObject(addon.fonts[string.lower(self.container.name)].sectionFont)
+		font = addon.fonts[string.lower(self.container.name)].sectionFont
+		self.Header:SetNormalFontObject(font)
+		font:ApplySettings()
 	end
 end
 
