@@ -274,6 +274,8 @@ function addon:UpgradeProfile()
 		addon.db.profile.skin = nil
 		addon.db.profile.bagFont = nil
 		addon.db.profile.sectionFont = nil
+		addon.db.profile.theme.currentTheme = "legacy theme"
+		addon:SaveTheme()
 	end
 	addon.db.profile.hideAnchor = nil
 	addon.db.profile.positionMode = nil
