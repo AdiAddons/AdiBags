@@ -45,9 +45,10 @@ libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 
 Localization.lua
 core\EventHandlers.lua
+core\Fonts.lua
 core\Constants.lua
 core\Utility.lua
-core\Fonts.lua
+core\Theme.lua
 core\Core.lua
 core\Hooks.lua
 core\Bags.lua
@@ -73,6 +74,7 @@ modules\TooltipInfo.lua
 modules\SectionVisibilityDropdown.lua
 modules\BankSwitcher.lua
 modules\ChangeHighlight.lua
+modules\Masque.lua
 
 core\DefaultFilters.lua
 

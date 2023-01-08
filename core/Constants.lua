@@ -126,6 +126,7 @@ addon.SECTION_SPACING = addon.ITEM_SIZE / 3 + addon.ITEM_SPACING
 addon.BAG_INSET = 8
 addon.TOP_PADDING = 32
 addon.HEADER_SIZE = 14 + addon.ITEM_SPACING
+addon.EMPTY_SLOT_FILE = [[Interface\BUTTONS\UI-EmptySlot]]
 
 addon.BACKDROP = {
 	bgFile = [[Interface\Tooltips\UI-Tooltip-Background]],
@@ -135,19 +136,22 @@ addon.BACKDROP = {
 	insets = { left = 3, right = 3, top = 3, bottom = 3 },
 }
 
+addon.BagFontDefault = addon:GetFontDefaults(GameFontHighlightLarge)
+addon.BagFontDefault.r, addon.BagFontDefault.g, addon.BagFontDefault.b = 1, 1, 1
+addon.SectionFontDefault = addon:GetFontDefaults(GameFontNormalLeft)
+
 addon.DEFAULT_SETTINGS = {
 	profile = {
 		enabled = true,
 		bags = {
 			["*"] = true,
 		},
-		positionMode = "anchored",
 		positions = {
 			anchor = { point = "BOTTOMRIGHT", xOffset = -32, yOffset = 200 },
 			Backpack = { point = "BOTTOMRIGHT", xOffset = -32, yOffset = 200 },
 			Bank = { point = "TOPLEFT", xOffset = 32, yOffset = -104 },
 		},
-		scale = 0.8,
+		scale = 1.0,
 		columnWidth = {
 			Backpack = 4,
 			Bank = 6,
@@ -167,18 +171,64 @@ addon.DEFAULT_SETTINGS = {
 			freeSpace = true,
 			notWhenTrading = 1,
 		},
-		skin = {
-			background = "Blizzard Tooltip",
-			border = "Blizzard Tooltip",
-			borderWidth = 16,
-			insets = 3,
-			BackpackColor = { 0, 0, 0, 1 },
-			BankColor = { 0, 0, 0.5, 1 },
-			ReagentBankColor = { 0, 0.5, 0, 1 },
+		theme = {
+			currentTheme = "default",
+			backpack = {
+				background = "Blizzard Dialog Background",
+				border = "Blizzard Tooltip",
+				borderWidth = 16,
+				insets = 3,
+				color = { 0, 0, 0, 1 },
+			},
+			bank = {
+				background = "Blizzard Dialog Background",
+				border = "Blizzard Tooltip",
+				borderWidth = 16,
+				insets = 3,
+				color = { 0, 0, 0.0, 1 },
+			},
+			reagentBank = {
+				background = "Blizzard Dialog Background",
+				border = "Blizzard Tooltip",
+				borderWidth = 16,
+				insets = 3,
+				color = { 0, 0.0, 0, 1 },
+			},
+			themes = {
+				default = {
+					backpack = {
+						background = "Blizzard Dialog Background",
+						border = "Blizzard Tooltip",
+						borderWidth = 16,
+						insets = 3,
+						color = { 0, 0, 0, 1 },
+						bagFont = addon.BagFontDefault,
+						sectionFont = addon.SectionFontDefault,
+					},
+					bank = {
+						background = "Blizzard Dialog Background",
+						border = "Blizzard Tooltip",
+						borderWidth = 16,
+						insets = 3,
+						color = { 0, 0, 0.0, 1 },
+						bagFont = addon.BagFontDefault,
+						sectionFont = addon.SectionFontDefault,
+
+					},
+					reagentBank = {
+						background = "Blizzard Dialog Background",
+						border = "Blizzard Tooltip",
+						borderWidth = 16,
+						insets = 3,
+						color = { 0, 0.0, 0, 1 },
+						bagFont = addon.BagFontDefault,
+						sectionFont = addon.SectionFontDefault,
+					},
+				},
+			},
 		},
 		rightClickConfig = true,
 		autoOpen = true,
-		hideAnchor = false,
 		autoDeposit = false,
 		compactLayout = false,
 		gridLayout = false,

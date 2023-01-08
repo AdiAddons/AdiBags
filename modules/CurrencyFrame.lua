@@ -59,8 +59,10 @@ function mod:OnInitialize()
 		self.moduleName,
 		{
 			profile = {
-				shown = { ['*'] = true },
-				hideZeroes = true,
+				shown = {
+					Honor = true
+				},
+				hideZeroes = false,
 				text = addon:GetFontDefaults(NumberFontNormalLarge),
 				width = 4,
 			}
