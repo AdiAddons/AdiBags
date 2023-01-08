@@ -7,10 +7,9 @@ AdiBags is a World of Warcraft addon that displays the contents of your bags in 
 Configuration is available through Blizzard addon panel, the `/adibags` chat command, and by configuring "right-click to open options" and right clicking on any blank space in the bag window.
 
 ## Main Features
----
 
 ### Filter Partitions
-AdiBags will automatically filter and group items into partitions so that all like-items are always grouped together. AdiBags tries to make sure there are intelligent defaults that require little-to-no out of the box configuration for item grouping. The partiions them selves are layed out automatically as well, with no human interaction. The result is a beautiful item and bag experience, right from the start!
+AdiBags will automatically filter and group items into partitions so that all like-items are always grouped together. AdiBags tries to make sure there are intelligent defaults that require little-to-no out of the box configuration for item grouping. The partitions them selves are laid out automatically as well, with no human interaction. The result is a beautiful item and bag experience, right from the start!
 <p align="center">
   <span><img width="570" height="625" src="https://i.imgur.com/PyCfmcR.gif"></span>
   <br>
@@ -57,21 +56,16 @@ We welcome all bug reports and feature requests, though we can't promise every s
 We highly suggest installing both [BugGrabber](https://www.curseforge.com/wow/addons/bug-grabber) and [BugSack](https://www.curseforge.com/wow/addons/bugsack) in order to capture bugs in AdiBags. These bug messages should then be used in any bug reports filed through GitHub issues.
 
 ## Roadmap and Future Thoughts
----
+
 ### Guild Bank
 AdiBags is an abstraction on top of Blizzard bags, and does not work to make Blizzard bags consistent or sorted. Due to this abstraction, two users of AdiBags accessing the same underlying store, such as a guild bank, may see two different views. For this reason, we've shied away from implementing a Guild Bank for now. However, there is renewed interest in solving this problem overall, so stay tuned for changes in this space.
 
 ### Alt Bags and Bank
 For the moment, alt bags and banks are not supported. Once we invest a bit more time into our abstraction engine, we may revisit this as an added feature.
 
-### Full Bag Skinning
-
-Limited skinning is available using LibSharedMedia-1.0, however it is not as comprehensive as Masque support. Masque support is on our roadmap, and will eventually be implemented.
-
 ### In-Depth Filter Editing
 
 There are no plans to add a fully featured, scriptable, or logic/waterfall based filtering engine at this time.
 
 ## License
----
 AdiBags is licensed under the GNU General Public License version 3.
