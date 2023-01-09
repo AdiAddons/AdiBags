@@ -471,7 +471,7 @@ function buttonProto:UpdateBorder(isolatedEvent)
 	local isQuestItem, questId, isQuestActive
 	if hasItem(self.hasItem) then
 		quality = addon:GetContainerItemQuality(self.bag, self.slot)
-		addon:GetContainerItemQuestInfo(self.bag, self.slot)
+		isQuestItem, questId, isQuestActive = addon:GetContainerItemQuestInfo(self.bag, self.slot)
 		texture, r, g, b, a, x1, x2, y1, y2, blendMode = GetBorder(quality, isQuestItem, questId, isQuestActive, settings)
 	end
 
