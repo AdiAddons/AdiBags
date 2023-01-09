@@ -269,18 +269,18 @@ function addon:UpgradeProfile()
 
 			-- Update the color data.
 			if key == "backpack" and skin.BackpackColor then
-				for i, v in ipairs(skin.BackpackColor) do
-					v = v or prevSkinPreset.BackpackColor[i]
+				for i, v in ipairs(prevSkinPreset.BackpackColor) do
+					v = skin.BackpackColor[i] or v
 					addon.db.profile.theme[key].color[i] = v
 				end
 			elseif key == "bank" and skin.BankColor then
-				for i, v in ipairs(skin.BankColor) do
-					v = v or prevSkinPreset.BankColor[i]
+				for i, v in ipairs(prevSkinPreset.BankColor) do
+					v = skin.BankColor[i] or v
 					addon.db.profile.theme[key].color[i] = v
 				end
 			elseif key == "reagentBank" and skin.ReagentBankColor then
-				for i, v in ipairs(skin.ReagentBankColor) do
-					v = v or prevSkinPreset.ReagentBankColor[i]
+				for i, v in ipairs(prevSkinPreset.ReagentBankColor) do
+					v = skin.ReagentBankColor[i] or v
 					addon.db.profile.theme[key].color[i] = v
 				end
 			end
