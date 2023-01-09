@@ -236,6 +236,14 @@ function addon:OnProfileChanged()
 	return self:Reconfigure()
 end
 
+-- Thanks to Talyrius for this idea
+-- TODO(lobato): Remove this update code in a future version
+local prevSkinPreset = {
+  BackpackColor = { 0, 0, 0, 1 },
+  BankColor = { 0, 0, 0.5, 1 },
+  ReagentBankColor = { 0, 0.5, 0, 1 },
+}
+
 function addon:UpgradeProfile()
 	-- Copy over skin settings to the new theme format.
 	local skin = addon.db.profile.skin
@@ -262,17 +270,17 @@ function addon:UpgradeProfile()
 			-- Update the color data.
 			if key == "backpack" and skin.BackpackColor then
 				for i, v in ipairs(skin.BackpackColor) do
-					v = v or 0
+					v = v or prevSkinPreset.BackpackColor[i]
 					addon.db.profile.theme[key].color[i] = v
 				end
 			elseif key == "bank" and skin.BankColor then
 				for i, v in ipairs(skin.BankColor) do
-					v = v or 0
+					v = v or prevSkinPreset.BankColor[i]
 					addon.db.profile.theme[key].color[i] = v
 				end
 			elseif key == "reagentBank" and skin.ReagentBankColor then
 				for i, v in ipairs(skin.ReagentBankColor) do
-					v = v or 0
+					v = v or prevSkinPreset.ReagentBankColor[i]
 					addon.db.profile.theme[key].color[i] = v
 				end
 			end
