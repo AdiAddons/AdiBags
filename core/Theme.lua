@@ -74,7 +74,7 @@ function addon:NewTheme(name)
 end
 
 function addon:SaveTheme()
-  assert(addon:GetCurrentTheme() ~= 'default', 'Cannot save over the default theme.')
+  assert(self.db.profile.theme.currentTheme ~= 'default', 'Cannot save over the default theme.')
   local theme = {
     backpack = _G.CopyTable(addon.db.profile.theme.backpack),
     bank = _G.CopyTable(addon.db.profile.theme.bank),

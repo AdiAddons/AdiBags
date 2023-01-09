@@ -260,14 +260,22 @@ function addon:UpgradeProfile()
 			end
 
 			-- Update the color data.
-			if key == "backpack" then
-				addon.db.profile.theme[key].color = skin.BackpackColor
-			elseif key == "bank" then
-				addon.db.profile.theme[key].color = skin.BankColor
-			elseif key == "reagentBank" then
-				addon.db.profile.theme[key].color = skin.ReagentBankColor
+			if key == "backpack" and skin.BackpackColor then
+				for i, v in ipairs(skin.BackpackColor) do
+					v = v or 1
+					addon.db.profile.theme[key].color[i] = v
+				end
+			elseif key == "bank" and skin.BankColor then
+				for i, v in ipairs(skin.BankColor) do
+					v = v or 1
+					addon.db.profile.theme[key].color[i] = v
+				end
+			elseif key == "reagentBank" and skin.ReagentBankColor then
+				for i, v in ipairs(skin.ReagentBankColor) do
+					v = v or 1
+					addon.db.profile.theme[key].color[i] = v
+				end
 			end
-
 		end
 
 		-- Delete the old skin and font profile data.
