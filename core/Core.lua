@@ -260,11 +260,11 @@ function addon:UpgradeProfile()
 			end
 
 			-- Update the color data.
-			if key == "backpack" then
+			if key == "backpack" and skin.BackpackColor then
 				addon.db.profile.theme[key].color = skin.BackpackColor
-			elseif key == "bank" then
+			elseif key == "bank" and skin.BankColor then
 				addon.db.profile.theme[key].color = skin.BankColor
-			elseif key == "reagentBank" then
+			elseif key == "reagentBank" and skin.ReagentBankColor then
 				addon.db.profile.theme[key].color = skin.ReagentBankColor
 			end
 
