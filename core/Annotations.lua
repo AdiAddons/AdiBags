@@ -46,10 +46,10 @@ Enum.ExpansionType = {
   LE_EXPANSION_DRAGONFLIGHT = 9,
 }
 
----@class ItemInfo ItemInfo is constructed by GetItemInfo()
----@field name string The localized name of the item.
----@field link string The localized link of the item.
----@field quality Enum.ItemQuality The item quality, i.e. 1 for common, 2 for uncommon, etc.
+---@class ItemInfo ItemInfo is constructed by GetItemInfo(), with some additional fields for use in AdiBags.
+---@field itemName string The localized name of the item.
+---@field itemLink string The localized link of the item.
+---@field itemQuality Enum.ItemQuality The item quality, i.e. 1 for common, 2 for uncommon, etc.
 ---@field itemLevel number The base item level, not including upgrades. See GetDetailedItemLevelInfo() for getting the actual item level.
 ---@field itemMinLevel number The minimum level required to use the item, or 0 if there is no level requirement.
 ---@field itemType string The localized type name of the item: Armor, Weapon, Quest, etc.
