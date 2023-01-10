@@ -76,6 +76,43 @@ for _, bags in ipairs { BAGS, BANK } do
 	for id in pairs(bags) do ALL[id] = id end
 end
 
+-- Expansion names
+addon.EXPANSION_MAP = {
+	[LE_EXPANSION_CLASSIC] = "Classic",
+	[LE_EXPANSION_BURNING_CRUSADE] = "The Burning Crusade",
+	[LE_EXPANSION_WRATH_OF_THE_LICH_KING] = "Wrath of the Lich King",
+	[LE_EXPANSION_CATACLYSM] = "Cataclysm",
+	[LE_EXPANSION_MISTS_OF_PANDARIA] = "Mists of Pandaria",
+	[LE_EXPANSION_WARLORDS_OF_DRAENOR] = "Warlords of Draenor",
+	[LE_EXPANSION_LEGION] = "Legion",
+	[LE_EXPANSION_BATTLE_FOR_AZEROTH] = "Battle for Azeroth",
+	[LE_EXPANSION_SHADOWLANDS] = "Shadowlands",
+	[LE_EXPANSION_DRAGONFLIGHT] = "Dragonflight",
+}
+
+-- Tradeskill subclassID -> Tradeskill name map
+-- Note that this is different than what GetItemSubClassInfo returns!
+addon.TRADESKILL_MAP = {
+	[0] = "Trade Goods",
+	[1] = "Parts",
+	[2] = "Explosives",
+	[3] = "Devices",
+	[4] = "Jewelcrafting",
+	[5] = "Tailoring",
+	[6] = "Leatherworking",
+	[7] = "Blacksmithing",
+	[8] = "Cooking",
+	[9] = "Herbalism",
+	[10] = "Elemental",
+	[11] = "Other",
+	[12] = "Enchanting",
+	[13] = "Materials",
+	[14] = "Item Enchantement",
+	[15] = "Weapon Enchantment",
+	[16] = "Inscription",
+	[17] = "Explosives and Devices"
+}
+
 addon.BAG_IDS = {
 	BAGS = BAGS,
 	BANK = BANK,

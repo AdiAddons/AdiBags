@@ -294,6 +294,27 @@ function addon:SetupDefaultFilters()
 		end
 	end
 
+	-- [20] Reagent Filtering
+	do
+		local reagentFilter = addon:RegisterFilter('Reagent', 20)
+		reagentFilter.uiName = L['Reagent']
+		reagentFilter.uiDesc = L['Put reagents in sections depending on the expansion they come from, the profession they are from, or both.']
+			..'\n|cffff7700'..L['Please note this filter matches all reagents.']..'|r'
+
+		function reagentFilter:OnInitialize()
+		end
+
+		function reagentFilter:GetOptions()
+			return {}, addon:GetOptionHandler(self, true)
+		end
+
+		function reagentFilter:Filter(slotData)
+			local data = addon.ItemDatabase:ReagentData(slotData)
+			if not data then return false end
+			return data.expansionName.." - "..data.profession
+		end
+	end
+
 	-- [10] Item classes
 	do
 		local itemCat = addon:RegisterFilter('ItemCategory', 10)
@@ -371,5 +392,4 @@ function addon:SetupDefaultFilters()
 		end
 
 	end
-
 end
