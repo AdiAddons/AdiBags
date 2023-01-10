@@ -375,7 +375,7 @@ function addon:SetupDefaultFilters()
 			local reagentData = addon.ItemDatabase:ReagentData(slotData)
 
 			if self.db.profile.splitBySubclass[class] then
-				return (self.db.profile.splitExpansion and reagentData and reagentData.expansionName .. " - " ..reagentData.profession) or (reagentData and reagentData.profession) or subclass, class
+				return (self.db.profile.splitExpansion and reagentData and reagentData.expansionName .. " - " ..subclass) or (reagentData and reagentData.profession) or subclass, class
 			else
 				return (self.db.profile.splitExpansion and reagentData and reagentData.expansionName .. " - " ..class) or class
 			end
