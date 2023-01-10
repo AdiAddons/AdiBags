@@ -294,27 +294,6 @@ function addon:SetupDefaultFilters()
 		end
 	end
 
-	-- [20] Reagent Filtering
-	do
-		local reagentFilter = addon:RegisterFilter('Reagent', 20)
-		reagentFilter.uiName = L['Reagent']
-		reagentFilter.uiDesc = L['Put reagents in sections depending on the expansion they come from, the profession they are from, or both.']
-			..'\n|cffff7700'..L['Please note this filter matches all reagents.']..'|r'
-
-		function reagentFilter:OnInitialize()
-		end
-
-		function reagentFilter:GetOptions()
-			return {}, addon:GetOptionHandler(self, true)
-		end
-
-		function reagentFilter:Filter(slotData)
-			local data = addon.ItemDatabase:ReagentData(slotData)
-			if not data then return false end
-			return data.expansionName.." - "..data.profession
-		end
-	end
-
 	-- [10] Item classes
 	do
 		local itemCat = addon:RegisterFilter('ItemCategory', 10)
@@ -376,7 +355,7 @@ function addon:SetupDefaultFilters()
 					order = 30,
 				},
 				splitExpansion = {
-					name = L['Split by expansion'],
+					name = L['Split reagents by expansion'],
 					desc = L['Split reagents by expansion'],
 					type = 'toggle',
 					width = 'double',
@@ -392,10 +371,13 @@ function addon:SetupDefaultFilters()
 			elseif class == GLYPH and self.db.profile.mergeGlyphs then
 				class, subclass = TRADE_GOODS, class
 			end
+
+			local reagentData = addon.ItemDatabase:ReagentData(slotData)
+
 			if self.db.profile.splitBySubclass[class] then
-				return subclass, class
+				return (self.db.profile.splitExpansion and reagentData and reagentData.expansionName .. " - " ..reagentData.profession) or (reagentData and reagentData.profession) or subclass, class
 			else
-				return class
+				return (self.db.profile.splitExpansion and reagentData and reagentData.expansionName .. " - " ..class) or class
 			end
 		end
 
