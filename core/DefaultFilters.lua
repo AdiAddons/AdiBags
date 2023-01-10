@@ -328,6 +328,7 @@ function addon:SetupDefaultFilters()
 					splitBySubclass = { false },
 					mergeGems = true,
 					mergeGlyphs = true,
+					splitExpansion = false,
 				}
 			})
 		end
@@ -373,6 +374,13 @@ function addon:SetupDefaultFilters()
 					type = 'toggle',
 					width = 'double',
 					order = 30,
+				},
+				splitExpansion = {
+					name = L['Split by expansion'],
+					desc = L['Split reagents by expansion'],
+					type = 'toggle',
+					width = 'double',
+					order = 40,
 				},
 			}, addon:GetOptionHandler(self, true)
 		end
