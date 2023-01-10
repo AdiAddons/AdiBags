@@ -341,22 +341,22 @@ function addon:SetupDefaultFilters()
 					values = values
 				},
 				mergeGems = {
-					name = L['Gems are trade goods'],
-					desc = L['Consider gems as a subcategory of trade goods'],
+					name = L['Gems are trade/crafting goods'],
+					desc = L['Consider gems as a subcategory of trade/crafting goods'],
 					type = 'toggle',
 					width = 'double',
 					order = 20,
 				},
 				mergeGlyphs = {
-					name = L['Glyphs are trade goods'],
-					desc = L['Consider glyphs as a subcategory of trade goods'],
+					name = L['Glyphs are trade/crafting goods'],
+					desc = L['Consider glyphs as a subcategory of trade/crafting goods'],
 					type = 'toggle',
 					width = 'double',
 					order = 30,
 				},
 				splitExpansion = {
-					name = L['Split reagents by expansion'],
-					desc = L['Split reagents by expansion'],
+					name = L['Split trade/crafting goods by expansion'],
+					desc = L['Split trade/crafting goods by expansion'],
 					type = 'toggle',
 					width = 'double',
 					order = 40,
