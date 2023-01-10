@@ -27,7 +27,7 @@ local db = addon.ItemDatabase
 function db:ReagentData(slotData)
   if not slotData.isCraftingReagent then return false end
   if not slotData.classID == LE_ITEM_CLASS_TRADEGOODS then return false end
-  local profession = addon.TRADESKILL_MAP[slotData.subclassID]
+  local profession = addon.TRADESKILL_MAP[slotData.subclassID] or "Unknown"
   return {
     expansionName = addon.EXPANSION_MAP[slotData.expacID],
     profession = profession,

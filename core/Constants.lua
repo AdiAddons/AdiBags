@@ -100,7 +100,7 @@ addon.TRADESKILL_MAP = {
 	[4] = "Jewelcrafting",
 	[5] = "Tailoring",
 	[6] = "Leatherworking",
-	[7] = "Blacksmithing",
+	[7] = "Mining",
 	[8] = "Cooking",
 	[9] = "Herbalism",
 	[10] = "Elemental",
@@ -110,7 +110,9 @@ addon.TRADESKILL_MAP = {
 	[14] = "Item Enchantement",
 	[15] = "Weapon Enchantment",
 	[16] = "Inscription",
-	[17] = "Explosives and Devices"
+	[17] = "Explosives and Devices",
+	[18] = "Optional Reagents",
+	[19] = "Finishing Reagents"
 }
 
 addon.BAG_IDS = {
