@@ -34,7 +34,8 @@ local gridClass, gridProto, gridParentProto = addon:NewClass("Grid", "LayeredReg
 function addon:CreateGridFrame(...) return gridClass:Create(...) end
 
 -- Type definitions for the grid.
----@class Grid
+
+---@class Grid A grid for organizing frames in a grid pattern.
 gridProto = gridProto
 ---@cast gridProto +Frame
 
