@@ -324,6 +324,6 @@ local LibSharedMedia = {}
 
 ---@param self table The object to register the callback on.
 ---@param eventname string The name of the event to register.
----@param method function The method to call when the event is fired.
+---@param method string|function The method on the object or the function to call when the event is fired.
 ---@param ... any Any additional arguments to pass to the method when it is called.
 function LibSharedMedia.RegisterCallback(self, eventname, method, ...) end
