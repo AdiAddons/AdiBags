@@ -315,3 +315,15 @@ function UseContainerItem(containerIndex, slotIndex, unitToken, reagentBankOpen)
 ---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.UseHearthstone)
 ---@return boolean used
 function UseHearthstone() end
+
+
+-- Missing LibSharedMedia definitions
+
+---@class LibSharedMedia-3.0
+local LibSharedMedia = {}
+
+---@param self table The object to register the callback on.
+---@param eventname string The name of the event to register.
+---@param method function The method to call when the event is fired.
+---@param ... any Any additional arguments to pass to the method when it is called.
+function LibSharedMedia.RegisterCallback(self, eventname, method, ...) end
