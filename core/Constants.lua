@@ -38,6 +38,8 @@ local NUM_BAG_SLOTS = _G.NUM_BAG_SLOTS
 local NUM_REAGENTBAG_SLOTS = _G.NUM_REAGENTBAG_SLOTS
 local NUM_TOTAL_EQUIPPED_BAG_SLOTS = _G.NUM_TOTAL_EQUIPPED_BAG_SLOTS
 local NUM_BANKBAGSLOTS = _G.NUM_BANKBAGSLOTS
+local TRADE_GOODS = _G.Enum.ItemClass.Tradegoods
+local GetItemSubClassInfo = _G.GetItemSubClassInfo
 local pairs = _G.pairs
 --GLOBALS>
 
@@ -76,6 +78,45 @@ for _, bags in ipairs { BAGS, BANK } do
 	for id in pairs(bags) do ALL[id] = id end
 end
 
+-- Expansion names
+addon.EXPANSION_MAP = {
+	[_G.LE_EXPANSION_CLASSIC] = _G.EXPANSION_NAME0,
+	[_G.LE_EXPANSION_BURNING_CRUSADE] = _G.EXPANSION_NAME1,
+	[_G.LE_EXPANSION_WRATH_OF_THE_LICH_KING] = _G.EXPANSION_NAME2,
+	[_G.LE_EXPANSION_CATACLYSM] = _G.EXPANSION_NAME3,
+	[_G.LE_EXPANSION_MISTS_OF_PANDARIA] = _G.EXPANSION_NAME4,
+	[_G.LE_EXPANSION_WARLORDS_OF_DRAENOR] = _G.EXPANSION_NAME5,
+	[_G.LE_EXPANSION_LEGION] = _G.EXPANSION_NAME6,
+	[_G.LE_EXPANSION_BATTLE_FOR_AZEROTH] = _G.EXPANSION_NAME7,
+	[_G.LE_EXPANSION_SHADOWLANDS] = _G.EXPANSION_NAME8,
+	[_G.LE_EXPANSION_DRAGONFLIGHT] = _G.EXPANSION_NAME9,
+}
+
+-- Tradeskill subclassID -> subclassName
+-- Note that this differs from what GetItemSubClassInfo returns (in comments); non-retail client returns aren't obsoleted.
+addon.TRADESKILL_MAP = {
+	[ 0] = GetItemSubClassInfo(TRADE_GOODS, 0),  -- "Trade Goods (OBSOLETE)"
+	[ 1] = L["Engineering"],                     -- "Parts"
+	[ 2] = GetItemSubClassInfo(TRADE_GOODS, 2),  -- "Explosives (OBSOLETE)"
+	[ 3] = GetItemSubClassInfo(TRADE_GOODS, 3),  -- "Devices (OBSOLETE)"
+	[ 4] = GetItemSubClassInfo(TRADE_GOODS, 4),  -- "Jewelcrafting"
+	[ 5] = L["Tailoring"],                       -- "Cloth"
+	[ 6] = L["Leatherworking"],                  -- "Leather"
+	[ 7] = L["Mining"],                          -- "Metal & Stone"
+	[ 8] = GetItemSubClassInfo(TRADE_GOODS, 8),  -- "Cooking"
+	[ 9] = L["Herbalism"],                       -- "Herb"
+	[10] = GetItemSubClassInfo(TRADE_GOODS, 10), -- "Elemental"
+	[11] = GetItemSubClassInfo(TRADE_GOODS, 11), -- "Other"
+	[12] = GetItemSubClassInfo(TRADE_GOODS, 12), -- "Enchanting"
+	[13] = GetItemSubClassInfo(TRADE_GOODS, 13), -- "Materials (OBSOLETE)"
+	[14] = GetItemSubClassInfo(TRADE_GOODS, 14), -- "Item Enchantment (OBSOLETE)"
+	[15] = GetItemSubClassInfo(TRADE_GOODS, 15), -- "Weapon Enchantment - Obsolete"
+	[16] = GetItemSubClassInfo(TRADE_GOODS, 16), -- "Inscription"
+	[17] = GetItemSubClassInfo(TRADE_GOODS, 17), -- "Explosives and Devices (OBSOLETE)"
+	[18] = GetItemSubClassInfo(TRADE_GOODS, 18), -- "Optional Reagents"
+	[19] = GetItemSubClassInfo(TRADE_GOODS, 19), -- "Finishing Reagents"
+}
+
 addon.BAG_IDS = {
 	BAGS = BAGS,
 	BANK = BANK,
@@ -97,7 +138,7 @@ addon.FAMILY_TAGS = {
 	[0x00100] = L["KEYRING_TAG"], -- Keyring
 	[0x00200] = L["GEM_BAG_TAG"], -- Gem Bag
 	[0x00400] = L["MINING_BAG_TAG"], -- Mining Bag
-	[0x00800] = L["REAGENT_BAG_TAG"], -- Player Reagent Bag		
+	[0x00800] = L["REAGENT_BAG_TAG"], -- Reagent Bag
 	[0x08000] = L["TACKLE_BOX_TAG"], -- Tackle Box
 	[0x10000] = L["COOKING_BAR_TAG"], -- Refrigerator
 --@noloc]]
@@ -115,7 +156,7 @@ addon.FAMILY_ICONS = {
 	[0x00100] = [[Interface\Icons\INV_Misc_Key_14]], -- Keyring
 	[0x00200] = [[Interface\Icons\INV_Misc_Gem_BloodGem_01]], -- Gem Bag
 	[0x00400] = [[Interface\Icons\Trade_Mining]], -- Mining Bag
-	[0x00800] = 4549254, -- Player Reagent Bag
+	[0x00800] = [[Interface\Icons\INV_10_Tailoring_CraftingOptionalReagent_ExtraPockets_Color2]], -- Reagent Bag
 	[0x08000] = [[Interface\Icons\Trade_Fishing]], -- Tackle Box
 	[0x10000] = [[Interface\Icons\INV_Misc_Bag_Cooking]], -- Refrigerator
 }
