@@ -90,6 +90,11 @@ ITEM_SEARCHBAR_LIST = {
 ---@field itemGUID string The GUID of the item as returned by GetItemGUID().
 ---@field itemLocation ItemLocationMixin The item location of the item as returned by ItemLocation:CreateFromBagAndSlot(bag, slot).
 
+---@class BankFrame
+---@field selectedTab number The tab that is currently selected, 1 for the main bank, 2 for the reagent bank.
+---@type BankFrame
+BankFrame = {}
+
 -----------------------------------------
 --
 -- Function definitions
@@ -350,9 +355,17 @@ function ABEvent.RegisterMessage(target, eventname, method, ...) end
 function ABEvent.RegisterEvent(target, eventname, method, ...) end
 
 -- Global functions
+
 ---@param which string The name of the popup to show.
 ---@param text_arg1? string The first text argument to pass to the popup.
 ---@param text_arg2? string The second text argument to pass to the popup.
 ---@param data? table The data to pass for certain popups.
 ---@param insertedFrame? Frame The frame to insert into the popup.
 function StaticPopup_Show(which, text_arg1, text_arg2, data, insertedFrame) end
+
+---@param frame Frame The frame to set the tooltip on.
+---@param money number|nil The amount of money to display, in copper.
+---@param type? string Unknown/undocumented parameter.
+---@param prefixText? string The text to display before the money.
+---@param suffixText? string The text to display after the money.
+function SetTooltipMoney(frame, money, type, prefixText, suffixText) end
