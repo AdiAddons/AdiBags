@@ -21,3 +21,4 @@ ignore:
   - tests
   - deploy
   - install-deps.sh
+  - Annotations.lua
