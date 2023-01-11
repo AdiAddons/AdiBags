@@ -129,6 +129,8 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.sameChanged = {}
 
 	self.itemGUIDtoItem = {}
+	---@type Frame|Grid
+	self.Content = {}
 
 	local ids
 	for bagId in pairs(BAG_IDS[isBank and "BANK" or "BAGS"]) do

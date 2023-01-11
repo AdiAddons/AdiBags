@@ -86,6 +86,10 @@ ITEM_SEARCHBAR_LIST = {
 ---@field itemGUID string The GUID of the item as returned by GetItemGUID().
 ---@field itemLocation ItemLocationMixin The item location of the item as returned by ItemLocation:CreateFromBagAndSlot(bag, slot).
 
+---@class ABEvent-1.0
+---@field RegisterMessage fun(target: string|table, eventname: string, method: function|string, ...: any): nil
+---@field RegisterEvent fun(target: string|table, eventname: string, method: function|string, ...: any): nil
+
 -----------------------------------------
 --
 -- Function definitions
