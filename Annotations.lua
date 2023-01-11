@@ -344,3 +344,11 @@ function ABEvent.RegisterMessage(target, eventname, method, ...) end
 ---@param method function|string The method to call when the event is fired.
 ---@param ... any Additional arguments to pass to the method when it is called.
 function ABEvent.RegisterEvent(target, eventname, method, ...) end
+
+-- Global functions
+---@param which string The name of the popup to show.
+---@param text_arg1? string The first text argument to pass to the popup.
+---@param text_arg2? string The second text argument to pass to the popup.
+---@param data? table The data to pass for certain popups.
+---@param insertedFrame? Frame The frame to insert into the popup.
+function StaticPopup_Show(which, text_arg1, text_arg2, data, insertedFrame) end
