@@ -93,25 +93,25 @@ addon.EXPANSION_MAP = {
 -- Tradeskill subclassID -> Tradeskill name map
 -- Note that this is different than what GetItemSubClassInfo returns!
 addon.TRADESKILL_MAP = {
-	[0] = "Trade Goods",
+	[0] = BAG_FILTER_TRADE_GOODS,
 	[1] = "Parts",
 	[2] = "Explosives",
 	[3] = "Devices",
-	[4] = "Jewelcrafting",
-	[5] = "Tailoring",
-	[6] = "Leatherworking",
-	[7] = "Mining",
-	[8] = "Cooking",
-	[9] = "Herbalism",
+	[4] = CHARACTER_PROFESSION_JEWELCRAFTING,
+	[5] = CHARACTER_PROFESSION_TAILORING,
+	[6] = CHARACTER_PROFESSION_LEATHERWORKING,
+	[7] = CHARACTER_PROFESSION_MINING,
+	[8] = PROFESSIONS_COOKING,
+	[9] = CHARACTER_PROFESSION_HERBALISM,
 	[10] = "Elemental",
 	[11] = "Other",
-	[12] = "Enchanting",
+	[12] = CHARACTER_PROFESSION_ENCHANTING,
 	[13] = "Materials",
 	[14] = "Item Enchantement",
-	[15] = "Weapon Enchantment",
-	[16] = "Inscription",
+	[15] = WEAPON_ENCHANTMENT,
+	[16] = CHARACTER_PROFESSION_INSCRIPTION,
 	[17] = "Explosives and Devices",
-	[18] = "Optional Reagents",
+	[18] = OPTIONAL_REAGENT_TUTORIAL_TOOLTIP_TITLE,
 	[19] = "Finishing Reagents"
 }
 
