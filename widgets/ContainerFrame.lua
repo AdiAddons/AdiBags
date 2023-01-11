@@ -1102,7 +1102,7 @@ function containerProto:PrepareSections(columnWidth, sections)
 end
 
 local function FindFittingSection(maxWidth, sections)
-	local bestScore, bestIndex = math.huge
+	local bestScore, bestIndex = math.huge, nil
 	for index, section in ipairs(sections) do
 		local wasted = maxWidth - section:GetWidth()
 		if wasted >= 0 and wasted < bestScore then

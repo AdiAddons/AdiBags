@@ -32,12 +32,16 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 
 BACKPACK_CONTAINER = Enum.BagIndex.Backpack
 BANK_CONTAINER = Enum.BagIndex.Bank
+REAGENTBANK_CONTAINER = Enum.BagIndex.Reagentbank
 NUM_BAG_SLOTS = Constants.InventoryConstants.NumBagSlots
 NUM_REAGENTBAG_SLOTS = Constants.InventoryConstants.NumReagentBagSlots
 NUM_BANKBAGSLOTS = Constants.InventoryConstants.NumBankBagSlots
 NUM_TOTAL_EQUIPPED_BAG_SLOTS = NUM_BAG_SLOTS + NUM_REAGENTBAG_SLOTS
 REAGENTBANK_DEPOSIT = REAGENTBANK_DEPOSIT
 REAGENT_BANK = REAGENT_BANK
+BANKSLOTPURCHASE = BANKSLOTPURCHASE
+REAGENTBANK_PURCHASE_TEXT = REAGENTBANK_PURCHASE_TEXT
+COSTS_LABEL = COSTS_LABEL
 ITEM_SEARCHBAR_LIST = {
 	"BagItemSearchBox",
 	"GuildItemSearchBox",
