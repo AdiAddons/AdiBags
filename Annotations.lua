@@ -355,6 +355,15 @@ function ABEvent.RegisterMessage(target, eventname, method, ...) end
 ---@param ... any Additional arguments to pass to the method when it is called.
 function ABEvent.RegisterEvent(target, eventname, method, ...) end
 
+-- AdiDebug definitions
+
+---@class AdiDebug
+local AdiDebug = {}
+
+---@param target table
+---@param name string
+function AdiDebug:Embed(target, name) end
+
 -- Global functions
 
 ---@param which string The name of the popup to show.
