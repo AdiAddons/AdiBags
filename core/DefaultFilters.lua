@@ -369,10 +369,10 @@ function addon:SetupDefaultFilters()
 			--TODO: Implement an option to override `subclass` with professions from our `addon.TRADESKILL_MAP`?
 			local reagentData = addon.ItemDatabase:ReagentData(slotData)
 			if self.db.profile.splitBySubclass[class] then
-				return (self.db.profile.splitExpansion and reagentData and subclass.." ("..reagentData.expacName..")")
+				return (self.db.profile.splitExpansion and reagentData and subclass..": "..reagentData.expacName)
 				or subclass, class
 			else
-				return (self.db.profile.splitExpansion and reagentData and class.." ("..reagentData.expacName..")")
+				return (self.db.profile.splitExpansion and reagentData and class..": "..reagentData.expacName)
 				or class
 			end
 		end
