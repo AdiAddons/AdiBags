@@ -45,6 +45,7 @@ Enum.ExpansionType = {
   LE_EXPANSION_SHADOWLANDS = 8,
   LE_EXPANSION_DRAGONFLIGHT = 9,
 }
+---@alias slotId number A unique slotId for an item in a bag.
 
 ---@class ItemInfo ItemInfo is constructed by GetItemInfo(), with some additional fields for use in AdiBags.
 ---@field itemName string The localized name of the item.
@@ -58,9 +59,15 @@ Enum.ExpansionType = {
 ---@field itemEquipLoc string The inventory equipment location in which the item may be equipped e.g. "INVTYPE_HEAD", or an empty string if it cannot be equipped.
 ---@field itemTexture number The texture for the item icon in FileID format.
 ---@field sellPrice number The vendor price in copper, or 0 for items that cannot be sold.
----@field classID Enum.ItemClass The numeric ID that matches the string field itemType. See: https://wowpedia.fandom.com/wiki/ItemType
+---[Documentation](https://wowpedia.fandom.com/wiki/ItemType)
+---@field classID Enum.ItemClass The numeric ID that matches the string field itemType.
 ---@field subclassID Enum.ItemConsumableSubclass|Enum.ItemWeaponSubclass|Enum.ItemGemSubclass|Enum.ItemArmorSubclass|Enum.ItemReagentSubclass|Enum.ItemRecipeSubclass|Enum.ItemMiscellaneousSubclass|Enum.BattlePetTypes|Enum.ItemProfessionSubclass|number The numeric ID that matches the string field itemSubType. See: https://wowpedia.fandom.com/wiki/ItemType
 ---@field bindType ItemBindType The binding type of the item: 0 for no binding, 1 for on pickup, 2 for on equip, 3 for on use.
 ---@field expacID ExpansionType The related Expansion, e.g. 8 for Shadowlands.
 ---@field setID number The ID of the item set to which this item belongs, or nil if it does not belong to a set.
 ---@field isCraftingReagent boolean Whether the item can be used as a crafting reagent.
+---@field bag number The bag index of the bag the item is in.
+---@field slot number The slot index of the item in the bag.
+---@field slotId slotId The unique slotId of the item in the bag. 
+---@field bagFamily number? The bag family as documented in [GetContainerNumFreeSlots](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerNumFreeSlots)
+---@field isBank boolean Whether the item is in the player's bank.

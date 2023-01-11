@@ -118,6 +118,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.firstLoad = true
 
 	self.buttons = {}
+	---@type {[number]: {[number]: ItemInfo}}
 	self.content = {}
 	self.stacks = {}
 	self.sections = {}
@@ -673,6 +674,7 @@ end
 -- Bag content scanning
 --------------------------------------------------------------------------------
 
+---@param bag number The id of the bag to update.
 function containerProto:UpdateContent(bag)
 	self:Debug('UpdateContent', bag)
 	local added, removed, changed, sameChanged = self.added, self.removed, self.changed, self.sameChanged
@@ -698,6 +700,7 @@ function containerProto:UpdateContent(bag)
 		if not itemId or (link and addon.IsValidItemLink(link)) then
 			local slotData = content[slot]
 			if not slotData then
+				---@type ItemInfo
 				slotData = {
 					bag = bag,
 					slot = slot,
