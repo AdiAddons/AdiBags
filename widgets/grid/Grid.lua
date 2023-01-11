@@ -37,7 +37,7 @@ function addon:CreateGridFrame(...) return gridClass:Create(...) end
 
 ---@class Grid A grid for organizing frames in a grid pattern.
 gridProto = gridProto
----@cast gridProto +Frame
+---@cast gridProto +LayeredRegion, +ABEvent-1.0
 
 ---@param name string The name of this grid.
 ---@param parent Frame The parent frame of this grid.

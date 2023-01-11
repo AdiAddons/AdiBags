@@ -86,10 +86,6 @@ ITEM_SEARCHBAR_LIST = {
 ---@field itemGUID string The GUID of the item as returned by GetItemGUID().
 ---@field itemLocation ItemLocationMixin The item location of the item as returned by ItemLocation:CreateFromBagAndSlot(bag, slot).
 
----@class ABEvent-1.0
----@field RegisterMessage fun(target: string|table, eventname: string, method: function|string, ...: any): nil
----@field RegisterEvent fun(target: string|table, eventname: string, method: function|string, ...: any): nil
-
 -----------------------------------------
 --
 -- Function definitions
@@ -331,3 +327,20 @@ local LibSharedMedia = {}
 ---@param method string|function The method on the object or the function to call when the event is fired.
 ---@param ... any Any additional arguments to pass to the method when it is called.
 function LibSharedMedia.RegisterCallback(self, eventname, method, ...) end
+
+-- ABEvent definitions
+
+---@class ABEvent-1.0
+local ABEvent = {}
+
+---@param target string|table The target object to register the event on. If a string is passed, the event will be registered on the global object.
+---@param eventname string The name of the event to register.
+---@param method function The method to call when the event is fired.
+---@param ... any Additional arguments to pass to the method when it is called.
+function ABEvent.RegisterMessage(target, eventname, method, ...) end
+
+---@param target string|table The target object to register the event on. If a string is passed, the event will be registered on the global object.
+---@param eventname string The name of the event to register.
+---@param method function|string The method to call when the event is fired.
+---@param ... any Additional arguments to pass to the method when it is called.
+function ABEvent.RegisterEvent(target, eventname, method, ...) end
