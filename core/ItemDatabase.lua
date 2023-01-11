@@ -1,6 +1,6 @@
 --[[
 AdiBags - Adirelle's bag addon.
-Copyright 2010-2022 Adirelle (adirelle@gmail.com)
+Copyright 2010-2023 Adirelle (adirelle@gmail.com)
 All rights reserved.
 
 This file is part of AdiBags.
@@ -19,17 +19,22 @@ You should have received a copy of the GNU General Public License
 along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
+--<GLOBALS
+local _G = _G
+local TRADE_GOODS = _G.Enum.ItemClass.Tradegoods
+local UNKNOWN = _G.UNKNOWN
+--GLOBALS>
+
 local addonName, addon = ...
 
-addon.ItemDatabase = addon:NewModule('ItemDatabase', 'AceEvent-3.0')
+addon.ItemDatabase = addon:NewModule("ItemDatabase", "AceEvent-3.0")
 local db = addon.ItemDatabase
 
 function db:ReagentData(slotData)
   if not slotData.isCraftingReagent then return false end
-  if not slotData.classID == LE_ITEM_CLASS_TRADEGOODS then return false end
-  local profession = addon.TRADESKILL_MAP[slotData.subclassID] or "Unknown"
+  if not slotData.classID == TRADE_GOODS then return false end
   return {
-    expansionName = addon.EXPANSION_MAP[slotData.expacID],
-    profession = profession,
+    expacName = addon.EXPANSION_MAP[slotData.expacID],
+    subclassName = addon.TRADESKILL_MAP[slotData.subclassID] or UNKNOWN,
   }
 end

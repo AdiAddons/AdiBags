@@ -313,23 +313,17 @@ function addon:SetupDefaultFilters()
 		end
 
 		function itemCat:GetOptions()
-			local values = {}
-			if addon.isRetail then
-				values = {
-					[TRADE_GOODS] = TRADE_GOODS,
-					[CONSUMMABLE] = CONSUMMABLE,
-					[MISCELLANEOUS] = MISCELLANEOUS,
-					[GEM] = GEM,
-					[GLYPH] = GLYPH,
-					[RECIPE] = RECIPE,
-				}
-			else
-				values = {
-					[TRADE_GOODS] = TRADE_GOODS,
-					[CONSUMMABLE] = CONSUMMABLE,
-					[MISCELLANEOUS] = MISCELLANEOUS,
-					[RECIPE] = RECIPE,
-				}
+			local values = {
+				[TRADE_GOODS] = TRADE_GOODS,
+				[CONSUMMABLE] = CONSUMMABLE,
+				[MISCELLANEOUS] = MISCELLANEOUS,
+				[RECIPE] = RECIPE,
+			}
+			if addon.isBCC then
+				values[GEM] = GEM
+			elseif not addon.isClassic then
+				values[GEM] = GEM
+				values[GLYPH] = GLYPH
 			end
 
 			return {
@@ -372,12 +366,14 @@ function addon:SetupDefaultFilters()
 				class, subclass = TRADE_GOODS, class
 			end
 
+			--TODO: Implement an option to override `subclass` with professions from our `addon.TRADESKILL_MAP`?
 			local reagentData = addon.ItemDatabase:ReagentData(slotData)
-
 			if self.db.profile.splitBySubclass[class] then
-				return (self.db.profile.splitExpansion and reagentData and reagentData.expansionName .. " - " ..subclass) or (reagentData and reagentData.profession) or subclass, class
+				return (self.db.profile.splitExpansion and reagentData and subclass.." ("..reagentData.expacName..")")
+				or subclass, class
 			else
-				return (self.db.profile.splitExpansion and reagentData and reagentData.expansionName .. " - " ..class) or class
+				return (self.db.profile.splitExpansion and reagentData and class.." ("..reagentData.expacName..")")
+				or class
 			end
 		end
 
