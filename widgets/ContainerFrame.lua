@@ -564,7 +564,7 @@ local function FindBagWithRoom(self, itemFamily)
 	for bag in pairs(self:GetBagIds()) do
 		local numFree, family = GetContainerNumFreeSlots(bag)
 		if numFree and numFree > 0 then
-			if band(family, itemFamily) ~= 0 then
+			if family and band(family, itemFamily) ~= 0 then
 				return bag
 			elseif not fallback then
 				fallback = bag
@@ -581,7 +581,7 @@ do
 		local bag = FindBagWithRoom(self, GetItemFamily(item))
 		if not bag then return end
 		wipe(slots)
-		GetContainerFreeSlots(bag, slots)
+		slots = GetContainerFreeSlots(bag)
 		return GetSlotId(bag, slots[1])
 	end
 end
@@ -1122,10 +1122,11 @@ local COLUMN_SPACING = ceil((ITEM_SIZE + ITEM_SPACING) / 2)
 local ROW_SPACING = ITEM_SPACING*2
 local SECTION_SPACING = COLUMN_SPACING / 2
 
+---@return number, number
 function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, sections)
 	if addon.db.profile.gridLayout then
 		self.Content:Update()
-		return
+		return 0, 0
 	end
 	self:Debug('LayoutSections', maxHeight, columnWidth, minWidth)
 	local heights, widths, rows = { 0 }, {}, {}
