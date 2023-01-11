@@ -44,7 +44,6 @@ libs\LibSharedMedia-3.0\lib.xml
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 
 Localization.lua
-core\Annotations.lua
 core\EventHandlers.lua
 core\Fonts.lua
 core\Constants.lua

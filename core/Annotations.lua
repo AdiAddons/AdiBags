@@ -19,33 +19,24 @@ You should have received a copy of the GNU General Public License
 along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
--- This file holds type annotations for various objects used in AdiBags. It also
--- contains some basic data structures for use where they don't exist in
--- Blizzard interface code.
+---@meta
 
----@enum ItemBindType The binding types for items.
-Enum.ItemBindType = {
-  LE_ITEM_BIND_NONE = 0,
-  LE_ITEM_BIND_ON_ACQUIRE = 1,
-  LE_ITEM_BIND_ON_EQUIP = 2,
-  LE_ITEM_BIND_ON_USE = 3,
-  LE_ITEM_BIND_QUEST = 4,
-}
+-- This file holds type annotations for various objects used in AdiBags. It is
+-- never loaded by the addon, but is used as a reference for the lua linter.
 
----@enum ExpansionType The expansion type for items.
-Enum.ExpansionType = {
-  LE_EXPANSION_CLASSIC = 0,
-  LE_EXPANSION_BURNING_CRUSADE = 1,
-  LE_EXPANSION_WRATH_OF_THE_LICH_KING = 2,
-  LE_EXPANSION_CATACLYSM = 3,
-  LE_EXPANSION_MISTS_OF_PANDARIA = 4,
-  LE_EXPANSION_WARLORDS_OF_DRAENOR = 5,
-  LE_EXPANSION_LEGION = 6,
-  LE_EXPANSION_BATTLE_FOR_AZEROTH = 7,
-  LE_EXPANSION_SHADOWLANDS = 8,
-  LE_EXPANSION_DRAGONFLIGHT = 9,
-}
+-----------------------------------------
+--
+-- Alias definitions
+--
+-----------------------------------------
+
 ---@alias slotId number A unique slotId for an item in a bag.
+
+-----------------------------------------
+--
+-- Class definitions
+--
+-----------------------------------------
 
 ---@class ItemInfo ItemInfo is constructed by GetItemInfo(), with some additional fields for use in AdiBags.
 ---@field itemName string The localized name of the item.
@@ -71,3 +62,235 @@ Enum.ExpansionType = {
 ---@field slotId slotId The unique slotId of the item in the bag. 
 ---@field bagFamily number? The bag family as documented in [GetContainerNumFreeSlots](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerNumFreeSlots)
 ---@field isBank boolean Whether the item is in the player's bank.
+---@field itemGUID string The GUID of the item as returned by GetItemGUID().
+---@field itemLocation ItemLocationMixin The item location of the item as returned by ItemLocation:CreateFromBagAndSlot(bag, slot).
+
+-----------------------------------------
+--
+-- Function definitions
+--
+-----------------------------------------
+
+-- Container Functions
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.ContainerIDToInventoryID)
+---@param containerID number
+---@return number inventoryID
+function ContainerIDToInventoryID(containerID) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.ContainerRefundItemPurchase)
+---@param containerIndex number
+---@param slotIndex number
+---@param isEquipped? boolean Default = false
+function ContainerRefundItemPurchase(containerIndex, slotIndex, isEquipped) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetBackpackAutosortDisabled)
+---@return boolean isDisabled
+function GetBackpackAutosortDisabled() end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetBagName)
+---@param bagIndex number
+---@return string name
+function GetBagName(bagIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetBagSlotFlag)
+---@param bagIndex number
+---@param flag number|Enum.BagSlotFlags
+---@return boolean isSet
+function GetBagSlotFlag(bagIndex, flag) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetBankAutosortDisabled)
+---@return boolean isDisabled
+function GetBankAutosortDisabled() end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerFreeSlots)
+---@param containerIndex number
+---@return number[] freeSlots
+function GetContainerFreeSlots(containerIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerItemCooldown)
+---@param containerIndex number
+---@param slotIndex number
+---@return number startTime
+---@return number duration
+---@return number enable
+function GetContainerItemCooldown(containerIndex, slotIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerItemDurability)
+---@param containerIndex number
+---@param slotIndex number
+---@return number durability
+---@return number maxDurability
+function GetContainerItemDurability(containerIndex, slotIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerItemEquipmentSetInfo)
+---@param containerIndex number
+---@param slotIndex number
+---@return boolean inSet
+---@return string setList
+function GetContainerItemEquipmentSetInfo(containerIndex, slotIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerItemID)
+---@param containerIndex number
+---@param slotIndex number
+---@return number containerID
+function GetContainerItemID(containerIndex, slotIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerItemInfo)
+---@param containerIndex number
+---@param slotIndex number
+---@return ContainerItemInfo containerInfo
+function GetContainerItemInfo(containerIndex, slotIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerItemLink)
+---@param containerIndex number
+---@param slotIndex number
+---@return string itemLink
+function GetContainerItemLink(containerIndex, slotIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerItemPurchaseCurrency)
+---@param containerIndex number
+---@param slotIndex number
+---@param itemIndex number
+---@param isEquipped boolean
+---@return ItemPurchaseCurrency currencyInfo
+function GetContainerItemPurchaseCurrency(containerIndex, slotIndex, itemIndex, isEquipped) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerItemPurchaseInfo)
+---@param containerIndex number
+---@param slotIndex number
+---@param isEquipped boolean
+---@return ItemPurchaseInfo info
+function GetContainerItemPurchaseInfo(containerIndex, slotIndex, isEquipped) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerItemPurchaseItem)
+---@param containerIndex number
+---@param slotIndex number
+---@param itemIndex number
+---@param isEquipped boolean
+---@return ItemPurchaseItem itemInfo
+function GetContainerItemPurchaseItem(containerIndex, slotIndex, itemIndex, isEquipped) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerItemQuestInfo)
+---@param containerIndex number
+---@param slotIndex number
+---@return ItemQuestInfo questInfo
+function GetContainerItemQuestInfo(containerIndex, slotIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerNumFreeSlots)
+---@param bagIndex number
+---@return number numFreeSlots
+---@return number? bagFamily
+function GetContainerNumFreeSlots(bagIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerNumSlots)
+---@param containerIndex number
+---@return number numSlots
+function GetContainerNumSlots(containerIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetInsertItemsLeftToRight)
+---@return boolean isEnabled
+function GetInsertItemsLeftToRight() end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetItemCooldown)
+---@param itemID number
+---@return number startTime
+---@return number duration
+---@return number enable
+function GetItemCooldown(itemID) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetMaxArenaCurrency)
+---@return number maxCurrency
+function GetMaxArenaCurrency() end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.GetSortBagsRightToLeft)
+---@return boolean isEnabled
+function GetSortBagsRightToLeft() end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.IsBattlePayItem)
+---@param containerIndex number
+---@param slotIndex number
+---@return boolean isBattlePayItem
+function IsBattlePayItem(containerIndex, slotIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.IsContainerFiltered)
+---@param containerIndex number
+---@return boolean isFiltered
+function IsContainerFiltered(containerIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.PickupContainerItem)
+---@param containerIndex number
+---@param slotIndex number
+function PickupContainerItem(containerIndex, slotIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.PlayerHasHearthstone)
+---@return number? itemID
+function PlayerHasHearthstone() end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.SetBackpackAutosortDisabled)
+---@param disable boolean
+function SetBackpackAutosortDisabled(disable) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.SetBagPortraitTexture)
+---@param texture table
+---@param bagIndex number
+function SetBagPortraitTexture(texture, bagIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.SetBagSlotFlag)
+---@param bagIndex number
+---@param flag number|Enum.BagSlotFlags
+---@param isSet boolean
+function SetBagSlotFlag(bagIndex, flag, isSet) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.SetBankAutosortDisabled)
+---@param disable boolean
+function SetBankAutosortDisabled(disable) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.SetInsertItemsLeftToRight)
+---@param enable boolean
+function SetInsertItemsLeftToRight(enable) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.SetItemSearch)
+---@param searchString string
+function SetItemSearch(searchString) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.SetSortBagsRightToLeft)
+---@param enable boolean
+function SetSortBagsRightToLeft(enable) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.ShowContainerSellCursor)
+---@param containerIndex number
+---@param slotIndex number
+function ShowContainerSellCursor(containerIndex, slotIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.SocketContainerItem)
+---@param containerIndex number
+---@param slotIndex number
+---@return boolean success
+function SocketContainerItem(containerIndex, slotIndex) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.SortBags)
+function SortBags() end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.SortBankBags)
+function SortBankBags() end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.SortReagentBankBags)
+function SortReagentBankBags() end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.SplitContainerItem)
+---@param containerIndex number
+---@param slotIndex number
+---@param amount number
+function SplitContainerItem(containerIndex, slotIndex, amount) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.UseContainerItem)
+---@param containerIndex number
+---@param slotIndex number
+---@param unitToken? string
+---@param reagentBankOpen? boolean Default = false
+function UseContainerItem(containerIndex, slotIndex, unitToken, reagentBankOpen) end
+
+---[Documentation](https://wowpedia.fandom.com/wiki/API_C_Container.UseHearthstone)
+---@return boolean used
+function UseHearthstone() end
