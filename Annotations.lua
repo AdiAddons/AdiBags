@@ -26,6 +26,27 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 
 -----------------------------------------
 --
+-- Constant definitions
+--
+-----------------------------------------
+
+BACKPACK_CONTAINER = Enum.BagIndex.Backpack
+BANK_CONTAINER = Enum.BagIndex.Bank
+NUM_BAG_SLOTS = Constants.InventoryConstants.NumBagSlots
+NUM_REAGENTBAG_SLOTS = Constants.InventoryConstants.NumReagentBagSlots
+NUM_BANKBAGSLOTS = Constants.InventoryConstants.NumBankBagSlots
+NUM_TOTAL_EQUIPPED_BAG_SLOTS = NUM_BAG_SLOTS + NUM_REAGENTBAG_SLOTS
+REAGENTBANK_DEPOSIT = REAGENTBANK_DEPOSIT
+REAGENT_BANK = REAGENT_BANK
+ITEM_SEARCHBAR_LIST = {
+	"BagItemSearchBox",
+	"GuildItemSearchBox",
+	"VoidItemSearchBox",
+	"BankItemSearchBox",
+}
+
+-----------------------------------------
+--
 -- Alias definitions
 --
 -----------------------------------------
