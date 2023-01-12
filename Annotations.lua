@@ -64,6 +64,26 @@ ITEM_SEARCHBAR_LIST = {
 -- Class definitions
 --
 -----------------------------------------
+---@class ContainerInfo ContainerInfo is information about a bag, including all it's slots and all it's items.
+---@field bag number This bag's index.
+---@field slots table<number, SlotInfo> A table of all the slots in the bag, indexed by slotId.
+
+---@class SlotInfo SlotInfo is information about a bag slot, as returned by GetContainerItemInfo(), with some additional fields for use in AdiBags.
+---@field iconFileID number The texture for the item icon in FileID format.
+---@field stackCount number The number of times this item is in the bag slot.
+---@field isLocked boolean Whether the item is locked by the server.
+---@field quality Enum.ItemQuality The item quality, i.e. 1 for common, 2 for uncommon, etc.
+---@field isReadable boolean Whether the item is readable, i.e. a book.
+---@field hasLoot boolean Whether the item has loot, i.e. a container.
+---@field hyperlink string The itemLink of this item.
+---@field isFiltered boolean True if the item is grayed-out during the current inventory search, false otherwise.
+---@field hasNoValue boolean True if the item has no gold value, false otherwise.
+---@field itemID number The itemID of the item in the bag slot.
+---@field isBound boolean True if the item is bound to the player, false otherwise.
+---@field slot number The slot index of the item in the bag.
+---@field slotId slotId The unique slotId of the item in the bag. 
+---@field bagFamily number? The bag family as documented in [GetContainerNumFreeSlots](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerNumFreeSlots)
+---@field isBank boolean Whether the item is in the player's bank.
 
 ---@class ItemInfo ItemInfo is constructed by GetItemInfo(), with some additional fields for use in AdiBags.
 ---@field itemName string The localized name of the item.
@@ -84,11 +104,6 @@ ITEM_SEARCHBAR_LIST = {
 ---@field expacID ExpansionType The related Expansion, e.g. 8 for Shadowlands.
 ---@field setID number The ID of the item set to which this item belongs, or nil if it does not belong to a set.
 ---@field isCraftingReagent boolean Whether the item can be used as a crafting reagent.
----@field bag number The bag index of the bag the item is in.
----@field slot number The slot index of the item in the bag.
----@field slotId slotId The unique slotId of the item in the bag. 
----@field bagFamily number? The bag family as documented in [GetContainerNumFreeSlots](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerNumFreeSlots)
----@field isBank boolean Whether the item is in the player's bank.
 ---@field itemGUID string The GUID of the item as returned by GetItemGUID().
 ---@field itemLocation ItemLocationMixin The item location of the item as returned by ItemLocation:CreateFromBagAndSlot(bag, slot).
 
@@ -327,6 +342,14 @@ function UseContainerItem(containerIndex, slotIndex, unitToken, reagentBankOpen)
 ---@return boolean used
 function UseHearthstone() end
 
+-- PetJournal definitions
+
+---@param speciesID number
+---@return string speciesName
+---@return number speciesIcon
+---@return number petType
+---@diagnostic disable-next-line: duplicate-set-field
+function C_PetJournal.GetPetInfoBySpeciesID(speciesID) end
 
 -- Missing LibSharedMedia definitions
 

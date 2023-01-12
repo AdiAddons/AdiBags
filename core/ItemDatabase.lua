@@ -34,7 +34,7 @@ local ItemDatabase = {}
 
 -- Get an AdiBags @ItemInfo table for the given item link or id.
 ---@param linkOrID string|number The link or item id to get @ItemInfo for.
----@return ItemInfo|nil
+---@return ItemInfo
 function ItemDatabase:GetItem(linkOrID)
   local itemName, itemLink, itemQuality,
   itemLevel, itemMinLevel, itemType, itemSubType,
@@ -42,7 +42,6 @@ function ItemDatabase:GetItem(linkOrID)
   sellPrice, classID, subclassID, bindType, expacID,
   setID, isCraftingReagent = GetItemInfo(linkOrID)
 
-  if not itemName then return end
   return {
     itemName = itemName,
     itemLink = itemLink,
