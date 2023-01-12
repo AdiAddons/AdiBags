@@ -27,10 +27,9 @@ local UNKNOWN = _G.UNKNOWN
 
 local addonName, addon = ...
 
-addon.ItemDatabase = addon:NewModule("ItemDatabase", "AceEvent-3.0")
-local db = addon.ItemDatabase
+local ItemDatabase = {}
 
-function db:ReagentData(slotData)
+function ItemDatabase:ReagentData(slotData)
   if not slotData.isCraftingReagent then return false end
   if not slotData.classID == TRADE_GOODS then return false end
   return {
@@ -38,3 +37,5 @@ function db:ReagentData(slotData)
     subclassName = addon.TRADESKILL_MAP[slotData.subclassID] or UNKNOWN,
   }
 end
+
+addon.ItemDatabase = ItemDatabase
