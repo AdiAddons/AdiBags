@@ -43,6 +43,7 @@ BANKSLOTPURCHASE = BANKSLOTPURCHASE
 REAGENTBANK_PURCHASE_TEXT = REAGENTBANK_PURCHASE_TEXT
 COSTS_LABEL = COSTS_LABEL
 ADDON_LOAD_FAILED = ADDON_LOAD_FAILED
+WOW_PROJECT_WRATH_CLASSIC = 11
 ITEM_SEARCHBAR_LIST = {
 	"BagItemSearchBox",
 	"GuildItemSearchBox",
@@ -379,3 +380,10 @@ function StaticPopup_Show(which, text_arg1, text_arg2, data, insertedFrame) end
 ---@param prefixText? string The text to display before the money.
 ---@param suffixText? string The text to display after the money.
 function SetTooltipMoney(frame, money, type, prefixText, suffixText) end
+
+-- Define the main AdiBags addon object
+---@class AdiBags-1.0
+---@field ItemDatabase ItemDatabase
+
+-- Create an alias for casting the "addon" object at the top of each file.
+---@alias AdiBags AdiBags-1.0|AceAddon

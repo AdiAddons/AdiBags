@@ -27,10 +27,44 @@ local UNKNOWN = _G.UNKNOWN
 
 local addonName, addon = ...
 
-addon.ItemDatabase = addon:NewModule("ItemDatabase", "AceEvent-3.0")
-local db = addon.ItemDatabase
+---@cast addon +AdiBags
 
-function db:ReagentData(slotData)
+---@class ItemDatabase
+local ItemDatabase = {}
+
+-- Get an AdiBags @ItemInfo table for the given item link or id.
+---@param linkOrID string|number The link or item id to get @ItemInfo for.
+---@return ItemInfo|nil
+function ItemDatabase:GetItem(linkOrID)
+  local itemName, itemLink, itemQuality,
+  itemLevel, itemMinLevel, itemType, itemSubType,
+  itemStackCount, itemEquipLoc, itemTexture,
+  sellPrice, classID, subclassID, bindType, expacID,
+  setID, isCraftingReagent = GetItemInfo(linkOrID)
+
+  if not itemName then return end
+  return {
+    itemName = itemName,
+    itemLink = itemLink,
+    itemQuality = itemQuality,
+    itemLevel = itemLevel,
+    itemMinLevel = itemMinLevel,
+    itemType = itemType,
+    itemSubType = itemSubType,
+    itemStackCount = itemStackCount,
+    itemEquipLoc = itemEquipLoc,
+    itemTexture = itemTexture,
+    sellPrice = sellPrice,
+    classID = classID,
+    subclassID = subclassID,
+    bindType = bindType,
+    expacID = expacID,
+    setID = setID,
+    isCraftingReagent = isCraftingReagent,
+  }
+end
+
+function ItemDatabase:ReagentData(slotData)
   if not slotData.isCraftingReagent then return false end
   if not slotData.classID == TRADE_GOODS then return false end
   return {
@@ -38,3 +72,5 @@ function db:ReagentData(slotData)
     subclassName = addon.TRADESKILL_MAP[slotData.subclassID] or UNKNOWN,
   }
 end
+
+addon.ItemDatabase = ItemDatabase
