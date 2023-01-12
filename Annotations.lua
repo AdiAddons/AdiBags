@@ -382,8 +382,7 @@ function StaticPopup_Show(which, text_arg1, text_arg2, data, insertedFrame) end
 function SetTooltipMoney(frame, money, type, prefixText, suffixText) end
 
 -- Define the main AdiBags addon object
----@class AdiBags-1.0
+---@class AdiBags-Proto
 ---@field ItemDatabase ItemDatabase
 
--- Create an alias for casting the "addon" object at the top of each file.
----@alias AdiBags AdiBags-1.0|AceAddon
+---@alias AdiBags AdiBags-Proto|AceAddon
