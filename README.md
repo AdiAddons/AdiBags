@@ -1,6 +1,6 @@
 # AdiBags 
 
-[![Gitter](https://badges.gitter.im/AdiAddons/AdiBags.svg)](https://gitter.im/AdiAddons/AdiBags?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Discord Banner 2](https://discordapp.com/api/guilds/1063213796845428876/widget.png?style=banner2)](https://discord.gg/a6DQuK8hV7)
 
 AdiBags is a World of Warcraft addon that displays the contents of your bags in single view, distributed into several sections using smart filters. It is heavily inspired by Nargiddley's Baggins.
 
