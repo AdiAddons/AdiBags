@@ -84,6 +84,7 @@ ITEM_SEARCHBAR_LIST = {
 ---@field slotId slotId The unique slotId of the item in the bag. 
 ---@field bagFamily number? The bag family as documented in [GetContainerNumFreeSlots](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerNumFreeSlots)
 ---@field isBank boolean Whether the item is in the player's bank.
+---@field item ItemInfo The item information for the item in the bag slot.
 
 ---@class ItemInfo ItemInfo is constructed by GetItemInfo(), with some additional fields for use in AdiBags.
 ---@field itemName string The localized name of the item.
