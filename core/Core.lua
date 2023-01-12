@@ -55,6 +55,9 @@ _G[addonName] = addon
 --------------------------------------------------------------------------------
 
 --@alpha@
+---@type AdiDebug
+AdiDebug = AdiDebug
+
 if AdiDebug then
 	AdiDebug:Embed(addon, addonName)
 else
