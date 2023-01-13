@@ -122,7 +122,7 @@ function mod:OnTooltipSetItem(tt)
 	local bag, slot, container = button.bag, button.slot, button.container
 	if not (bag and slot and container) then return end
 
-	local slotData = container.content[bag][slot]
+	local slotData = container.bags[bag][slot]
 
 	local stack = button:GetStack()
 	if stack then

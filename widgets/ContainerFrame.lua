@@ -118,8 +118,10 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.firstLoad = true
 
 	self.buttons = {}
-	---@type {[number]: {[number]: ItemInfo}}
 	self.content = {}
+
+	---@type ContainerInfo[]
+	self.bags = {}
 	self.stacks = {}
 	self.sections = {}
 
@@ -134,7 +136,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 
 	local ids
 	for bagId in pairs(BAG_IDS[isBank and "BANK" or "BAGS"]) do
-		self.content[bagId] = { size = 0 }
+		self.bags[bagId] = { size = 0 }
 		tinsert(bagSlots, bagId)
 		if not addon.itemParentFrames[bagId] then
 			local f = CreateFrame("Frame", addonName..'ItemContainer'..bagId, self)
@@ -680,7 +682,7 @@ end
 function containerProto:UpdateContent(bag)
 	self:Debug('UpdateContent', bag)
 	local added, removed, changed, sameChanged = self.added, self.removed, self.changed, self.sameChanged
-	local content = self.content[bag]
+	local content = self.bags[bag]
 	local newSize = self:GetBagIds()[bag] and GetContainerNumSlots(bag) or 0
 	local _, bagFamily = GetContainerNumFreeSlots(bag)
 	if bag == REAGENTBAG_CONTAINER then
@@ -1038,17 +1040,17 @@ function containerProto:RedispatchAllItems()
 	self:Debug('RedispatchAllItems')
 	self:SendMessage('AdiBags_PreContentUpdate', self, self.added, self.removed, self.changed)
 
-	local content = self.content
+	local bags = self.bags
 	for slotId in pairs(self.buttons) do
 		local bag, slot = GetBagSlotFromId(slotId)
-		if not content[bag][slot] then
+		if not bags[bag][slot] then
 			self:RemoveSlot(slotId)
 		end
 	end
 
 	self:SendMessage('AdiBags_PreFilter', self)
-	for bag, content in pairs(self.content) do
-		for slot, slotData in ipairs(content) do
+	for bagId, bag in pairs(self.bags) do
+		for slot, slotData in ipairs(bag) do
 			self:DispatchItem(slotData, true)
 		end
 	end

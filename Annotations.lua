@@ -64,7 +64,9 @@ ITEM_SEARCHBAR_LIST = {
 -- Class definitions
 --
 -----------------------------------------
----@class ContainerInfo ContainerInfo is information about a bag, including all it's slots and all it's items.
+
+-- ContainerInfo is information about a bag, including all it's slots and all it's items.
+---@class ContainerInfo
 ---@field bag number This bag's index.
 ---@field slots table<number, SlotInfo> A table of all the slots in the bag, indexed by slotId.
 
