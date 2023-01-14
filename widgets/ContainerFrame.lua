@@ -20,6 +20,7 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName, addon = ...
+---@cast addon AdiBags
 local L = addon.L
 
 --<GLOBALS
@@ -714,7 +715,6 @@ function containerProto:UpdateContent2(bagId)
 		-- TODO(lobato): Remove the below line once annotations are fixed for "addon".
 		---@type ItemInfo
 		local newItem = addon.ItemDatabase:GetItem(itemId, bagId, slot)
-
 
 		if newItem.empty and not itemInfo.empty then
 			-- Item was removed, mark it as such.
