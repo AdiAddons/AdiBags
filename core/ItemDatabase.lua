@@ -34,13 +34,29 @@ local ItemDatabase = {}
 
 -- Get an AdiBags @ItemInfo table for the given item link or id.
 ---@param linkOrID string|number The link or item id to get @ItemInfo for.
+---@param bagId number? If provided with slot, will populate the ItemLocation and guid field.
+---@param slot number? If provided with bagId, will populate the ItemLocation and guid field.
 ---@return ItemInfo
-function ItemDatabase:GetItem(linkOrID)
+function ItemDatabase:GetItem(linkOrID, bagId, slot)
+  if linkOrID == nil then
+    return {
+      empty = true
+    }
+  end
   local itemName, itemLink, itemQuality,
   itemLevel, itemMinLevel, itemType, itemSubType,
   itemStackCount, itemEquipLoc, itemTexture,
   sellPrice, classID, subclassID, bindType, expacID,
   setID, isCraftingReagent = GetItemInfo(linkOrID)
+
+  local itemLocation
+  local guid
+  if bagId and slot then
+    itemLocation = ItemLocation:CreateFromBagAndSlot(bagId, slot)
+    if addon.isRetail and itemLocation and itemLocation:IsValid() then
+      guid = C_Item.GetItemGUID(itemLocation)
+    end
+  end
 
   return {
     itemName = itemName,
@@ -60,6 +76,9 @@ function ItemDatabase:GetItem(linkOrID)
     expacID = expacID,
     setID = setID,
     isCraftingReagent = isCraftingReagent,
+    itemLocation = itemLocation,
+    guid = guid,
+    slot = slot,
   }
 end
 
@@ -69,6 +88,35 @@ function ItemDatabase:ReagentData(slotData)
   return {
     expacName = addon.EXPANSION_MAP[slotData.expacID],
     subclassName = addon.TRADESKILL_MAP[slotData.subclassID] or UNKNOWN,
+  }
+end
+
+---@param bagId number The bag id for the new container.
+---@return ContainerInfo
+function ItemDatabase:NewContainerInfo(bagId)
+  ---@type ContainerInfo
+  return {
+    bagId = bagId,
+    slots = {}
+  }
+end
+
+---@param bagId number The bag id for the new slot.
+---@param slot number The slot id for the new slot.
+---@return SlotInfo
+function ItemDatabase:NewSlotInfo(bagId, slot)
+  return {
+    slot = slot,
+    bagId = bagId,
+  }
+end
+
+---@param slot number The slot id for the new item.
+---@return ItemInfo
+function ItemDatabase:NewItemInfo(slot)
+  return {
+    slot = slot,
+    empty = true,
   }
 end
 

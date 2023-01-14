@@ -67,7 +67,8 @@ ITEM_SEARCHBAR_LIST = {
 
 -- ContainerInfo is information about a bag, including all it's slots and all it's items.
 ---@class ContainerInfo
----@field bag number This bag's index.
+---@field bagId number This container's bagId.
+---@field bagFamily number? The bag family as documented in [GetContainerNumFreeSlots](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerNumFreeSlots)
 ---@field slots table<number, SlotInfo> A table of all the slots in the bag, indexed by slotId.
 
 ---@class SlotInfo SlotInfo is information about a bag slot, as returned by GetContainerItemInfo(), with some additional fields for use in AdiBags.
@@ -86,6 +87,7 @@ ITEM_SEARCHBAR_LIST = {
 ---@field slotId slotId The unique slotId of the item in the bag. 
 ---@field bagFamily number? The bag family as documented in [GetContainerNumFreeSlots](https://wowpedia.fandom.com/wiki/API_C_Container.GetContainerNumFreeSlots)
 ---@field isBank boolean Whether the item is in the player's bank.
+---@field bagId number The bag id of the bag containing this slot.
 ---@field item ItemInfo The item information for the item in the bag slot.
 
 ---@class ItemInfo ItemInfo is constructed by GetItemInfo(), with some additional fields for use in AdiBags.
@@ -109,6 +111,8 @@ ITEM_SEARCHBAR_LIST = {
 ---@field isCraftingReagent boolean Whether the item can be used as a crafting reagent.
 ---@field itemGUID string The GUID of the item as returned by GetItemGUID().
 ---@field itemLocation ItemLocationMixin The item location of the item as returned by ItemLocation:CreateFromBagAndSlot(bag, slot).
+---@field empty boolean True if this is an empty item.
+---@field slot number The slot index of the item in the bag.
 
 ---@class BankFrame
 ---@field selectedTab number The tab that is currently selected, 1 for the main bank, 2 for the reagent bank.

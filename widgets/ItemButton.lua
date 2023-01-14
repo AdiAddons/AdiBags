@@ -597,6 +597,7 @@ function stackProto:ITEM_LOCK_CHANGED()
 end
 
 function stackProto:AddSlot(slotId)
+	self:Debug("AddSlot slotID is ", slotId)
 	local slots = self.slots
 	if not slots[slotId] then
 		slots[slotId] = true

@@ -118,7 +118,6 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.firstLoad = true
 
 	self.buttons = {}
-	self.content = {}
 
 	---@type ContainerInfo[]
 	self.bags = {}
@@ -136,7 +135,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 
 	local ids
 	for bagId in pairs(BAG_IDS[isBank and "BANK" or "BAGS"]) do
-		self.bags[bagId] = { size = 0 }
+		--self.bags[bagId] = { size = 0 }
 		tinsert(bagSlots, bagId)
 		if not addon.itemParentFrames[bagId] then
 			local f = CreateFrame("Frame", addonName..'ItemContainer'..bagId, self)
@@ -678,22 +677,101 @@ end
 -- Bag content scanning
 --------------------------------------------------------------------------------
 
----@param bag number The id of the bag to update.
-function containerProto:UpdateContent(bag)
-	self:Debug('UpdateContent', bag)
-	local added, removed, changed, sameChanged = self.added, self.removed, self.changed, self.sameChanged
-	local content = self.bags[bag]
-	local newSize = self:GetBagIds()[bag] and GetContainerNumSlots(bag) or 0
-	local _, bagFamily = GetContainerNumFreeSlots(bag)
-	if bag == REAGENTBAG_CONTAINER then
+---@param bagId number The id of the bag to update.
+function containerProto:UpdateContent2(bagId)
+	self:Debug('UpdateContent', bagId)
+	local added, removed, changed = self.added, self.removed, self.changed
+
+	local containerInfo = self.bags[bagId] or addon.ItemDatabase:NewContainerInfo(bagId)
+	
+	-- TODO(lobato): Remove the following when done, this is only for testing.
+	containerInfo.size = 0
+	self.bags[bagId] = containerInfo
+	-- End Remove testing block
+
+	-- Get the current size of this container.
+	local currentSize = self:GetBagIds()[bagId] and GetContainerNumSlots(bagId) or 0
+
+	-- Get this container's family and override it in the event of a reagent bag.
+	local _, bagFamily = GetContainerNumFreeSlots(bagId)
+	if bagId == REAGENTBAG_CONTAINER then
+		bagFamily = 2048
+	end
+
+	containerInfo.bagFamily = bagFamily
+	containerInfo.bagId = bagId
+
+	-- Loop through all the items in this container and construct them.
+	-- TODO(lobato): This is a very expensive operation and should be optimized in the future.
+	for slot = 1, currentSize do
+
+		---@type SlotInfo
+		local slotInfo = containerInfo.slots[slot] or addon.ItemDatabase:NewSlotInfo(bagId, slot)
+		---@type ItemInfo
+		local itemInfo = slotInfo.item or addon.ItemDatabase:NewItemInfo(slot)
+
+		local itemId = GetContainerItemID(bagId, slot)
+		-- TODO(lobato): Remove the below line once annotations are fixed for "addon".
+		---@type ItemInfo
+		local newItem = addon.ItemDatabase:GetItem(itemId, bagId, slot)
+
+
+		if newItem.empty and not itemInfo.empty then
+			-- Item was removed, mark it as such.
+			removed[itemInfo.slot] = itemInfo.itemLink
+		elseif newItem.itemGUID ~= itemInfo.itemGUID or itemInfo.itemTexture ~= newItem.itemTexture then
+			-- Item has either been added, or changed.
+			self:Debug("item changed or new")
+			--TODO(lobato): Process the item and update its properties.
+			local itemHasChanged = false
+
+			-- Correctly catch battlepets and store their name.
+			if string.match(newItem.itemLink, "|Hbattlepet:") then
+				local _, speciesID = strsplit(":", newItem.itemLink)
+				newItem.itemName = C_PetJournal.GetPetInfoBySpeciesID(speciesID) or newItem.itemName
+			end
+
+			local stackCount = addon:GetContainerItemStackCount(bagId, slot) or 0
+
+			if slotInfo.stackCount ~= stackCount then
+				slotInfo.stackCount = stackCount
+				itemHasChanged = true
+			end
+
+			if not itemHasChanged or (itemInfo.empty and not newItem.empty) then
+				-- Item was added.
+				self:Debug("Adding new item ", newItem.itemLink, " to slot ", newItem.slot)
+				containerInfo[slot] = newItem
+				added[newItem.slot] = newItem.itemLink
+			else
+				self:Debug("Item changed", itemInfo.itemLink, " to ", newItem.itemLink)
+				-- Item was changed.
+				changed[itemInfo.slot] = itemInfo.itemLink
+			end
+
+		end
+	end
+	containerInfo.size = currentSize
+end
+
+---@param bagId number The id of the bag to update.
+function containerProto:UpdateContent(bagId)
+	self:UpdateContent2(bagId)
+	--[[
+	self:Debug('UpdateContent', bagId)
+	local added, removed, changed = self.added, self.removed, self.changed
+	local content = self.bags[bagId]
+	local newSize = self:GetBagIds()[bagId] and GetContainerNumSlots(bagId) or 0
+	local _, bagFamily = GetContainerNumFreeSlots(bagId)
+	if bagId == REAGENTBAG_CONTAINER then
 		bagFamily = 2048
 	end
 	content.family = bagFamily
 	for slot = 1, newSize do
-		local itemId = GetContainerItemID(bag, slot)
-		local link = GetContainerItemLink(bag, slot)
+		local itemId = GetContainerItemID(bagId, slot)
+		local link = GetContainerItemLink(bagId, slot)
 		local guid = ""
-		local itemLocation = ItemLocation:CreateFromBagAndSlot(bag, slot)
+		local itemLocation = ItemLocation:CreateFromBagAndSlot(bagId, slot)
 
 		if addon.isRetail then
 			if itemLocation and itemLocation:IsValid() then
@@ -706,9 +784,9 @@ function containerProto:UpdateContent(bag)
 			if not slotData then
 				---@type ItemInfo
 				slotData = {
-					bag = bag,
+					bag = bagId,
 					slot = slot,
-					slotId = GetSlotId(bag, slot),
+					slotId = GetSlotId(bagId, slot),
 					bagFamily = bagFamily,
 					count = 0,
 					isBank = self.isBank,
@@ -727,7 +805,7 @@ function containerProto:UpdateContent(bag)
 					local _, speciesID = strsplit(":", link)
 					name = C_PetJournal.GetPetInfoBySpeciesID(speciesID)
 				end
-				count = addon:GetContainerItemStackCount(bag, slot) or 0
+				count = addon:GetContainerItemStackCount(bagId, slot) or 0
 			else
 				link, count = false, 0
 			end
@@ -779,6 +857,7 @@ function containerProto:UpdateContent(bag)
 		end
 	end
 	content.size = newSize
+	]]--
 end
 
 function containerProto:HasContentChanged()
@@ -876,12 +955,12 @@ function containerProto:CreateItemButton(stackKey, slotData)
 		return addon:AcquireItemButton(self, slotData.bag, slotData.slot)
 	end
 	local stack = self:GetStackButton(stackKey)
-	stack:AddSlot(slotData.slotId)
+	stack:AddSlot(slotData.slot)
 	return stack
 end
 
 function containerProto:DispatchItem(slotData, fullUpdate)
-	local slotId = slotData.slotId
+	local slotId = slotData.slot
 	local sectionName, category, filterName, shouldStack, stackHint = self:FilterSlot(slotData)
 	assert(sectionName, "sectionName is nil, item: "..(slotData.link or "none"))
 	local stackKey = shouldStack and stackHint or nil
