@@ -29,6 +29,7 @@ local addonName, addon = ...
 
 ---@cast addon +AdiBags
 
+local GetSlotId = addon.GetSlotId
 ---@class ItemDatabase
 local ItemDatabase = {}
 
@@ -105,9 +106,11 @@ end
 ---@param slot number The slot id for the new slot.
 ---@return SlotInfo
 function ItemDatabase:NewSlotInfo(bagId, slot)
+  ---@type SlotInfo
   return {
     slot = slot,
     bagId = bagId,
+    slotId = GetSlotId(bagId, slot)
   }
 end
 

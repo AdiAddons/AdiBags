@@ -684,7 +684,7 @@ function containerProto:UpdateContent2(bagId)
 	local added, removed, changed = self.added, self.removed, self.changed
 
 	local containerInfo = self.bags[bagId] or addon.ItemDatabase:NewContainerInfo(bagId)
-	
+
 	-- TODO(lobato): Remove the following when done, this is only for testing.
 	containerInfo.size = 0
 	self.bags[bagId] = containerInfo
@@ -718,7 +718,7 @@ function containerProto:UpdateContent2(bagId)
 
 		if newItem.empty and not itemInfo.empty then
 			-- Item was removed, mark it as such.
-			removed[itemInfo.slot] = itemInfo.itemLink
+			removed[slotInfo.slotId] = itemInfo
 		elseif newItem.itemGUID ~= itemInfo.itemGUID or itemInfo.itemTexture ~= newItem.itemTexture then
 			-- Item has either been added, or changed.
 			self:Debug("item changed or new")
@@ -742,11 +742,11 @@ function containerProto:UpdateContent2(bagId)
 				-- Item was added.
 				self:Debug("Adding new item ", newItem.itemLink, " to slot ", newItem.slot)
 				containerInfo[slot] = newItem
-				added[newItem.slot] = newItem.itemLink
+				added[slotInfo.slotId] = newItem
 			else
 				self:Debug("Item changed", itemInfo.itemLink, " to ", newItem.itemLink)
 				-- Item was changed.
-				changed[itemInfo.slot] = itemInfo.itemLink
+				changed[slotInfo.slotId] = itemInfo
 			end
 
 		end
@@ -861,7 +861,7 @@ function containerProto:UpdateContent(bagId)
 end
 
 function containerProto:HasContentChanged()
-	return not not (next(self.added) or next(self.removed) or next(self.changed) or next(self.sameChanged))
+	return not not (next(self.added) or next(self.removed) or next(self.changed))
 end
 
 --------------------------------------------------------------------------------
@@ -923,6 +923,7 @@ local FREE_SPACE = L["Free space"]
 -- TODO(lobato): Label the Reagent freespace.
 local FREE_SPACE_REAGENT = L["Reagent Free space"]
 
+---@param slotData ItemInfo
 function containerProto:FilterSlot(slotData)
 	if self.BagSlotPanel:IsShown() then
 		return FilterByBag(slotData)
@@ -959,6 +960,7 @@ function containerProto:CreateItemButton(stackKey, slotData)
 	return stack
 end
 
+---@param slotData ItemInfo
 function containerProto:DispatchItem(slotData, fullUpdate)
 	local slotId = slotData.slot
 	local sectionName, category, filterName, shouldStack, stackHint = self:FilterSlot(slotData)
@@ -1003,14 +1005,17 @@ function containerProto:RemoveSlot(slotId)
 end
 
 function containerProto:UpdateButtons()
+	self:Debug("update buttons")
 	if self.forceLayout then
+	self:Debug("full update")
 		return self:FullUpdate()
 	elseif not self:HasContentChanged() then
+		self:Debug("NO CHANGE")
 		return
 	end
 	self:Debug('UpdateButtons')
 
-	local added, removed, changed, sameChanged = self.added, self.removed, self.changed, self.sameChanged
+	local added, removed, changed = self.added, self.removed, self.changed
 	self:SendMessage('AdiBags_PreContentUpdate', self, added, removed, changed)
 
 	for slotId in pairs(removed) do
@@ -1020,6 +1025,7 @@ function containerProto:UpdateButtons()
 	if next(added) then
 		self:SendMessage('AdiBags_PreFilter', self)
 		for slotId, slotData in pairs(added) do
+			self:Debug("dispatching ", slotData)
 			self:DispatchItem(slotData)
 		end
 		self:SendMessage('AdiBags_PostFilter', self)
@@ -1030,20 +1036,10 @@ function containerProto:UpdateButtons()
 		buttons[slotId]:FullUpdate()
 	end
 
-	if next(sameChanged) then
-		self:SendMessage('AdiBags_PreFilter', self)
-		for slotId, slotData in pairs(sameChanged) do
-			self:DispatchItem(slotData)
-			buttons[slotId]:FullUpdate()
-		end
-		self:SendMessage('AdiBags_PostFilter', self)
-	end
-
 	self:SendMessage('AdiBags_PostContentUpdate', self, added, removed, changed)
 	wipe(added)
 	wipe(removed)
 	wipe(changed)
-	wipe(sameChanged)
 
 	self:ResizeToSortSection()
 end
@@ -1129,7 +1125,7 @@ function containerProto:RedispatchAllItems()
 
 	self:SendMessage('AdiBags_PreFilter', self)
 	for bagId, bag in pairs(self.bags) do
-		for slot, slotData in ipairs(bag) do
+		for slot, slotData in ipairs(bag.slots) do
 			self:DispatchItem(slotData, true)
 		end
 	end

@@ -141,6 +141,8 @@ end
 --------------------------------------------------------------------------------
 
 local safecall = addon.safecall
+
+---@param slotData ItemInfo
 function addon:Filter(slotData, defaultSection, defaultCategory)
 	for i, filter in ipairs(GetActiveFilters()) do
 		local sectionName, category = safecall(filter.Filter, filter, slotData)
