@@ -31,7 +31,10 @@ local addonName, addon = ...
 
 local GetSlotId = addon.GetSlotId
 ---@class ItemDatabase
-local ItemDatabase = {}
+local ItemDatabase = {
+  ---@type table<string|number, ItemInfo>
+  itemCache = {}
+}
 
 -- Get an AdiBags @ItemInfo table for the given item link or id.
 ---@param linkOrID string|number The link or item id to get @ItemInfo for.
@@ -44,11 +47,6 @@ function ItemDatabase:GetItem(linkOrID, bagId, slot)
       empty = true
     }
   end
-  local itemName, itemLink, itemQuality,
-  itemLevel, itemMinLevel, itemType, itemSubType,
-  itemStackCount, itemEquipLoc, itemTexture,
-  sellPrice, classID, subclassID, bindType, expacID,
-  setID, isCraftingReagent = GetItemInfo(linkOrID)
 
   local itemLocation
   local guid
@@ -59,7 +57,20 @@ function ItemDatabase:GetItem(linkOrID, bagId, slot)
     end
   end
 
-  return {
+  if guid and self.itemCache[guid] then
+    return self.itemCache[guid]
+  elseif self.itemCache[linkOrID] then
+    --TODO(lobato): Refresh the item link if needed, maybe remove link lookup?
+    return self.itemCache[linkOrID]
+  end
+
+  local itemName, itemLink, itemQuality,
+  itemLevel, itemMinLevel, itemType, itemSubType,
+  itemStackCount, itemEquipLoc, itemTexture,
+  sellPrice, classID, subclassID, bindType, expacID,
+  setID, isCraftingReagent = GetItemInfo(linkOrID)
+
+  local itemInfo = {
     itemName = itemName,
     itemLink = itemLink,
     itemQuality = itemQuality,
@@ -78,9 +89,16 @@ function ItemDatabase:GetItem(linkOrID, bagId, slot)
     setID = setID,
     isCraftingReagent = isCraftingReagent,
     itemLocation = itemLocation,
-    guid = guid,
+    itemGUID = guid,
     slot = slot,
   }
+  if itemInfo.itemGUID then
+    self.itemCache[guid] = itemInfo
+  else
+    self.itemCache[linkOrID] = itemInfo
+  end
+
+  return itemInfo
 end
 
 function ItemDatabase:ReagentData(slotData)

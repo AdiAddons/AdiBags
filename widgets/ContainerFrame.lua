@@ -119,6 +119,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.firstLoad = true
 
 	self.buttons = {}
+	self.filterCache = {}
 
 	---@type ContainerInfo[]
 	self.bags = {}
@@ -966,18 +967,28 @@ function containerProto:CreateItemButton(stackKey, slotData)
 	return stack
 end
 
----@param slotData ItemInfo
+--TODO(lobato): This function causes frame skips, track this down (filter?)
+--TODO(lobato): Cache filter data for items that don't change.
+---@param slotData SlotInfo
 function containerProto:DispatchItem(slotData, fullUpdate)
 	local slotId = slotData.slot
-	local sectionName, category, filterName, shouldStack, stackHint = self:FilterSlot(slotData)
-	assert(sectionName, "sectionName is nil, item: "..(slotData.link or "none"))
+	local sectionName, category, filterName, shouldStack, stackHint
+	if not slotData.item.itemGUID then
+		sectionName, category, filterName, shouldStack, stackHint = self:FilterSlot(slotData.item)
+	elseif not self.filterCache[slotData.item.itemGUID] then
+		sectionName, category, filterName, shouldStack, stackHint = self:FilterSlot(slotData)
+		self.filterCache[slotData.item.itemGUID] = {sectionName, category, filterName, shouldStack, stackHint}
+	elseif self.filterCache[slotData.item.itemGUID] then
+		sectionName, category, filterName, shouldStack, stackHint = unpack(self.filterCache[slotData.item.itemGUID])
+	end
+	assert(sectionName, "sectionName is nil, item: "..(slotData.item.itemLink or "none"))
 	local stackKey = shouldStack and stackHint or nil
 
 	local existing, button = self:FindExistingButton(slotId, stackKey)
 	if existing then
 		button = existing
 	else
-		button = self:CreateItemButton(stackKey, slotData)
+		button = self:CreateItemButton(stackKey, slotData.item)
 	end
 	button.filterName = filterName
 	self.buttons[slotId] = button
@@ -986,11 +997,12 @@ function containerProto:DispatchItem(slotData, fullUpdate)
 		return
 	end
 
-	if sectionName == L["Recent Items"] or (not fullUpdate and slotData.link) then
+	if sectionName == L["Recent Items"] or (not fullUpdate and slotData.item.itemLink) then
 		self.ToSortSection:AddItemButton(slotId, button)
 		return
 	end
 	local section = self:GetSection(sectionName, category or sectionName)
+
 	section:AddItemButton(slotId, button)
 end
 
