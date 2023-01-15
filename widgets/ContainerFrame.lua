@@ -457,7 +457,7 @@ function containerProto:BagsUpdated(event, bagIds)
 			self:UpdateContent(bag)
 		end
 	end
-	self:UpdateButtons()
+	--self:UpdateButtons()
 end
 
 function containerProto:CanUpdate()
@@ -513,7 +513,7 @@ function containerProto:RefreshContents()
 	for bag in pairs(self:GetBagIds()) do
 		self:UpdateContent(bag)
 	end
-	self:UpdateButtons()
+	--self:UpdateButtons()
 end
 
 function containerProto:ShowReagentTab(show)
@@ -540,7 +540,7 @@ function containerProto:ShowReagentTab(show)
 		self:UpdateContent(bag)
 	end
 	self.forceLayout = true
-	self:RefreshContents()
+	--self:RefreshContents()
 	self:UpdateSkin()
 	self:UpdateSectionFonts()
 end
@@ -716,9 +716,12 @@ function containerProto:UpdateContent2(bagId)
 		---@type ItemInfo
 		local newItem = addon.ItemDatabase:GetItem(itemId, bagId, slot)
 
+		-- TODO(lobato): Instead of marking items as removed, added, or changed, we should inline
+		-- the changes via callout to functions directly, as we loop over each item.
 		if newItem.empty and not itemInfo.empty then
 			-- Item was removed, mark it as such.
-			removed[slotInfo.slotId] = itemInfo
+			-- TODO(lobato): Remove this item and it's button.
+			---removed[slotInfo.slotId] = itemInfo
 		elseif newItem.itemGUID ~= itemInfo.itemGUID or itemInfo.itemTexture ~= newItem.itemTexture then
 			-- Item has either been added, or changed.
 			self:Debug("item changed or new")
@@ -740,13 +743,16 @@ function containerProto:UpdateContent2(bagId)
 
 			if not itemHasChanged or (itemInfo.empty and not newItem.empty) then
 				-- Item was added.
-				self:Debug("Adding new item ", newItem.itemLink, " to slot ", newItem.slot)
-				containerInfo[slot] = newItem
-				added[slotInfo.slotId] = newItem
+				self:Debug("Adding new item ", newItem.itemLink, " to slot ", newItem.slot, " previously was ", itemInfo.itemLink)
+				slotInfo.item = newItem
+				containerInfo.slots[slot] = slotInfo
+				-- TODO(lobato): Filter item, then dispatch it's button.
+				--added[slotInfo.slotId] = newItem
 			else
 				self:Debug("Item changed", itemInfo.itemLink, " to ", newItem.itemLink)
 				-- Item was changed.
-				changed[slotInfo.slotId] = itemInfo
+				-- TODO(lobato): Filter item, then dispatch it's button. See if this can be merge with the above.
+				--changed[slotInfo.slotId] = itemInfo
 			end
 
 		end
