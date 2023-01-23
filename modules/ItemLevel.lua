@@ -276,6 +276,7 @@ function mod:GetOptions()
 				none     = L['None'],
 				original = L['Same as InventoryItemLevels'],
 				level    = L['Related to player level'],
+				qualityColor = L['Same as quality color'],
 			},
 			order = 20,
 			set = SetOptionAndUpdate,
@@ -491,4 +492,13 @@ do
 			return 1, 1, 1
 		end
 	end
+	-- Color scheme for quality colors
+	do
+        colorSchemes.qualityColor = function(level, quality)
+            r, g, b, hex = GetItemQualityColor(quality)
+            return r,g,b
+
+
+        end
+    end
 end
