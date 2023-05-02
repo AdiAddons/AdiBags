@@ -18,7 +18,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
-
 local addonName, addon = ...
 local L = addon.L
 
@@ -59,17 +58,15 @@ function mod:OnInitialize()
 		self.moduleName,
 		{
 			profile = {
-				shown = {
-					Honor = true
-				},
 				hideZeroes = false,
 				text = addon:GetFontDefaults(NumberFontNormalLarge),
 				width = 4,
+				spacing = 4
 			}
 		}
 	)
 	self.font = addon:CreateFont(
-		self.name..'Font',
+		self.name .. 'Font',
 		NumberFontNormalLarge,
 		function() return self.db.profile.text end
 	)
@@ -111,7 +108,7 @@ function mod:OnBagFrameCreated(bag)
 	if bag.bagName ~= "Backpack" then return end
 	local frame = bag:GetFrame()
 
-	local widget = CreateFrame("Button", addonName.."CurrencyFrame", frame)
+	local widget = CreateFrame("Button", addonName .. "CurrencyFrame", frame)
 	self.widget = widget
 	widget:SetHeight(16)
 
@@ -123,19 +120,19 @@ function mod:OnBagFrameCreated(bag)
 		if i == 1 then
 			columnFrame:SetPoint("TOPLEFT", widget, "TOPLEFT")
 		else
-			columnFrame:SetPoint("TOPLEFT", self.columns[i-1].frame, "TOPRIGHT")
+			columnFrame:SetPoint("TOPLEFT", self.columns[i - 1].frame, "TOPRIGHT")
 		end
 		local column = {
 			frame = columnFrame,
 			cells = {}
 		}
 
-		for ii = 1, ceil(GetCurrencyListSize() / 3)+1 do
+		for ii = 1, ceil(GetCurrencyListSize() / 3) + 1 do
 			local cellFrame = CreateFrame("Button", string.format("%sCurrencyCellFrame%d%d", addonName, i, ii), columnFrame)
 			if ii == 1 then
 				cellFrame:SetPoint("TOPLEFT", columnFrame, "TOPLEFT")
 			else
-				cellFrame:SetPoint("TOPLEFT", column.cells[ii-1].frame, "BOTTOMLEFT")
+				cellFrame:SetPoint("TOPLEFT", column.cells[ii - 1].frame, "BOTTOMLEFT")
 			end
 
 			cellFrame:Show()
@@ -209,7 +206,7 @@ function mod:Update(event, currencyType, currencyQuantity)
 		updateCell.fs:SetText(updateCell.text)
 		updateCell.frame:SetSize(
 			updateCell.fs:GetStringWidth(),
-			ceil(updateCell.fs:GetStringHeight())+3
+			ceil(updateCell.fs:GetStringHeight()) + 3
 		)
 		local column = updateCell.frame:GetParent()
 		if column:GetWidth() < updateCell.frame:GetWidth() then
@@ -233,13 +230,13 @@ function mod:Update(event, currencyType, currencyQuantity)
 			cell.icon = ""
 			addon.RemoveTooltip(cell.frame)
 		end
-		column.frame:SetSize(0,0)
+		column.frame:SetSize(0, 0)
 	end
 
 	-- Get all the currency information from the player and store it.
-	local shown, hideZeroes = self.db.profile.shown, self.db.profile.hideZeroes
+	local _, hideZeroes = self.db.profile.shown, self.db.profile.hideZeroes
 	for i, currencyListInfo in IterateCurrencies() do
-		if shown[currencyListInfo.name] and (currencyListInfo.quantity > 0 or not hideZeroes) then
+		if currencyListInfo.isShowInBackpack and (currencyListInfo.quantity > 0 or not hideZeroes) then
 			tinsert(values, {
 				quantity = BreakUpLargeNumbers(currencyListInfo.quantity),
 				icon = format(ICON_STRING, currencyListInfo.iconFileID),
@@ -252,17 +249,19 @@ function mod:Update(event, currencyType, currencyQuantity)
 	-- Set the cell values.
 	if #values > 0 then
 		for i, value in ipairs(values) do
-			local columnPosition = ((i-1) % self.db.profile.width)+1
+			local columnPosition = ((i - 1) % self.db.profile.width) + 1
 			local rowPosition = ceil(i / self.db.profile.width)
+			local spacing = self.db.profile.spacing
 			local column = self.columns[columnPosition]
 			local cell = column.cells[rowPosition]
 			cell.icon = value.icon
 			cell.name = value.name
 			cell.text = value.icon .. value.quantity
 			cell.fs:SetText(cell.text)
+
 			cell.frame:SetSize(
-				cell.fs:GetStringWidth(),
-				ceil(cell.fs:GetStringHeight())+3
+				cell.fs:GetStringWidth() + spacing,
+				ceil(cell.fs:GetStringHeight()) + 3
 			)
 			-- Set the cell's tooltip.
 			addon.SetupTooltip(cell.frame, cell.name, "ANCHOR_BOTTOMLEFT")
@@ -294,21 +293,7 @@ function mod:Update(event, currencyType, currencyQuantity)
 end
 
 function mod:GetOptions()
-	local values = {}
 	return {
-		shown = {
-			name = L['Currencies to show'],
-			type = 'multiselect',
-			order = 10,
-			values = function()
-				wipe(values)
-				for i, currencyListInfo in IterateCurrencies() do
-					values[currencyListInfo.name] = format(ICON_STRING, currencyListInfo.iconFileID)..currencyListInfo.name
-				end
-				return values
-			end,
-			width = 'double',
-		},
 		hideZeroes = {
 			name = L['Hide zeroes'],
 			desc = L['Ignore currencies with null amounts.'],
@@ -328,7 +313,14 @@ function mod:GetOptions()
 					min = 3,
 					max = 10,
 					step = 1
-				}
+				},
+				spacing = {
+					name = L['Spacing'],
+					type = 'range',
+					min = 0,
+					max = 20,
+					step = 1
+				},
 			}
 		},
 	}, addon:GetOptionHandler(self, false, function() return self:Update() end)
