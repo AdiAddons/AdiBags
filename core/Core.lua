@@ -296,8 +296,6 @@ function addon:UpgradeProfile()
 		addon.db.profile.theme.currentTheme = "legacy theme"
 		addon:SaveTheme()
 	end
-	addon.db.profile.hideAnchor = nil
-	addon.db.profile.positionMode = nil
 end
 
 --------------------------------------------------------------------------------
