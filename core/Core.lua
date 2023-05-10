@@ -157,21 +157,25 @@ function addon:OnEnable()
 	self:RegisterMessage('AdiBags_BagClosed', 'LayoutBags')
 	
 	-- Track most windows involving items
-	self:RegisterEvent('BANKFRAME_OPENED', 'UpdateInteractingWindow')
-	self:RegisterEvent('BANKFRAME_CLOSED', 'UpdateInteractingWindow')
-	self:RegisterEvent('MAIL_SHOW', 'UpdateInteractingWindow')
-	self:RegisterEvent('MAIL_CLOSED', 'UpdateInteractingWindow')
-	self:RegisterEvent('MERCHANT_SHOW', 'UpdateInteractingWindow')
-	self:RegisterEvent('MERCHANT_CLOSED', 'UpdateInteractingWindow')
-	self:RegisterEvent('AUCTION_HOUSE_SHOW', 'UpdateInteractingWindow')
-	self:RegisterEvent('AUCTION_HOUSE_CLOSED', 'UpdateInteractingWindow')
-	self:RegisterEvent('TRADE_SHOW', 'UpdateInteractingWindow')
-	self:RegisterEvent('TRADE_CLOSED', 'UpdateInteractingWindow')
-	self:RegisterEvent('GUILDBANKFRAME_OPENED', 'UpdateInteractingWindow')
-	self:RegisterEvent('GUILDBANKFRAME_CLOSED', 'UpdateInteractingWindow')
-	self:RegisterEvent('SOCKET_INFO_UPDATE', 'UpdateInteractingWindow')
-	self:RegisterEvent('SOCKET_INFO_CLOSE', 'UpdateInteractingWindow')
-
+	if addon.isRetail or addon.isWrath then
+		self:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_SHOW', 'UpdateInteractingFrame')
+		self:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_HIDE', 'UpdateInteractingFrame')
+	else
+		self:RegisterEvent('BANKFRAME_OPENED', 'UpdateInteractingWindow')
+		self:RegisterEvent('BANKFRAME_CLOSED', 'UpdateInteractingWindow')
+		self:RegisterEvent('MAIL_SHOW', 'UpdateInteractingWindow')
+		self:RegisterEvent('MAIL_CLOSED', 'UpdateInteractingWindow')
+		self:RegisterEvent('MERCHANT_SHOW', 'UpdateInteractingWindow')
+		self:RegisterEvent('MERCHANT_CLOSED', 'UpdateInteractingWindow')
+		self:RegisterEvent('AUCTION_HOUSE_SHOW', 'UpdateInteractingWindow')
+		self:RegisterEvent('AUCTION_HOUSE_CLOSED', 'UpdateInteractingWindow')
+		self:RegisterEvent('TRADE_SHOW', 'UpdateInteractingWindow')
+		self:RegisterEvent('TRADE_CLOSED', 'UpdateInteractingWindow')
+		self:RegisterEvent('GUILDBANKFRAME_OPENED', 'UpdateInteractingWindow')
+		self:RegisterEvent('GUILDBANKFRAME_CLOSED', 'UpdateInteractingWindow')
+		self:RegisterEvent('SOCKET_INFO_UPDATE', 'UpdateInteractingWindow')
+		self:RegisterEvent('SOCKET_INFO_CLOSE', 'UpdateInteractingWindow')
+	end
 	self:SetSortingOrder(self.db.profile.sortingOrder)
 
 	for name, module in self:IterateModules() do
@@ -466,6 +470,32 @@ do
 	function addon:UpdateInteractingWindow(event, ...)
 		local new = strmatch(event, '^([_%w]+)_OPEN') or strmatch(event, '^([_%w]+)_SHOW$') or strmatch(event, '^([_%w]+)_UPDATE$')
 		self:Debug('UpdateInteractingWindow', event, current, '=>', new, '|', ...)
+		if new ~= current then
+			local old = current
+			current = new
+			self.atBank = (current == "BANKFRAME")
+			if self.db.profile.virtualStacks.notWhenTrading ~= 0 then
+				self:SendMessage('AdiBags_FiltersChanged', true)
+			end
+			self:SendMessage('AdiBags_InteractingWindowChanged', new, old)
+		end
+	end
+
+	function addon:UpdateInteractingFrame(event, kind)
+		local new
+		if event == "PLAYER_INTERACTION_MANAGER_FRAME_SHOW" then
+			if kind == Enum.PlayerInteractionType.Banker or
+			kind == Enum.PlayerInteractionType.GuildBanker then
+				new = "BANKFRAME"
+			elseif kind == Enum.PlayerInteractionType.Merchant or
+			kind == Enum.PlayerInteractionType.Auctioneer or
+			kind == Enum.PlayerInteractionType.BlackMarketAuctioneer or
+			kind == Enum.PlayerInteractionType.TradePartner or
+			kind == Enum.PlayerInteractionType.MailInfo then
+				new = "MERCHANT"
+			end
+		end
+		self:Debug('UpdateInteractingFrame', event, current, '=>', new, '|', kind)
 		if new ~= current then
 			local old = current
 			current = new
