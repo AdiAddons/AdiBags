@@ -927,7 +927,7 @@ function containerProto:UpdateButtons()
 		return
 	end
 	self:Debug('UpdateButtons')
-
+	local added, removed, changed = self.added, self.removed, self.changed
 	self:SendMessage('AdiBags_PreContentUpdate', self, added, removed, changed)
 
 	for slotId in pairs(removed) do
