@@ -74,19 +74,30 @@ function mod:OnEnable()
 		created = true
 	end
 	self:RegisterBucketEvent('BAG_UPDATE', 0.5, "Update")
-	self:RegisterEvent('BANKFRAME_OPENED')
-	self:RegisterEvent('BANKFRAME_CLOSED')
+	if addon.isRetail or addon.isWrath then
+		self:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_SHOW', 'BANKFRAME_OPENED')
+		self:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_HIDE', 'BANKFRAME_CLOSED')
+	else
+		self:RegisterEvent('BANKFRAME_OPENED')
+		self:RegisterEvent('BANKFRAME_CLOSED')
+	end
 	self:Update()
 end
 
-function mod:BANKFRAME_OPENED()
-	self.atBank = true
-	return self:Update()
+function mod:BANKFRAME_OPENED(e, kind)
+	if kind == Enum.PlayerInteractionType.Banker or
+	kind == Enum.PlayerInteractionType.GuildBanker then
+		self.atBank = true
+		return self:Update()
+	end
 end
 
-function mod:BANKFRAME_CLOSED()
-	self.atBank = false
-	return self:Update()
+function mod:BANKFRAME_CLOSED(e, kind)
+	if kind == Enum.PlayerInteractionType.Banker or
+	kind == Enum.PlayerInteractionType.GuildBanker then
+		self.atBank = false
+		return self:Update()
+	end
 end
 
 local FAMILY_ORDER = {
