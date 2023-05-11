@@ -109,7 +109,7 @@ function buttonProto:OnAcquire(container, bag, slot)
 	--TODO(lobato): Add this when (if?) Blizzard fixes taint for bags
 	--self:SetBagID(bag)
 	self:SetID(slot)
-	self:FullUpdate()
+	addon:ScheduleUpdate(self, self.FullUpdate)
 	addon:SendMessage("AdiBags_AcquireButton", self)
 end
 
@@ -273,7 +273,7 @@ function buttonProto:OnShow()
 	self:RegisterEvent('UNIT_QUEST_LOG_CHANGED')
 	self:RegisterMessage('AdiBags_UpdateAllButtons', 'Update')
 	self:RegisterMessage('AdiBags_GlobalLockChanged', 'UpdateLock')
-	self:FullUpdate()
+	addon:ScheduleUpdate(self, self.FullUpdate)
 end
 
 function buttonProto:OnHide()
@@ -593,7 +593,7 @@ function stackProto:UpdateVisibleSlot()
 end
 
 function stackProto:ITEM_LOCK_CHANGED()
-	return self:Update()
+	return addon:ScheduleUpdate(self, self.Update)
 end
 
 function stackProto:AddSlot(slotId)
@@ -601,7 +601,7 @@ function stackProto:AddSlot(slotId)
 	if not slots[slotId] then
 		slots[slotId] = true
 		self.dirtyCount = true
-		self:Update()
+		addon:ScheduleUpdate(self, self.Update)
 	end
 end
 
@@ -610,7 +610,7 @@ function stackProto:RemoveSlot(slotId)
 	if slots[slotId] then
 		slots[slotId] = nil
 		self.dirtyCount = true
-		self:Update()
+		addon:ScheduleUpdate(self, self.Update)
 	end
 end
 
@@ -625,7 +625,7 @@ function stackProto:OnShow()
 	if self.button then
 		self.button:Show()
 	end
-	self:Update()
+	addon:ScheduleUpdate(self, self.Update)
 end
 
 function stackProto:OnHide()
@@ -670,7 +670,7 @@ function stackProto:Update()
 	self:UpdateVisibleSlot()
 	self:UpdateCount()
 	if self.button then
-		self.button:Update()
+		addon:ScheduleUpdate(self.button, self.button.Update)
 	end
 end
 
@@ -679,7 +679,7 @@ function stackProto:FullUpdate()
 	self:UpdateVisibleSlot()
 	self:UpdateCount()
 	if self.button then
-		self.button:FullUpdate()
+		addon:ScheduleUpdate(self.button, self.button.FullUpdate)
 	end
 end
 

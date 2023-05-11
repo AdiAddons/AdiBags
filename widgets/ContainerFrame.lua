@@ -946,14 +946,14 @@ function containerProto:UpdateButtons()
 
 	local buttons = self.buttons
 	for slotId in pairs(changed) do
-		buttons[slotId]:FullUpdate()
+		addon:ScheduleUpdate(buttons[slotId], buttons[slotId].FullUpdate)
 	end
 
 	if next(sameChanged) then
 		self:SendMessage('AdiBags_PreFilter', self)
 		for slotId, slotData in pairs(sameChanged) do
 			self:DispatchItem(slotData)
-			buttons[slotId]:FullUpdate()
+			addon:ScheduleUpdate(buttons[slotId], buttons[slotId].FullUpdate)
 		end
 		self:SendMessage('AdiBags_PostFilter', self)
 	end

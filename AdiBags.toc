@@ -50,6 +50,7 @@ core\Constants.lua
 core\Utility.lua
 core\Theme.lua
 core\Core.lua
+core\Update.lua
 core\Hooks.lua
 core\Bags.lua
 core\Filters.lua

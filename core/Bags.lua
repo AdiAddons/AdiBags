@@ -95,6 +95,7 @@ function bagProto:Open()
 		end
 		frame:Show()
 		addon:SendMessage('AdiBags_BagOpened', self.bagName, self)
+		addon:Debug("Open Done")
 		return true
 	end
 end

@@ -103,6 +103,7 @@ function addon:SetupDefaultFilters()
 
 			function setFilter:UpdateSlots()
 				self:Debug('Updating slots')
+				
 				wipe(self.slots)
 				local missing = false
 				for _, equipmentSetID in pairs(GetEquipmentSetIDs()) do

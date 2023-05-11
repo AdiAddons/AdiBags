@@ -114,6 +114,7 @@ function addon:ToggleAllBags()
 end
 
 function addon:OpenAllBags(requesterFrame)
+	addon:DeferUpdates()
 	if requesterFrame then return end -- UpdateInteractingWindow takes care of these cases
 	for _, bag in self:IterateBags() do
 		bag:Open()
@@ -121,6 +122,8 @@ function addon:OpenAllBags(requesterFrame)
 	for id in IterateBuiltInContainers() do
 		self:GetContainerFrame(id, true)
 	end
+	addon:Debug("open all bags done")
+	addon:ApplyUpdates()
 end
 
 function addon:CloseAllBags(requesterFrame)
