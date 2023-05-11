@@ -275,7 +275,7 @@ function buttonProto:OnShow()
 	self:RegisterEvent('UNIT_QUEST_LOG_CHANGED')
 	self:RegisterMessage('AdiBags_UpdateAllButtons', 'Update')
 	self:RegisterMessage('AdiBags_GlobalLockChanged', 'UpdateLock')
-	self:FullUpdate()
+	self:Update()
 end
 
 function buttonProto:OnHide()
@@ -298,10 +298,16 @@ end
 --------------------------------------------------------------------------------
 
 function buttonProto:CanUpdate()
-	if not self:IsVisible() or not self.dirty then
+	if self.dirty then
+		return true
+	end
+	return false
+--[[
+	if not self:IsVisible() then
 		return false
 	end
 	return true
+	]]--
 end
 
 function buttonProto:FullUpdate()
@@ -344,6 +350,8 @@ end
 
 function buttonProto:Update()
 	if not self:CanUpdate() then return end
+	self.dirty = false
+	addon:Debug("Update", self.itemLink, self.dirty)
 	self:UpdateIcon()
 	local tag = (not self.itemId or addon.db.profile.showBagType) and addon:GetFamilyTag(self.bagFamily)
 	if tag then
@@ -671,16 +679,15 @@ function stackProto:SetVisibleSlot(slotId)
 end
 
 function stackProto:Update()
-	if not self:CanUpdate() then return end
 	self:UpdateVisibleSlot()
-	self:UpdateCount()
-	if self.button then
+	if self:UpdateCount() and self.button then
+		self.button.dirty = true
 		self.button:Update()
 	end
 end
 
 function stackProto:FullUpdate()
-	if not self:CanUpdate() then return end
+	self.dirty = false
 	self:UpdateVisibleSlot()
 	self:UpdateCount()
 	if self.button then
@@ -694,8 +701,10 @@ function stackProto:UpdateCount()
 
 		count = count + (addon:GetContainerItemStackCount(GetBagSlotFromId(slotId)) or 1)
 	end
+	local oldCount = self.count
 	self.count = count
 	self.dirtyCount = nil
+	return oldCount ~= count
 end
 
 function stackProto:AdiBags_PostContentUpdate()
