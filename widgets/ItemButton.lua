@@ -105,6 +105,7 @@ function buttonProto:OnAcquire(container, bag, slot)
 	self.bag = bag
 	self.slot = slot
 	self.stack = nil
+	self.dirty = true
 	self:SetParent(addon.itemParentFrames[bag])
 	--TODO(lobato): Add this when (if?) Blizzard fixes taint for bags
 	--self:SetBagID(bag)
@@ -123,6 +124,7 @@ function buttonProto:OnRelease()
 	self.texture = nil
 	self.bagFamily = nil
 	self.stack = nil
+	self.dirty = false
 	addon:SendMessage('AdiBags_ButtonProtoRelease', self)
 end
 
@@ -296,7 +298,7 @@ end
 --------------------------------------------------------------------------------
 
 function buttonProto:CanUpdate()
-	if not self:IsVisible() or addon.holdYourBreath then
+	if not self:IsVisible() or not self.dirty then
 		return false
 	end
 	return true
@@ -308,7 +310,8 @@ function buttonProto:FullUpdate()
 	self.itemLink = GetContainerItemLink(bag, slot)
 	self.hasItem = not not self.itemId
 	self.texture = addon:GetContainerItemTexture(bag, slot)
-
+	self.dirty = true
+	addon:Debug("Full Update", self.itemLink)
 	-- TODO(lobato): Test if this is still needed
 	if self.bag == REAGENTBAG_CONTAINER then
 		self.bagFamily = 2048
@@ -536,6 +539,7 @@ function stackProto:OnAcquire(container, key)
 	self.key = key
 	self.count = 0
 	self.dirtyCount = true
+	self.dirty = true
 	self:SetParent(container)
 end
 
@@ -544,6 +548,7 @@ function stackProto:OnRelease()
 	self:SetSection(nil)
 	self.key = nil
 	self.container = nil
+	self.dirty = false
 	addon:SendMessage('AdiBags_ButtonProtoRelease', self)
 	wipe(self.slots)
 end

@@ -126,7 +126,6 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.added = {}
 	self.removed = {}
 	self.changed = {}
-	self.sameChanged = {}
 
 	self.itemGUIDtoItem = {}
 	---@type Frame|Grid
@@ -627,7 +626,7 @@ function containerProto:AddBottomWidget(widget, side, order, height, xOffset, yO
 end
 
 function containerProto:OnLayout()
-	self:Debug('OnLayout')
+	self:Debug('OnLayout Start')
 	local hlr, hrr = self.HeaderLeftRegion, self.HeaderRightRegion
 	local blr, brr = self.BottomLeftRegion, self.BottomRightRegion
 	local minWidth = max(
@@ -642,7 +641,7 @@ function containerProto:OnLayout()
 	if self.forceLayout then
 		self:FullUpdate()
 	end
-	self:Debug('OnLayout', self.ToSortSection:GetHeight())
+	self:Debug('OnLayout Height', self.ToSortSection:GetHeight())
 	self:SetSize(
 		BAG_INSET * 2 + max(minWidth, self.Content:GetWidth()),
 		addon.TOP_PADDING + BAG_INSET + bottomHeight + self.Content:GetHeight() + self.ToSortSection:GetHeight() + ITEM_SPACING
@@ -679,7 +678,7 @@ end
 ---@param bag number The id of the bag to update.
 function containerProto:UpdateContent(bag)
 	self:Debug('UpdateContent', bag)
-	local added, removed, changed, sameChanged = self.added, self.removed, self.changed, self.sameChanged
+	local added, removed, changed = self.added, self.removed, self.changed
 	local content = self.content[bag]
 	local newSize = self:GetBagIds()[bag] and GetContainerNumSlots(bag) or 0
 	local _, bagFamily = GetContainerNumFreeSlots(bag)
@@ -780,7 +779,7 @@ function containerProto:UpdateContent(bag)
 end
 
 function containerProto:HasContentChanged()
-	return not not (next(self.added) or next(self.removed) or next(self.changed) or next(self.sameChanged))
+	return not not (next(self.added) or next(self.removed) or next(self.changed))
 end
 
 --------------------------------------------------------------------------------
@@ -923,13 +922,12 @@ end
 
 function containerProto:UpdateButtons()
 	if self.forceLayout then
-		return self:FullUpdate()
+		return
 	elseif not self:HasContentChanged() then
 		return
 	end
 	self:Debug('UpdateButtons')
 
-	local added, removed, changed, sameChanged = self.added, self.removed, self.changed, self.sameChanged
 	self:SendMessage('AdiBags_PreContentUpdate', self, added, removed, changed)
 
 	for slotId in pairs(removed) do
@@ -949,20 +947,10 @@ function containerProto:UpdateButtons()
 		buttons[slotId]:FullUpdate()
 	end
 
-	if next(sameChanged) then
-		self:SendMessage('AdiBags_PreFilter', self)
-		for slotId, slotData in pairs(sameChanged) do
-			self:DispatchItem(slotData)
-			buttons[slotId]:FullUpdate()
-		end
-		self:SendMessage('AdiBags_PostFilter', self)
-	end
-
 	self:SendMessage('AdiBags_PostContentUpdate', self, added, removed, changed)
 	wipe(added)
 	wipe(removed)
 	wipe(changed)
-	wipe(sameChanged)
 
 	self:ResizeToSortSection()
 end
@@ -1187,7 +1175,7 @@ function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, section
 		contentHeight = max(contentHeight, heights[row] - yOffset)
 		x = x + thisColumnWidth + COLUMN_SPACING
 	end
-
+	
 	return x - COLUMN_SPACING, contentHeight - ITEM_SPACING
 end
 
