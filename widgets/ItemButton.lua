@@ -97,6 +97,8 @@ function buttonProto:OnCreate()
 	if self.NewItemTexture then
 		self.NewItemTexture:Hide()
 	end
+	self.refreshed = false
+	self.updated = false
 	self.SplitStack = nil -- Remove the function set up by the template
 end
 
@@ -108,6 +110,8 @@ function buttonProto:OnAcquire(container, bag, slot)
 	self:SetParent(addon.itemParentFrames[bag])
 	--TODO(lobato): Add this when (if?) Blizzard fixes taint for bags
 	--self:SetBagID(bag)
+	self.refreshed = false
+	self.updated = false
 	self:SetID(slot)
 	self:FullUpdate()
 	addon:SendMessage("AdiBags_AcquireButton", self)
@@ -123,6 +127,8 @@ function buttonProto:OnRelease()
 	self.texture = nil
 	self.bagFamily = nil
 	self.stack = nil
+	self.refreshed = false
+	self.updated = false
 	addon:SendMessage('AdiBags_ButtonProtoRelease', self)
 end
 
@@ -282,6 +288,8 @@ function buttonProto:OnHide()
 	if self.hasStackSplit and self.hasStackSplit == 1 then
 		StackSplitFrame:Hide()
 	end
+	self.refreshed = false
+	self.updated = false
 end
 
 function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)
@@ -302,7 +310,11 @@ function buttonProto:CanUpdate()
 	return true
 end
 
-function buttonProto:FullUpdate()
+function buttonProto:FullUpdate(event)
+	if not event and self.refreshed == true then
+		return
+	end
+	self.refreshed = true
 	local bag, slot = self.bag, self.slot
 	self.itemId = GetContainerItemID(bag, slot)
 	self.itemLink = GetContainerItemLink(bag, slot)
@@ -339,8 +351,12 @@ function buttonProto:UpdateIcon()
 	end
 end
 
-function buttonProto:Update()
+function buttonProto:Update(event)
 	if not self:CanUpdate() then return end
+	if not event and self.updated == true then
+		return
+	end
+	self.updated = true
 	self:UpdateIcon()
 	local tag = (not self.itemId or addon.db.profile.showBagType) and addon:GetFamilyTag(self.bagFamily)
 	if tag then
