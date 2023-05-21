@@ -922,6 +922,9 @@ end
 
 function containerProto:UpdateButtons()
 	if self.forceLayout then
+		if addon.atBank then
+			self:FullUpdate()
+		end
 		return
 	elseif not self:HasContentChanged() then
 		return
