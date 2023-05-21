@@ -105,6 +105,7 @@ function buttonProto:OnAcquire(container, bag, slot)
 	self.bag = bag
 	self.slot = slot
 	self.stack = nil
+	self.dirty = true
 	self:SetParent(addon.itemParentFrames[bag])
 	--TODO(lobato): Add this when (if?) Blizzard fixes taint for bags
 	--self:SetBagID(bag)
@@ -123,6 +124,7 @@ function buttonProto:OnRelease()
 	self.texture = nil
 	self.bagFamily = nil
 	self.stack = nil
+	self.dirty = false
 	addon:SendMessage('AdiBags_ButtonProtoRelease', self)
 end
 
@@ -271,9 +273,9 @@ function buttonProto:OnShow()
 		self:RegisterEvent('INVENTORY_SEARCH_UPDATE', 'UpdateSearch')
 	end
 	self:RegisterEvent('UNIT_QUEST_LOG_CHANGED')
-	self:RegisterMessage('AdiBags_UpdateAllButtons', 'Update')
+	self:RegisterMessage('AdiBags_UpdateAllButtons', 'FullUpdate')
 	self:RegisterMessage('AdiBags_GlobalLockChanged', 'UpdateLock')
-	self:FullUpdate()
+	self:Update()
 end
 
 function buttonProto:OnHide()
@@ -296,10 +298,16 @@ end
 --------------------------------------------------------------------------------
 
 function buttonProto:CanUpdate()
-	if not self:IsVisible() or addon.holdYourBreath then
+	if self.dirty then
+		return true
+	end
+	return false
+--[[
+	if not self:IsVisible() then
 		return false
 	end
 	return true
+	]]--
 end
 
 function buttonProto:FullUpdate()
@@ -308,7 +316,8 @@ function buttonProto:FullUpdate()
 	self.itemLink = GetContainerItemLink(bag, slot)
 	self.hasItem = not not self.itemId
 	self.texture = addon:GetContainerItemTexture(bag, slot)
-
+	self.dirty = true
+	addon:Debug("Full Update", self.itemLink)
 	-- TODO(lobato): Test if this is still needed
 	if self.bag == REAGENTBAG_CONTAINER then
 		self.bagFamily = 2048
@@ -341,6 +350,8 @@ end
 
 function buttonProto:Update()
 	if not self:CanUpdate() then return end
+	self.dirty = false
+	addon:Debug("Update", self.itemLink, self.dirty)
 	self:UpdateIcon()
 	local tag = (not self.itemId or addon.db.profile.showBagType) and addon:GetFamilyTag(self.bagFamily)
 	if tag then
@@ -536,6 +547,7 @@ function stackProto:OnAcquire(container, key)
 	self.key = key
 	self.count = 0
 	self.dirtyCount = true
+	self.dirty = true
 	self:SetParent(container)
 end
 
@@ -544,6 +556,7 @@ function stackProto:OnRelease()
 	self:SetSection(nil)
 	self.key = nil
 	self.container = nil
+	self.dirty = false
 	addon:SendMessage('AdiBags_ButtonProtoRelease', self)
 	wipe(self.slots)
 end
@@ -666,16 +679,15 @@ function stackProto:SetVisibleSlot(slotId)
 end
 
 function stackProto:Update()
-	if not self:CanUpdate() then return end
 	self:UpdateVisibleSlot()
-	self:UpdateCount()
-	if self.button then
+	if self:UpdateCount() and self.button then
+		self.button.dirty = true
 		self.button:Update()
 	end
 end
 
 function stackProto:FullUpdate()
-	if not self:CanUpdate() then return end
+	self.dirty = false
 	self:UpdateVisibleSlot()
 	self:UpdateCount()
 	if self.button then
@@ -689,8 +701,10 @@ function stackProto:UpdateCount()
 
 		count = count + (addon:GetContainerItemStackCount(GetBagSlotFromId(slotId)) or 1)
 	end
+	local oldCount = self.count
 	self.count = count
 	self.dirtyCount = nil
+	return oldCount ~= count
 end
 
 function stackProto:AdiBags_PostContentUpdate()
