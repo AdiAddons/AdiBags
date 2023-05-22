@@ -85,16 +85,14 @@ function mod:OnEnable()
 end
 
 function mod:BANKFRAME_OPENED(e, kind)
-	if kind == Enum.PlayerInteractionType.Banker or
-	kind == Enum.PlayerInteractionType.GuildBanker then
+	if kind == Enum.PlayerInteractionType.Banker then
 		self.atBank = true
 		return self:Update()
 	end
 end
 
 function mod:BANKFRAME_CLOSED(e, kind)
-	if kind == Enum.PlayerInteractionType.Banker or
-	kind == Enum.PlayerInteractionType.GuildBanker then
+	if kind == Enum.PlayerInteractionType.Banker then
 		self.atBank = false
 		return self:Update()
 	end

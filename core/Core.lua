@@ -491,8 +491,7 @@ do
 	function addon:UpdateInteractingFrame(event, kind)
 		local new
 		if event == "PLAYER_INTERACTION_MANAGER_FRAME_SHOW" then
-			if kind == Enum.PlayerInteractionType.Banker or
-			kind == Enum.PlayerInteractionType.GuildBanker then
+			if kind == Enum.PlayerInteractionType.Banker then
 				new = "BANKFRAME"
 			elseif kind == Enum.PlayerInteractionType.Merchant or
 			kind == Enum.PlayerInteractionType.Auctioneer or
