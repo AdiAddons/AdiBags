@@ -160,6 +160,13 @@ function addon:OnEnable()
 	if addon.isRetail or addon.isWrath then
 		self:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_SHOW', 'UpdateInteractingFrame')
 		self:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_HIDE', 'UpdateInteractingFrame')
+		-- TODO(lobato): This is a hack to fix a change in the timing of the interaction manager
+		-- event. The interaction manager frame event is fired later than the bankframe opened
+		-- event is, which causes a race somewhere else in our code. Without this, GetInteractingWindow
+		-- will return a nil value when it shouldn't. We need to figure out where this race is
+		-- happening and fix it properly.
+		-- Note, this seems to only happen with the bankframe event, and no others.
+		self:RegisterEvent('BANKFRAME_OPENED', 'UpdateInteractingWindow')
 	else
 		self:RegisterEvent('BANKFRAME_OPENED', 'UpdateInteractingWindow')
 		self:RegisterEvent('BANKFRAME_CLOSED', 'UpdateInteractingWindow')
