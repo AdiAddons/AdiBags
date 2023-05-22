@@ -128,6 +128,8 @@ function sectionProto:OnAcquire(container, name, category)
 	self.name = name
 	self.category = category or name
 	self.key = BuildSectionKey(name, category)
+	self.total = 0
+	self.height = 0
 	self:SetSizeInSlots(0, 0)
 	self.count = 0
 	self.container = container
@@ -144,6 +146,8 @@ function sectionProto:OnRelease()
 	self.name = nil
 	self.category = nil
 	self.container = nil
+	self.total = 0
+	self.height = 0
 end
 
 function sectionProto:UpdateFont()
