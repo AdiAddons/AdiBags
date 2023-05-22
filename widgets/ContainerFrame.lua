@@ -921,12 +921,11 @@ function containerProto:RemoveSlot(slotId)
 end
 
 function containerProto:UpdateButtons()
-	if self.forceLayout then
-		if addon.atBank then
-			self:FullUpdate()
-		end
-		return
-	elseif not self:HasContentChanged() then
+	if addon.atBank and self.forceLayout then
+		return self:FullUpdate()
+	end
+
+	if not self:HasContentChanged() then
 		return
 	end
 	self:Debug('UpdateButtons')
