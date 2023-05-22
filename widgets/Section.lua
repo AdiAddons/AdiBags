@@ -371,6 +371,11 @@ function sectionProto:FullLayout()
 	elseif self:IsCollapsed() then
 		return self:Hide()
 	end
+	
+	-- hackfix for #964
+	if self.total < 0 or self.height < 0 then
+		return
+	end
 
 	for button in pairs(self.buttons) do
 		button:Show()
