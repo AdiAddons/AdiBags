@@ -298,16 +298,16 @@ end
 --------------------------------------------------------------------------------
 
 function buttonProto:CanUpdate()
+	--[[
 	if self.dirty then
 		return true
 	end
 	return false
---[[
+	--]]
 	if not self:IsVisible() then
 		return false
 	end
 	return true
-	]]--
 end
 
 function buttonProto:FullUpdate()
