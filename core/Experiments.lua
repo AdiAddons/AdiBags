@@ -29,7 +29,7 @@ local Opts = LibStub('AceDBOptions-3.0')
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function Experiments:OnInitialize()
-  self.experiments = addon.db.global.experiments or {}
+--  addon.db.global.experiments or {}
   self:CreateAllExperiments()
 end
 
@@ -40,12 +40,12 @@ function Experiments:CreateExperiment(exp)
   assert(exp.Percent ~= nil and exp.Percent >= 0 and exp.Percent <= 100, "Experiment percent must be between 0 and 100")
 
   -- Don't create the experiment if it already exists with the same percentage, as this was loaded from disk.
-  if self.experiments[exp.Name] ~= nil and self.experiments[exp.Name].Percent == exp.Percent then
+  if addon.db.profile.experiments[exp.Name] ~= nil and addon.db.profile.experiments[exp.Name].Percent == exp.Percent then
     return
   end
 
   -- Don't recalculate already enabled experiements, recalculation can only add users to the cohort, not remove them.
-  if self.experiments[exp.Name] ~= nil and self.experiments[exp.Name].Enabled then
+  if addon.db.profile.experiments[exp.Name] ~= nil and addon.db.profile.experiments[exp.Name].Enabled then
     return
   end
 
@@ -56,15 +56,15 @@ function Experiments:CreateExperiment(exp)
     exp.Enabled = false
   end
 
-  self.experiments[exp.Name] = exp
+  addon.db.profile.experiments[exp.Name] = exp
 end
 
 -- Enabled returns whether or not any experiment is enabled for this user.
 ---@param name string
 ---@return boolean
 function Experiments:Enabled(name)
-  assert(self.experiments[name] ~= nil, "Experiment with name " .. name .. " does not exist")
-  return self.experiments[name].Enabled
+  assert(addon.db.profile.experiments[name] ~= nil, "Experiment with name " .. name .. " does not exist")
+  return addon.db.profile.experiments[name].Enabled
 end
 
 function Experiments:CreateAllExperiments()
@@ -77,16 +77,16 @@ end
 
 function Experiments:GetOptions()
   local options = {}
-  for name, experiment in pairs(self.experiments) do
+  for name, experiment in pairs(addon.db.profile.experiments) do
     options[name] = {
       type = "toggle",
       name = experiment.Name,
       desc = experiment.Description,
       get = function()
-        return experiment.Enabled
+        return addon.db.profile.experiments[name].Enabled
       end,
       set = function(_, value)
-        experiment.Enabled = value
+        addon.db.profile.experiments[name].Enabled = value
       end,
     }
   end
