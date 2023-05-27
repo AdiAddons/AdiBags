@@ -29,19 +29,53 @@ local Experiments = addon:NewModule('Experiments')
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function Experiments:OnInitialize()
-  self.experiments = {}
+  self.db = LibStub('AceDB-3.0'):New(addonName.."ExperimentsDB")
+  self.experiments = self.db.global.experiments or {}
+  self:CreateAllExperiments()
 end
 
+---CreateExperiment creates a new experiment.
 ---@param exp Experiment
 function Experiments:CreateExperiment(exp)
   assert(exp.Name, "Experiment must have a name")
-  assert(self.experiments[exp.Name] == nil, "Experiment with name " .. exp.Name .. " already exists")
+  assert(exp.Percent ~= nil and exp.Percent >= 0 and exp.Percent <= 100, "Experiment percent must be between 0 and 100")
+
+  -- Don't create the experiment if it already exists with the same percentage, as this was loaded from disk.
+  if self.experiments[exp.Name] ~= nil and self.experiments[exp.Name].Percent == exp.Percent then
+    return
+  end
+
+  -- Figure out if this user should be in the experiment.
+  if math.random(100) <= exp.Percent then
+    exp.Enabled = true
+  else
+    exp.Enabled = false
+  end
+
   self.experiments[exp.Name] = exp
 end
 
+-- Enabled returns whether or not any experiment is enabled for this user.
+---@param name string
+---@return boolean
+function Experiments:Enabled(name)
+  assert(self.experiments[name] ~= nil, "Experiment with name " .. name .. " does not exist")
+  return self.experiments[name].Enabled
+end
+
+function Experiments:CreateAllExperiments()
+  Experiments:CreateExperiment({
+    Name = "Bag Lag Fix",
+    Description = "This experiment will fix the lag when opening bags via per-item change draws instead of full redraws.",
+    Percent = 1,
+  })
+end
 ---@class Experiment
----@field Name string
----@field Description string
+---@field Name string The name of the experiment.
+---@field Description string The description of the experiment.
+---@field Percent integer The percentage of players that should be in the experiment.
+---@field Enabled boolean Whether or not the experiment is enabled.
 
 ---@class Experiments
+---@field db AceDBObject-3.0
 ---@field experiments table<string, Experiment>

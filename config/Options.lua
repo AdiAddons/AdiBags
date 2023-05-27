@@ -716,6 +716,13 @@ local function GetOptions()
 				args = moduleOptions,
 			},
 			profiles = profiles,
+			experiments = {
+				name = L['Experiments'],
+				desc = L['View your experiment groups and toggle participation.'],
+				type = 'group',
+				order = 9999,
+				args = {},
+			}
 		},
 		plugins = {}
 	}
