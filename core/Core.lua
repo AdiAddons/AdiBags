@@ -45,27 +45,9 @@ local type = _G.type
 local unpack = _G.unpack
 --GLOBALS>
 
-LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'ABEvent-1.0', 'ABBucket-1.0', 'AceHook-3.0', 'AceConsole-3.0')
---@debug@
-_G[addonName] = addon
---@end-debug@
-
 --------------------------------------------------------------------------------
--- Debug stuff
+-- Addon initialization and enabling
 --------------------------------------------------------------------------------
-
---@alpha@
----@type AdiDebug
-AdiDebug = AdiDebug
-
-if AdiDebug then
-	AdiDebug:Embed(addon, addonName)
-else
---@end-alpha@
-	function addon.Debug() end
---@alpha@
-end
---@end-alpha@
 
 --@debug@
 local function DebugTable(t, prevKey)
@@ -75,12 +57,6 @@ local function DebugTable(t, prevKey)
 	end
 end
 --@end-debug@
-
---------------------------------------------------------------------------------
--- Addon initialization and enabling
---------------------------------------------------------------------------------
-
-addon:SetDefaultModuleState(false)
 
 local bagKeys = {"backpack", "bank", "reagentBank"}
 function addon:OnInitialize()
@@ -352,19 +328,6 @@ do
 	end)
 
 end
-
---------------------------------------------------------------------------------
--- Module prototype
---------------------------------------------------------------------------------
-
-local moduleProto = {
-	Debug = addon.Debug,
-	OpenOptions = function(self)
-		return addon:OpenOptions("modules", self.moduleName)
-	end,
-}
-addon.moduleProto = moduleProto
-addon:SetDefaultModulePrototype(moduleProto)
 
 --------------------------------------------------------------------------------
 -- Event handlers
