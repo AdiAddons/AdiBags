@@ -218,6 +218,7 @@ addon.DEFAULT_SETTINGS = {
 			freeSpace = true,
 			notWhenTrading = 1,
 		},
+		experiments = {},
 		theme = {
 			currentTheme = "default",
 			backpack = {

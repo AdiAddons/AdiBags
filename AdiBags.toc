@@ -45,6 +45,8 @@ libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 
 Localization.lua
 core\EventHandlers.lua
+core\Boot.lua
+core\Experiments.lua
 core\Fonts.lua
 core\Constants.lua
 core\Utility.lua
