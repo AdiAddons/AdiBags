@@ -21,16 +21,15 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 
 
 local addonName, addon = ...
+local Experiments = addon:NewModule('Experiments')
+local Opts = LibStub('AceDBOptions-3.0')
 
 ---@cast addon +AdiBags
-
-local Experiments = addon:NewModule('Experiments')
 ---@cast Experiments +Experiments
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function Experiments:OnInitialize()
-  self.db = LibStub('AceDB-3.0'):New(addonName.."ExperimentsDB")
-  self.experiments = self.db.global.experiments or {}
+  self.experiments = addon.db.global.experiments or {}
   self:CreateAllExperiments()
 end
 
@@ -42,6 +41,11 @@ function Experiments:CreateExperiment(exp)
 
   -- Don't create the experiment if it already exists with the same percentage, as this was loaded from disk.
   if self.experiments[exp.Name] ~= nil and self.experiments[exp.Name].Percent == exp.Percent then
+    return
+  end
+
+  -- Don't recalculate already enabled experiements, recalculation can only add users to the cohort, not remove them.
+  if self.experiments[exp.Name] ~= nil and self.experiments[exp.Name].Enabled then
     return
   end
 
@@ -70,6 +74,25 @@ function Experiments:CreateAllExperiments()
     Percent = 1,
   })
 end
+
+function Experiments:GetOptions()
+  local options = {}
+  for name, experiment in pairs(self.experiments) do
+    options[name] = {
+      type = "toggle",
+      name = experiment.Name,
+      desc = experiment.Description,
+      get = function()
+        return experiment.Enabled
+      end,
+      set = function(_, value)
+        experiment.Enabled = value
+      end,
+    }
+  end
+  return options
+end
+
 ---@class Experiment
 ---@field Name string The name of the experiment.
 ---@field Description string The description of the experiment.
@@ -77,5 +100,4 @@ end
 ---@field Enabled boolean Whether or not the experiment is enabled.
 
 ---@class Experiments
----@field db AceDBObject-3.0
 ---@field experiments table<string, Experiment>

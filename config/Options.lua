@@ -41,6 +41,9 @@ local LSM = LibStub('LibSharedMedia-3.0')
 
 local options
 
+local experiments = addon:GetModule("Experiments")
+---@cast experiments +Experiments
+
 --------------------------------------------------------------------------------
 -- Option handler prototype
 --------------------------------------------------------------------------------
@@ -721,7 +724,7 @@ local function GetOptions()
 				desc = L['View your experiment groups and toggle participation.'],
 				type = 'group',
 				order = 9999,
-				args = {},
+				args = experiments:GetOptions(),
 			}
 		},
 		plugins = {}

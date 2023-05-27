@@ -408,5 +408,6 @@ function SetTooltipMoney(frame, money, type, prefixText, suffixText) end
 -- Define the main AdiBags addon object
 ---@class AdiBags-Proto
 ---@field ItemDatabase ItemDatabase
+---@field db AceDBObject-3.0
 
 ---@alias AdiBags AdiBags-Proto|AceAddon
