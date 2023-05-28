@@ -19,7 +19,9 @@ You should have received a copy of the GNU General Public License
 along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local addonName, addon = ...
+local addonName = ...
+---@class AdiBags: AceAddon
+local addon = LibStub('AceAddon-3.0'):GetAddon(addonName)
 local L = addon.L
 
 --<GLOBALS
@@ -1217,7 +1219,6 @@ function containerProto:FullUpdate()
 		if addon.db.profile.gridLayout == 'classic' then
 			self.Content:SetSize(contentWidth, contentHeight)
 		end
-		--self.Content:SetSize(contentWidth, contentHeight)
 	end
 
 	self:ResizeToSortSection(true)

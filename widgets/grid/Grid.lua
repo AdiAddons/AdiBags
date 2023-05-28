@@ -128,6 +128,8 @@ local function Cell_OnDragStart(self, button, cell)
 
   self.sideFrame:SetPoint("TOPLEFT", self:GetParent(), "TOPRIGHT", 5, -37)
   self.sideFrame:Show()
+  self.sideFrame:OnHover()
+  print("drag start")
   self.cellToPosition[cell] = column:GetCellPosition(cell)
   column:RemoveCell(cell)
   column:Update()
@@ -139,7 +141,7 @@ local function Cell_OnDragStart(self, button, cell)
   cell.frame:SetScript("OnUpdate", function()
     local stack = C_System.GetFrameStack()
     for _, frame in ipairs(stack) do
-      if frame.dropzone and cell.hoverOver ~= frame then
+      if frame.dropzone and cell.hoverOver ~= frame and frame ~= self.sideFrame then
         if cell.hoverOver then
           cell.hoverOver:OnLeave()
         end
@@ -175,6 +177,7 @@ local function Cell_OnDragStop(self, button, cell)
   if self.sideFrame:IsMouseOver() and #currentColumn.cells > 0 then
     self:DeferUpdate()
     self.sideFrame:Hide()
+    self.sideFrame:OnLeave()
     self.sideFrame:ClearAllPoints()
 
     local column = self:AddColumn()
@@ -191,6 +194,7 @@ local function Cell_OnDragStop(self, button, cell)
 
   -- TODO(lobato): delete a column if it is empty
   self.sideFrame:Hide()
+  self.sideFrame:OnLeave()
 
   local dropped = false
   -- Check for specific position drops here.
