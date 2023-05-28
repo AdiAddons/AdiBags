@@ -80,7 +80,7 @@ function addon:OnInitialize()
 	self:UpgradeProfile()
 
 	-- Create the bag font objects.
-	---@type table<string, table<string, AdiFont>>
+	---@type table<string, table<string, AdiFont|Font>>
 	self.fonts = {}
 	for _, name in ipairs(bagKeys) do
 		self.fonts[name] = {
