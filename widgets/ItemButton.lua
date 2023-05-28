@@ -42,6 +42,9 @@ local SplitContainerItem = C_Container and _G.C_Container.SplitContainerItem or 
 local ITEM_QUALITY_COMMON
 local ITEM_QUALITY_POOR
 local REAGENTBAG_CONTAINER = ( Enum.BagIndex and Enum.BagIndex.REAGENTBAG_CONTAINER ) or 5
+local experiments = addon:GetModule('Experiments')
+
+---@cast addon +AdiBags
 
 if addon.isRetail then
 	ITEM_QUALITY_COMMON = _G.Enum.ItemQuality.Common
@@ -298,16 +301,17 @@ end
 --------------------------------------------------------------------------------
 
 function buttonProto:CanUpdate()
-	--[[
-	if self.dirty then
+	if experiments:Enabled("Bag Lag Fix") then
+		if self.dirty then
+			return true
+		end
+		return false
+	else
+		if not self:IsVisible() then
+			return false
+		end
 		return true
 	end
-	return false
-	--]]
-	if not self:IsVisible() then
-		return false
-	end
-	return true
 end
 
 function buttonProto:FullUpdate()
