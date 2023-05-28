@@ -20,8 +20,9 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
 local addonName = ...
----@class AdiBags: AceAddon
+---@class AdiBags: ABEvent-1.0
 local addon = LibStub('AceAddon-3.0'):GetAddon(addonName)
+---@cast addon +ABEvent-1.0|ABBucket-1.0
 local L = addon.L
 
 --<GLOBALS

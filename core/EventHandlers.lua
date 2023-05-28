@@ -36,7 +36,7 @@ local CBH = LibStub('CallbackHandler-1.0')
 
 -- Event dispatching and messagging
 
----@type ABEvent-1.0
+---@class ABEvent-1.0
 local eventLib = LibStub:NewLibrary("ABEvent-1.0", 1)
 
 local events = CBH:New(eventLib, 'RegisterEvent', 'UnregisterEvent', 'UnregisterAllEvents')
@@ -60,7 +60,7 @@ function eventLib:OnEmbedDisable(target)
 end
 
 -- Event/message bucketing
-
+---@class ABBucket-1.0
 local bucketLib = LibStub:NewLibrary("ABBucket-1.0", 1)
 local buckets = {}
 
