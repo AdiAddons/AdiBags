@@ -31,10 +31,17 @@ local UIParent = _G.UIParent
 --------------------------------------------------------------------------------
 -- Basic anchor
 --------------------------------------------------------------------------------
+---@class anchorProto
+local anchorProto
 
-local anchorClass, anchorProto, anchorParentProto = addon:NewClass("Anchor", "Button", "ABEvent-1.0")
+local anchorClass
+local anchorParentProto
+anchorClass, anchorProto, anchorParentProto = addon:NewClass("Anchor", "Button", "ABEvent-1.0")
 
-function addon:CreateAnchorWidget(...) return anchorClass:Create(...) end
+---@return anchorProto
+function addon:CreateAnchorWidget(...)
+	return anchorClass:Create(...)
+end
 
 local function Corner_OnUpdate(self)
 	local x, y = self.anchor:GetCenter()

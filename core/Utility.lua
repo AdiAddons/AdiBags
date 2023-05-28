@@ -21,7 +21,9 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 
 -- Various utility functions
 
-local addonName, addon = ...
+local addonName = ...
+---@class AdiBags: AceAddon
+local addon = LibStub('AceAddon-3.0'):GetAddon(addonName)
 local L = addon.L
 
 --<GLOBALS

@@ -50,7 +50,14 @@ ITEM_SEARCHBAR_LIST = {
 	"VoidItemSearchBox",
 	"BankItemSearchBox",
 }
+-----------------------------------------
+--
+-- Globals Definition
+--
+-----------------------------------------
 
+_G.CloseWindows = function() end
+_G.InterfaceOptions_AddCategory = function(frame, addOn, position) end
 -----------------------------------------
 --
 -- Alias definitions
@@ -368,17 +375,15 @@ function LibSharedMedia.RegisterCallback(self, eventname, method, ...) end
 ---@class ABEvent-1.0
 local ABEvent = {}
 
----@param target string|table The target object to register the event on. If a string is passed, the event will be registered on the global object.
 ---@param eventname string The name of the event to register.
 ---@param method function The method to call when the event is fired.
 ---@param ... any Additional arguments to pass to the method when it is called.
-function ABEvent.RegisterMessage(target, eventname, method, ...) end
+function ABEvent.RegisterMessage(eventname, method, ...) end
 
----@param target string|table The target object to register the event on. If a string is passed, the event will be registered on the global object.
 ---@param eventname string The name of the event to register.
 ---@param method function|string The method to call when the event is fired.
 ---@param ... any Additional arguments to pass to the method when it is called.
-function ABEvent.RegisterEvent(target, eventname, method, ...) end
+function ABEvent.RegisterEvent(eventname, method, ...) end
 
 -- AdiDebug definitions
 
@@ -410,4 +415,7 @@ function SetTooltipMoney(frame, money, type, prefixText, suffixText) end
 ---@field ItemDatabase ItemDatabase
 ---@field db AceDBObject-3.0
 
----@alias AdiBags AdiBags-Proto|AceAddon
+---@class FilterModule
+---@field isFilter boolean
+---@field isBag boolean
+---@field bagName string
