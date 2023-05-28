@@ -348,6 +348,7 @@ function gridProto:GetLayout()
 end
 
 function gridProto:SetLayout(layout)
+  if layout == nil then return end
   self:DeferUpdate()
   for i in ipairs(layout) do
     for ci in ipairs(layout[i]) do

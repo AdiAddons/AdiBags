@@ -239,7 +239,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	toSortSection.Header:RegisterForClicks("AnyUp")
 	toSortSection.Header:SetScript("OnClick", function() self:FullUpdate() end)
 	local content
-	if addon.db.profile.gridLayout then
+	if addon.db.profile.gridLayout == 'grid' then
 		content = addon:CreateGridFrame((isBank and "Bank" or "Backpack"), self)
 		self:CreateLockButton()
 	else
@@ -646,7 +646,7 @@ function containerProto:OnLayout()
 		BAG_INSET * 2 + max(minWidth, self.Content:GetWidth()),
 		addon.TOP_PADDING + BAG_INSET + bottomHeight + self.Content:GetHeight() + self.ToSortSection:GetHeight() + ITEM_SPACING
 	)
-	if addon.db.profile.gridLayout then
+	if addon.db.profile.gridLayout == 'grid' then
 		addon.db.profile.gridData = addon.db.profile.gridData or {}
 		addon.db.profile.gridData[self.name] = self.Content:GetLayout()
 		self:Debug("Saving Grid Layout")
@@ -801,7 +801,7 @@ function containerProto:GetSection(name, category)
 	if not section then
 		section = addon:AcquireSection(self, name, category)
 		self.sections[key] = section
-		if addon.db.profile.gridLayout then
+		if addon.db.profile.gridLayout == 'grid' then
 			self.Content:AddCell(key, section)
 		end
 	end
@@ -1114,7 +1114,7 @@ local SECTION_SPACING = COLUMN_SPACING / 2
 
 ---@return number, number
 function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, sections)
-	if addon.db.profile.gridLayout then
+	if addon.db.profile.gridLayout == 'grid' then
 		self.Content:Update()
 		return 0, 0
 	end
@@ -1187,7 +1187,7 @@ function containerProto:FullUpdate()
 		self.forceLayout = true
 		return
 	end
-	if addon.db.profile.gridLayout then
+	if addon.db.profile.gridLayout == 'grid' then
 		self.Content:DeferUpdate()
 	end
 
@@ -1203,7 +1203,7 @@ function containerProto:FullUpdate()
 	local sections = {}
 
 	local maxSectionHeight = self:PrepareSections(columnWidth, sections)
-	if addon.db.profile.gridLayout and self.firstLoad then
+	if addon.db.profile.gridLayout == 'grid' and self.firstLoad then
 		addon.db.profile.gridData = addon.db.profile.gridData or {}
 		self.Content:SetLayout(addon.db.profile.gridData[self.name])
 	end
@@ -1214,14 +1214,14 @@ function containerProto:FullUpdate()
 		local selfScale = self:GetEffectiveScale()
 		local maxHeight = max(maxSectionHeight, settings.maxHeight * uiHeight * uiScale / selfScale - (ITEM_SIZE + ITEM_SPACING + HEADER_SIZE))
 		local contentWidth, contentHeight = self:LayoutSections(maxHeight, columnWidth, self.minWidth, sections)
-		if not addon.db.profile.gridLayout then
+		if addon.db.profile.gridLayout == 'classic' then
 			self.Content:SetSize(contentWidth, contentHeight)
 		end
 		--self.Content:SetSize(contentWidth, contentHeight)
 	end
 
 	self:ResizeToSortSection(true)
-	if addon.db.profile.gridLayout then
+	if addon.db.profile.gridLayout == 'grid' then
 		self.Content:DoUpdate()
 	end
 	self.firstLoad = false
