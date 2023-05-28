@@ -50,7 +50,14 @@ ITEM_SEARCHBAR_LIST = {
 	"VoidItemSearchBox",
 	"BankItemSearchBox",
 }
+-----------------------------------------
+--
+-- Globals Definition
+--
+-----------------------------------------
 
+_G.CloseWindows = function() end
+_G.InterfaceOptions_AddCategory = function(frame, addOn, position) end
 -----------------------------------------
 --
 -- Alias definitions
@@ -410,4 +417,3 @@ function SetTooltipMoney(frame, money, type, prefixText, suffixText) end
 ---@field ItemDatabase ItemDatabase
 ---@field db AceDBObject-3.0
 
----@alias AdiBags AdiBags-Proto|AceAddon
