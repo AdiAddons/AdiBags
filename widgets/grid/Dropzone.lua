@@ -82,6 +82,7 @@ end
 
 function dropzoneProto:OnRelease()
   self.name = nil
+  self:OnLeave()
   self:Hide()
   self:SetParent(UIParent)
   self:ClearAllPoints()
@@ -115,4 +116,5 @@ function dropzoneProto:SetHorizontal()
   self.marker:SetPoint("LEFT")
   self.marker:SetPoint("RIGHT")
   self.marker:SetHeight(3)
+  self:SetHeight(45)
 end

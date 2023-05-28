@@ -129,7 +129,7 @@ local function Cell_OnDragStart(self, button, cell)
   self.sideFrame:SetPoint("TOPLEFT", self:GetParent(), "TOPRIGHT", 5, -37)
   self.sideFrame:Show()
   self.sideFrame:OnHover()
-  print("drag start")
+ 
   self.cellToPosition[cell] = column:GetCellPosition(cell)
   column:RemoveCell(cell)
   column:Update()
