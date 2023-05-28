@@ -21,15 +21,13 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 
 
 local addonName, addon = ...
+
+---@class Experiments
 local Experiments = addon:NewModule('Experiments')
-local Opts = LibStub('AceDBOptions-3.0')
 
 ---@cast addon +AdiBags
----@cast Experiments +Experiments
 
----@diagnostic disable-next-line: duplicate-set-field
 function Experiments:OnInitialize()
---  addon.db.global.experiments or {}
   self:CreateAllExperiments()
 end
 
@@ -98,6 +96,3 @@ end
 ---@field Description string The description of the experiment.
 ---@field Percent integer The percentage of players that should be in the experiment.
 ---@field Enabled boolean Whether or not the experiment is enabled.
-
----@class Experiments
----@field experiments table<string, Experiment>
