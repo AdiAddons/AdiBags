@@ -19,7 +19,10 @@ You should have received a copy of the GNU General Public License
 along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local addonName, addon = ...
+local addonName = ...
+---@class AdiBags: AceAddon
+local addon = LibStub('AceAddon-3.0'):GetAddon(addonName)
+
 local L = addon.L
 
 --<GLOBALS
@@ -58,7 +61,7 @@ end
 --------------------------------------------------------------------------------
 -- Font prototype
 --------------------------------------------------------------------------------
-
+---@class AdiFont: Font
 local proto = CreateFont(addonName.."BaseFont")
 local meta = { __index = proto }
 
@@ -118,7 +121,7 @@ end
 --------------------------------------------------------------------------------
 -- Public methods
 --------------------------------------------------------------------------------
-
+---@return AdiFont|Font
 function addon:CreateFont(name, template, dbGetter)
 	local font = setmetatable(CreateFont(name), meta)
 	font:SetFontObject(template)

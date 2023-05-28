@@ -23,9 +23,10 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 -- functions or embedding is done. Do not add any functions or logic
 -- to this file that is not related to the loading of the addon.
 
-local addonName, addon = ...
+local addonName, root = ...
+---@class AdiBags: AceModule
+local addon = LibStub('AceAddon-3.0'):NewAddon(root, addonName, 'ABEvent-1.0', 'ABBucket-1.0', 'AceHook-3.0', 'AceConsole-3.0')
 
-LibStub('AceAddon-3.0'):NewAddon(addon, addonName, 'ABEvent-1.0', 'ABBucket-1.0', 'AceHook-3.0', 'AceConsole-3.0')
 --@debug@
 _G[addonName] = addon
 --@end-debug@
@@ -44,7 +45,7 @@ if AdiDebug then
 	AdiDebug:Embed(addon, addonName)
 else
 --@end-alpha@
-	function addon.Debug() end
+	function addon.Debug(self, ...) end
 --@alpha@
 end
 --@end-alpha@
