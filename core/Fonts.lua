@@ -61,7 +61,7 @@ end
 --------------------------------------------------------------------------------
 -- Font prototype
 --------------------------------------------------------------------------------
-
+---@class AdiFont: Font
 local proto = CreateFont(addonName.."BaseFont")
 local meta = { __index = proto }
 
@@ -121,7 +121,7 @@ end
 --------------------------------------------------------------------------------
 -- Public methods
 --------------------------------------------------------------------------------
-
+---@return AdiFont|Font
 function addon:CreateFont(name, template, dbGetter)
 	local font = setmetatable(CreateFont(name), meta)
 	font:SetFontObject(template)

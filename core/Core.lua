@@ -80,6 +80,7 @@ function addon:OnInitialize()
 	self:UpgradeProfile()
 
 	-- Create the bag font objects.
+	---@type table<string, table<string, AdiFont>>
 	self.fonts = {}
 	for _, name in ipairs(bagKeys) do
 		self.fonts[name] = {
@@ -159,6 +160,7 @@ function addon:OnEnable()
 	self:SetSortingOrder(self.db.profile.sortingOrder)
 
 	for name, module in self:IterateModules() do
+		---@cast module +AceModule|FilterModule
 		if module.isFilter then
 			module:SetEnabledState(self.db.profile.filters[module.moduleName])
 		elseif module.isBag then

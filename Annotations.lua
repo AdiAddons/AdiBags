@@ -414,3 +414,8 @@ function SetTooltipMoney(frame, money, type, prefixText, suffixText) end
 ---@class AdiBags-Proto
 ---@field ItemDatabase ItemDatabase
 ---@field db AceDBObject-3.0
+
+---@class FilterModule
+---@field isFilter boolean
+---@field isBag boolean
+---@field bagName string
