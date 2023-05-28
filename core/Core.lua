@@ -103,13 +103,6 @@ function addon:OnInitialize()
 		addon:OpenOptions(strsplit(' ', cmd or ""))
 	end, true)
 
-	-- Just a warning
-	--@alpha@
-	if geterrorhandler() == _G._ERRORMESSAGE and not GetCVarBool("scriptErrors") then
-		print('|cffffee00', L["Warning: You are using an alpha or beta version of AdiBags without displaying Lua errors. If anything goes wrong, AdiBags (or any other addon causing some error) will simply stop working for apparently no reason. Please either enable the display of Lua errors or install an error handler addon like BugSack or Swatter."], '|r')
-	end
-	--@end-alpha@
-
 	if addon.isRetail then
 		-- Disable the reagent bag tutorial
 		C_CVar.SetCVarBitfield("closedInfoFrames", LE_FRAME_TUTORIAL_EQUIP_REAGENT_BAG, true)
@@ -405,8 +398,6 @@ function addon:ConfigChanged(vars)
 				end
 			elseif strmatch(name, 'columnWidth') then
 				return self:SendMessage('AdiBags_LayoutChanged')
-			elseif strmatch(name, '^theme%.font') then
-				return self:UpdateFonts()
 			end
 		end
 	end
