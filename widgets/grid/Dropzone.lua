@@ -115,6 +115,6 @@ function dropzoneProto:SetHorizontal()
   self.marker:ClearAllPoints()
   self.marker:SetPoint("LEFT")
   self.marker:SetPoint("RIGHT")
-  self.marker:SetHeight(3)
+  self.marker:SetHeight(45)
   self:SetHeight(45)
 end
