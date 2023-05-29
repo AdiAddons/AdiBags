@@ -468,7 +468,6 @@ local function GetOptions()
 								set = function(info, gridLayout)
 									addon.db.profile.gridLayout = gridLayout
 									ReloadUI()
-									addon:SendMessage('AdiBags_GridLayoutChanged')
 								end,
 							},
 							columnWidth = {
