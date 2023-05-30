@@ -249,7 +249,6 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	toSortSection.UpdateHeaderScripts = function() end
 	toSortSection.Header:RegisterForClicks("AnyUp")
 	toSortSection.Header:SetScript("OnClick", function() self:FullUpdate() end)
-	local content
 
 	-- Define the view used for laying out content here.
 	if addon.db.profile.gridLayout == 'grid' then
@@ -258,12 +257,11 @@ function containerProto:OnCreate(name, isBank, bagObject)
 		self.view = classicView
 	end
 
-	content = self.view:CreateContentFrame(self, (isBank and "Bank" or "Backpack"))
+	self.Content = self.view:CreateContentFrame(self, (isBank and "Bank" or "Backpack"))
 	self.view:AddContainerButtons(self)
 
-	content:SetPoint("TOPLEFT", toSortSection, "BOTTOMLEFT", 0, -ITEM_SPACING)
-	self.Content = content
-	self:AddWidget(content)
+	self.Content:SetPoint("TOPLEFT", toSortSection, "BOTTOMLEFT", 0, -ITEM_SPACING)
+	self:AddWidget(self.Content)
 
 	self:UpdateSkin()
 	self.paused = true
@@ -275,17 +273,16 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	local ForceFullLayout = function() self.forceLayout = true end
 
 	-- Register persitent listeners
-	local name = self:GetName()
 	local RegisterMessage = LibStub('ABEvent-1.0').RegisterMessage
-	RegisterMessage(name, 'AdiBags_FiltersChanged', self.FullUpdate, self)
-	RegisterMessage(name, 'AdiBags_LayoutChanged', self.FullUpdate, self)
-	RegisterMessage(name, 'AdiBags_ConfigChanged', self.ConfigChanged, self)
-	RegisterMessage(name, 'AdiBags_ForceFullLayout', ForceFullLayout)
-	RegisterMessage(name, 'AdiBags_GridUpdate', self.OnLayout, self)
-	RegisterMessage(name, 'AdiBags_ThemeChanged', self.UpdateSkin, self)
-	RegisterMessage(name..'SectionFonts', 'AdiBags_ThemeChanged', self.UpdateSectionFonts, self)
+	RegisterMessage(self:GetName(), 'AdiBags_FiltersChanged', self.FullUpdate, self)
+	RegisterMessage(self:GetName(), 'AdiBags_LayoutChanged', self.FullUpdate, self)
+	RegisterMessage(self:GetName(), 'AdiBags_ConfigChanged', self.ConfigChanged, self)
+	RegisterMessage(self:GetName(), 'AdiBags_ForceFullLayout', ForceFullLayout)
+	RegisterMessage(self:GetName(), 'AdiBags_GridUpdate', self.OnLayout, self)
+	RegisterMessage(self:GetName(), 'AdiBags_ThemeChanged', self.UpdateSkin, self)
+	RegisterMessage(self:GetName()..'SectionFonts', 'AdiBags_ThemeChanged', self.UpdateSectionFonts, self)
 	if addon.isRetail then
-		LibStub('ABEvent-1.0').RegisterEvent(name, 'EQUIPMENT_SWAP_FINISHED', ForceFullLayout)
+		LibStub('ABEvent-1.0').RegisterEvent(self:GetName(), 'EQUIPMENT_SWAP_FINISHED', ForceFullLayout)
 
 		-- Force full layout on sort
 		if isBank then
