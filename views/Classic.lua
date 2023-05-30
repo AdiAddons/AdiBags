@@ -39,3 +39,9 @@ end
 
 function classicView:NewSection(key, section)
 end
+
+function classicView:SaveLayout(shouldWipe, content)
+end
+
+function classicView:LoadLayout(content)
+end

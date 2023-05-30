@@ -659,11 +659,9 @@ function containerProto:OnLayout()
 		BAG_INSET * 2 + max(minWidth, self.Content:GetWidth()),
 		addon.TOP_PADDING + BAG_INSET + bottomHeight + self.Content:GetHeight() + self.ToSortSection:GetHeight() + ITEM_SPACING
 	)
-	if addon.db.profile.gridLayout == 'grid' then
-		addon.db.profile.gridData = addon.db.profile.gridData or {}
-		addon.db.profile.gridData[self.name] = self.Content:GetLayout()
-		self:Debug("Saving Grid Layout")
-	end
+
+	self.view:SaveLayout(true, self.Content)
+
 end
 
 --------------------------------------------------------------------------------
@@ -1217,9 +1215,8 @@ function containerProto:FullUpdate()
 	local sections = {}
 
 	local maxSectionHeight = self:PrepareSections(columnWidth, sections)
-	if addon.db.profile.gridLayout == 'grid' and self.firstLoad then
-		addon.db.profile.gridData = addon.db.profile.gridData or {}
-		self.Content:SetLayout(addon.db.profile.gridData[self.name])
+	if self.firstLoad then
+		self.view:LoadLayout(self.Content)
 	end
 	if #sections == 0 then
 		self.Content:SetSize(self.minWidth, 0.5)

@@ -46,3 +46,11 @@ end
 
 function gridView:NewSection(key, section)
 end
+
+function gridView:SaveLayout(shouldWipe, content)
+  content:SaveLayout(shouldWipe)
+end
+
+function gridView:LoadLayout(content)
+  content:LoadLayout()
+end

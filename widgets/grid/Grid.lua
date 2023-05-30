@@ -57,6 +57,9 @@ function gridProto:OnCreate(name, parent)
   self.cellToPosition = {}
   self.cellToKey = {}
   self.keyToCell = {}
+  addon.db.profile.gridData = addon.db.profile.gridData or {}
+  addon.db.profile.gridData[name] = addon.db.profile.gridData[name] or {}
+  self.layout = addon.db.profile.gridData[name]
 
   self.cellMoving = {}
   self.minimumColumnWidth = 0
@@ -189,6 +192,7 @@ local function Cell_OnDragStop(self, button, cell)
     for _, column in ipairs(self.columns) do
       column:HideDrops()
     end
+    self:SaveLayout(true)
     self:DoUpdate()
     return
   end
@@ -272,6 +276,7 @@ function gridProto:AddCell(key, frame)
   self.cellToColumn[cell] = column
   self.cellToKey[cell] = key
   self.keyToCell[key] = cell
+  self:SaveLayout(false)
   self:Update()
 end
 
@@ -356,23 +361,24 @@ function gridProto:ToggleCovers()
   end
 end
 
-function gridProto:GetLayout()
-  local layout = {}
+function gridProto:SaveLayout(shouldWipe)
+  if shouldWipe then
+    wipe(self.layout)
+  end
   for i, column in ipairs(self.columns) do
-    layout[i] = {}
+    self.layout[i] = {}
     for ci, cell in ipairs(column.cells) do
-      layout[i][ci] = self.cellToKey[cell]
+      self.layout[i][ci] = self.cellToKey[cell]
     end
   end
-  return layout
 end
 
-function gridProto:SetLayout(layout)
-  if layout == nil then return end
+function gridProto:LoadLayout(...)
+  if self.layout == nil then return end
   self:DeferUpdate()
-  for i in ipairs(layout) do
-    for ci in ipairs(layout[i]) do
-      local key = layout[i][ci]
+  for i in ipairs(self.layout) do
+    for ci in ipairs(self.layout[i]) do
+      local key = self.layout[i][ci]
       local cell = self.keyToCell[key]
       if cell then
         self:Debug("Putting Key in Column and pos", key, i, ci)
