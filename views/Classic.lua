@@ -28,3 +28,14 @@ local L = addon.L
 
 ---@class ClassicView: AceModule
 local classicView = addon:NewModule('ClassicView')
+
+---@return Frame
+function classicView:CreateContentFrame(parent, ...)
+  return CreateFrame("Frame", nil, parent)
+end
+
+function classicView:AddContainerButtons(container)
+end
+
+function classicView:NewSection(key, section)
+end

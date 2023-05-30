@@ -94,8 +94,12 @@ end
 --------------------------------------------------------------------------------
 -- Bag creation
 --------------------------------------------------------------------------------
+local containerClass
+---@class Container
+local containerProto
+local containerParentProto
 
-local containerClass, containerProto, containerParentProto = addon:NewClass("Container", "LayeredRegion", "ABEvent-1.0")
+containerClass, containerProto, containerParentProto = addon:NewClass("Container", "LayeredRegion", "ABEvent-1.0")
 
 function addon:CreateContainerFrame(...) return containerClass:Create(...) end
 
@@ -246,14 +250,17 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	toSortSection.Header:RegisterForClicks("AnyUp")
 	toSortSection.Header:SetScript("OnClick", function() self:FullUpdate() end)
 	local content
+
+	-- Define the view used for laying out content here.
 	if addon.db.profile.gridLayout == 'grid' then
 		self.view = gridView
-		content = addon:CreateGridFrame((isBank and "Bank" or "Backpack"), self)
-		self:CreateLockButton()
 	else
 		self.view = classicView
-		content = CreateFrame("Frame", nil, self)
 	end
+
+	content = self.view:CreateContentFrame(self, (isBank and "Bank" or "Backpack"))
+	self.view:AddContainerButtons(self)
+
 	content:SetPoint("TOPLEFT", toSortSection, "BOTTOMLEFT", 0, -ITEM_SPACING)
 	self.Content = content
 	self:AddWidget(content)

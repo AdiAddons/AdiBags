@@ -26,3 +26,23 @@ local L = addon.L
 
 ---@class GridView: AceModule
 local gridView = addon:NewModule('GridView')
+
+---@return Grid
+function gridView:CreateContentFrame(parent, key)
+  return addon:CreateGridFrame(key, parent)
+end
+
+---@param container Container
+function gridView:AddContainerButtons(container)
+  container:CreateModuleButton(
+		"L",
+		20,
+		function()
+			container.Content:ToggleCovers()
+		end,
+		L["Lock/Unlock sections so they can be moved."]
+	)
+end
+
+function gridView:NewSection(key, section)
+end
