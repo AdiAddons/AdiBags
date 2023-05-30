@@ -24,6 +24,9 @@ local addonName = ...
 local addon = LibStub('AceAddon-3.0'):GetAddon(addonName)
 local L = addon.L
 
+local classicView = addon:GetModule('ClassicView')
+local gridView = addon:GetModule('GridView')
+
 --<GLOBALS
 local _G = _G
 local assert = _G.assert
@@ -118,6 +121,8 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.isBank = isBank
 	self.isReagentBank = false
 	self.firstLoad = true
+	---@type ClassicView|GridView|AceModule
+	self.view = nil
 
 	self.buttons = {}
 	---@type {[number]: {[number]: ItemInfo}}
@@ -242,9 +247,11 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	toSortSection.Header:SetScript("OnClick", function() self:FullUpdate() end)
 	local content
 	if addon.db.profile.gridLayout == 'grid' then
+		self.view = gridView
 		content = addon:CreateGridFrame((isBank and "Bank" or "Backpack"), self)
 		self:CreateLockButton()
 	else
+		self.view = classicView
 		content = CreateFrame("Frame", nil, self)
 	end
 	content:SetPoint("TOPLEFT", toSortSection, "BOTTOMLEFT", 0, -ITEM_SPACING)

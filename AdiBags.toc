@@ -60,6 +60,9 @@ core\Filters.lua
 core\Layout.lua
 core\OO.lua
 
+views\Classic.lua
+views\Grid.lua
+
 widgets\LayeredRegion.lua
 widgets\grid\Dropzone.lua
 widgets\grid\Cell.lua
