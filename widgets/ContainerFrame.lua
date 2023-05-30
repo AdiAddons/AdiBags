@@ -812,9 +812,7 @@ function containerProto:GetSection(name, category)
 	if not section then
 		section = addon:AcquireSection(self, name, category)
 		self.sections[key] = section
-		if addon.db.profile.gridLayout == 'grid' then
-			self.Content:AddCell(key, section)
-		end
+		self.view:NewSection(key, section, self.Content)
 	end
 	return section
 end

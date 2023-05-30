@@ -44,7 +44,8 @@ function gridView:AddContainerButtons(container)
 	)
 end
 
-function gridView:NewSection(key, section)
+function gridView:NewSection(key, section, content)
+  content:AddCell(key, section)
 end
 
 function gridView:SaveLayout(shouldWipe, content)

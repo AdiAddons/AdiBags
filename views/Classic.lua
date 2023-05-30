@@ -37,7 +37,7 @@ end
 function classicView:AddContainerButtons(container)
 end
 
-function classicView:NewSection(key, section)
+function classicView:NewSection(key, section, content)
 end
 
 function classicView:SaveLayout(shouldWipe, content)
