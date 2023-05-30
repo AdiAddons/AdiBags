@@ -192,7 +192,6 @@ local function Cell_OnDragStop(self, button, cell)
     for _, column in ipairs(self.columns) do
       column:HideDrops()
     end
-    self:SaveLayout(true)
     self:DoUpdate()
     return
   end
@@ -226,6 +225,7 @@ local function Cell_OnDragStop(self, button, cell)
       self:Debug("Deleting Column", currentColumn)
       self:DeleteColumn(currentColumn)
     end
+    self:SaveLayout(true)
     self:Update()
     return
   end
@@ -236,6 +236,7 @@ local function Cell_OnDragStop(self, button, cell)
       self:Debug("Dropping Cell in Column", column)
       self.cellToColumn[cell] = column
       column:AddCell(cell)
+      self:SaveLayout(true)
       self:Update()
       self:Debug("Mouse Over Frame", column)
       if #currentColumn.cells == 0 then
@@ -248,6 +249,7 @@ local function Cell_OnDragStop(self, button, cell)
 
   -- Cell did not drag onto a column, restore it's position.
   self.cellToColumn[cell]:AddCell(cell, self.cellToPosition[cell])
+  self:SaveLayout(true)
   self:Update()
 end
 
@@ -368,6 +370,7 @@ function gridProto:SaveLayout(shouldWipe)
   for i, column in ipairs(self.columns) do
     self.layout[i] = {}
     for ci, cell in ipairs(column.cells) do
+      self:Debug("Saving layout", i, cell.key)
       self.layout[i][ci] = self.cellToKey[cell]
     end
   end
@@ -380,6 +383,7 @@ function gridProto:LoadLayout(...)
     for ci in ipairs(self.layout[i]) do
       local key = self.layout[i][ci]
       local cell = self.keyToCell[key]
+      self:Debug("Loading layout", i, key, cell)
       if cell then
         self:Debug("Putting Key in Column and pos", key, i, ci)
         -- TODO(lobato): Put it in the right place?
