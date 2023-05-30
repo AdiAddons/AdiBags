@@ -1191,6 +1191,7 @@ function containerProto:FullUpdate()
 	end
 	if addon.db.profile.gridLayout == 'grid' then
 		self.Content:DeferUpdate()
+		--self.Content:Wipe()
 	end
 
 	self.forceLayout = false

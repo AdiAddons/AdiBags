@@ -117,6 +117,14 @@ function columnProto:RemoveCell(cell)
   end
 end
 
+-- Wipe will delete all cells from this column.
+function columnProto:Wipe()
+  for _, cell in ipairs(self.cells) do
+   cell:Release()
+  end
+  wipe(self.cells)
+end
+
 -- Update will fully redraw a column and snap all cells into the correct
 -- position.
 -- TODO(lobato): Add animation for cell movement.
@@ -133,11 +141,13 @@ function columnProto:Update()
     cell.compact = false
     cell:ClearCompact()
     if cellPos == 1 then
+      cell.frame:ClearAllPoints()
       cell.frame:SetPoint("TOPLEFT", self)
       previousRow = cell.frame.count
       h = h + cell.frame:GetHeight()
     elseif addon.db.profile.compactLayout and (cell.frame.count + previousRow) <= columnWidth then
         self:Debug("Sorting Section with button count, width", cell.key, cell.frame.count, columnWidth)
+        cell.frame:ClearAllPoints()
         cell.frame:SetPoint("TOPLEFT", self.cells[cellPos-1].frame, "TOPRIGHT", 4, 0)
         cell.compact = true
         cell:SetCompact()
@@ -152,6 +162,7 @@ function columnProto:Update()
           -- the drop zone for this cell all the way across the column.
         end
     else
+        cell.frame:ClearAllPoints()
         cell.frame:SetPoint("TOPLEFT", self.cells[cellPos-cellOffset], "BOTTOMLEFT", 0, -4)
         previousRow = cell.frame.count
         cellOffset = 1

@@ -116,6 +116,7 @@ function gridProto:DeleteColumn(column)
       break
     end
   end
+  column:Release()
 end
 
 -- Cell_OnDragStart is called when a cell is dragged.
@@ -251,6 +252,7 @@ end
 -- AddCell will take the given frame and add it as a cell in
 -- the grid.
 function gridProto:AddCell(key, frame)
+  self:Debug("Adding cell to grid", key, frame)
   assert(key and key ~= "", "Key must be a non-empty string.")
   assert(frame and frame.SetMovable, "Invalid cell added to frame.")
   local column
@@ -270,6 +272,20 @@ function gridProto:AddCell(key, frame)
   self.cellToColumn[cell] = column
   self.cellToKey[cell] = key
   self.keyToCell[key] = cell
+  self:Update()
+end
+
+-- Wipe will delete all cells from the grid.
+function gridProto:Wipe()
+  self:Debug("Grid Wipe")
+  for _, column in ipairs(self.columns) do
+    column:Wipe()
+    self:DeleteColumn(column)
+  end
+  self.columns = {}
+  self.cellToColumn = {}
+  self.cellToKey = {}
+  self.keyToCell = {}
   self:Update()
 end
 
