@@ -63,7 +63,7 @@ function bagProto:OnEnable()
 	if self.PostEnable then
 		self:PostEnable()
 	end
-	self:Debug('Enabled')
+	self:Debug('BagProto Enabled')
 	if open then
 		self:Open()
 	end
@@ -82,7 +82,7 @@ function bagProto:OnDisable()
 	if self.PostDisable then
 		self:PostDisable()
 	end
-	self:Debug('Disabled')
+	self:Debug('BagProto Disabled')
 end
 
 function bagProto:Open()

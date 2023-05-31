@@ -177,13 +177,13 @@ function addon:OnEnable()
 
 	self:UpdatePositionMode()
 
-	self:Debug('Enabled')
+	self:Debug('Addon Enabled')
 end
 
 function addon:OnDisable()
 	self.anchor:Hide()
 	self:CloseAllBags()
-	self:Debug('Disabled')
+	self:Debug('Addon Disabled')
 end
 
 function addon:EnableHooks()
