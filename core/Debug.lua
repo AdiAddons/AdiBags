@@ -186,10 +186,12 @@ logformats.adi.statusText = {
 			"Sort by Verbosity",
 			"Sort by Message",
 		}
-logformats.adi.GetSTData = DLAPI.IsFormatRegistered("default").GetSTData
 do
-	DLAPI.RegisterFormat("adi", logformats.adi)
-	DLAPI.SetFormat("AdiBags", "adi")
+  if DLAPI then
+    logformats.adi.GetSTData = DLAPI.IsFormatRegistered("default").GetSTData
+    DLAPI.RegisterFormat("adi", logformats.adi)
+    DLAPI.SetFormat("AdiBags", "adi")
+  end
 end
 
 _G.AdiDebug = AdiDebug
