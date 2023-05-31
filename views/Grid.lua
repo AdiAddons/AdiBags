@@ -55,3 +55,8 @@ end
 function gridView:LoadLayout(content)
   content:LoadLayout()
 end
+
+function gridView:DoLayout(maxHeight, columnWidth, minWidth, sections, content)
+  content.Update()
+  return 0, 0
+end
