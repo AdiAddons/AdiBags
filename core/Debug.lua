@@ -167,7 +167,14 @@ function AdiDebug:Embed(target, streamId)
 		if s.class then
 			id = s.class.name
 		end
-		DLAPI.DebugLog("AdiBags", format("%s~%s", id, Format(...)))
+		local lines = {string.match(debugstack(2), '^%[string %"%@Interface%/AddOns%/AdiBags%/(.-)%"%]:(%d-): in function [`<](.-)[\'>]')}
+		-- Lines contains:
+		-- 1: File name
+		-- 2: Line number
+		-- 3: Function name
+		--TODO(lobato): Add location information as a column.
+		local location = format("%s:%d>", lines[1], lines[2])
+		DLAPI.DebugLog("AdiBags", format("%s~%-50s %s", id, location, Format(...)))
 	end
 	return target.Debug
 end
