@@ -120,7 +120,6 @@ function classicView:DoLayout(maxHeight, columnWidth, minWidth, sections, conten
 	local numColumns = max(floor(minWidth / (columnPixelWidth - COLUMN_SPACING)), ceil(totalHeight / maxHeight))
 	local maxColumnHeight = max(ceil(totalHeight / numColumns), maxSectionHeight)
 
-	local content = content
 	local row, x, contentHeight = 1, 0, 0
 	while row <= numRows do
 		local yOffset, section = heights[row], rows[row]

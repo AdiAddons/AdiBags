@@ -28,7 +28,7 @@
 ## X-License: GPL v3
 ## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0, Scrap, BrainDead, SyLevel
 #@alpha@
-## OptionalDeps: AdiDebug, BugSack, Swatter
+## OptionalDeps: _DebugLog, BugSack, Swatter
 #@end-alpha@
 
 #@no-lib-strip@
@@ -44,6 +44,7 @@ libs\LibSharedMedia-3.0\lib.xml
 libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
 
 core\EventHandlers.lua
+core\Debug.lua
 core\Boot.lua
 
 Localization.lua

@@ -1106,6 +1106,7 @@ function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, section
 end
 
 function containerProto:FullUpdate()
+	self:Debug("FULL UPDATE", debugstack())
 	self:Debug('FullUpdate', self:CanUpdate(), self.minWidth)
 	if not self:CanUpdate() or not self.minWidth then
 		self.forceLayout = true
