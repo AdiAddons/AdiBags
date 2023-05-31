@@ -63,7 +63,7 @@ function bagProto:OnEnable()
 	if self.PostEnable then
 		self:PostEnable()
 	end
-	self:Debug('BagProto Enabled')
+	self:Debug('Enabled', self.bagName)
 	if open then
 		self:Open()
 	end
