@@ -321,7 +321,7 @@ function buttonProto:FullUpdate()
 	self.hasItem = not not self.itemId
 	self.texture = addon:GetContainerItemTexture(bag, slot)
 	self.dirty = true
-	addon:Debug("Full Update", self.itemLink)
+	self:Debug("Full Update", self.itemLink)
 	-- TODO(lobato): Test if this is still needed
 	if self.bag == REAGENTBAG_CONTAINER then
 		self.bagFamily = 2048
@@ -355,7 +355,7 @@ end
 function buttonProto:Update()
 	if not self:CanUpdate() then return end
 	self.dirty = false
-	addon:Debug("Update", self.itemLink, self.dirty)
+	self:Debug("Update", self.itemLink, self.dirty)
 	self:UpdateIcon()
 	local tag = (not self.itemId or addon.db.profile.showBagType) and addon:GetFamilyTag(self.bagFamily)
 	if tag then
