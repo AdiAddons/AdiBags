@@ -199,11 +199,11 @@ function AdiDebug.GetSTData(a, flex, filter)
 
 	for _, row in pairs(logs) do
 		local data = {}
-		data[2] = row.t 			-- Time
-		data[3] = nil   			-- Category
-		data[4] = nil   			-- File
-		data[5] = 0 					-- Line
-		data[6] = nil 				-- Event
+		data[2] = row.t				-- Time
+		data[3] = nil					-- Category
+		data[4] = nil					-- File
+		data[5] = 0						-- Line
+		data[6] = nil					-- Event
 		data[7] = nil					-- Event Trigger
 		data[8] = row.m or "" -- Message
 
