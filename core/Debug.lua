@@ -180,8 +180,7 @@ function AdiDebug:Embed(target, streamId)
 		-- 2: Line number
 		-- 3: Function name
 		--TODO(lobato): Add location information as a column.
-		local location = format("%s:%d [%s]>", lines[1], lines[2], CBH.currentEvent[1] or "")
-		DLAPI.DebugLog("AdiBags", format("%s~%s~%d~%s~%s", id, lines[1], lines[2], CBH.currentEvent[1] or "", Format(...)))
+		DLAPI.DebugLog("AdiBags", format("%s~%s~%d~%s~%s", id, lines[1], lines[2], CBH.currentEvent[1] or " ", Format(...)))
 	end
 	return target.Debug
 end
@@ -195,10 +194,7 @@ function AdiDebug.GetSTData(a, flex, filter)
 	end
 
 	local k = 1
-	-- category
-	-- file
-	-- line
-	-- event
+
 	for _, row in pairs(logs) do
 		local data = {}
 		data[2] = row.t 			-- Time
@@ -246,6 +242,31 @@ logformats.adi.statusText = {
 			"Sort by Verbosity",
 			"Sort by Message",
 		}
+
+-- Setup onEnter and onLeave functions for each row to show more debug info.
+function dl.GUI.debugLog_OnEnter.adi(btn, data)
+	GameTooltip:SetOwner(btn, "ANCHOR_TOPLEFT")
+	GameTooltip:ClearLines()
+	local category = data.data[3][1]
+	local file = data.data[4][1]
+	local line = data.data[5][1]
+	local event = data.data[6][1]
+	local message = data.data[7][1]
+
+	GameTooltip:AddDoubleLine("Category", category)
+	GameTooltip:AddDoubleLine("File", file)
+	GameTooltip:AddDoubleLine("Line", line)
+	GameTooltip:AddDoubleLine("Event", event)
+	GameTooltip:AddLine("Message:")
+	GameTooltip:AddLine(message, 1, 1, 1, false)
+	GameTooltip:Show()
+end
+
+function dl.GUI.debugLog_OnLeave.adi(btn, data)
+	GameTooltip:Hide()
+	GameTooltip:ClearLines()
+end
+
 do
   if DLAPI then
     --logformats.adi.GetSTData = DLAPI.IsFormatRegistered("default").GetSTData
