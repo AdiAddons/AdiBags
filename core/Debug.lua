@@ -275,6 +275,7 @@ end
 do
   if DLAPI then
     --logformats.adi.GetSTData = DLAPI.IsFormatRegistered("default").GetSTData
+    CBH:EnableDebugging()
 		logformats.adi.GetSTData = AdiDebug.GetSTData
     DLAPI.RegisterFormat("adi", logformats.adi)
     DLAPI.SetFormat("AdiBags", "adi")
