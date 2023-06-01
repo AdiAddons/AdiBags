@@ -5,6 +5,8 @@ look at LayoutSections and figure out where it's called in containerframe
 
 figure out free bag space position saving bug in grid view
 
+fork CallbackHandler into our own module
+
 ## flow
 conceptually, the update flow should be:
 

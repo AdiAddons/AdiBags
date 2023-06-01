@@ -259,8 +259,7 @@ function dl.GUI.debugLog_OnEnter.adi(btn, data)
 	local message = data.data[7][1]
 
 	GameTooltip:AddDoubleLine("Category", category)
-	GameTooltip:AddDoubleLine("File", file)
-	GameTooltip:AddDoubleLine("Line", line)
+	GameTooltip:AddDoubleLine("Line", format("%s:%d", file or " ", line or 0))
 	GameTooltip:AddDoubleLine("Event", event)
 	GameTooltip:AddDoubleLine("Event Trigger", eventTrigger)
 	GameTooltip:AddLine("Message:")
