@@ -33,6 +33,9 @@ local wipe = _G.wipe
 local xpcall = _G.xpcall
 
 local CBH = LibStub('CallbackHandler-1.0')
+--@alpha@
+CBH = LibStub('CallbackHandler-1.0-dev')
+--@end-alpha@
 
 -- Event dispatching and messagging
 
@@ -48,7 +51,6 @@ function events:OnUnused(_, event) return eventFrame:UnregisterEvent(event) end
 
 local messages = CBH:New(eventLib, 'RegisterMessage', 'UnregisterMessage', 'UnregisterAllMessages')
 eventLib.SendMessage = function(...)
-	eventLib:Debug("fired event", ...)
 	messages.Fire(...)
 end
 

@@ -21,6 +21,13 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 
 local addonName = ...
 
+local CBH = LibStub('CallbackHandler-1.0')
+--@alpha@
+CBH = LibStub('CallbackHandler-1.0-dev')
+--@end-alpha@
+
+local dl = LibStub("AceAddon-3.0"):GetAddon("_DebugLog")
+
 ---@class AdiDebug
 local AdiDebug = {}
 
@@ -173,19 +180,65 @@ function AdiDebug:Embed(target, streamId)
 		-- 2: Line number
 		-- 3: Function name
 		--TODO(lobato): Add location information as a column.
-		local location = format("%s:%d>", lines[1], lines[2])
-		DLAPI.DebugLog("AdiBags", format("%s~%-50s %s", id, location, Format(...)))
+		local location = format("%s:%d [%s]>", lines[1], lines[2], CBH.currentEvent[1] or "")
+		DLAPI.DebugLog("AdiBags", format("%s~%s~%d~%s~%s", id, lines[1], lines[2], CBH.currentEvent[1] or "", Format(...)))
 	end
 	return target.Debug
+end
+
+function AdiDebug.GetSTData(a, flex, filter)
+	local content = {}
+	dl.debuglog = dl.debuglog or {}
+	local logs = dl.debuglog[a]
+	if not logs then
+		return content, flex
+	end
+
+	local k = 1
+	-- category
+	-- file
+	-- line
+	-- event
+	for _, row in pairs(logs) do
+		local data = {}
+		data[2] = row.t 			-- Time
+		data[3] = nil   			-- Category
+		data[4] = nil   			-- File
+		data[5] = 0 					-- Line
+		data[6] = nil 				-- Event
+		data[7] = row.m or "" -- Message
+
+		local flag = strmatch(data[7], "^([^~]+)~")
+		local counter = 3
+		while flag do
+			data[7] = strmatch(data[7], "^[^~]+~(.*)$")
+			data[counter] = flag
+			counter = counter + 1
+			flag = strmatch(data[7], "^([^~]+)~")
+		end
+		local en = {}
+		en.data = {}
+		en.data[1] = {k, k}
+		en.data[2] = {DLAPI.TimeToString(data[2]), data[2]}
+		en.data[3] = {data[3], data[3] or ""}
+		en.data[4] = {data[4], data[4] or ""}
+		en.data[5] = {data[5], data[5] or ""}
+		en.data[6] = {data[6], data[6] or ""}
+		en.data[7] = {data[7], data[7]}
+		table.insert(content, en)
+		k = k + 1
+	end
+
+	return content, flex
 end
 
 -- Custom Log Format.
 
 local logformats = {}
 logformats.adi = {}
-logformats.adi.colNames = { "ID", "Time", "Cat", "Vrb", "Message", }
-logformats.adi.colWidth = { 0.05, 0.12, 0.15, 0.03, 1 - 0.05 - 0.12 - 0.15 - 0.03, }
-logformats.adi.colFlex = { "flex", "flex", "drop", "drop", "search", }
+logformats.adi.colNames = { "ID", "Time", "Cat", "File", "Line", "Event", "Message", }
+logformats.adi.colWidth = { 0.05, 0.12, 0.15, 0.20, 0.05, 0.20, 1 - 0.05 - 0.12 - 0.15 - 0.20 - 0.05 - 0.20 - 0.03, }
+logformats.adi.colFlex = { "flex", "flex", "drop", "drop", "flex", "drop", "search", }
 logformats.adi.statusText = {
 			"Sort by ID",
 			"Sort by Time",
@@ -195,7 +248,8 @@ logformats.adi.statusText = {
 		}
 do
   if DLAPI then
-    logformats.adi.GetSTData = DLAPI.IsFormatRegistered("default").GetSTData
+    --logformats.adi.GetSTData = DLAPI.IsFormatRegistered("default").GetSTData
+		logformats.adi.GetSTData = AdiDebug.GetSTData
     DLAPI.RegisterFormat("adi", logformats.adi)
     DLAPI.SetFormat("AdiBags", "adi")
   end
