@@ -179,8 +179,10 @@ function AdiDebug:Embed(target, streamId)
 		-- 1: File name
 		-- 2: Line number
 		-- 3: Function name
+		local event = {string.match(CBH.currentStack, '^%[string %"%@Interface%/AddOns%/AdiBags%/(.-)%"%]:(%d-): in function [`<](.-)[\'>]')}
+		local eventTrigger = format("%s:%s", event[1] or " ", event[2] or " ")
 		--TODO(lobato): Add location information as a column.
-		DLAPI.DebugLog("AdiBags", format("%s~%s~%d~%s~%s", id, lines[1], lines[2], CBH.currentEvent[1] or " ", Format(...)))
+		DLAPI.DebugLog("AdiBags", format("%s~%s~%d~%s~%s~%s", id, lines[1], lines[2], CBH.currentEvent[1] or " ", eventTrigger, Format(...)))
 	end
 	return target.Debug
 end
@@ -202,15 +204,16 @@ function AdiDebug.GetSTData(a, flex, filter)
 		data[4] = nil   			-- File
 		data[5] = 0 					-- Line
 		data[6] = nil 				-- Event
-		data[7] = row.m or "" -- Message
+		data[7] = nil					-- Event Trigger
+		data[8] = row.m or "" -- Message
 
-		local flag = strmatch(data[7], "^([^~]+)~")
+		local flag = strmatch(data[8], "^([^~]+)~")
 		local counter = 3
 		while flag do
-			data[7] = strmatch(data[7], "^[^~]+~(.*)$")
+			data[8] = strmatch(data[8], "^[^~]+~(.*)$")
 			data[counter] = flag
 			counter = counter + 1
-			flag = strmatch(data[7], "^([^~]+)~")
+			flag = strmatch(data[8], "^([^~]+)~")
 		end
 		local en = {}
 		en.data = {}
@@ -220,7 +223,8 @@ function AdiDebug.GetSTData(a, flex, filter)
 		en.data[4] = {data[4], data[4] or ""}
 		en.data[5] = {data[5], data[5] or ""}
 		en.data[6] = {data[6], data[6] or ""}
-		en.data[7] = {data[7], data[7]}
+		en.data[7] = {data[8], data[8]}
+		en.data[8] = {data[7], data[7]}
 		table.insert(content, en)
 		k = k + 1
 	end
@@ -251,12 +255,14 @@ function dl.GUI.debugLog_OnEnter.adi(btn, data)
 	local file = data.data[4][1]
 	local line = data.data[5][1]
 	local event = data.data[6][1]
+	local eventTrigger = data.data[8][1]
 	local message = data.data[7][1]
 
 	GameTooltip:AddDoubleLine("Category", category)
 	GameTooltip:AddDoubleLine("File", file)
 	GameTooltip:AddDoubleLine("Line", line)
 	GameTooltip:AddDoubleLine("Event", event)
+	GameTooltip:AddDoubleLine("Event Trigger", eventTrigger)
 	GameTooltip:AddLine("Message:")
 	GameTooltip:AddLine(message, 1, 1, 1, false)
 	GameTooltip:Show()
