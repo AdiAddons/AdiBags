@@ -38,6 +38,7 @@ local CBH = LibStub('CallbackHandler-1.0')
 
 ---@class ABEvent-1.0
 local eventLib = LibStub:NewLibrary("ABEvent-1.0", 1)
+AdiDebug:Embed(eventLib, "Event")
 
 local events = CBH:New(eventLib, 'RegisterEvent', 'UnregisterEvent', 'UnregisterAllEvents')
 local eventFrame = CreateFrame("Frame")
@@ -46,7 +47,10 @@ function events:OnUsed(_, event) return eventFrame:RegisterEvent(event) end
 function events:OnUnused(_, event) return eventFrame:UnregisterEvent(event) end
 
 local messages = CBH:New(eventLib, 'RegisterMessage', 'UnregisterMessage', 'UnregisterAllMessages')
-eventLib.SendMessage = messages.Fire
+eventLib.SendMessage = function(...)
+	eventLib:Debug("fired event", ...)
+	messages.Fire(...)
+end
 
 function eventLib:Embed(target)
 	for _, name in ipairs{'RegisterEvent', 'UnregisterEvent', 'UnregisterAllEvents', 'RegisterMessage', 'UnregisterMessage', 'UnregisterAllMessages', 'SendMessage'} do
