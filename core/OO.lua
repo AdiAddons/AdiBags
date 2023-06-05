@@ -55,12 +55,17 @@ end
 
 local function Class_Create(class, ...)
 	class.serial = class.serial + 1
-	local self = CreateFrame(class.frameType, addonName..class.name..class.serial, defaultParent, class.frameTemplate)
+  local self
+  if class.frameType then
+	  self = CreateFrame(class.frameType, addonName..class.name..class.serial, defaultParent, class.frameTemplate)
+  else
+    self = {}
+  end
 	self.GetItemContextMatchResult = nil -- We're not using the ContainerFrameItemButtonMixin
-	self:SetParent(nil) -- Get rid of the parent once the OnLoad handler has been called
+	safecall(self, "SetParent")
 	setmetatable(self, class.metatable)
-	self:ClearAllPoints()
-	self:Hide()
+	safecall(self, "ClearAllPoints")
+	safecall(self, "Hide")
 	safecall(self, "OnCreate", ...)
 	return self
 end
@@ -178,9 +183,9 @@ end
 
 function poolProto:Release(object)
 	assert(object.acquired, "Trying to release an object that wasn't acquired")
-	object:Hide()
-	object:ClearAllPoints()
-	object:SetParent(nil)
+  safecall(object, "Hide")
+	safecall(object, "ClearAllPoints")
+  safecall(object, "SetParent")
 	safecall(object, "OnRelease")
 	for name, mixin in pairs(self.class.mixins) do
 		safecall(mixin, "OnEmbedDisable", object)

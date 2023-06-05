@@ -254,7 +254,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	if addon.db.profile.gridLayout == 'grid' then
 		self.view = gridView
 	else
-		self.view = classicView
+		self.view = classicView:Acquire()
 	end
 
 	self.Content = self.view:CreateContentFrame(self, (isBank and "Bank" or "Backpack"))

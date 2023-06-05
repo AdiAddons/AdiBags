@@ -26,8 +26,16 @@ local addonName = ...
 local addon = LibStub('AceAddon-3.0'):GetAddon(addonName)
 local L = addon.L
 
----@class ClassicView: AceModule
+local class
+---@class ClassicView
+local prototype
+class, prototype = addon:NewClass('ClassicView')
+
+local pool = addon:CreatePool(class)
+
+---@class AceModule
 local classicView = addon:NewModule('ClassicView')
+classicView.Acquire = function(self, ...) return pool:Acquire(...) end
 
 -- Local Variables
 local ITEM_SIZE = addon.ITEM_SIZE
@@ -57,23 +65,23 @@ end
 -- End local functions
 
 ---@return Frame
-function classicView:CreateContentFrame(parent, ...)
+function prototype:CreateContentFrame(parent, ...)
   return CreateFrame("Frame", nil, parent)
 end
 
-function classicView:AddContainerButtons(container)
+function prototype:AddContainerButtons(container)
 end
 
-function classicView:NewSection(key, section, content)
+function prototype:NewSection(key, section, content)
 end
 
-function classicView:SaveLayout(shouldWipe, content)
+function prototype:SaveLayout(shouldWipe, content)
 end
 
-function classicView:LoadLayout(content)
+function prototype:LoadLayout(content)
 end
 
-function classicView:DoLayout(maxHeight, columnWidth, minWidth, sections, content)
+function prototype:DoLayout(maxHeight, columnWidth, minWidth, sections, content)
   self:Debug('LayoutSections', maxHeight, columnWidth, minWidth)
 	local heights, widths, rows = { 0 }, {}, {}
 	local columnPixelWidth = (ITEM_SIZE + ITEM_SPACING) * columnWidth - ITEM_SPACING + SECTION_SPACING
