@@ -139,8 +139,8 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	self.changed = {}
 
 	self.itemGUIDtoItem = {}
-	---@type Frame|Grid
-	self.Content = {}
+	---@type ClassicView|Frame|Grid|GridView
+	self.view = {}
 
 	local ids
 	for bagId in pairs(BAG_IDS[isBank and "BANK" or "BAGS"]) do
@@ -254,14 +254,13 @@ function containerProto:OnCreate(name, isBank, bagObject)
 	if addon.db.profile.gridLayout == 'grid' then
 		self.view = gridView:Acquire()
 	else
-		self.view = classicView:Acquire()
+		self.view = classicView:Acquire(self, (isBank and "Bank" or "Backpack"))
 	end
 
-	self.Content = self.view:CreateContentFrame(self, (isBank and "Bank" or "Backpack"))
 	self.view:AddContainerButtons(self)
 
-	self.Content:SetPoint("TOPLEFT", toSortSection, "BOTTOMLEFT", 0, -ITEM_SPACING)
-	self:AddWidget(self.Content)
+	self.view:SetPoint("TOPLEFT", toSortSection, "BOTTOMLEFT", 0, -ITEM_SPACING)
+	self:AddWidget(self.view)
 
 	self:UpdateSkin()
 	self.paused = true
@@ -404,7 +403,7 @@ function containerProto:CreateLockButton()
 		"L",
 		20,
 		function()
-			self.Content:ToggleCovers()
+			self.view:ToggleCovers()
 		end,
 		L["Lock/Unlock sections so they can be moved."]
 	)
@@ -656,11 +655,11 @@ function containerProto:OnLayout()
 	end
 	self:Debug('OnLayout Height', self.ToSortSection:GetHeight())
 	self:SetSize(
-		BAG_INSET * 2 + max(minWidth, self.Content:GetWidth()),
-		addon.TOP_PADDING + BAG_INSET + bottomHeight + self.Content:GetHeight() + self.ToSortSection:GetHeight() + ITEM_SPACING
+		BAG_INSET * 2 + max(minWidth, self.view:GetWidth()),
+		addon.TOP_PADDING + BAG_INSET + bottomHeight + self.view:GetHeight() + self.ToSortSection:GetHeight() + ITEM_SPACING
 	)
 
-	self.view:SaveLayout(true, self.Content)
+	self.view:SaveLayout(true, self.view)
 
 end
 
@@ -812,7 +811,7 @@ function containerProto:GetSection(name, category)
 	if not section then
 		section = addon:AcquireSection(self, name, category)
 		self.sections[key] = section
-		self.view:NewSection(key, section, self.Content)
+		self.view:NewSection(key, section, self.view)
 	end
 	return section
 end
@@ -1024,7 +1023,7 @@ function containerProto:ResizeToSortSection(forceLayout)
 		section:Hide()
 		return
 	end
-	local width = max(self.Content:GetWidth(), self.minWidth or 0)
+	local width = max(self.view:GetWidth(), self.minWidth or 0)
 	local numCols = floor((width + ITEM_SPACING) / (ITEM_SIZE + ITEM_SPACING))
 	local resized = section:SetSizeInSlots(numCols, ceil(section.count / numCols))
 	section:Show()
@@ -1102,7 +1101,7 @@ end
 
 ---@return number, number
 function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, sections)
-	return self.view:DoLayout(maxHeight, columnWidth, minWidth, sections, self.Content)
+	return self.view:DoLayout(maxHeight, columnWidth, minWidth, sections, self.view)
 end
 
 function containerProto:FullUpdate()
@@ -1113,8 +1112,7 @@ function containerProto:FullUpdate()
 		return
 	end
 	if addon.db.profile.gridLayout == 'grid' then
-		self.Content:DeferUpdate()
-		--self.Content:Wipe()
+		self.view:DeferUpdate()
 	end
 
 	self.forceLayout = false
@@ -1130,23 +1128,23 @@ function containerProto:FullUpdate()
 
 	local maxSectionHeight = self:PrepareSections(columnWidth, sections)
 	if self.firstLoad then
-		self.view:LoadLayout(self.Content)
+		self.view:LoadLayout(self.view)
 	end
 	if #sections == 0 then
-		self.Content:SetSize(self.minWidth, 0.5)
+		self.view:SetSize(self.minWidth, 0.5)
 	else
 		local uiScale, uiWidth, uiHeight = UIParent:GetEffectiveScale(), UIParent:GetSize()
 		local selfScale = self:GetEffectiveScale()
 		local maxHeight = max(maxSectionHeight, settings.maxHeight * uiHeight * uiScale / selfScale - (ITEM_SIZE + ITEM_SPACING + HEADER_SIZE))
 		local contentWidth, contentHeight = self:LayoutSections(maxHeight, columnWidth, self.minWidth, sections)
 		if addon.db.profile.gridLayout == 'classic' then
-			self.Content:SetSize(contentWidth, contentHeight)
+			self.view:SetSize(contentWidth, contentHeight)
 		end
 	end
 
 	self:ResizeToSortSection(true)
 	if addon.db.profile.gridLayout == 'grid' then
-		self.Content:DoUpdate()
+		self.view:DoUpdate()
 	end
 	self.firstLoad = false
 end

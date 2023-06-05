@@ -27,9 +27,9 @@ local addon = LibStub('AceAddon-3.0'):GetAddon(addonName)
 local L = addon.L
 
 local class
----@class ClassicView
+---@class ClassicView: Frame
 local prototype
-class, prototype = addon:NewClass('ClassicView')
+class, prototype = addon:NewClass('ClassicView', "Frame")
 
 local pool = addon:CreatePool(class)
 
@@ -64,9 +64,8 @@ local function GetNextSection(maxWidth, sections)
 end
 -- End local functions
 
----@return Frame
-function prototype:CreateContentFrame(parent, ...)
-  return CreateFrame("Frame", nil, parent)
+function prototype:OnAcquire(parent, bank)
+  self:SetParent(parent)
 end
 
 function prototype:AddContainerButtons(container)
