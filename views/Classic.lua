@@ -80,7 +80,7 @@ end
 function prototype:LoadLayout(content)
 end
 
-function prototype:DoLayout(maxHeight, columnWidth, minWidth, sections, content)
+function prototype:DoLayout(maxHeight, columnWidth, minWidth, sections)
   self:Debug('LayoutSections', maxHeight, columnWidth, minWidth)
 	local heights, widths, rows = { 0 }, {}, {}
 	local columnPixelWidth = (ITEM_SIZE + ITEM_SPACING) * columnWidth - ITEM_SPACING + SECTION_SPACING
@@ -130,7 +130,7 @@ function prototype:DoLayout(maxHeight, columnWidth, minWidth, sections, content)
 	local row, x, contentHeight = 1, 0, 0
 	while row <= numRows do
 		local yOffset, section = heights[row], rows[row]
-		section:SetPoint('TOPLEFT', content, x, 0)
+		section:SetPoint('TOPLEFT', self, x, 0)
 		local maxY, thisColumnWidth = yOffset + maxColumnHeight + ITEM_SIZE + ROW_SPACING, 0
 		repeat
 			thisColumnWidth = max(thisColumnWidth, widths[row])

@@ -1101,7 +1101,7 @@ end
 
 ---@return number, number
 function containerProto:LayoutSections(maxHeight, columnWidth, minWidth, sections)
-	return self.view:DoLayout(maxHeight, columnWidth, minWidth, sections, self.view)
+	return self.view:DoLayout(maxHeight, columnWidth, minWidth, sections)
 end
 
 function containerProto:FullUpdate()
