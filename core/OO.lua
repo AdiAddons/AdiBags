@@ -19,7 +19,11 @@ You should have received a copy of the GNU General Public License
 along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 --]]
 
-local addonName, addon = ...
+local addonName = ...
+---@class AdiBags: AceAddon
+local addon = LibStub('AceAddon-3.0'):GetAddon(addonName)
+local L = addon.L
+
 local safecall = addon.safecall
 
 --<GLOBALS
@@ -77,7 +81,7 @@ local function NewClass(name, parent, ...)
 		Create = Class_Create,
 	}
 
-	if parent.mixins then
+	if parent and parent.mixins then
 		setmetatable(mixins, { __index = parent.mixins })
 	end
 	for i = 1, select('#', ...) do
@@ -91,27 +95,43 @@ local function NewClass(name, parent, ...)
 
 	prototype.class = class
 	prototype.Debug = addon.Debug
-	if parent.prototype then
-		setmetatable(class, { __index = parent })
-		setmetatable(prototype, { __index = parent.prototype })
-		return class, prototype, parent.prototype
-	else
-		setmetatable(prototype, { __index = parent })
-		return class, prototype, parent
-	end
+  if parent then
+	  if parent.prototype then
+	  	setmetatable(class, { __index = parent })
+	  	setmetatable(prototype, { __index = parent.prototype })
+	  	return class, prototype, parent.prototype
+	  else
+	  	setmetatable(prototype, { __index = parent })
+	  	return class, prototype, parent
+	  end
+  else
+    return class, prototype, parent
+  end
 end
 
 local function NewRootClass(name, frameType, frameTemplate, ...)
 	local class, prototype, parent
 	if frameTemplate and LibStub(frameTemplate, true) then
-		class, prototype, parent = NewClass(name, CreateFrame(frameType), frameTemplate, ...)
+    if not frameType then
+      class, prototype, parent = NewClass(name, nil, frameTemplate, ...)
+    else
+		  class, prototype, parent = NewClass(name, CreateFrame(frameType), frameTemplate, ...)
+    end
 		frameTemplate = nil
 	else
-		class, prototype, parent = NewClass(name, CreateFrame(frameType), ...)
+    if not frameType then
+      class, prototype, parent = NewClass(name, nil, ...)
+    else
+		  class, prototype, parent = NewClass(name, CreateFrame(frameType), ...)
+    end
 	end
 	class.frameType = frameType
 	class.frameTemplate = frameTemplate
-	prototype.ToString = parent.GetName
+  if parent then
+	  prototype.ToString = parent.GetName
+  else
+    prototype.ToString = function() return name end
+  end
 	return class, prototype, parent
 end
 
