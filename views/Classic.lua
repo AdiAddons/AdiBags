@@ -33,7 +33,7 @@ class, prototype = addon:NewClass('ClassicView')
 
 local pool = addon:CreatePool(class)
 
----@class AceModule
+---@type AceModule
 local classicView = addon:NewModule('ClassicView')
 classicView.Acquire = function(self, ...) return pool:Acquire(...) end
 

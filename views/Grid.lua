@@ -24,16 +24,24 @@ local addonName = ...
 local addon = LibStub('AceAddon-3.0'):GetAddon(addonName)
 local L = addon.L
 
----@class GridView: AceModule
+local class
+---@class GridView
+local prototype
+class, prototype = addon:NewClass('GridView')
+
+local pool = addon:CreatePool(class)
+
+---@type AceModule
 local gridView = addon:NewModule('GridView')
+gridView.Acquire = function(self, ...) return pool:Acquire(...) end
 
 ---@return Grid
-function gridView:CreateContentFrame(parent, key)
+function prototype:CreateContentFrame(parent, key)
   return addon:CreateGridFrame(key, parent)
 end
 
 ---@param container Container
-function gridView:AddContainerButtons(container)
+function prototype:AddContainerButtons(container)
   container:CreateModuleButton(
 		"L",
 		20,
@@ -44,19 +52,19 @@ function gridView:AddContainerButtons(container)
 	)
 end
 
-function gridView:NewSection(key, section, content)
+function prototype:NewSection(key, section, content)
   content:AddCell(key, section)
 end
 
-function gridView:SaveLayout(shouldWipe, content)
+function prototype:SaveLayout(shouldWipe, content)
   content:SaveLayout(shouldWipe)
 end
 
-function gridView:LoadLayout(content)
+function prototype:LoadLayout(content)
   content:LoadLayout()
 end
 
-function gridView:DoLayout(maxHeight, columnWidth, minWidth, sections, content)
-  content.Update()
+function prototype:DoLayout(maxHeight, columnWidth, minWidth, sections, content)
+  content:Update()
   return 0, 0
 end

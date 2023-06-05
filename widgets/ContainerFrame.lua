@@ -252,7 +252,7 @@ function containerProto:OnCreate(name, isBank, bagObject)
 
 	-- Define the view used for laying out content here.
 	if addon.db.profile.gridLayout == 'grid' then
-		self.view = gridView
+		self.view = gridView:Acquire()
 	else
 		self.view = classicView:Acquire()
 	end
