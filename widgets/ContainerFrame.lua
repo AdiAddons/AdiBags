@@ -1137,9 +1137,9 @@ function containerProto:FullUpdate()
 		local selfScale = self:GetEffectiveScale()
 		local maxHeight = max(maxSectionHeight, settings.maxHeight * uiHeight * uiScale / selfScale - (ITEM_SIZE + ITEM_SPACING + HEADER_SIZE))
 		local contentWidth, contentHeight = self:LayoutSections(maxHeight, columnWidth, self.minWidth, sections)
-		if addon.db.profile.gridLayout == 'classic' then
-			self.view:SetSize(contentWidth, contentHeight)
-		end
+--		if addon.db.profile.gridLayout == 'classic' then
+		self.view:SetSize(contentWidth, contentHeight)
+--		end
 	end
 
 	self:ResizeToSortSection(true)
