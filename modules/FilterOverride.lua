@@ -115,7 +115,7 @@ end
 
 function mod:OnEnable()
 	self:UpdateOptions()
-        self:RegisterEvent('CURSOR_CHANGED')
+	self:RegisterEvent('CURSOR_CHANGED')
 	addon.RegisterSectionHeaderScript(self, 'OnTooltipUpdate', 'OnTooltipUpdateSectionHeader')
 	addon.RegisterSectionHeaderScript(self, 'OnClick', 'OnClickSectionHeader')
 	self:CURSOR_CHANGED()
