@@ -1017,6 +1017,7 @@ function containerProto:ResizeToSortSection(forceLayout)
 	end
 	local width = max(self.Content:GetWidth(), self.minWidth or 0)
 	local numCols = floor((width + ITEM_SPACING) / (ITEM_SIZE + ITEM_SPACING))
+  if numCols == 0 then numCols = 1 end
 	local resized = section:SetSizeInSlots(numCols, ceil(section.count / numCols))
 	section:Show()
 	if forceLayout or resized or not section:IsShown() then
