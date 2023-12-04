@@ -350,6 +350,9 @@ do
 		}
 	else
 		maxLevelRanges = {
+            [25]  = {  66,  92 }, -- Classic Season of Disocvery Phase 1
+            [40]  = {  66,  92 }, -- Classic Season of Disocvery Phase 2
+            [50]  = {  66,  92 }, -- Classic Season of Disocvery Phase 3
 			[60]  = {  66,  92 },
 			[70]  = { 100, 164 },
 			[80]  = { 187, 284 },
