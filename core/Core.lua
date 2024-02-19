@@ -111,6 +111,7 @@ function addon:OnInitialize()
 		C_CVar.SetCVar("professionAccessorySlotsExampleShown", 1)
 	end
 
+  self:Deprecation()
 	self:Debug('Initialized')
 end
 

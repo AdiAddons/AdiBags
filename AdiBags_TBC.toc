@@ -78,6 +78,7 @@ modules\Masque.lua
 
 core\ItemDatabase.lua
 core\DefaultFilters.lua
+core\Deprecation.lua
 
 #@debug@
 ## Version: DEV
