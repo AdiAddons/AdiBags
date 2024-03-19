@@ -1,4 +1,4 @@
-## Interface: 100107
+## Interface: 100206
 
 ## Title: AdiBags Configuration
 ## Notes: Adirelle's bag addon.
