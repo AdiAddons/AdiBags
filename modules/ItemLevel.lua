@@ -158,12 +158,12 @@ function mod:UpdateButton_Retail(event, button)
 	if link then
 		local linkType, linkOptions = ExtractLink(link)
 		if linkType == "item" then
-			local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
+			local _, _, quality, _, reqLevel, _, _, _, loc = C_Item.GetItemInfo(link)
 			local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
 			level = item and item:GetCurrentItemLevel() or 0
 			if level >= settings.minLevel
 				and (quality ~= ITEM_QUALITY_POOR or not settings.ignoreJunk)
-				and (loc ~= "" or not settings.equippableOnly)
+				and (loc ~= "INVTYPE_NON_EQUIP_IGNORE" or not settings.equippableOnly)
 				and (quality ~= ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
 				and colorSchemes[settings.colorScheme] ~= nil
 			then
@@ -208,7 +208,7 @@ function mod:UpdateButton_Classic(event, button)
 	local text = texts[button]
 
 	if link then
-		local _, _, quality, _, reqLevel, _, _, _, loc = GetItemInfo(link)
+		local _, _, quality, _, reqLevel, _, _, _, loc = C_Item.GetItemInfo(link)
 		local item = Item:CreateFromBagAndSlot(button.bag, button.slot)
 		local level = item and item:GetCurrentItemLevel() or 0
 		if level >= settings.minLevel
