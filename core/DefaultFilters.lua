@@ -248,7 +248,7 @@ function addon:SetupDefaultFilters()
 
 		local equipmentFilter = addon:RegisterFilter('Equipment', 60, function(self, slotData)
 			local equipSlot = slotData.equipSlot
-			if equipSlot and equipSlot ~= "" then
+			if equipSlot and equipSlot ~= "" and equipSlot ~= "INVTYPE_NON_EQUIP_IGNORE" then
 				local rule = self.db.profile.dispatchRule
 				local category
 				if rule == 'category' then

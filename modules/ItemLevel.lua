@@ -163,7 +163,7 @@ function mod:UpdateButton_Retail(event, button)
 			level = item and item:GetCurrentItemLevel() or 0
 			if level >= settings.minLevel
 				and (quality ~= ITEM_QUALITY_POOR or not settings.ignoreJunk)
-				and (loc ~= "" or not settings.equippableOnly)
+				and (loc ~= "" and loc ~= "INVTYPE_NON_EQUIP_IGNORE" or not settings.equippableOnly)
 				and (quality ~= ITEM_QUALITY_HEIRLOOM or not settings.ignoreHeirloom)
 				and colorSchemes[settings.colorScheme] ~= nil
 			then
