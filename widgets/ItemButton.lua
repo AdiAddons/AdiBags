@@ -101,6 +101,12 @@ function buttonProto:OnCreate()
 		self.NewItemTexture:Hide()
 	end
 	self.SplitStack = nil -- Remove the function set up by the template
+
+	-- Add support for ElvUI cooldown text, prioritising OmniCC
+	-- Register as part of ElvUI "bags" module to share ElvUI settings with their bags.
+	if not OmniCC and ElvUI and ElvUI[1] and ElvUI[1].CooldownEnabled and ElvUI[1].RegisterCooldown and ElvUI[1]:CooldownEnabled() then
+		ElvUI[1]:RegisterCooldown(self.Cooldown, "bags");
+	end
 end
 
 function buttonProto:OnAcquire(container, bag, slot)
