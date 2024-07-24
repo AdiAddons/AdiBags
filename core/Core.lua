@@ -309,7 +309,7 @@ do
 	-- Create the Blizzard addon option frame
 	local panel = CreateFrame("Frame", addonName.."BlizzOptions")
 	panel.name = addonName
-	InterfaceOptions_AddCategory(panel)
+	local category = Settings.RegisterCanvasLayoutCategory(panel, addonName)
 
 	local fs = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 	fs:SetPoint("TOPLEFT", 10, -15)
@@ -327,6 +327,7 @@ do
 		return addon:OpenOptions()
 	end)
 
+	Settings.RegisterAddOnCategory(category)
 end
 
 --------------------------------------------------------------------------------

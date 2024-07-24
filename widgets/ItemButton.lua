@@ -131,6 +131,10 @@ function buttonProto:OnRelease()
 	addon:SendMessage('AdiBags_ButtonProtoRelease', self)
 end
 
+function buttonProto:ENCHANT_SPELL_COMPLETED()
+	self:FullUpdate()
+end
+
 function buttonProto:ToString()
 	return format("Button-%s-%s", tostring(self.bag), tostring(self.slot))
 end
