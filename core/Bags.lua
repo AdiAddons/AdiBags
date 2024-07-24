@@ -28,7 +28,6 @@ local BankFrame = _G.BankFrame
 local OpenAllBags = _G.OpenAllBags
 local CloseAllBags = _G.CloseAllBags
 local IsBagOpen = _G.IsBagOpen
-local CloseBankFrame = _G.CloseBankFrame
 local SortBags = C_Container and _G.C_Container.SortBags or _G.SortBags
 local SortBankBags = C_Container and _G.C_Container.SortBankBags or _G.SortBankBags
 local SortReagentBankBags = C_Container and _G.C_Container.SortReagentBankBags or _G.SortReagentBankBags
@@ -291,7 +290,7 @@ do
 
 	function bank:PostClose()
 		self.hooks[BankFrame].Hide(BankFrame)
-		CloseBankFrame()
+		C_Bank.CloseBankFrame()
 	end
 
 	function bank:Sort(isReagentBank)
