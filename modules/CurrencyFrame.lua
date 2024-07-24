@@ -97,11 +97,11 @@ end
 function mod:ADDON_LOADED(_, name)
 	if name ~= 'Blizzard_TokenUI' then return end
 	self:UnregisterEvent('ADDON_LOADED')
-	local f = CreateFrame("frame")
+	local s, f = self, CreateFrame("frame")
 	f:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
 	f:RegisterEvent("PLAYER_MONEY")
 	f:RegisterEvent("TRADE_CURRENCY_CHANGED")
-	f:SetScript("OnEvent", function() mod:Update() end)
+	f:SetScript("OnEvent", function() s:Update() end)
 	self.hooked = true
 end
 
