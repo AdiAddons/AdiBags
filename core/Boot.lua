@@ -62,3 +62,7 @@ local moduleProto = {
 }
 addon.moduleProto = moduleProto
 addon:SetDefaultModulePrototype(moduleProto)
+
+function addon:OnInitialize()
+  self:Deprecation()
+end

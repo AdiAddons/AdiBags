@@ -63,7 +63,8 @@ end
 --@end-debug@
 
 local bagKeys = {"backpack", "bank", "reagentBank"}
-function addon:OnInitialize()
+
+function addon:OnInitializeOld()
 	-- Create the default font settings for each bag type.
 	for _, name in ipairs(bagKeys) do
 		local bfd = self:GetFontDefaults(GameFontHighlightLarge)
@@ -111,11 +112,10 @@ function addon:OnInitialize()
 		C_CVar.SetCVar("professionAccessorySlotsExampleShown", 1)
 	end
 
-  self:Deprecation()
 	self:Debug('Initialized')
 end
 
-function addon:OnEnable()
+function addon:OnEnableOld()
 
 	self.globalLock = false
 
