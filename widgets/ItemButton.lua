@@ -32,7 +32,7 @@ local GetContainerItemInfo = C_Container and _G.C_Container.GetContainerItemInfo
 local GetContainerItemLink = C_Container and _G.C_Container.GetContainerItemLink or _G.GetContainerItemLink
 local GetContainerItemQuestInfo = C_Container and _G.C_Container.GetContainerItemQuestInfo or _G.GetContainerItemQuestInfo
 local GetContainerNumFreeSlots = C_Container and _G.C_Container.GetContainerNumFreeSlots or _G.GetContainerNumFreeSlots
-local GetItemInfo = _G.GetItemInfo
+local GetItemInfo = _G.C_Item.GetItemInfo
 local GetItemQualityColor = _G.GetItemQualityColor
 local hooksecurefunc = _G.hooksecurefunc
 local IsBattlePayItem = C_Container and _G.C_Container.IsBattlePayItem or _G.IsBattlePayItem or function(...) return false end
@@ -92,8 +92,8 @@ function buttonProto:OnCreate()
 	end
 	self:RegisterForDrag("LeftButton")
 	self:RegisterForClicks("LeftButtonUp","RightButtonUp")
-	self:SetScript('OnShow', self.OnShow)
-	self:SetScript('OnHide', self.OnHide)
+	self:SetScript('OnShow', self._OnShow)
+	self:SetScript('OnHide', self._OnHide)
 	self:SetWidth(ITEM_SIZE)
 	self:SetHeight(ITEM_SIZE)
 	self.EmptySlotTextureFile = addon.EMPTY_SLOT_FILE
@@ -266,7 +266,7 @@ end
 -- Scripts & event handlers
 --------------------------------------------------------------------------------
 
-function buttonProto:OnShow()
+function buttonProto:_OnShow()
 	self:RegisterEvent('BAG_UPDATE_COOLDOWN', 'UpdateCooldownCallback')
 	self:RegisterEvent('ITEM_LOCK_CHANGED', 'UpdateLock')
 	self:RegisterEvent('QUEST_ACCEPTED', 'UpdateBorder')
@@ -281,7 +281,7 @@ function buttonProto:OnShow()
 	self:Update()
 end
 
-function buttonProto:OnHide()
+function buttonProto:_OnHide()
 	self:UnregisterAllEvents()
 	self:UnregisterAllMessages()
 	if self.hasStackSplit and self.hasStackSplit == 1 then
@@ -294,6 +294,11 @@ function buttonProto:UNIT_QUEST_LOG_CHANGED(event, unit)
 		self:UpdateBorder(event)
 		self:UpdateAlpha()
 	end
+end
+
+function buttonProto:ENCHANT_SPELL_COMPLETED()
+	if not self:CanUpdate() then return end
+	self:FullUpdate()
 end
 
 --------------------------------------------------------------------------------

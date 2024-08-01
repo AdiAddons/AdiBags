@@ -29,6 +29,7 @@ addon.isRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 addon.isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 addon.isBCC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
 addon.isWrath = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+addon.isCata = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 
 --<GLOBALS
 local _G = _G
@@ -41,7 +42,7 @@ local NUM_REAGENTBAG_SLOTS = _G.NUM_REAGENTBAG_SLOTS
 local NUM_TOTAL_EQUIPPED_BAG_SLOTS = _G.NUM_TOTAL_EQUIPPED_BAG_SLOTS
 local NUM_BANKBAGSLOTS = _G.NUM_BANKBAGSLOTS
 local TRADE_GOODS = _G.Enum.ItemClass.Tradegoods
-local GetItemSubClassInfo = _G.GetItemSubClassInfo
+local GetItemSubClassInfo = _G.C_Item.GetItemSubClassInfo
 local pairs = _G.pairs
 --GLOBALS>
 

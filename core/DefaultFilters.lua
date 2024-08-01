@@ -34,6 +34,8 @@ function addon:SetupDefaultFilters()
 	local GetItemIDs = _G.C_EquipmentSet.GetItemIDs
 	local GetEquipmentSetIDs = _G.C_EquipmentSet.GetEquipmentSetIDs
 	local GetItemLocations = _G.C_EquipmentSet.GetItemLocations
+	local GetItemClassInfo = _G.C_Item.GetItemClassInfo
+	local GetItemSubClassInfo = _G.C_Item.GetItemSubClassInfo
 	local pairs = _G.pairs
 	local wipe = _G.wipe
 	--GLOBALS>

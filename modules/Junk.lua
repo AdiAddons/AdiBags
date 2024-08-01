@@ -26,9 +26,10 @@ local L = addon.L
 local _G = _G
 local format = _G.format
 local GameTooltip = _G.GameTooltip
-local GetItemInfo = _G.GetItemInfo
+local GetItemInfo = _G.C_Item.GetItemInfo
+local GetItemSubClassInfo = _G.C_Item.GetItemSubClassInfo
 local hooksecurefunc = _G.hooksecurefunc
-local IsAddOnLoaded = _G.IsAddOnLoaded
+local IsAddOnLoaded = _G.C_AddOns.IsAddOnLoaded
 local ITEM_QUALITY_POOR
 local ITEM_QUALITY_UNCOMMON
 if addon.isRetail then

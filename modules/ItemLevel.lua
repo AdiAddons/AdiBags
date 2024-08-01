@@ -25,7 +25,8 @@ local L = addon.L
 --<GLOBALS
 local _G = _G
 local abs = _G.math.abs
-local GetItemInfo = _G.GetItemInfo
+local GetItemInfo = _G.C_Item.GetItemInfo
+local GetItemQualityColor = _G.C_Item.GetItemQualityColor
 local ITEM_QUALITY_HEIRLOOM
 local ITEM_QUALITY_POOR
 

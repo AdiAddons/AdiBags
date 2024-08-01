@@ -35,8 +35,8 @@ local CreateFrame = _G.CreateFrame
 local format = _G.format
 local GetCVarBool = _G.GetCVarBool
 local geterrorhandler = _G.geterrorhandler
-local InterfaceOptions_AddCategory = _G.InterfaceOptions_AddCategory
-local LoadAddOn = _G.LoadAddOn
+local Settings = _G.Settings
+local LoadAddOn = _G.C_AddOns.LoadAddOn
 local next = _G.next
 local NUM_BANKGENERIC_SLOTS = _G.NUM_BANKGENERIC_SLOTS
 local pairs = _G.pairs
@@ -309,7 +309,7 @@ do
 	-- Create the Blizzard addon option frame
 	local panel = CreateFrame("Frame", addonName.."BlizzOptions")
 	panel.name = addonName
-	InterfaceOptions_AddCategory(panel)
+	Settings.RegisterAddOnCategory(Settings.RegisterCanvasLayoutCategory(panel, addonName))
 
 	local fs = panel:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
 	fs:SetPoint("TOPLEFT", 10, -15)

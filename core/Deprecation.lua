@@ -6,9 +6,9 @@ local addon = LibStub('AceAddon-3.0'):GetAddon(addonName)
 -- remove this call from Core.lua in OnInitialize.
 function addon:Deprecation()
   if addon.db.profile.deprecationPhase < 2 then
-    print("AdiBags is deprecated and will get no new feature releases.")
-    print("Please consider switching to AdiBags' successor, BetterBags.")
-    print("BetterBags is available at Curse, Wago, and github.com/Cidan/BetterBags")
+    local prefix = "|cFF8ADCFF"..addonName.."|r:"
+    local msg = "This addon has been deprecated and is therefore unlikely to receive new features, nor timely bug fixes. Continued support will largely be left up to the community.\n\nPlease consider switching to AdiBags' successor, BetterBags, which is written by the same team that maintains AdiBags and is available to download from Curse, Wago, and GitHub.\n\nThanks! :)"
+    print(prefix, msg)
     local frame = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
     frame:SetBackdrop({
       bgFile = "Interface/Tooltips/UI-Tooltip-Background",
@@ -20,19 +20,12 @@ function addon:Deprecation()
     })
     frame:SetBackdropColor(0, 0, 0, 0.9)
     frame:SetPoint("LEFT", 30, 0)
-    frame:SetSize(440, 300)
+    frame:SetSize(440, 250)
     local text = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     text:SetTextColor(1, 1, 1, 1)
     text:SetPoint("LEFT", 20, 0)
     text:SetJustifyH("LEFT")
-    text:SetText([[
-AdiBags is deprecated, will get no new feature releases, and may or may not get bug fixes over time.
-Please consider switching to AdiBags' successor, BetterBags.
-BetterBags is written by the same team that maintains AdiBags.
-BetterBags is available at Curse, Wago, and github.com/Cidan/BetterBags
-This message will not be shown again, but you can continue to use AdiBags so long as it works.
-Thanks! :)
-      ]])
+    text:SetText(prefix.."\n"..msg)
     text:SetWordWrap(true)
     text:SetWidth(400)
     --frame:SetSize(text:GetStringWidth()+ 40, 200)

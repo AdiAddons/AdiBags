@@ -39,7 +39,7 @@ local GetCurrencyInfo = _G.C_CurrencyInfo.GetCurrencyInfo
 local GetCurrencyListSize = _G.C_CurrencyInfo.GetCurrencyListSize
 local hooksecurefunc = _G.hooksecurefunc
 local ipairs = _G.ipairs
-local IsAddOnLoaded = _G.IsAddOnLoaded
+local IsAddOnLoaded = _G.C_AddOns.IsAddOnLoaded
 local tconcat = _G.table.concat
 local tinsert = _G.tinsert
 local unpack = _G.unpack
@@ -97,7 +97,7 @@ end
 function mod:ADDON_LOADED(_, name)
 	if name ~= 'Blizzard_TokenUI' then return end
 	self:UnregisterEvent('ADDON_LOADED')
-	hooksecurefunc('TokenFrame_Update', function() self:Update() end)
+	hooksecurefunc(TokenFrame, "Update", function() self:Update() end)
 	self.hooked = true
 end
 

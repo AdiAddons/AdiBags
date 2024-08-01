@@ -1,4 +1,4 @@
-## Interface: 30400
+## Interface: 30403
 
 ## Title: AdiBags Configuration
 ## Notes: Adirelle's bag addon.

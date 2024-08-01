@@ -35,8 +35,9 @@ local GetContainerItemInfo = C_Container and C_Container.GetContainerItemInfo or
 local GetContainerItemQuestInfo = C_Container and C_Container.GetContainerItemQuestInfo or GetContainerItemQuestInfo
 local GetContainerNumFreeSlots = C_Container and C_Container.GetContainerNumFreeSlots or GetContainerNumFreeSlots
 local geterrorhandler = _G.geterrorhandler
-local GetItemFamily = _G.GetItemFamily
-local GetItemInfo = _G.GetItemInfo
+local GetItemFamily = _G.C_Item.GetItemFamily
+local GetItemInfo = _G.C_Item.GetItemInfo
+local GetItemSubClassInfo = _G.C_Item.GetItemSubClassInfo
 local ITEM_QUALITY_POOR
 local ITEM_QUALITY_UNCOMMON
 
