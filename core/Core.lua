@@ -132,7 +132,7 @@ function addon:OnEnable()
 	self:RegisterMessage('AdiBags_BagClosed', 'LayoutBags')
 	
 	-- Track most windows involving items
-	if addon.isRetail or addon.isWrath then
+	if addon.isRetail or addon.isWrath or addon.isCata then
 		self:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_SHOW', 'UpdateInteractingFrame')
 		self:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_HIDE', 'UpdateInteractingFrame')
 		-- TODO(lobato): This is a hack to fix a change in the timing of the interaction manager
@@ -342,7 +342,7 @@ end
 
 function addon:BAG_UPDATE(event, bag)
 	updatedBags[bag] = true
-	if addon.isWrath or addon.isRetail then
+	if addon.isRetail or addon.isWrath or addon.isCata then
 		self:SendMessage('AdiBags_BagUpdated', updatedBags)
 		wipe(updatedBags)
 	end

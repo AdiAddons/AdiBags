@@ -33,7 +33,7 @@ local GetContainerItemLink = C_Container and _G.C_Container.GetContainerItemLink
 local GetContainerItemQuestInfo = C_Container and _G.C_Container.GetContainerItemQuestInfo or _G.GetContainerItemQuestInfo
 local GetContainerNumFreeSlots = C_Container and _G.C_Container.GetContainerNumFreeSlots or _G.GetContainerNumFreeSlots
 local GetItemInfo = _G.C_Item.GetItemInfo
-local GetItemQualityColor = _G.GetItemQualityColor
+local GetItemQualityColor = _G.C_Item.GetItemQualityColor
 local hooksecurefunc = _G.hooksecurefunc
 local IsBattlePayItem = C_Container and _G.C_Container.IsBattlePayItem or _G.IsBattlePayItem or function(...) return false end
 local IsContainerItemAnUpgrade = _G.IsContainerItemAnUpgrade
@@ -460,7 +460,7 @@ if addon.isRetail then
 end
 
 local function GetBorder(quality, isQuestItem, questId, isQuestActive, settings)
-	if addon.isRetail or addon.isWrath then
+	if addon.isRetail or addon.isWrath or addon.isCata then
 		if settings.questIndicator then
 			if questId and not isQuestActive then
 				return TEXTURE_ITEM_QUEST_BANG

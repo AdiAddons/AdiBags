@@ -93,11 +93,11 @@ _G.InterfaceOptions_AddCategory = function(frame, addOn, position) end
 ---@field isBank boolean Whether the item is in the player's bank.
 ---@field item ItemInfo The item information for the item in the bag slot.
 
----@class ItemInfo ItemInfo is constructed by GetItemInfo(), with some additional fields for use in AdiBags.
+---@class ItemInfo ItemInfo is constructed by C_Item.GetItemInfo(), with some additional fields for use in AdiBags.
 ---@field itemName string The localized name of the item.
 ---@field itemLink string The localized link of the item.
 ---@field itemQuality Enum.ItemQuality The item quality, i.e. 1 for common, 2 for uncommon, etc.
----@field itemLevel number The base item level, not including upgrades. See GetDetailedItemLevelInfo() for getting the actual item level.
+---@field itemLevel number The base item level, not including upgrades. See C_Item.GetDetailedItemLevelInfo() for getting the actual item level.
 ---@field itemMinLevel number The minimum level required to use the item, or 0 if there is no level requirement.
 ---@field itemType string The localized type name of the item: Armor, Weapon, Quest, etc.
 ---@field itemSubType string The localized sub-type name of the item: Bows, Guns, Staves, etc.

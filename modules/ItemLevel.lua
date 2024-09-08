@@ -345,23 +345,24 @@ local maxLevelRanges = {}
 do
 	if addon.isRetail then
 		maxLevelRanges = {
-			[50] = {  72, 140 }, -- Battle for Azeroth
-			[60] = { 158, 233 }, -- Shadowlands
-			[70] = { 252, 434 }, -- Dragonflight
+			[ 50] = {  72,  140 }, -- Battle for Azeroth
+			[ 60] = { 158,  291 }, -- Shadowlands
+			[ 70] = { 252,  535 }, -- Dragonflight
+			[ 80] = { 554,  639 }, -- The War Within
 		}
 	else
 		maxLevelRanges = {
-            [25]  = {  66,  92 }, -- Classic Season of Disocvery Phase 1
-            [40]  = {  66,  92 }, -- Classic Season of Disocvery Phase 2
-            [50]  = {  66,  92 }, -- Classic Season of Disocvery Phase 3
-			[60]  = {  66,  92 },
-			[70]  = { 100, 164 },
-			[80]  = { 187, 284 },
-			[85]  = { 333, 416 },
-			[90]  = { 450, 616 },
-			[100] = { 615, 735 },
-			[110] = { 805, 905 },
-			[120] = { 310, 350 },
+			[ 25] = {  23,   35 }, -- Classic: Season of Discovery, Phase 1
+			[ 40] = {  33,   45 }, -- Classic: Season of Discovery, Phase 2
+			[ 50] = {  43,   55 }, -- Classic: Season of Discovery, Phase 3
+			[ 60] = {  66,   92 }, -- Classic
+			[ 70] = { 100,  164 }, -- The Burning Crusade
+			[ 80] = { 187,  284 }, -- Wrath of the Lich King
+			[ 85] = { 333,  416 }, -- Cataclysm
+			[ 90] = { 450,  616 }, -- Mists of Pandaria
+			[100] = { 615,  735 }, -- Warlords of Draenor
+			[110] = { 805, 1000 }, -- Legion
+			[120] = { 310,  500 }, -- Battle for Azeroth
 		}
 	end
 end

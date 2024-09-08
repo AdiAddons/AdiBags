@@ -21,6 +21,7 @@ along with AdiBags.  If not, see <http://www.gnu.org/licenses/>.
 
 --<GLOBALS
 local _G = _G
+local GetItemInfo = _G.C_Item.GetItemInfo
 local TRADE_GOODS = _G.Enum.ItemClass.Tradegoods
 local UNKNOWN = _G.UNKNOWN
 --GLOBALS>

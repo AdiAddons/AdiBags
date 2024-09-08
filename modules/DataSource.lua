@@ -74,7 +74,7 @@ function mod:OnEnable()
 		created = true
 	end
 	self:RegisterBucketEvent('BAG_UPDATE', 0.5, "Update")
-	if addon.isRetail or addon.isWrath then
+	if addon.isRetail or addon.isWrath or addon.isCata then
 		self:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_SHOW', 'BANKFRAME_OPENED')
 		self:RegisterEvent('PLAYER_INTERACTION_MANAGER_FRAME_HIDE', 'BANKFRAME_CLOSED')
 	else
@@ -85,7 +85,7 @@ function mod:OnEnable()
 end
 
 function mod:BANKFRAME_OPENED(e, kind)
-	if addon.isRetail or addon.isWrath then
+	if addon.isRetail or addon.isWrath or addon.isCata then
 		if kind == Enum.PlayerInteractionType.Banker then
 			self.atBank = true
 			return self:Update()
@@ -97,7 +97,7 @@ function mod:BANKFRAME_OPENED(e, kind)
 end
 
 function mod:BANKFRAME_CLOSED(e, kind)
-	if addon.isRetail or addon.isWrath then
+	if addon.isRetail or addon.isWrath or addon.isCata then
 		if kind == Enum.PlayerInteractionType.Banker then
 			self.atBank = false
 			return self:Update()
