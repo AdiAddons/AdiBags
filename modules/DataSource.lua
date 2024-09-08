@@ -24,7 +24,10 @@ local L = addon.L
 
 --<GLOBALS
 local _G = _G
+local AddonCompartmentFrame = _G.AddonCompartmentFrame
 local format = _G.format
+local GameTooltip = _G.GameTooltip
+local GetAddOnMetadata = _G.C_AddOns.GetAddOnMetadata
 local GetContainerNumFreeSlots = C_Container and _G.C_Container.GetContainerNumFreeSlots or _G.GetContainerNumFreeSlots
 local GetContainerNumSlots = C_Container and _G.C_Container.GetContainerNumSlots or _G.GetContainerNumSlots
 local ipairs = _G.ipairs
@@ -41,17 +44,30 @@ mod.uiName = L['LDB Plugin']
 mod.uiDesc = L['Provides a LDB data source to be displayed by LDB display addons.']
 mod.cannotDisable = true
 
-local dataobj = {
-	type = 'data source',
+local dataObject = {
+	type = "data source",
 	label = addonName,
 	text = addonName,
 	icon = [[Interface\Buttons\Button-Backpack-Up]],
-	OnClick = function(_, button)
-		if button == "RightButton" then
+	OnClick = function(_, mouseButton)
+		mouseButton = mouseButton.buttonName or mouseButton
+		if mouseButton == "RightButton" then
 			addon:OpenOptions()
 		else
-			addon:OpenAllBags()
+			addon:ToggleBackpack()
 		end
+	end,
+	OnEnter = function(self)
+		local r, g, b = 0.2, 1, 0.2
+		GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+		GameTooltip:AddDoubleLine(addonName, GetAddOnMetadata(addonName, "Version"))
+		GameTooltip:AddLine(" ")
+		GameTooltip:AddLine(L["|cFFEDA55FLeft-click|r to toggle bags."], r, g, b)
+		GameTooltip:AddLine(L["|cFFEDA55FRight-click|r to toggle options."], r, g, b)
+		GameTooltip:Show()
+	end,
+	OnLeave = function()
+		GameTooltip:Hide()
 	end,
 }
 
@@ -70,7 +86,21 @@ end
 local created = false
 function mod:OnEnable()
 	if not created then
-		LibStub('LibDataBroker-1.1'):NewDataObject(addonName, dataobj)
+		-- Addon compartment:
+		-- https://warcraft.wiki.gg/wiki/Addon_compartment
+		if AddonCompartmentFrame then
+			AddonCompartmentFrame:RegisterAddon({
+				text = addonName,
+				icon = dataObject.icon,
+				func = dataObject.OnClick,
+				funcOnEnter = dataObject.OnEnter,
+				funcOnLeave = dataObject.OnLeave,
+				registerForAnyClick = true,
+				notCheckable = true,
+			})
+		end
+
+		LibStub('LibDataBroker-1.1'):NewDataObject(addonName, dataObject)
 		created = true
 	end
 	self:RegisterBucketEvent('BAG_UPDATE', 0.5, "Update")
@@ -172,9 +202,9 @@ end
 function mod:Update(event)
 	local bags = BuildSpaceString(addon.BAG_IDS.BAGS)
 	if self.atBank and self.db.profile.showBank then
-		dataobj.text = format("%s |cff7777ff%s|r", bags, BuildSpaceString(addon.BAG_IDS.BANK))
+		dataObject.text = format("%s |cff7777ff%s|r", bags, BuildSpaceString(addon.BAG_IDS.BANK))
 	else
-		dataobj.text = bags
+		dataObject.text = bags
 	end
 end
 

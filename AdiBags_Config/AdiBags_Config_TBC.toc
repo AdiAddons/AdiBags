@@ -2,6 +2,7 @@
 
 ## Title: AdiBags Configuration
 ## Notes: Adirelle's bag addon.
+## IconAtlas: bag-main
 ## Author: Adirelle
 ## Version: @project-version@
 ## X-Date: @project-date-iso@
