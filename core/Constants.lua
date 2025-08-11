@@ -30,13 +30,13 @@ addon.isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 addon.isBCC = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
 addon.isWrath = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 addon.isCata = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
+addon.isWoD = WOW_PROJECT_ID == WOW_PROJECT_WOD_CLASSIC
 
 --<GLOBALS
 local _G = _G
 local BACKPACK_CONTAINER = _G.BACKPACK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Backpack ) or 0
 local REAGENTBAG_CONTAINER = ( Enum.BagIndex and Enum.BagIndex.REAGENTBAG_CONTAINER ) or 5
 local BANK_CONTAINER = _G.BANK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Bank ) or -1
-local REAGENTBANK_CONTAINER = _G.REAGENTBANK_CONTAINER or ( Enum.BagIndex and Enum.BagIndex.Reagentbank ) or -3
 local NUM_BAG_SLOTS = _G.NUM_BAG_SLOTS
 local NUM_REAGENTBAG_SLOTS = _G.NUM_REAGENTBAG_SLOTS
 local NUM_TOTAL_EQUIPPED_BAG_SLOTS = _G.NUM_TOTAL_EQUIPPED_BAG_SLOTS
@@ -48,29 +48,14 @@ local pairs = _G.pairs
 
 -- Backpack and bags
 local BAGS = { [BACKPACK_CONTAINER] = BACKPACK_CONTAINER }
-
-local BANK = {}
-local BANK_ONLY = {}
-local REAGENTBANK_ONLY = {}
-
 if addon.isRetail then
-
-	-- Bags
 	for i = 1, NUM_TOTAL_EQUIPPED_BAG_SLOTS do BAGS[i] = i end
-
-	-- Base bank bags
-	BANK_ONLY = { [BANK_CONTAINER] = BANK_CONTAINER }
-	for i = NUM_TOTAL_EQUIPPED_BAG_SLOTS + 1, NUM_TOTAL_EQUIPPED_BAG_SLOTS + NUM_BANKBAGSLOTS do BANK_ONLY[i] = i end
-
-	--- Reagent bank bags
-	REAGENTBANK_ONLY = { [REAGENTBANK_CONTAINER] = REAGENTBANK_CONTAINER }
-
-	-- All bank bags
-	for _, bags in ipairs { BANK_ONLY, REAGENTBANK_ONLY } do
-		for id in pairs(bags) do BANK[id] = id end
-	end
 else
 	for i = 1, NUM_BAG_SLOTS do BAGS[i] = i end
+end
+
+local BANK = {}
+if not addon.isRetail then
 	BANK = { [BANK_CONTAINER] = BANK_CONTAINER }
 	for i = NUM_BAG_SLOTS + 1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do BANK[i] = i end
 end
@@ -129,8 +114,6 @@ addon.TRADESKILL_MAP = {
 addon.BAG_IDS = {
 	BAGS = BAGS,
 	BANK = BANK,
-	BANK_ONLY = BANK_ONLY,
-	REAGENTBANK_ONLY = REAGENTBANK_ONLY,
 	ALL = ALL
 }
 
@@ -240,13 +223,6 @@ addon.DEFAULT_SETTINGS = {
 				insets = 3,
 				color = { 0, 0, 0.0, 1 },
 			},
-			reagentBank = {
-				background = "Blizzard Dialog Background",
-				border = "Blizzard Tooltip",
-				borderWidth = 16,
-				insets = 3,
-				color = { 0, 0.0, 0, 1 },
-			},
 			themes = {
 				default = {
 					backpack = {
@@ -267,15 +243,6 @@ addon.DEFAULT_SETTINGS = {
 						bagFont = addon.BagFontDefault,
 						sectionFont = addon.SectionFontDefault,
 
-					},
-					reagentBank = {
-						background = "Blizzard Dialog Background",
-						border = "Blizzard Tooltip",
-						borderWidth = 16,
-						insets = 3,
-						color = { 0, 0.0, 0, 1 },
-						bagFont = addon.BagFontDefault,
-						sectionFont = addon.SectionFontDefault,
 					},
 				},
 			},

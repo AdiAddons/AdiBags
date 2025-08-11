@@ -1,2 +1,4 @@
 /libs/**
 /.vscode/settings.json
+.idea
+.release

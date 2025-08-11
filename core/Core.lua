@@ -62,7 +62,7 @@ local function DebugTable(t, prevKey)
 end
 --@end-debug@
 
-local bagKeys = {"backpack", "bank", "reagentBank"}
+local bagKeys = {"backpack", "bank"}
 function addon:OnInitialize()
 	-- Create the default font settings for each bag type.
 	for _, name in ipairs(bagKeys) do
@@ -122,7 +122,7 @@ function addon:OnEnable()
 	self:RegisterEvent('BAG_UPDATE')
 	self:RegisterEvent('BAG_UPDATE_DELAYED')
 	self:RegisterBucketEvent('PLAYERBANKSLOTS_CHANGED', 0.01, 'BankUpdated')
-	if addon.isRetail then
+	if addon.isWoD then
 		self:RegisterBucketEvent('PLAYERREAGENTBANKSLOTS_CHANGED', 0.01, 'ReagentBankUpdated')
 	end
 
@@ -336,9 +336,10 @@ end
 local updatedBags = {}
 local updatedBank = { [BANK_CONTAINER] = true }
 local updatedReagentBank = {}
-if addon.isRetail then
-	updatedReagentBank = { [REAGENTBANK_CONTAINER] = true }
-end
+-- Relevant when WoD Classic comes about
+--if addon.isRetail then
+--	updatedReagentBank = { [REAGENTBANK_CONTAINER] = true }
+--end
 
 function addon:BAG_UPDATE(event, bag)
 	updatedBags[bag] = true
@@ -355,9 +356,11 @@ end
 
 function addon:BankUpdated(slots)
 	-- Wrap several PLAYERBANKSLOTS_CHANGED into one AdiBags_BagUpdated message
-	for slot in pairs(slots) do
-		if slot > 0 and slot <= NUM_BANKGENERIC_SLOTS then
-			return self:SendMessage('AdiBags_BagUpdated', updatedBank)
+	if not addon.isRetail then
+		for slot in pairs(slots) do
+			if slot > 0 and slot <= NUM_BANKGENERIC_SLOTS then
+				return self:SendMessage('AdiBags_BagUpdated', updatedBank)
+			end
 		end
 	end
 end

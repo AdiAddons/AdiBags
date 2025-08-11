@@ -217,7 +217,6 @@ function containerProto:OnCreate(name, isBank, bagObject)
 
 	if addon.isRetail then
 		if self.isBank then
-			self:CreateReagentTabButton()
 			self:CreateDepositButton()
 		end
 		self:CreateSortButton()
@@ -276,10 +275,10 @@ function containerProto:OnCreate(name, isBank, bagObject)
 		if isBank then
 			if C_Container then
 				hooksecurefunc(C_Container, 'SortBankBags', ForceFullLayout)
-				hooksecurefunc(C_Container, 'SortReagentBankBags', ForceFullLayout)
+				--hooksecurefunc(C_Container, 'SortReagentBankBags', ForceFullLayout)
 			else
 				hooksecurefunc('SortBankBags', ForceFullLayout)
-				hooksecurefunc('SortReagentBankBags', ForceFullLayout)
+				--hooksecurefunc('SortReagentBankBags', ForceFullLayout)
 			end
 		else
 			if C_Container then
@@ -341,25 +340,27 @@ end
 end
 
 function containerProto:CreateDepositButton()
-	local button = self:CreateModuleAutoButton(
-		"D",
-		0,
-		REAGENTBANK_DEPOSIT,
-		L["auto-deposit"],
-		"autoDeposit",
-		function()
-			DepositReagentBank()
-			for bag in pairs(self:GetBagIds()) do
-				self:UpdateContent(bag)
-			end
-		end,
-		L["You can block auto-deposit ponctually by pressing a modified key while talking to the banker."]
-	)
+	if not addon.isRetail then
+		local button = self:CreateModuleAutoButton(
+				"D",
+				0,
+				REAGENTBANK_DEPOSIT,
+				L["auto-deposit"],
+				"autoDeposit",
+				function()
+					DepositReagentBank()
+					for bag in pairs(self:GetBagIds()) do
+						self:UpdateContent(bag)
+					end
+				end,
+				L["You can block auto-deposit ponctually by pressing a modified key while talking to the banker."]
+		)
 
-	if not IsReagentBankUnlocked() then
-		button:Hide()
-		button:SetScript('OnEvent', button.Show)
-		button:RegisterEvent('REAGENTBANK_PURCHASED')
+		if not IsReagentBankUnlocked() then
+			button:Hide()
+			button:SetScript('OnEvent', button.Show)
+			button:RegisterEvent('REAGENTBANK_PURCHASED')
+		end
 	end
 end
 
@@ -380,7 +381,9 @@ function containerProto:CreateSortButton()
 		10,
 		function()
 			addon:CloseAllBags()
-			self.bagObject:Sort(self.isReagentBank)
+			if not addon.isRetail then
+				self.bagObject:Sort(self.isReagentBank)
+			end
 			self.forceLayout = true
 		end,
 		L["(Blizzard's) Sort items"]
@@ -399,33 +402,35 @@ function containerProto:CreateLockButton()
 end
 
 function containerProto:CreateReagentTabButton()
-	local button
-	button = self:CreateModuleButton(
-		"R",
-		0,
-		function()
-			if not IsReagentBankUnlocked() then
-				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
-				return StaticPopup_Show("CONFIRM_BUY_REAGENTBANK_TAB")
-			end
-			self:ShowReagentTab(not self.isReagentBank)
-		end,
-		function(_, tooltip)
-			if not IsReagentBankUnlocked() then
-				tooltip:AddLine(BANKSLOTPURCHASE, 1, 1, 1)
-				tooltip:AddLine(REAGENTBANK_PURCHASE_TEXT)
-				SetTooltipMoney(tooltip, GetReagentBankCost(), nil, COSTS_LABEL)
-				return
-			end
-			tooltip:AddLine(
-				format(
-					L['Click to swap between %s and %s.'],
-					REAGENT_BANK:lower(),
-					L["Bank"]:lower()
-				)
-			)
-		end
-	)
+	if not addon.isRetail then
+		local button
+		button = self:CreateModuleButton(
+				"R",
+				0,
+				function()
+					if not IsReagentBankUnlocked() then
+						PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
+						return StaticPopup_Show("CONFIRM_BUY_REAGENTBANK_TAB")
+					end
+					self:ShowReagentTab(not self.isReagentBank)
+				end,
+				function(_, tooltip)
+					if not IsReagentBankUnlocked() then
+						tooltip:AddLine(BANKSLOTPURCHASE, 1, 1, 1)
+						tooltip:AddLine(REAGENTBANK_PURCHASE_TEXT)
+						SetTooltipMoney(tooltip, GetReagentBankCost(), nil, COSTS_LABEL)
+						return
+					end
+					tooltip:AddLine(
+							format(
+									L['Click to swap between %s and %s.'],
+									REAGENT_BANK:lower(),
+									L["Bank"]:lower()
+							)
+					)
+				end
+		)
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -435,8 +440,8 @@ end
 function containerProto:GetBagIds()
 	if addon.isRetail then
 		return BAG_IDS[
-			self.isReagentBank and "REAGENTBANK_ONLY" or
-			self.isBank and "BANK_ONLY" or
+			--self.isReagentBank and "REAGENTBANK_ONLY" or
+			self.isBank and "BANK" or
 			"BAGS"
 		]
 	else
@@ -515,32 +520,34 @@ function containerProto:RefreshContents()
 end
 
 function containerProto:ShowReagentTab(show)
-	self:Debug('ShowReagentTab', show)
+	if not addon.isRetail then
+		self:Debug('ShowReagentTab', show)
 
-	self.Title:SetText(show and REAGENT_BANK or L["Bank"])
-	self.BagSlotButton:SetEnabled(not show)
-	if show and self.BagSlotPanel:IsShown() then
-		self.BagSlotPanel:Hide()
-		self.BagSlotButton:SetChecked(false)
+		self.Title:SetText(show and REAGENT_BANK or L["Bank"])
+		self.BagSlotButton:SetEnabled(not show)
+		if show and self.BagSlotPanel:IsShown() then
+			self.BagSlotPanel:Hide()
+			self.BagSlotButton:SetChecked(false)
+		end
+		BankFrame.selectedTab = show and 2 or 1
+
+		local previousBags = self:GetBagIds()
+		self.isReagentBank = show
+
+		if self.isReagentBank then
+			self.Title:SetFontObject(addon.fonts.reagentBank.bagFont)
+		else
+			self.Title:SetFontObject(addon.fonts[string.lower(self.name)].bagFont)
+		end
+
+		for bag in pairs(previousBags) do
+			self:UpdateContent(bag)
+		end
+		self.forceLayout = true
+		self:RefreshContents()
+		self:UpdateSkin()
+		self:UpdateSectionFonts()
 	end
-	BankFrame.selectedTab = show and 2 or 1
-
-	local previousBags = self:GetBagIds()
-	self.isReagentBank = show
-
-	if self.isReagentBank then
-		self.Title:SetFontObject(addon.fonts.reagentBank.bagFont)
-	else
-		self.Title:SetFontObject(addon.fonts[string.lower(self.name)].bagFont)
-	end
-
-	for bag in pairs(previousBags) do
-		self:UpdateContent(bag)
-	end
-	self.forceLayout = true
-	self:RefreshContents()
-	self:UpdateSkin()
-	self:UpdateSectionFonts()
 end
 
 function containerProto:UpdateSectionFonts()

@@ -67,7 +67,7 @@ do
 	function IterateBuiltInContainers()
 		if addon:GetInteractingWindow() == "BANKFRAME" then
 			if addon.isRetail then
-				return iter, NUM_TOTAL_EQUIPPED_BAG_SLOTS+1 + NUM_BANKBAGSLOTS, -1
+				return iter, NUM_TOTAL_EQUIPPED_BAG_SLOTS+1, -1
 			else
 				return iter, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS, -1
 			end
