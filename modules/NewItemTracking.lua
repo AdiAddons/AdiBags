@@ -65,6 +65,7 @@ function mod:OnInitialize()
 			glowColor = { 0.3, 1, 0.3, 0.7 },
 			ignoreJunk = false,
 			highlightChangedItems = false,
+			putInNewSection = true,
 		},
 	})
 
@@ -179,7 +180,7 @@ function mod:BAG_NEW_ITEMS_UPDATED(event)
 end
 
 function mod:Filter(slotData)
-	if self:IsNew(slotData.bag, slotData.slot, slotData.link) then
+	if self.db.profile.putInNewSection and self:IsNew(slotData.bag, slotData.slot, slotData.link) then
 		self:UpdateModuleButton()
 		return L["Recent Items"]
 	end
@@ -235,6 +236,11 @@ function mod:GetOptions()
 			order = 50,
 			width = 'double'
 		}
+		putInNewSection = {
+			name = L['Put new items in "New" section'],
+			type = 'toggle',
+			order = 60,
+		},
 	}, addon:GetOptionHandler(self)
 end
 
